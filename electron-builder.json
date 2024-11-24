@@ -1,0 +1,21 @@
+{
+  "appId": "com.dev.security",
+  "files": [
+    "dist-electron",
+    "dist-rect"
+  ],
+  "icon": "src/assets/icon.png",
+  "mac": {
+    "target": "dmg"
+  },
+  "linux": {
+    "target": "AppImage",
+    "category": "Utility"
+  },
+  "win": {
+    "target": [
+      "portable",
+      "msi"
+    ]
+  }
+}
