@@ -24,3 +24,7 @@ dist-electron
 *.njsproj
 *.sln
 *.sw?
+
+# db
+msg.db
+*.db

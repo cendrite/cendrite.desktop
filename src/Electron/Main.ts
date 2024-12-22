@@ -1,8 +1,10 @@
 import { app, BrowserWindow } from 'electron';
 import path from "path";
 import { getPreloadPath, isDevelopment } from "./Utilities.js";
+import { initializeDatabase } from './Persistence/Context/DatabaseContext.js';
 
-app.on("ready", () => {
+app.on("ready", async () => {
+    await initializeDatabase();
     const mainWindow = new BrowserWindow({
         webPreferences: {
             nodeIntegration: false,
