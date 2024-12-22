@@ -16,7 +16,7 @@ test.beforeEach(async () => {
   console.log('Launching Electron from =>', entryPath); // <--- add a debug log
 
   electronApp = await _electron.launch({
-    args: [entryPath, '--no-sandbox'],
+    args: [entryPath],
     env: { NODE_ENV: 'development' },
   });
 
