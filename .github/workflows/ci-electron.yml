@@ -1,0 +1,51 @@
+name: CI - Electron App
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      # Install dependencies
+      - name: Install Dependencies
+        run: npm install
+
+      # Run Linting
+      - name: Run Lint
+        run: npm run lint
+
+      # Build React (Frontend)
+      - name: Build React App
+        run: npm run build:react
+
+      # Transpile Electron Code (Backend)
+      - name: Transpile Electron Code
+        run: npm run transpile:electron
+
+      # Install Playwright Browsers
+      - name: Install Playwright Browsers
+        run: npx playwright install chromium --with-deps
+
+      # Run Playwright tests (integration test)
+      - name: Run Playwright tests
+        run: npm run test:integration
+
+      # Run vitest (unit test)
+      - name: Run Tests
+        run: npm run test
