@@ -1,0 +1,65 @@
+name: CI - Electron App
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  build-and-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Lint
+        run: npm run lint
+
+      - name: Build React App
+        run: npm run build
+
+      - name: Transpile Electron Code
+        run: npm run transpile:electron
+
+      - name: list contents after transpile
+        run: |
+          echo "=== $(pwd) ==="
+          ls -la
+          echo "=== dist-electron ==="
+          ls -la dist-electron
+
+
+      - name: Upload Transpiled Electron Code
+        uses: actions/upload-artifact@v4
+        with:
+          name: electron-dist
+          path: dist-electron
+
+  test-unit:
+    needs: build-and-lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Vitest Tests
+        run: npm run test:unit

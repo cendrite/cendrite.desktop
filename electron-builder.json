@@ -1,6 +1,7 @@
 {
   "appId": "com.dev-cypherly",
   "files": ["dist-electron", "dist-react"],
+  "extraResources": ["dist-electron/Preload.cjs"],
   "icon": "./dsktop-icon.png",
   "mac": {
     "target": "dmg"

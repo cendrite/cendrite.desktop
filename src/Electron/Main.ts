@@ -1,9 +1,16 @@
-import {app, BrowserWindow} from 'electron';
+import { app, BrowserWindow } from 'electron';
 import path from "path";
-import {isDevelopment} from "./Utilities.js";
+import { getPreloadPath, isDevelopment } from "./Utilities.js";
+import { initializeDatabase } from './Persistence/Context/DatabaseContext.js';
 
-app.on("ready", () => {
-    const mainWindow = new BrowserWindow({});
+app.on("ready", async () => {
+    await initializeDatabase();
+    const mainWindow = new BrowserWindow({
+        webPreferences: {
+            nodeIntegration: false,
+            preload: path.join(getPreloadPath())
+        }
+    });
     if (isDevelopment()) {
         mainWindow.loadURL("http://localhost:4200");
     } else {
