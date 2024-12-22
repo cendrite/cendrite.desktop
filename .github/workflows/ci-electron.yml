@@ -47,94 +47,25 @@ jobs:
 
   test-integration:
     needs: build-and-lint
+    timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Install Linux dependencies for Playwright + Electron
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-          libwoff1 \
-          libvpx9 \
-          libevent-2.1-7 \
-          libopus0 \
-          libgstreamer-plugins-base1.0-0 \
-          libgstreamer-gl1.0-0 \
-          libgstreamer-plugins-bad1.0-0 \
-          libflite1 \
-          libavif16 \
-          libharfbuzz-icu0 \
-          libsecret-1-0 \
-          libhyphen0 \
-          libmanette-0.2-0 \
-          libgles2 \
-          gstreamer1.0-libav \
-          libgtk-3-0 \
-          libnss3 \
-          libasound2 \
-          libxss1 \
-          libxtst6 \
-          libx11-xcb1 \
-          libx11-xcb-dev \
-          libcurl4 \
-          libdrm2 \
-          libgbm1 \
-          libgconf-2-4
-
-      - name: Download Transpiled Electron Code
-        uses: actions/download-artifact@v4
-        with:
-         name: electron-dist
-         path: dist-electron
-
-      - name: list dist-electron
-        run: |
-          echo "=== dist-electron contents ==="
-           ls -la dist-electron
-          find dist-electron
-    
-      - name: list electron
-        run: npm list electron
-    
-      - name: Install Playwright Browsers
-        run: npx playwright install
-
-      - name: Fix SUID sandbox for Electron
-        run: |
-          sudo chown root:root node_modules/electron/dist/chrome-sandbox
-          sudo chmod 4755 node_modules/electron/dist/chrome-sandbox
-
-      - name: Install xvfb
-        run: sudo apt-get install -y xvfb
-
-      - name: Manually test Electron
-        run: |
-          Xvfb :99 &
-          export DISPLAY=:99
-          npx electron --version
-
-      - name: Run integration tests
-        run: |
-          xvfb-run --auto-servernum npm run test:integration
-
-      - name: Upload Playwright Report
-        uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 30
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+    - name: Install dependencies
+      run: npm ci
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+    - name: Run Playwright tests
+      run: npx playwright test
+    - uses: actions/upload-artifact@v4
+      if: ${{ !cancelled() }}
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30
 
   test-unit:
     needs: build-and-lint
