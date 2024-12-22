@@ -13,12 +13,16 @@ test.beforeEach(async () => {
     entryPath = distPath;
   }
 
-  console.log('Launching Electron from =>', entryPath); // <--- add a debug log
+  try {
+    electronApp = await _electron.launch({
+      args: [entryPath],
+      env: { NODE_ENV: 'development' },
+    });
+  } catch (err) {
+    console.error('Electron failed to launch:', err);
+    throw err;
+  }
 
-  electronApp = await _electron.launch({
-    args: [entryPath],
-    env: { NODE_ENV: 'development' },
-  });
 
   mainPage = await electronApp.firstWindow();
 });
