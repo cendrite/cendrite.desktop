@@ -13,18 +13,12 @@ test.beforeEach(async () => {
     entryPath = distPath;
   }
 
-  try {
-    electronApp = await _electron.launch({
-      args: [entryPath],
-      env: { NODE_ENV: 'development' },
-    });
-  } catch (err) {
-    console.error('Electron failed to launch! Error name:', err.name);
-    console.error('Error message:', err.message);
-    console.error('Full error stack:', err.stack);
-    throw err;
-  }
+  console.log('Launching Electron from =>', entryPath); // <--- add a debug log
 
+  electronApp = await _electron.launch({
+    args: [entryPath, '--no-sandbox'],
+    env: { NODE_ENV: 'development' },
+  });
 
   mainPage = await electronApp.firstWindow();
 });
