@@ -6,17 +6,20 @@ let electronApp: Awaited<ReturnType<typeof _electron.launch>>;
 let mainPage: Awaited<ReturnType<typeof electronApp.firstWindow>>;
 
 test.beforeEach(async () => {
-
   let entryPath = '.';
-  const distPath = path.join(process.cwd(), 'dist-electron', 'Main.js');
-  if (!fs.existsSync(distPath)) {
+  const distPath = path.join(process.cwd(), 'dist-electron', 'main.js');
+
+  if (fs.existsSync(distPath)) {
     entryPath = distPath;
   }
 
+  console.log('Launching Electron from =>', entryPath); // <--- add a debug log
+
   electronApp = await _electron.launch({
-    args: ['.'],
+    args: [entryPath],
     env: { NODE_ENV: 'development' },
   });
+
   mainPage = await electronApp.firstWindow();
 });
 
