@@ -61,7 +61,7 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Install Linux dependencies for Playwright
+      - name: Install Linux dependencies for Playwright + Electron
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -79,7 +79,18 @@ jobs:
           libhyphen0 \
           libmanette-0.2-0 \
           libgles2 \
-          gstreamer1.0-libav
+          gstreamer1.0-libav \
+          libgtk-3-0 \
+          libnss3 \
+          libasound2 \
+          libxss1 \
+          libxtst6 \
+          libx11-xcb1 \
+          libx11-xcb-dev \
+          libcurl4 \
+          libdrm2 \
+          libgbm1 \
+          libgconf-2-4
 
       - name: Download Transpiled Electron Code
         uses: actions/download-artifact@v4
