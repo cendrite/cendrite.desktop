@@ -58,9 +58,6 @@ jobs:
         with:
          name: electron-dist
 
-      - name: Verify Artifact Contents
-        run: dir dist-electron
-
       - name: Install Playwright Browsers
         run: npx playwright install
 
