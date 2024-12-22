@@ -1,9 +1,18 @@
 import { test, expect, _electron } from '@playwright/test';
+import path from 'path';
+import fs from 'fs';
 
 let electronApp: Awaited<ReturnType<typeof _electron.launch>>;
 let mainPage: Awaited<ReturnType<typeof electronApp.firstWindow>>;
 
 test.beforeEach(async () => {
+
+  let entryPath = '.';
+  const distPath = path.join(process.cwd(), 'dist-electron', 'Main.js');
+  if (!fs.existsSync(distPath)) {
+    entryPath = distPath;
+  }
+
   electronApp = await _electron.launch({
     args: ['.'],
     env: { NODE_ENV: 'development' },
