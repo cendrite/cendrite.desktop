@@ -99,6 +99,11 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install
 
+      - name: Fix SUID sandbox for Electron
+        run: |
+          sudo chown root:root node_modules/electron/dist/chrome-sandbox
+          sudo chmod 4755 node_modules/electron/dist/chrome-sandbox
+
       - name: Manually test Electron
         run: |
           Xvfb :99 &
