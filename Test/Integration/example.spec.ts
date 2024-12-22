@@ -19,7 +19,9 @@ test.beforeEach(async () => {
       env: { NODE_ENV: 'development' },
     });
   } catch (err) {
-    console.error('Electron failed to launch:', err);
+    console.error('Electron failed to launch! Error name:', err.name);
+    console.error('Error message:', err.message);
+    console.error('Full error stack:', err.stack);
     throw err;
   }
 
