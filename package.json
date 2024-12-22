@@ -17,17 +17,22 @@
     "dist:win": "npm run transpile:electron && npm run build && electron-builder --win --x64"
   },
   "dependencies": {
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "reflect-metadata": "^0.2.2",
     "sqlite3": "^5.1.7",
+    "tailwindcss": "^3.4.17",
     "typeorm": "^0.3.20"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
     "@types/os-utils": "^0.0.4",
+    "@types/plist": "^3.0.5",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.1",
+    "@types/verror": "^1.10.10",
     "@vitejs/plugin-react": "^4.3.3",
     "cross-env": "^7.0.3",
     "electron": "^33.2.0",
