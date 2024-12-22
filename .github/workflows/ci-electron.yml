@@ -35,7 +35,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: electron-dist
-          path: dist-electron/
+          path: ./dist-electron
 
   test-integration:
     needs: build-and-lint
