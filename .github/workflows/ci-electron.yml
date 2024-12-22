@@ -72,8 +72,10 @@ jobs:
           echo "=== dist-electron contents ==="
            ls -la dist-electron
           find dist-electron
-
-
+    
+      - name: list electron
+        run: npm list electron
+    
       - name: Install Playwright Browsers
         run: npx playwright install
 
