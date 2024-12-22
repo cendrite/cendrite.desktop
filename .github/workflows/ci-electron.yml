@@ -35,7 +35,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: electron-dist
-          path: dist-electron/
+          path: ./dist-electron
 
   test-integration:
     needs: build-and-lint
@@ -57,9 +57,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
          name: electron-dist
-
-      - name: Verify Artifact Contents
-        run: dir dist-electron
 
       - name: Install Playwright Browsers
         run: npx playwright install
