@@ -7,45 +7,89 @@ on:
     branches: [main, develop]
 
 jobs:
-  test-and-build:
+  build-and-lint:
     runs-on: ubuntu-latest
-
     steps:
-      # Checkout code
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Set up Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
           cache: npm
 
-      # Install dependencies
       - name: Install Dependencies
         run: npm install
 
-      # Run Linting
       - name: Run Lint
         run: npm run lint
 
-      # Build React (Frontend)
       - name: Build React App
-        run: npm run build:react
+        run: npm run build
 
-      # Transpile Electron Code (Backend)
       - name: Transpile Electron Code
         run: npm run transpile:electron
 
-      # Install Playwright Browsers
-      - name: Install Playwright Browsers
-        run: npx playwright install chromium --with-deps
+      - name: Upload Transpiled Electron Code
+        uses: actions/upload-artifact@v4
+        with:
+          name: electron-dist
+          path: dist-electron/
 
-      # Run Playwright tests (integration test)
-      - name: Run Playwright tests
+  test-integration:
+    needs: build-and-lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Download Transpiled Electron Code
+        uses: actions/download-artifact@v4
+        with:
+         name: electron-dist
+
+      - name: Verify Artifact Contents
+        run: dir dist-electron
+
+      - name: Install Playwright Browsers
+        run: npx playwright install
+
+      - name: Run Playwright Tests
         run: npm run test:integration
 
-      # Run vitest (unit test)
-      - name: Run Tests
-        run: npm run test
+      - name: Upload Playwright Report
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
+  test-unit:
+    needs: build-and-lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Vitest Tests
+        run: npm run test:unit

@@ -16,7 +16,7 @@
     "dist:mac": "npm run transpile:electron && npm run build && electron-builder --mac --arm64",
     "dist:linux": "npm run transpile:electron && npm run build && electron-builder --linux --x64",
     "dist:win": "npm run transpile:electron && npm run build && electron-builder --win --x64",
-    "test:integration": "playwright test && rimraf test-results",
+    "test:integration": "playwright test && rimraf test-results && rimraf playwright-report",
     "test:unit": "vitest --run ./Test/Unit"
   },
   "dependencies": {
