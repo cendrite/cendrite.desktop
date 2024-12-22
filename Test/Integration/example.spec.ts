@@ -7,7 +7,7 @@ let mainPage: Awaited<ReturnType<typeof electronApp.firstWindow>>;
 
 test.beforeEach(async () => {
   let entryPath = '.';
-  const distPath = path.join(process.cwd(), 'dist-electron', 'main.js');
+  const distPath = path.join(process.cwd(), 'dist-electron', 'Main.js');
 
   if (fs.existsSync(distPath)) {
     entryPath = distPath;
