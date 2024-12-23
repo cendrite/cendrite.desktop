@@ -12,7 +12,7 @@ app.on("ready", async () => {
         }
     });
     if (isDevelopment()) {
-        mainWindow.loadURL("http://localhost:4200");
+        mainWindow.loadURL("http://localhost:8080");
     } else {
         mainWindow.loadFile(path.join(app.getAppPath(), './dist-react/index.html'))
     }
