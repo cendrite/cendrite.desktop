@@ -114,6 +114,16 @@ const RegisterPage: React.FC = () => {
             </Form>
           )}
         </Formik>
+
+        {/* Navigation link */}
+        <div className="mt-4">
+          <p>
+            Already have an account?{" "}
+            <span className="text-blue-400 cursor-pointer hover:underline" onClick={() => navigate("/login")}>
+              login
+            </span>
+          </p>
+        </div>
       </div>
     </div>
   );
