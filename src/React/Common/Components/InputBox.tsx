@@ -1,6 +1,7 @@
 import React from "react";
 
 interface InputBoxProps {
+  name?: string;
   type: string;
   placeholder: string;
   value: string;
@@ -8,10 +9,11 @@ interface InputBoxProps {
   isRounded?: boolean;
 }
 
-const InputBox: React.FC<InputBoxProps> = ({ type, placeholder, value, onChange, isRounded = false }) => {
+const InputBox: React.FC<InputBoxProps> = ({ name, type, placeholder, value, onChange, isRounded = false }) => {
   return (
     <div className="w-full mb-4">
       <input
+        name={name ?? "default"}
         type={type}
         placeholder={placeholder}
         value={value}
