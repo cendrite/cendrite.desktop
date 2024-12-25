@@ -1,16 +1,24 @@
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../Redux/Store";
+import { useSelector } from "react-redux";
+import { RootState } from "../../Redux/Store";
+import { Formik } from "formik";
+import { InitialVerifyUserValues } from "./Form/InitialVerifyUserValues";
+import { VerifyUserValidationSchema } from "./Validation/VerifyUserFormValidation";
 
 const VerifyUserPage: React.FC = () => {
   const registerState = useSelector((state: RootState) => state.register);
 
+  const handleSubmit = () => {};
+
   return (
-    <div>
-      <h1>Verify User</h1>
-      <p>Email: {registerState.email}</p>
-      <p>Username: {registerState.username}</p>
-      <p>User ID: {registerState.UserId}</p>
+    <div className="flex flex-col justify-center items-center h-screen bg-zinc-950 text-white">
+      <div className="flex flex-col items-center w-full max-w-xs">
+        <Formik
+          initialValues={InitialVerifyUserValues}
+          validationSchema={VerifyUserValidationSchema}
+          onSubmit={handleSubmit}
+        ></Formik>
+      </div>
     </div>
   );
 };
