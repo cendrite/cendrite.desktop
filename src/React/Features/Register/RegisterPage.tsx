@@ -17,7 +17,7 @@ const RegisterPage: React.FC = () => {
   const handleSubmit = async (values: RegisterRequest, { setFieldError }: FormikHelpers<RegisterFormValues>) => {
     const result = await registerApi.handle(values);
     if (result.success) {
-      console.log("Registration successful!");
+      navigate("/verifyUser");
     } else {
       if (result.errorMessage!.message.includes(RegisterFieldName.Email)) {
         setFieldError(RegisterFieldName.Email, result.errorMessage!.message);
