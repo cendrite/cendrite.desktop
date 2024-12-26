@@ -1,6 +1,6 @@
 import { AxiosError } from "axios";
-import { ErrorMessage } from "../../../../../Common/Result/ErrorMessage";
-import { Result } from "../../../../../Common/Result/Result";
+import { ErrorMessage } from "../../../../../Shared/Result/ErrorMessage";
+import { Result } from "../../../../../Shared/Result/Result";
 import { AuthenticationBaseAPI } from "../../../../Common/Api/BaseApi";
 import { ResendCodeRequest } from "./ResendCodeRequest";
 
