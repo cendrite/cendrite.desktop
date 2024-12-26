@@ -9,14 +9,17 @@ export class VerifyUserApi extends AuthenticationBaseAPI<VerifyUserRequest> {
 
     public async handle(request: VerifyUserRequest): Promise<Result> {
         try {
-            const repsone: AxiosResponse<Envelope> = await this.api.put('verify', request)
+            const repsone: AxiosResponse<Envelope> = await this.api.put('/verify', request)
             if (repsone.status === 200) {
                 return Result.success();
             }
+            else {
+                const errorMessage = repsone.data.errorMessage || "Unknown error occurred during verification.";
+                return Result.fail(ErrorMessage.fromApiResponse("VerificationFailed", errorMessage));
+            }
 
-            const errorMessage = repsone.data.errorMessage || "Unknown error occurred during verification.";
-            return Result.fail(ErrorMessage.fromApiResponse("VerificationFailed", errorMessage));
         } catch (error) {
+
             if (error instanceof AxiosError && error.response) {
                 const errorMessage = error.response.data?.errorMessage || "An error occurred while registering.";
                 return Result.fail(
@@ -24,7 +27,7 @@ export class VerifyUserApi extends AuthenticationBaseAPI<VerifyUserRequest> {
                 );
             }
 
-            // Debug unexpected errors
+            // log unexp errors
             console.error("Unexpected error during registration:", error);
 
             return Result.fail(
