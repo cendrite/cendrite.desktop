@@ -9,14 +9,21 @@ import FormButton from "../../Common/Components/FormButton";
 import ErrorTooltip from "../../Common/Components/ErrorToolTip";
 import { initialRegisterValues } from "./Form/InitialRegisterFormValues";
 import { RegisterValidationSchema } from "./Validation/RegisterFormValidation";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../Redux/Store";
+import { setEmail, setUserId, setUsername } from "../../Redux/States/RegisterState";
 
 const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
   const registerApi = new RegisterApi();
 
   const handleSubmit = async (values: RegisterRequest, { setFieldError }: FormikHelpers<RegisterFormValues>) => {
     const result = await registerApi.handle(values);
     if (result.success) {
+      dispatch(setEmail(result.data!.email));
+      dispatch(setUsername(values.username));
+      dispatch(setUserId(result.data!.id));
       navigate("/verifyUser");
     } else {
       if (result.errorMessage!.message.includes(RegisterFieldName.Email)) {
@@ -42,7 +49,7 @@ const RegisterPage: React.FC = () => {
         >
           {({ values, errors, touched, handleChange, isSubmitting }) => (
             <Form className="flex flex-col space-y-7 items-center w-full">
-              <h1 className="text-2xl font-bold mb-6 text-center">Register</h1>
+              <h1 className="text-2xl font-bold mb-8 text-center underline">Register</h1>
 
               {/* Username field */}
               <div className="w-full relative mb-4">
