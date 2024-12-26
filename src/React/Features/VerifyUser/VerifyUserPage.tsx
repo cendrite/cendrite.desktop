@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Formik, Form, FormikHelpers } from "formik";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
