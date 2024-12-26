@@ -49,7 +49,7 @@ const RegisterPage: React.FC = () => {
         >
           {({ values, errors, touched, handleChange, isSubmitting }) => (
             <Form className="flex flex-col space-y-7 items-center w-full">
-              <h1 className="text-2xl font-bold mb-6 text-center">Register</h1>
+              <h1 className="text-2xl font-bold mb-8 text-center underline">Register</h1>
 
               {/* Username field */}
               <div className="w-full relative mb-4">

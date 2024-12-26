@@ -1,22 +1,27 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Formik, Form } from "formik";
-import React from "react";
+import { Formik, Form, FormikHelpers } from "formik";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { VerifyUserValidationSchema } from "./Validation/VerifyUserFormValidation";
 import { VerifyUserApi } from "./Api/Verify/VerifyUserApi";
 import ErrorTooltip from "../../Common/Components/ErrorToolTip";
-import { store } from "../../Redux/Store";
 import FormButton from "../../Common/Components/FormButton";
+import { ResendCodeApi } from "./Api/ResendCode/ResendCodeApi";
+import { useSelector } from "react-redux";
+import { RootState } from "../../Redux/Store";
 
 const VerifyUserPage: React.FC = () => {
   const navigate = useNavigate();
-  const [isCooldown, setIsCooldown] = React.useState(false);
-  const [isVisible, setIsVisible] = React.useState(false);
-  const [cooldownTime, setCooldownTime] = React.useState(5);
-  const registerState = store.getState().register;
+  const [isCooldown, setIsCooldown] = useState(false);
+  const [, setCooldownTime] = useState(5);
   const verifyUserApi = new VerifyUserApi();
+  const resendCodeApi = new ResendCodeApi();
+  const registerState = useSelector((state: RootState) => state.register);
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (
+    values: { verificationCode: string },
+    { setFieldError }: FormikHelpers<{ verificationCode: string }>
+  ) => {
     const result = await verifyUserApi.handle({
       userId: registerState.UserId!,
       verificationCode: values.verificationCode,
@@ -24,16 +29,16 @@ const VerifyUserPage: React.FC = () => {
     if (result.success) {
       navigate("/login");
     } else {
-      setIsVisible(true);
-      console.log(result.errorMessage);
+      console.error(result.errorMessage);
+      setFieldError("verificationCode", result.errorMessage!.message);
     }
   };
 
   const handleResendCode = () => {
     if (isCooldown) return;
-
+    resendCodeApi.handle({ userId: registerState.UserId! });
     setIsCooldown(true);
-    setCooldownTime(5);
+    setCooldownTime(7);
 
     const interval = setInterval(() => {
       setCooldownTime(prev => prev - 1);
@@ -77,6 +82,8 @@ const VerifyUserPage: React.FC = () => {
                   onChange={handleChange}
                   className="w-80 h-10 bg-zinc-800 text-white border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-white focus:border-gray-700 text-center"
                   maxLength={6}
+                  onFocus={e => (e.target.placeholder = "")}
+                  onBlur={e => (e.target.placeholder = values.verificationCode ? "" : "Enter verification code")}
                 />
               </div>
 
@@ -91,21 +98,19 @@ const VerifyUserPage: React.FC = () => {
         </Formik>
 
         {/* Resend link */}
-        {isVisible && (
-          <div className="mt-4">
-            <p>
-              Lost your code?{" "}
-              <span
-                className={`text-blue-400 cursor-pointer ${
-                  isCooldown ? "opacity-50 cursor-not-allowed" : "hover:underline"
-                }`}
-                onClick={handleResendCode}
-              >
-                {isCooldown ? "sending verification code" : "Press to resend"}
-              </span>
-            </p>
-          </div>
-        )}
+        <div className="mt-4">
+          <p>
+            Lost your code?{" "}
+            <span
+              className={`text-blue-400 cursor-pointer ${
+                isCooldown ? "opacity-50 cursor-not-allowed" : "hover:underline"
+              }`}
+              onClick={handleResendCode}
+            >
+              {isCooldown ? "sending verification code" : "Press to resend"}
+            </span>
+          </p>
+        </div>
       </div>
     </div>
   );
