@@ -1,8 +1,8 @@
 import { AxiosError } from "axios";
-import { Result } from "../../../../../Common/Result/Result";
+import { Result } from "../../../../../Shared/Result/Result";
 import { AuthenticationBaseAPI } from "../../../../Common/Api/BaseApi";
 import { VerifyUserRequest } from "./VerifyUserRequest";
-import { ErrorMessage } from "../../../../../Common/Result/ErrorMessage";
+import { ErrorMessage } from "../../../../../Shared/Result/ErrorMessage";
 
 export class VerifyUserApi extends AuthenticationBaseAPI<VerifyUserRequest> {
 

@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
-import { Result } from '../../../Common/Result/Result';
+import { Result } from '../../../Shared/Result/Result';
 
 export abstract class AuthenticationBaseAPI<Request, Response = void> {
     protected api: AxiosInstance;

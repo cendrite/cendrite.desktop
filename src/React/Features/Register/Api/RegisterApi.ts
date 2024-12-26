@@ -1,8 +1,8 @@
 import { AxiosError, AxiosResponse } from "axios";
-import { Result } from "../../../../Common/Result/Result";
+import { Result } from "../../../../Shared/Result/Result";
 import { AuthenticationBaseAPI } from "../../../Common/Api/BaseApi";
 import { RegisterRequest, RegisterResponse } from "./RegisterRequest";
-import { ErrorMessage } from "../../../../Common/Result/ErrorMessage";
+import { ErrorMessage } from "../../../../Shared/Result/ErrorMessage";
 import { Envelope } from './../../../Common/Api/Envelope';
 
 export class RegisterApi extends AuthenticationBaseAPI<RegisterRequest, RegisterResponse> {

@@ -1,9 +1,9 @@
 import { AxiosError, AxiosResponse } from "axios";
-import { Result } from "../../../../Common/Result/Result";
+import { Result } from "../../../../Shared/Result/Result";
 import { AuthenticationBaseAPI } from "../../../Common/Api/BaseApi";
 import { LoginRequest, LoginResponse } from "./LoginRequest";
 import { Envelope } from "../../../Common/Api/Envelope";
-import { ErrorMessage } from "../../../../Common/Result/ErrorMessage";
+import { ErrorMessage } from "../../../../Shared/Result/ErrorMessage";
 
 export class LoginApi extends AuthenticationBaseAPI<LoginRequest, LoginResponse> {
     public async handle(request: LoginRequest): Promise<Result<LoginResponse>> {
