@@ -1,12 +1,13 @@
 import { DataSource } from "typeorm";
 import 'reflect-metadata';
+import { Device } from "../Entities/Device.js";
 
 export const DatabaseContext = new DataSource({
     type: "sqlite",
     database: "./src/Electron/Persistence/Context/msg.db",
     logging: false,
     entities: [
-        // Import all entities here
+        Device,
     ],
     migrations: [],
     synchronize: true,
