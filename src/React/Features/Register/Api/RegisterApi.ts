@@ -9,7 +9,7 @@ export class RegisterApi extends AuthenticationBaseAPI<RegisterRequest, Register
 
     public async handle(request: RegisterRequest): Promise<Result<RegisterResponse>> {
         try {
-            const response: AxiosResponse<Envelope<RegisterResponse>> = await this.api.post('', request);
+            const response: AxiosResponse<Envelope<RegisterResponse>> = await this.api.post('User', request);
 
             if (response.status === 200) {
                 return Result.success(response.data.result!);

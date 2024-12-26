@@ -1,44 +1,87 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { LoginApi } from "./Api/LoginApi";
+import { Form, Formik, FormikHelpers } from "formik";
+import { LoginFormValidation } from "./Validation/LoginFormValidation";
+import { InitialFormValues, LoginFieldName, LoginFormValues } from "./FormValues/LoginFormValues";
 import InputBox from "../../Common/Components/InputBox";
+import ErrorTooltip from "../../Common/Components/ErrorToolTip";
 import FormButton from "../../Common/Components/FormButton";
+import { AppDispatch } from "../../Redux/Store";
+import { useDispatch } from "react-redux";
+import { setEmail, setUserId } from "../../Redux/States/RegisterState";
 
 const LoginPage: React.FC = () => {
-  const [email, setUsername] = useState("");
-  const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const loginApi = new LoginApi();
+  const dispatch = useDispatch<AppDispatch>();
 
-  const Login = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log(email, password);
+  const handleLogin = async (values: LoginFormValues, { setFieldError }: FormikHelpers<LoginFormValues>) => {
+    const result = await loginApi.handle(values);
+    if (result.success) {
+      if (result.data!.IsVerified === true) {
+        navigate("verifyDevice");
+      } else if (result.data!.IsVerified === false) {
+        dispatch(setEmail(values.email));
+        dispatch(setUserId(result.data!.UserId));
+        navigate("verifyUser");
+      }
+    } else {
+      setFieldError(LoginFieldName.Email, result.errorMessage!.message);
+    }
   };
+
+  const renderErrorTooltip = (error: string | undefined, touched: boolean) =>
+    touched && error ? (
+      <div className="absolute -top-8 left-0.6 z-50">
+        <ErrorTooltip errorMessage={error} />
+      </div>
+    ) : null;
 
   return (
     <div className="flex flex-col justify-center items-center h-screen bg-zinc-950 text-white">
       <div className="flex flex-col items-center w-full max-w-xs">
-        <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
-        <form onSubmit={Login} className="flex flex-col items-center w-full space-y-4">
-          {/* Form input fields */}
-          <InputBox type="text" placeholder="Username" value={email} onChange={e => setUsername(e.target.value)} />
-          <InputBox
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-          />
-        </form>
+        <Formik
+          initialValues={InitialFormValues} // Match the LoginFormValues shape
+          validationSchema={LoginFormValidation}
+          onSubmit={handleLogin}
+        >
+          {({ values, errors, touched, handleChange, isSubmitting }) => (
+            <Form className="flex flex-col space-y-7 items-center w-full">
+              <h1 className="text-2xl font-semibold mb-8 text-center underline">login</h1>
 
-        {/* Form submit button */}
-        <div className="mt-8">
-          <FormButton type="submit" text="Login" disabled={email === "" || password === ""} />
-        </div>
+              {/* Email field */}
+              <div className="w-full relative mb-4">
+                {touched.email && errors.email && renderErrorTooltip(errors.email, touched.email)}
+                <InputBox
+                  name={LoginFieldName.Email}
+                  type="email"
+                  placeholder="Enter your email"
+                  value={values.email}
+                  onChange={handleChange}
+                />
+              </div>
 
+              {/* Password field */}
+              <div className="w-full relative mb-4">
+                {touched.password && errors.password && renderErrorTooltip(errors.password, touched.password)}
+                <InputBox
+                  name={LoginFieldName.Password}
+                  type="password"
+                  placeholder="Enter your password"
+                  value={values.password}
+                  onChange={handleChange}
+                />
+              </div>
+              <FormButton type="submit" text={isSubmitting ? "Logging in ..." : "Login"} disabled={isSubmitting} />
+            </Form>
+          )}
+        </Formik>
         {/* Navigation link */}
         <div className="mt-4">
           <p>
             Don't have an account?{" "}
             <span className="text-blue-400 cursor-pointer hover:underline" onClick={() => navigate("/register")}>
-              Register
+              Sign up here
             </span>
           </p>
         </div>
@@ -46,5 +89,4 @@ const LoginPage: React.FC = () => {
     </div>
   );
 };
-
 export default LoginPage;

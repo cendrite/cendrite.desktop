@@ -6,7 +6,7 @@ export abstract class AuthenticationBaseAPI<Request, Response = void> {
 
     constructor() {
         this.api = axios.create({
-            baseURL: 'http://10.0.0.100:30069/api/User',
+            baseURL: 'http://10.0.0.100:30069/api/',
             headers: {
                 'Content-Type': 'application/json',
             },
