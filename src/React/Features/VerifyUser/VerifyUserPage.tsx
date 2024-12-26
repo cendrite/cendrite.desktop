@@ -1,13 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Formik, Form, Field } from "formik";
+import { Formik, Form } from "formik";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { VerifyUserValidationSchema } from "./Validation/VerifyUserFormValidation";
-import { VerifyUserApi } from "./Api/VerifyUserApi";
+import { VerifyUserApi } from "./Api/Verify/VerifyUserApi";
 import ErrorTooltip from "../../Common/Components/ErrorToolTip";
-import Button from "../../Common/Components/FormButton";
 import { store } from "../../Redux/Store";
-import { backTrackInput, focusNextInput, inhibitNonNumericInput } from "./Helpers/Input";
+import FormButton from "../../Common/Components/FormButton";
 
 const VerificationPage: React.FC = () => {
   const navigate = useNavigate();
@@ -29,31 +28,20 @@ const VerificationPage: React.FC = () => {
     }
   };
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    index: number,
-    values: any,
-    setFieldValue: any
-  ) => {
-    const value = e.target.value;
-    const updatedVerificationCode = values.verificationCode.split("");
-
-    updatedVerificationCode[index] = value;
-
-    setFieldValue("verificationCode", updatedVerificationCode.join(""));
-    focusNextInput(index, 6, e);
-  };
+  const handleResendCode = () => {};
 
   return (
-    <div className="flex justify-center items-center h-screen bg-stone-900 text-white">
-      <div className="w-full max-w-md mx-auto">
+    <div className="flex flex-col justify-center items-center h-screen bg-zinc-950 text-white">
+      <div className="flex flex-col items-center w-full max-w-xs">
         <Formik
           initialValues={{ verificationCode: "" }} // Single string to handle all 6 characters
           validationSchema={VerifyUserValidationSchema}
           onSubmit={handleSubmit}
         >
-          {({ values, errors, touched, setFieldValue, isSubmitting }) => (
+          {({ values, errors, touched, handleChange, isSubmitting }) => (
             <Form className="flex flex-col items-center w-full">
+              <h1 className="text-2xl font-bold mb-6 text-center underline">verify your account</h1>
+
               {/* Verification Code Input Boxes */}
 
               {/* Error Tooltip Container */}
@@ -64,40 +52,38 @@ const VerificationPage: React.FC = () => {
                   </div>
                 )}
               </div>
-
-              <div className="flex space-x-3">
-                {[...Array(6)].map((_, index) => (
-                  <div key={index}>
-                    <Field
-                      name={`verificationCode[${index}]`}
-                      type="text"
-                      maxLength={1}
-                      className="w-12 h-12 text-center bg-stone-800 text-white border border-gray-600 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 focus:outline-none rounded-md"
-                      value={values.verificationCode[index] || ""}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        handleInputChange(e, index, values, setFieldValue)
-                      }
-                      onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                        backTrackInput(index, e);
-                        inhibitNonNumericInput(e);
-                      }}
-                      id={`code-${index}`}
-                    />
-                  </div>
-                ))}
+              {/* Input Boxes */}
+              <div className="w-full relative mb-4">
+                <input
+                  name="verificationCode"
+                  type="text"
+                  placeholder="Enter verification code"
+                  value={values.verificationCode}
+                  onChange={handleChange}
+                  className="w-80 h-10 bg-zinc-800 text-white border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-white focus:border-gray-700 text-center"
+                  maxLength={6}
+                />
               </div>
 
               {/* Submit button */}
-              <div className="w-60 pt-5">
-                <Button
-                  type="submit"
-                  text={isSubmitting ? "Verifying..." : "Verify"}
-                  disabled={isSubmitting || values.verificationCode.length < 6}
-                />
-              </div>
+              <FormButton
+                type="submit"
+                text={isSubmitting ? "Registering..." : "Register"}
+                disabled={isSubmitting} // Disable button while submitting
+              />
             </Form>
           )}
         </Formik>
+
+        {/* Navigation link */}
+        <div className="mt-4">
+          <p>
+            Lost your code?{" "}
+            <span className="text-blue-400 cursor-pointer hover:underline" onClick={() => handleResendCode()}>
+              Press to resend
+            </span>
+          </p>
+        </div>
       </div>
     </div>
   );

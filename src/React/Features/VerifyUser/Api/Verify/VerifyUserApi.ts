@@ -1,22 +1,15 @@
-import { AxiosError, AxiosResponse } from "axios";
-import { Result } from "../../../../Common/Result/Result";
-import { AuthenticationBaseAPI } from "../../../Common/Api/BaseApi";
+import { AxiosError } from "axios";
+import { Result } from "../../../../../Common/Result/Result";
+import { AuthenticationBaseAPI } from "../../../../Common/Api/BaseApi";
 import { VerifyUserRequest } from "./VerifyUserRequest";
-import { Envelope } from "../../../Common/Api/Envelope";
-import { ErrorMessage } from "../../../../Common/Result/ErrorMessage";
+import { ErrorMessage } from "../../../../../Common/Result/ErrorMessage";
 
 export class VerifyUserApi extends AuthenticationBaseAPI<VerifyUserRequest> {
 
     public async handle(request: VerifyUserRequest): Promise<Result> {
         try {
-            const repsone: AxiosResponse<Envelope> = await this.api.put('/verify', request)
-            if (repsone.status === 200) {
-                return Result.success();
-            }
-            else {
-                const errorMessage = repsone.data.errorMessage || "Unknown error occurred during verification.";
-                return Result.fail(ErrorMessage.fromApiResponse("VerificationFailed", errorMessage));
-            }
+            await this.api.put('/verify', request)
+            return Result.success();
 
         } catch (error) {
 

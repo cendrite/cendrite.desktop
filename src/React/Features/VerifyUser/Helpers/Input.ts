@@ -31,6 +31,13 @@ export const backTrackInput = (index: number, e: React.KeyboardEvent<HTMLInputEl
 };
 
 export const inhibitNonNumericInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Allow control keys
+    const allowedKeys = ["Backspace", "ArrowLeft", "ArrowRight", "Tab", "Delete"];
+    if (allowedKeys.includes(e.key)) {
+        return; // Do not block these keys
+    }
+
+    // Block any non-numeric keys
     if (!/[0-9]/.test(e.key)) {
         e.preventDefault();
     }
