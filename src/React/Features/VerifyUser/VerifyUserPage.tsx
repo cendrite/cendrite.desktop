@@ -8,15 +8,15 @@ import ErrorTooltip from "../../Common/Components/ErrorToolTip";
 import { store } from "../../Redux/Store";
 import FormButton from "../../Common/Components/FormButton";
 
-const VerificationPage: React.FC = () => {
+const VerifyUserPage: React.FC = () => {
   const navigate = useNavigate();
+  const [isCooldown, setIsCooldown] = React.useState(false);
+  const [isVisible, setIsVisible] = React.useState(false);
+  const [cooldownTime, setCooldownTime] = React.useState(5);
   const registerState = store.getState().register;
-  console.log(registerState.UserId);
-
   const verifyUserApi = new VerifyUserApi();
 
   const handleSubmit = async (values: any) => {
-    console.log(registerState.UserId);
     const result = await verifyUserApi.handle({
       userId: registerState.UserId!,
       verificationCode: values.verificationCode,
@@ -24,11 +24,26 @@ const VerificationPage: React.FC = () => {
     if (result.success) {
       navigate("/login");
     } else {
+      setIsVisible(true);
       console.log(result.errorMessage);
     }
   };
 
-  const handleResendCode = () => {};
+  const handleResendCode = () => {
+    if (isCooldown) return;
+
+    setIsCooldown(true);
+    setCooldownTime(5);
+
+    const interval = setInterval(() => {
+      setCooldownTime(prev => prev - 1);
+    }, 1000);
+
+    setTimeout(() => {
+      clearInterval(interval);
+      setIsCooldown(false);
+    }, 5000);
+  };
 
   return (
     <div className="flex flex-col justify-center items-center h-screen bg-zinc-950 text-white">
@@ -40,7 +55,7 @@ const VerificationPage: React.FC = () => {
         >
           {({ values, errors, touched, handleChange, isSubmitting }) => (
             <Form className="flex flex-col items-center w-full">
-              <h1 className="text-2xl font-bold mb-6 text-center underline">verify your account</h1>
+              <h1 className="text-2xl font-bold mb-12 text-center underline">verify your account</h1>
 
               {/* Verification Code Input Boxes */}
 
@@ -75,18 +90,25 @@ const VerificationPage: React.FC = () => {
           )}
         </Formik>
 
-        {/* Navigation link */}
-        <div className="mt-4">
-          <p>
-            Lost your code?{" "}
-            <span className="text-blue-400 cursor-pointer hover:underline" onClick={() => handleResendCode()}>
-              Press to resend
-            </span>
-          </p>
-        </div>
+        {/* Resend link */}
+        {isVisible && (
+          <div className="mt-4">
+            <p>
+              Lost your code?{" "}
+              <span
+                className={`text-blue-400 cursor-pointer ${
+                  isCooldown ? "opacity-50 cursor-not-allowed" : "hover:underline"
+                }`}
+                onClick={handleResendCode}
+              >
+                {isCooldown ? "sending verification code" : "Press to resend"}
+              </span>
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-export default VerificationPage;
+export default VerifyUserPage;
