@@ -5,6 +5,7 @@ import { initializeDatabase } from './Persistence/Context/DatabaseContext.js';
 
 app.on("ready", async () => {
     await initializeDatabase();
+
     const mainWindow = new BrowserWindow({
         webPreferences: {
             nodeIntegration: false,

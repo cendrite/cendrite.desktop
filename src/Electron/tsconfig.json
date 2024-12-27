@@ -5,6 +5,8 @@
     "module": "NodeNext",
     "outDir": "../../dist-electron",
     "skipLibCheck": true,
-    "types": ["../Shared/Types.d.ts"]
+    "types": ["../Shared/Types.d.ts"],
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
   }
 }
