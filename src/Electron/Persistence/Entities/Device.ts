@@ -7,7 +7,7 @@ export class Device extends BaseEntity {
     @PrimaryGeneratedColumn()
     id!: number;
 
-    @Column()
+    @Column({ type: "text" })
     privateKey!: string;
 
     @Column()

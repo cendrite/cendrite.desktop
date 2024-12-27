@@ -14,12 +14,6 @@ export class CryptoError extends Error {
     }
 }
 
-export interface EncryptedData {
-    encryptedData: string;
-    iv: string;
-    authTag: string;
-}
-
 export class CryptographyService {
     private static instance: CryptographyService;
     private cryptoKey: Buffer | null = null;
@@ -73,9 +67,8 @@ export class CryptographyService {
      * @returns Promise with EncryptedData
      * @throws CryptoError
      */
-    async encrypt(data: string): Promise<EncryptedData> {
-        if (!data)
-            throw new CryptoError("Data cannot be null or empty", "INVALID_DATA");
+    async encrypt(data: string): Promise<string> {
+        if (!data) throw new CryptoError("Data cannot be null or empty", "INVALID_DATA");
 
         try {
             if (this.initialized === false)
@@ -83,13 +76,12 @@ export class CryptographyService {
             const iv = crypto.randomBytes(12);
 
             const cipher = crypto.createCipheriv(ALGORITHM, this.cryptoKey! as crypto.CipherKey, iv);
-
             let encryptedData = cipher.update(data, 'utf8', 'hex');
             encryptedData += cipher.final('hex');
 
             const authTag = cipher.getAuthTag().toString('hex');
 
-            return { encryptedData, iv: iv.toString('hex'), authTag };
+            return `${encryptedData}|${iv.toString('hex')}|${authTag}`;
         }
         catch (err) {
             const error = err as Error;
@@ -109,8 +101,8 @@ export class CryptographyService {
      * @returns Promise<string>
      * @throws CryptoError
      */
-    async decrypt(encryptedData: string, iv: string, authTag: string): Promise<string> {
-        if (!encryptedData || !iv || !authTag) {
+    async decrypt(encryptedString: string): Promise<string> {
+        if (!encryptedString) {
             throw new CryptoError('Missing required decryption parameters', 'INVALID_PARAMS');
         }
 
@@ -118,6 +110,8 @@ export class CryptographyService {
             if (!this.initialized) {
                 await this.initializeEncryptionKey();
             }
+
+            const [encryptedData, iv, authTag] = encryptedString.split('|');
 
             const decipher = crypto.createDecipheriv(
                 ALGORITHM,
