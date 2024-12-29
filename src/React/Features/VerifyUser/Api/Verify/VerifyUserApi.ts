@@ -8,7 +8,7 @@ export class VerifyUserApi extends AuthenticationBaseAPI<VerifyUserRequest> {
 
     public async handle(request: VerifyUserRequest): Promise<Result> {
         try {
-            await this.api.put('/verify', request)
+            await this.api.put('user/verify', request)
             return Result.success();
 
         } catch (error) {
