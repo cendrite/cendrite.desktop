@@ -1,8 +1,8 @@
 export class ErrorMessage {
-    public readonly code: string;
+    public readonly code: string | null;
     public readonly message: string;
 
-    private constructor(code: string, message: string) {
+    public constructor(code: string | null, message: string) {
         this.code = code;
         this.message = message;
     }

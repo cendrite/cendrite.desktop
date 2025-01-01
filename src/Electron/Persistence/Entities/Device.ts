@@ -1,15 +1,15 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, PrimaryColumn } from "typeorm";
 import { BaseEntity } from "./BaseEntity.js";
 
 @Entity()
 export class Device extends BaseEntity {
 
-    @PrimaryGeneratedColumn()
-    id!: number;
+    @PrimaryColumn({ type: "text" })
+    id!: string;
 
     @Column({ type: "text", unique: true })
     privateKey!: string;
 
-    @Column()
+    @Column({ type: "text", unique: true })
     publicKey!: string;
 }
