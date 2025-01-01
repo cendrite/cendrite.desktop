@@ -1,5 +1,3 @@
-import { MediatorRequest } from "../../../../Mediator/MediatorRequest.js";
-
 export class CreateDeviceRequest implements MediatorRequest {
     public type = "CreateDeviceRequest";
     private _id: string;

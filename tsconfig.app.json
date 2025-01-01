@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "types": ["./src/Shared/Types.d.ts"],
+    "types": ["./src/Shared/Types"],
     "target": "ES2020",
     "useDefineForClassFields": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],

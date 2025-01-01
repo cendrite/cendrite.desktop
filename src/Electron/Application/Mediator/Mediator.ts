@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Result } from "../../../Shared/Result/Result.js";
 import { Handler } from "./Handler.js";
-import { MediatorRequest } from "./MediatorRequest.js";
 
 export class Mediator {
     private _handlers = new Map<string, Handler<any, any>>();
@@ -10,6 +9,7 @@ export class Mediator {
         requestType: string,
         handler: Handler<TRequest, TResponse>
     ): void {
+        console.log(`Registering handler for request type ${requestType}`);
         this._handlers.set(requestType, handler);
     }
 

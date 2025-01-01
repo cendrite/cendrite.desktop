@@ -9,6 +9,9 @@ import FormButton from "../../Common/Components/FormButton";
 import { AppDispatch } from "../../Redux/Store";
 import { useDispatch } from "react-redux";
 import { setEmail, setUserId } from "../../Redux/States/RegisterState";
+import { GenerateKeysRequest } from "./../../../Electron/Application/Features/Device/Commands/GenerateKeys/GenerateKeysRequest";
+import { Result } from "../../../Shared/Result/Result";
+import { GenerateKeysDto } from "./../../../Electron/Application/Features/Device/Commands/GenerateKeys/GenerateKeysDto";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -16,18 +19,25 @@ const LoginPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const handleLogin = async (values: LoginFormValues, { setFieldError }: FormikHelpers<LoginFormValues>) => {
-    const result = await loginApi.handle(values);
-    if (result.success) {
-      if (result.data!.IsVerified === true) {
-        navigate("verifyDevice");
-      } else if (result.data!.IsVerified === false) {
-        dispatch(setEmail(values.email));
-        dispatch(setUserId(result.data!.UserId));
-        navigate("verifyUser");
-      }
-    } else {
-      setFieldError(LoginFieldName.Email, result.errorMessage!.message);
-    }
+    const keys = await window.electron.sendRequestAsync<Result<GenerateKeysDto>>(new GenerateKeysRequest());
+
+    console.log(keys);
+    console.log(keys.data!.privateKey);
+    console.log(keys.data!.publicKey);
+
+    // const result = await loginApi.handle(values);
+    // if (result.success) {
+
+    //   if (result.data!.IsVerified === true) {
+    //     navigate("verifyDevice");
+    //   } else if (result.data!.IsVerified === false) {
+    //     dispatch(setEmail(values.email));
+    //     dispatch(setUserId(result.data!.UserId));
+    //     navigate("verifyUser");
+    //   }
+    // } else {
+    //   setFieldError(LoginFieldName.Email, result.errorMessage!.message);
+    // }
   };
 
   const renderErrorTooltip = (error: string | undefined, touched: boolean) =>

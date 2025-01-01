@@ -7,7 +7,7 @@ import { generateKeyPairSync } from "crypto";
 
 export class GenerateKeysRequestHandler implements Handler<GenerateKeysRequest, GenerateKeysDto> {
 
-    handle(request: GenerateKeysRequest): Result<GenerateKeysDto> {
+    async handle(request: GenerateKeysRequest): Promise<Result<GenerateKeysDto>> {
 
         try {
             const { publicKey, privateKey } = generateKeyPairSync('ed25519', {

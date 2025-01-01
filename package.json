@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "main": "dist-electron/Main.js",
+  "main": "dist-electron/Electron/Main.js",
   "scripts": {
     "dev": "npm-run-all --parallel dev:react dev:electron",
     "test": "npm-run-all --parallel test:unit test:integration",
