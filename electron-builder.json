@@ -1,6 +1,6 @@
 {
   "appId": "com.dev-cypherly",
-  "files": ["dist-electron", "dist-react"],
+  "files": ["dist-electron", "dist-react", "node_modules/libsodium-wrappers"],
   "extraResources": ["dist-electron/Electron/Preload.cjs"],
   "icon": "./dsktop-icon.png",
   "mac": {

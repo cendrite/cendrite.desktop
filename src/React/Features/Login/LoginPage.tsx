@@ -22,8 +22,8 @@ const LoginPage: React.FC = () => {
     const keys = await window.electron.sendRequestAsync<Result<GenerateKeysDto>>(new GenerateKeysRequest());
 
     console.log(keys);
-    console.log(keys.data!.privateKey);
-    console.log(keys.data!.publicKey);
+    console.log("Private key: " + keys.data!.privateKey);
+    console.log("Public key: " + keys.data!.publicKey);
 
     // const result = await loginApi.handle(values);
     // if (result.success) {
