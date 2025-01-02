@@ -5,6 +5,7 @@ import ErrorTooltip from "../../Common/Components/ErrorToolTip";
 import { VerifyDeviceApi } from "./Api/VerifyDeviceApi";
 import { RootState } from "../../Redux/Store";
 import { useSelector } from "react-redux";
+import { VerifyDeviceValidationSchema } from "./Validation/VerifyDeviceFormValidation";
 
 const VerifyDevicePage: React.FC = () => {
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ const VerifyDevicePage: React.FC = () => {
       <div className="flex flex-col items-center w-full max-w-xs">
         <Formik
           initialValues={{ deviceVerificationCode: "" }} // Single string to handle all 6 characters
-          validationSchema={""}
+          validationSchema={VerifyDeviceValidationSchema}
           onSubmit={handleSubmit}
         >
           {({ values, errors, touched, handleChange, isSubmitting }) => (
