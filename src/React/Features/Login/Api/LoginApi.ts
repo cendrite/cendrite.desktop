@@ -12,7 +12,7 @@ export class LoginApi extends AuthenticationBaseAPI<LoginRequest, LoginResponse>
 
             return Result.success(response.data.result!);
         }
-        catch (error) {
+        catch (error: unknown) {
             if (error instanceof AxiosError && error.response) {
                 const errorMessage = error.response.data?.errorMessage || "An error occurred while registering.";
                 return Result.fail<LoginResponse>(

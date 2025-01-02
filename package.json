@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "main": "dist-electron/Main.js",
+  "main": "dist-electron/Electron/Main.js",
   "scripts": {
     "dev": "npm-run-all --parallel dev:react dev:electron",
     "test": "npm-run-all --parallel test:unit test:integration",
@@ -34,6 +34,7 @@
     "reflect-metadata": "^0.2.2",
     "sqlite3": "^5.1.7",
     "tailwindcss": "^3.4.17",
+    "tweetnacl": "^1.0.3",
     "typeorm": "^0.3.20",
     "yup": "^1.6.1"
   },

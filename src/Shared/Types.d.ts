@@ -1,14 +1,12 @@
-type User = {
-    id: string;
-    name: string;
-    username: string;
-    userTag: string;
-    email: string;
+
+type MediatorRequest = {
+    type: string;
 }
 
-type Friend = {
-    id: string | null;
-    username: string;
-    userTag: string;
-    connectionId: string;
+interface Window {
+    electron: {
+        sendRequestAsync: <TResponse> (
+            request: MediatorRequest,
+        ) => Promise<TResponse>;
+    }
 }

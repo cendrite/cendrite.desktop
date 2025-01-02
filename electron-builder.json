@@ -1,7 +1,7 @@
 {
   "appId": "com.dev-cypherly",
-  "files": ["dist-electron", "dist-react"],
-  "extraResources": ["dist-electron/Preload.cjs"],
+  "files": ["dist-electron", "dist-react", "node_modules/libsodium-wrappers"],
+  "extraResources": ["dist-electron/Electron/Preload.cjs"],
   "icon": "./dsktop-icon.png",
   "mac": {
     "target": "dmg"

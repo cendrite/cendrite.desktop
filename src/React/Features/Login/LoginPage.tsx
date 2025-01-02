@@ -9,6 +9,9 @@ import FormButton from "../../Common/Components/FormButton";
 import { AppDispatch } from "../../Redux/Store";
 import { useDispatch } from "react-redux";
 import { setEmail, setUserId } from "../../Redux/States/RegisterState";
+import { GenerateKeysRequest } from "./../../../Electron/Application/Features/Device/Commands/GenerateKeys/GenerateKeysRequest";
+import { Result } from "../../../Shared/Result/Result";
+import { GenerateKeysDto } from "./../../../Electron/Application/Features/Device/Commands/GenerateKeys/GenerateKeysDto";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -16,7 +19,20 @@ const LoginPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const handleLogin = async (values: LoginFormValues, { setFieldError }: FormikHelpers<LoginFormValues>) => {
-    const result = await loginApi.handle(values);
+    const keys = await window.electron.sendRequestAsync<Result<GenerateKeysDto>>(new GenerateKeysRequest());
+    if (keys.success === false) {
+      setFieldError(LoginFieldName.Email, "Something went wrong. Please try again later.");
+    }
+
+    const result = await loginApi.handle({
+      email: values.email,
+      password: values.password,
+      base64DevicePublicKey: keys.data!.publicKey,
+      deviceAppVersion: "1.0",
+      deviceType: 1,
+      devicePlatform: 2,
+    });
+
     if (result.success) {
       if (result.data!.IsVerified === true) {
         navigate("verifyDevice");

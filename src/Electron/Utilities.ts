@@ -1,4 +1,4 @@
-﻿import { app } from "electron";
+﻿import { app, ipcMain } from "electron";
 import path from "path";
 
 export function isDevelopment() {
@@ -9,6 +9,6 @@ export function getPreloadPath() {
     return path.resolve(
         app.getAppPath(),
         isDevelopment() ? './' : '../',
-        'dist-electron/Preload.cjs'
+        'dist-electron/Electron/Preload.cjs'
     )
 }

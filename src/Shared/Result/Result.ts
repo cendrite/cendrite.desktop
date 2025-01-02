@@ -1,4 +1,4 @@
-import { ErrorMessage } from "./ErrorMessage.ts";
+import { ErrorMessage } from "./ErrorMessage.js";
 
 export class Result<T = void> {
     public readonly success: boolean;
