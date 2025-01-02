@@ -11,7 +11,7 @@ import { initialRegisterValues } from "./Form/InitialRegisterFormValues";
 import { RegisterValidationSchema } from "./Validation/RegisterFormValidation";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../Redux/Store";
-import { setEmail, setUserId, setUsername } from "../../Redux/States/RegisterState";
+import { setEmail, setRegisterUserId, setUsername } from "../../Redux/States/RegisterState";
 
 const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ const RegisterPage: React.FC = () => {
     if (result.success) {
       dispatch(setEmail(result.data!.email));
       dispatch(setUsername(values.username));
-      dispatch(setUserId(result.data!.id));
+      dispatch(setRegisterUserId(result.data!.id));
       navigate("/verifyUser");
     } else {
       if (result.errorMessage!.message.includes(RegisterFieldName.Email)) {

@@ -8,7 +8,8 @@ import ErrorTooltip from "../../Common/Components/ErrorToolTip";
 import FormButton from "../../Common/Components/FormButton";
 import { AppDispatch } from "../../Redux/Store";
 import { useDispatch } from "react-redux";
-import { setEmail, setUserId } from "../../Redux/States/RegisterState";
+import { setEmail, setRegisterUserId } from "../../Redux/States/RegisterState";
+import { setLoginDeviceId, setLoginPuKey, setLoginUserId } from "../../Redux/States/LoginState";
 import { GenerateKeysRequest } from "./../../../Electron/Application/Features/Device/Commands/GenerateKeys/GenerateKeysRequest";
 import { Result } from "../../../Shared/Result/Result";
 import { GenerateKeysDto } from "./../../../Electron/Application/Features/Device/Commands/GenerateKeys/GenerateKeysDto";
@@ -35,10 +36,14 @@ const LoginPage: React.FC = () => {
 
     if (result.success) {
       if (result.data!.IsVerified === true) {
-        navigate("verifyDevice");
+        dispatch(setLoginUserId(result.data!.UserId));
+        dispatch(setLoginDeviceId(result.data!.DeviceId!));
+        dispatch(setLoginPuKey(keys.data!.privateKey));
+        dispatch(setLoginPuKey(keys.data!.publicKey));
+        navigate("/verifyDevice");
       } else if (result.data!.IsVerified === false) {
         dispatch(setEmail(values.email));
-        dispatch(setUserId(result.data!.UserId));
+        dispatch(setRegisterUserId(result.data!.UserId));
         navigate("verifyUser");
       }
     } else {
@@ -105,4 +110,5 @@ const LoginPage: React.FC = () => {
     </div>
   );
 };
+
 export default LoginPage;
