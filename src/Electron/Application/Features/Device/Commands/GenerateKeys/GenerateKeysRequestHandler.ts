@@ -8,7 +8,6 @@ import { GenerateKeysRequest } from "./GenerateKeysRequest.js";
 export class GenerateKeysRequestHandler implements Handler<GenerateKeysRequest, GenerateKeysDto> {
 
     async handle(request: GenerateKeysRequest): Promise<Result<GenerateKeysDto>> {
-
         try {
             // Generate a Ed25519 key pair
             const keyPair = nacl.sign.keyPair();
@@ -21,17 +20,10 @@ export class GenerateKeysRequestHandler implements Handler<GenerateKeysRequest, 
 
             return Result.success(dto);
         }
-        catch (error) {
-            // Log the error message and stack trace for debugging
-            if (error instanceof Error) {
-                console.error('Key generation error:', error.message);
-                console.error('Stack trace:', error.stack);
-                return Result.fail<GenerateKeysDto>(new ErrorMessage(null, error.message));
-            } else {
-                // For non-standard error objects, log the entire error
-                console.error('Unknown error during key generation:', error);
-                return Result.fail<GenerateKeysDto>(new ErrorMessage(null, 'An unknown error occurred'));
-            }
+        catch (error: unknown) {
+            const errorMessage = (error instanceof Error) ? error.message : 'An unknown error occurred';
+            console.error('Key generation error:', errorMessage);
+            return Result.fail<GenerateKeysDto>(new ErrorMessage(null, "KeyGenerationFailed"));
         }
     }
 }

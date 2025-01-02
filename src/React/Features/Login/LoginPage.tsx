@@ -20,24 +20,30 @@ const LoginPage: React.FC = () => {
 
   const handleLogin = async (values: LoginFormValues, { setFieldError }: FormikHelpers<LoginFormValues>) => {
     const keys = await window.electron.sendRequestAsync<Result<GenerateKeysDto>>(new GenerateKeysRequest());
+    if (keys.success === false) {
+      setFieldError(LoginFieldName.Email, "Something went wrong. Please try again later.");
+    }
 
-    console.log(keys);
-    console.log("Private key: " + keys.data!.privateKey);
-    console.log("Public key: " + keys.data!.publicKey);
+    const result = await loginApi.handle({
+      email: values.email,
+      password: values.password,
+      base64DevicePublicKey: keys.data!.publicKey,
+      deviceAppVersion: "1.0",
+      deviceType: 1,
+      devicePlatform: 2,
+    });
 
-    // const result = await loginApi.handle(values);
-    // if (result.success) {
-
-    //   if (result.data!.IsVerified === true) {
-    //     navigate("verifyDevice");
-    //   } else if (result.data!.IsVerified === false) {
-    //     dispatch(setEmail(values.email));
-    //     dispatch(setUserId(result.data!.UserId));
-    //     navigate("verifyUser");
-    //   }
-    // } else {
-    //   setFieldError(LoginFieldName.Email, result.errorMessage!.message);
-    // }
+    if (result.success) {
+      if (result.data!.IsVerified === true) {
+        navigate("verifyDevice");
+      } else if (result.data!.IsVerified === false) {
+        dispatch(setEmail(values.email));
+        dispatch(setUserId(result.data!.UserId));
+        navigate("verifyUser");
+      }
+    } else {
+      setFieldError(LoginFieldName.Email, result.errorMessage!.message);
+    }
   };
 
   const renderErrorTooltip = (error: string | undefined, touched: boolean) =>
