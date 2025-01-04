@@ -9,7 +9,7 @@ export class VerifyDeviceApi extends AuthenticationBaseAPI<VerifyDeviceRequest> 
 
     public async handle(request: VerifyDeviceRequest): Promise<Result> {
         try {
-            await this.api.put("/device/verify", request);
+            await this.api.put("/user/device/verify", request);
             return Result.success();
 
         } catch (error) {

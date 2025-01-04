@@ -9,7 +9,7 @@ import FormButton from "../../Common/Components/FormButton";
 import { AppDispatch } from "../../Redux/Store";
 import { useDispatch } from "react-redux";
 import { setEmail, setRegisterUserId } from "../../Redux/States/RegisterState";
-import { setLoginDeviceId, setLoginPuKey, setLoginUserId } from "../../Redux/States/LoginState";
+import { setLoginDeviceId, setLoginPrKey, setLoginPuKey, setLoginUserId } from "../../Redux/States/LoginState";
 import { GenerateKeysRequest } from "./../../../Electron/Application/Features/Device/Commands/GenerateKeys/GenerateKeysRequest";
 import { Result } from "../../../Shared/Result/Result";
 import { GenerateKeysDto } from "./../../../Electron/Application/Features/Device/Commands/GenerateKeys/GenerateKeysDto";
@@ -34,17 +34,17 @@ const LoginPage: React.FC = () => {
       devicePlatform: 2,
     });
 
-    if (result.success) {
-      if (result.data!.IsVerified === true) {
-        dispatch(setLoginUserId(result.data!.UserId));
-        dispatch(setLoginDeviceId(result.data!.DeviceId!));
-        dispatch(setLoginPuKey(keys.data!.privateKey));
+    if (result.success && result.data) {
+      if (result.data!.isVerified === true) {
+        dispatch(setLoginUserId(result.data!.userId));
+        dispatch(setLoginDeviceId(result.data!.deviceId!));
+        dispatch(setLoginPrKey(keys.data!.privateKey));
         dispatch(setLoginPuKey(keys.data!.publicKey));
         navigate("/verifyDevice");
-      } else if (result.data!.IsVerified === false) {
+      } else if (result.data!.isVerified === false) {
         dispatch(setEmail(values.email));
-        dispatch(setRegisterUserId(result.data!.UserId));
-        navigate("verifyUser");
+        dispatch(setRegisterUserId(result.data!.userId));
+        navigate("/verifyUser");
       }
     } else {
       setFieldError(LoginFieldName.Email, result.errorMessage!.message);

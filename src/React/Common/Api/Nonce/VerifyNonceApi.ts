@@ -21,7 +21,7 @@ export class VerifyNonceApi extends AuthenticationBaseAPI<VerifyNonceRequest, Ve
 
     public async handle(request: VerifyNonceRequest): Promise<Result<VerifyNonceResponse>> {
         try {
-            const response: AxiosResponse<Envelope<VerifyNonceResponse>> = await this.api.post("Authentication/nonce/verify", request);
+            const response: AxiosResponse<Envelope<VerifyNonceResponse>> = await this.api.post("Authentication/verify-nonce", request);
 
             return Result.success(response.data.result!);
         }
