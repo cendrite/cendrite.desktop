@@ -20,6 +20,7 @@
     "test:unit": "vitest --run ./Test/Unit"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@reduxjs/toolkit": "^2.5.0",
     "autoprefixer": "^10.4.20",
     "axios": "^1.7.9",

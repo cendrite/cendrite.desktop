@@ -8,6 +8,9 @@ app.on("ready", async () => {
     await initializeDatabase();
 
     const mainWindow = new BrowserWindow({
+        width: 1000,
+        height: 800,
+
         webPreferences: {
             nodeIntegration: false,
             preload: path.join(getPreloadPath())
