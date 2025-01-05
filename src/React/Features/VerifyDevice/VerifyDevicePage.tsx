@@ -2,8 +2,8 @@ import { Formik, Form, FormikHelpers } from "formik";
 import FormButton from "../../Common/Components/FormButton";
 import ErrorTooltip from "../../Common/Components/ErrorToolTip";
 import { VerifyDeviceApi } from "./Api/VerifyDeviceApi";
-import { RootState } from "../../Redux/Store";
-import { useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../Redux/Store";
+import { useDispatch, useSelector } from "react-redux";
 import { VerifyDeviceValidationSchema } from "./Validation/VerifyDeviceFormValidation";
 import { GetNonceApi } from "./../../Common/Api/Nonce/GetNonceApi";
 import { CreateDeviceRequest } from "../../../Electron/Application/Features/Device/Commands/CreateDevice/CreateDeviceRequest";
@@ -13,6 +13,7 @@ import { SignNonceRequest } from "./../../../Electron/Application/Features/Devic
 import { VerifyNonceApi } from "../../Common/Api/Nonce/VerifyNonceApi";
 import { useNavigate } from "react-router-dom";
 import { CreateRefreshTokenRequest } from "./../../../Electron/Application/Features/RefreshToken/Commands/Create/CreateRefreshTokenRequest";
+import { setExpiresAt, setJwt, setRefreshToken } from "../../Redux/States/TokenState";
 
 const VerifyDevicePage: React.FC = () => {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ const VerifyDevicePage: React.FC = () => {
   const verifyNonceApi = new VerifyNonceApi();
   const getNonceApi = new GetNonceApi();
   const loginState = useSelector((state: RootState) => state.login);
+  const dispatch = useDispatch<AppDispatch>();
 
   const handleSubmit = async (
     values: { deviceVerificationCode: string },
@@ -71,6 +73,9 @@ const VerifyDevicePage: React.FC = () => {
         setFieldError("deviceVerificationCode", "Something went wrong. Please try again later.");
         return;
       }
+      dispatch(setJwt(signatureValidationResult.data!.jwt));
+      dispatch(setRefreshToken(signatureValidationResult.data!.refreshToken));
+      dispatch(setExpiresAt(new Date(signatureValidationResult.data!.expiresAt)));
 
       const tokenCreateResult = await window.electron.sendRequestAsync<Result>(
         new CreateRefreshTokenRequest(
