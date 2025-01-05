@@ -1,10 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, PrimaryColumn } from "typeorm";
+import { Entity, Column, PrimaryColumn } from "typeorm";
 import { BaseEntity } from "./BaseEntity.js";
 
 @Entity()
 export class Device extends BaseEntity {
 
-    @PrimaryColumn({ type: "text" })
+    @PrimaryColumn("uuid")
     id!: string;
 
     @Column({ type: "text", unique: true })

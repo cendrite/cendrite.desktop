@@ -12,6 +12,7 @@ import { SignNonceDto } from "./../../../Electron/Application/Features/Device/Co
 import { SignNonceRequest } from "./../../../Electron/Application/Features/Device/Commands/SignNonce/SignNonceRequest";
 import { VerifyNonceApi } from "../../Common/Api/Nonce/VerifyNonceApi";
 import { useNavigate } from "react-router-dom";
+import { CreateRefreshTokenRequest } from "./../../../Electron/Application/Features/RefreshToken/Commands/Create/CreateRefreshTokenRequest";
 
 const VerifyDevicePage: React.FC = () => {
   const navigate = useNavigate();
@@ -67,6 +68,19 @@ const VerifyDevicePage: React.FC = () => {
 
       if (signatureValidationResult.success === false) {
         console.error(signatureValidationResult.errorMessage);
+        setFieldError("deviceVerificationCode", "Something went wrong. Please try again later.");
+        return;
+      }
+
+      const tokenCreateResult = await window.electron.sendRequestAsync<Result>(
+        new CreateRefreshTokenRequest(
+          signatureValidationResult.data!.refreshToken,
+          signatureValidationResult.data!.expiresAt
+        )
+      );
+
+      if (tokenCreateResult.success === false) {
+        console.error(tokenCreateResult.errorMessage);
         setFieldError("deviceVerificationCode", "Something went wrong. Please try again later.");
         return;
       }
