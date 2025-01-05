@@ -22,12 +22,12 @@ const registerSlice = createSlice({
         setUsername: (state, action: PayloadAction<string>) => {
             state.username = action.payload;
         },
-        setUserId: (state, action: PayloadAction<string>) => {
+        setRegisterUserId: (state, action: PayloadAction<string>) => {
             state.UserId = action.payload;
         },
     },
 });
 
-export const { setEmail, setUsername, setUserId } = registerSlice.actions;
+export const { setEmail, setUsername, setRegisterUserId: setRegisterUserId } = registerSlice.actions;
 
 export default registerSlice.reducer;

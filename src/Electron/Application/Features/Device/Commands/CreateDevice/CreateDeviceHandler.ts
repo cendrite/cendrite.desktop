@@ -18,11 +18,12 @@ export class CreateDeviceRequestHandler implements Handler<CreateDeviceRequest, 
 
             await _deviceRepository.create(device);
 
-            _deviceRepository.create(device);
             return Result.success();
         }
-        catch {
-            return Result.fail(new ErrorMessage(null, 'Failed to create device'));
+        catch (error: unknown) {
+            const errorMessage = (error instanceof Error) ? error.message : 'An unknown error occurred';
+            console.error('Create Device Failed:', errorMessage);
+            return Result.fail(new ErrorMessage(null, "Create Device Failed"));
         }
     }
 }

@@ -3,7 +3,7 @@ import { Result } from "../../../Shared/Result/Result.js";
 import { Handler } from "./Handler.js";
 
 export class Mediator {
-    private _handlers = new Map<string, Handler<any, any>>();
+    private _handlers = new Map<string, Handler<MediatorRequest, any | void>>();
 
     public registerHandler<TRequest extends MediatorRequest, TResponse>(
         requestType: string,

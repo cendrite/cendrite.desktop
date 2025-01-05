@@ -8,7 +8,7 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-    UserId: string;
-    IsVerified: boolean;
-    DeviceId: string | null;
+    userId: string;
+    isVerified: boolean;
+    deviceId: string | null;
 }

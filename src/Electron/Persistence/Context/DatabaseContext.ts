@@ -1,6 +1,7 @@
 import { DataSource } from "typeorm";
 import 'reflect-metadata';
 import { Device } from "../Entities/Device.js";
+import { RefreshToken } from "../Entities/RefreshToken.js";
 
 export const DatabaseContext = new DataSource({
     type: "sqlite",
@@ -8,6 +9,7 @@ export const DatabaseContext = new DataSource({
     logging: false,
     entities: [
         Device,
+        RefreshToken,
     ],
     migrations: [],
     synchronize: true,
