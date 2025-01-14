@@ -23,6 +23,7 @@ const VerifyDevicePage: React.FC = () => {
   const loginState = useSelector((state: RootState) => state.login);
   const dispatch = useDispatch<AppDispatch>();
 
+  // TODO: should refactor this, maybe into a state pattern with compensating actions if something goes wrong, to avoid broken state in fe db an be db.
   const handleSubmit = async (
     values: { deviceVerificationCode: string },
     { setFieldError }: FormikHelpers<{ deviceVerificationCode: string }>

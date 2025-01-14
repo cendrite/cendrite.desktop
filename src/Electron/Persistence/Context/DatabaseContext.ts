@@ -2,12 +2,14 @@ import { DataSource } from "typeorm";
 import 'reflect-metadata';
 import { Device } from "../Entities/Device.js";
 import { RefreshToken } from "../Entities/RefreshToken.js";
+import { User } from "../Entities/User.js";
 
 export const DatabaseContext = new DataSource({
     type: "sqlite",
     database: "./src/Electron/Persistence/Context/msg.db",
     logging: false,
     entities: [
+        User,
         Device,
         RefreshToken,
     ],
