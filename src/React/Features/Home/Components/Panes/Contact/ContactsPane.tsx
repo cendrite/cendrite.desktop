@@ -10,7 +10,7 @@ interface ContactsPaneProps {
 }
 
 export const ContactsPane: React.FC<ContactsPaneProps> = ({ isSidePanelVisible, toggleSidePanel }) => {
-  const [contacts, setContacts] = useState(["Dave", "Eric", "John"]);
+  const [contacts] = useState(["Dave", "Eric", "John"]);
 
   return (
     <div className="text-white p-2 relative">
