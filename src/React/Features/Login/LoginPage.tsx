@@ -9,6 +9,7 @@ import FormButton from "../../Common/Components/FormButton";
 import { AppDispatch } from "../../Redux/Store";
 import { useDispatch } from "react-redux";
 import { setEmail, setRegisterUserId } from "../../Redux/States/RegisterState";
+import { setLoginUserId } from "../../Redux/States/LoginState";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ const LoginPage: React.FC = () => {
 
     if (result.success && result.data) {
       if (result.data!.isVerified === true) {
+        dispatch(setLoginUserId(result.data!.userId));
         navigate("/verifyLogin");
       } else if (result.data!.isVerified === false) {
         dispatch(setEmail(values.email));

@@ -7,6 +7,8 @@ import { Form, Formik, FormikHelpers } from "formik";
 import FormButton from "../../Common/Components/FormButton";
 import ErrorTooltip from "../../Common/Components/ErrorToolTip";
 import { VerifyLoginValidationSchema } from "./Validation/VerifyLoginValidationSchema";
+import { useSelector } from "react-redux";
+import { RootState } from "../../Redux/Store";
 
 const VerifyLoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -14,17 +16,17 @@ const VerifyLoginPage: React.FC = () => {
   const [, setCooldownTime] = useState(5);
   const verifyLoginApi = new VerifyLoginApi();
   const resendCodeApi = new ResendCodeApi();
+  const loginState = useSelector((state: RootState) => state.login);
 
   const handleSubmit = async (
     values: { verificationCode: string },
     { setFieldError }: FormikHelpers<{ verificationCode: string }>
   ) => {
     const result = await verifyLoginApi.handle({
-      userId: "userId",
+      userId: loginState.UserId!,
       loginVerificationCode: values.verificationCode,
     });
     if (result.success) {
-      //create the device and initiate the token refresh stuff through the device
       navigate("/home");
     } else {
       console.error(result.errorMessage);
@@ -58,12 +60,10 @@ const VerifyLoginPage: React.FC = () => {
         >
           {({ values, errors, touched, handleChange, isSubmitting }) => (
             <Form className="flex flex-col items-center w-full">
-              <h1 className="text-2xl font-bold mb-12 text-center underline">verify device</h1>
+              <h1 className="text-2xl font-bold text-center underline">verify device</h1>
               <h2 className="text font-semibold mb-12 text-center text-gray-200">
                 This is a new device. Please verify your login, by entering the verification code sent to your email.
               </h2>
-
-              {/* Verification Code Input Boxes */}
 
               {/* Error Tooltip Container */}
               <div className="relative w-full flex justify-center">
