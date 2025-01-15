@@ -27,6 +27,7 @@ const VerifyLoginPage: React.FC = () => {
       loginVerificationCode: values.verificationCode,
     });
     if (result.success) {
+      // initiate device nonce procedure.
       navigate("/home");
     } else {
       console.error(result.errorMessage);
