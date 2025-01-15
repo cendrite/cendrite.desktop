@@ -2,12 +2,13 @@ import { Formik, Form, FormikHelpers } from "formik";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { VerifyUserValidationSchema } from "./Validation/VerifyUserFormValidation";
-import { VerifyUserApi } from "./Api/Verify/VerifyUserApi";
 import ErrorTooltip from "../../Common/Components/ErrorToolTip";
 import FormButton from "../../Common/Components/FormButton";
-import { ResendCodeApi } from "./Api/ResendCode/ResendCodeApi";
 import { useSelector } from "react-redux";
 import { RootState } from "../../Redux/Store";
+import { VerifyUserApi } from "./Api/VerifyUserApi";
+import { ResendCodeApi } from "../../Common/Api/ResendVerificationCode/ResendVerificationCodeApi";
+import { CodeType } from "../../Common/Api/ResendVerificationCode/ResendVerificationCodeRequest";
 
 const VerifyUserPage: React.FC = () => {
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ const VerifyUserPage: React.FC = () => {
 
   const handleResendCode = () => {
     if (isCooldown) return;
-    resendCodeApi.handle({ userId: registerState.UserId! });
+    resendCodeApi.handle({ userId: registerState.UserId!, codeType: CodeType.EmailVerification });
     setIsCooldown(true);
     setCooldownTime(7);
 
