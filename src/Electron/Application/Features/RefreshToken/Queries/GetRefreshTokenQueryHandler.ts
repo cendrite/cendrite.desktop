@@ -13,6 +13,11 @@ export class GetRefreshTokenQueryHandler implements Handler<GetRefreshTokenQuery
 
             const _refreshTokenRepository = new RefreshTokenRepository();
             const refreshToken = await _refreshTokenRepository.get();
+
+            if (!refreshToken) {
+                return Result.fail<GetRefreshTokenDto>(new ErrorMessage("entity.not.found", "Refresh Token Not Found"));
+            }
+
             const dto = GetRefreshTokenDto.MapFrom(refreshToken);
 
             return Result.success<GetRefreshTokenDto>(dto);
