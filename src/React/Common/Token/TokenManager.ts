@@ -13,7 +13,6 @@ export class TokenManager {
     private userId: string | null = null;
     private deviceId: string | null = null;
     private tokens: Tokens;
-    private refreshInterval: ReturnType<typeof setInterval> | null = null;
     private readonly refreshTokenApi = new RefreshTokenApi();
     private readonly getNonceApi = new GetNonceApi();
     private readonly verifyNonceApi = new VerifyNonceApi();
@@ -74,8 +73,6 @@ export class TokenManager {
             await this.generateTokensViaNonce();
             return;
         }
-
-        console.log("RefreshToken: ", this.tokens.refreshToken);
         const result = await this.refreshTokenApi.handle({ userId: this.userId!, deviceId: this.deviceId!, refreshToken: this.tokens.refreshToken });
 
         if (result.errorMessage?.message.includes("Invalid refresh token")) {
@@ -87,13 +84,9 @@ export class TokenManager {
         if (result.success) {
             console.log("Tokens refreshed successfully");
             console.log("New tokens: ", result.data);
-            console.log("New RefreshToken: ", result.data!.refreshToken);
-            console.log("New ExpiresAt: ", result.data!.expiresAt);
-            console.log("New JWT: ", result.data!.jwt);
             this.tokens.jwt = result.data!.jwt;
             this.tokens.refreshToken = result.data!.refreshToken;
             this.tokens.expiresAt = new Date(result.data!.expiresAt);
-            console.log("Tokens: ", this.tokens);
         }
         else {
             console.error(result.errorMessage);
@@ -145,23 +138,6 @@ export class TokenManager {
             throw new Error("Failed to generate tokens via nonce.");
         }
     }
-
-
-    // private async startBackgroundTokenRefresh(): Promise<void> {
-    //     const REFRESH_INTERVAL = 1000 * 60 * 1; // 1 minutes
-
-    //     if (this.refreshInterval) {
-    //         clearInterval(this.refreshInterval);
-    //         console.log("clearing interval");
-    //     }
-
-    //     this.refreshInterval = setInterval(async () => {
-    //         if (this.tokens.refreshToken) {
-    //             console.log("Refreshing tokens in background");
-    //             await this.refreshTokens();
-    //         }
-    //     }, REFRESH_INTERVAL);
-    // }
 
     private async startBackgroundTokenRefresh(): Promise<void> {
         const REFRESH_INTERVAL = 1000 * 60 * 0.5; // 30 seconds

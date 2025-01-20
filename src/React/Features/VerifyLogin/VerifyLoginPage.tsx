@@ -82,7 +82,7 @@ const VerifyLoginPage: React.FC = () => {
 
   const handleResendCode = () => {
     if (isCooldown) return;
-    resendCodeApi.handle({ userId: "userId", codeType: CodeType.Login });
+    resendCodeApi.handle({ userId: loginState.UserId!, codeType: CodeType.Login });
     setIsCooldown(true);
     setCooldownTime(7);
 
