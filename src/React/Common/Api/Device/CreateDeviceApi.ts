@@ -10,7 +10,7 @@ export class CreateDeviceApi extends AuthenticationBaseAPI<CreateDeviceApiReques
 
     public async handle(request: CreateDeviceApiRequest): Promise<Result<CreateDeviceApiResponse>> {
         try {
-            const response: AxiosResponse<Envelope<CreateDeviceApiResponse>> = await this.api.post("device", request);
+            const response: AxiosResponse<Envelope<CreateDeviceApiResponse>> = await this.api.post("User/device", request);
             return Result.success(response.data.result!);
 
         } catch (error) {

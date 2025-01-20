@@ -3,6 +3,10 @@ import { GetRefreshTokenDto } from './../../../Electron/Application/Features/Ref
 import { GetRefreshTokenQuery } from './../../../Electron/Application/Features/RefreshToken/Queries/GetRefreshTokenQuery';
 import { Result } from "../../../Shared/Result/Result";
 import { RefreshTokenApi } from "./Api/TokenApi.ts/RefreshTokenApi";
+import { GetNonceApi } from "./Api/Nonce/GetNonceApi";
+import { VerifyNonceApi } from "./Api/Nonce/VerifyNonceApi";
+import { SignNonceDto } from "../../../Electron/Application/Features/Device/Commands/SignNonce/SignNonceDto";
+import { SignNonceRequest } from "../../../Electron/Application/Features/Device/Commands/SignNonce/SignNonceRequest";
 
 export class TokenManager {
     private static instance: TokenManager;
@@ -11,6 +15,8 @@ export class TokenManager {
     private tokens: Tokens;
     private refreshInterval: ReturnType<typeof setInterval> | null = null;
     private readonly refreshTokenApi = new RefreshTokenApi();
+    private readonly getNonceApi = new GetNonceApi();
+    private readonly verifyNonceApi = new VerifyNonceApi();
 
     private constructor() {
         this.tokens = {
@@ -28,7 +34,13 @@ export class TokenManager {
     }
 
     public setUserId(userId: string): void {
+        console.log("Setting user id", userId);
         this.userId = userId;
+    }
+
+    public setDeviceId(deviceId: string): void {
+        console.log("Setting device id", deviceId);
+        this.deviceId = deviceId;
     }
 
     public getTokens(): Tokens {
@@ -36,40 +48,135 @@ export class TokenManager {
     }
 
     public async initializeTokens(): Promise<void> {
-
+        console.log("Initializing tokens");
         const refreshTokenResult = await window.electron.sendRequestAsync<Result<GetRefreshTokenDto>>(new GetRefreshTokenQuery());
 
         if (refreshTokenResult.success && refreshTokenResult.data!.expiresAt < new Date()) {
             this.tokens.refreshToken = refreshTokenResult.data!.refreshToken;
 
-            this.refreshTokens(this.tokens.refreshToken);
+            console.log("Refreshing tokens via refresh token");
+            await this.refreshTokens();
         }
         else {
-            this.generateTokensViaNonce();
+            await this.generateTokensViaNonce();
         }
 
-        this.startBackgroundTokenRefresh();
+        console.log("Starting background token refresh");
+        await this.startBackgroundTokenRefresh();
     }
 
-    private async refreshTokens(refreshToken: string): Promise<void> {
+    private async refreshTokens(): Promise<void> {
 
-        const result = await this.refreshTokenApi.handle({ userId: this.userId!, deviceId: this.deviceId!, refreshToken: refreshToken });
+        console.log("Refreshing tokens");
+
+        if (this.tokens.refreshToken === null) {
+            console.error("Refresh token is null, generating tokens via nonce");
+            await this.generateTokensViaNonce();
+            return;
+        }
+
+        console.log("RefreshToken: ", this.tokens.refreshToken);
+        const result = await this.refreshTokenApi.handle({ userId: this.userId!, deviceId: this.deviceId!, refreshToken: this.tokens.refreshToken });
+
+        if (result.errorMessage?.message.includes("Invalid refresh token")) {
+            console.log("Invalid refresh token, generating tokens via nonce");
+            await this.generateTokensViaNonce();
+            return;
+        }
 
         if (result.success) {
+            console.log("Tokens refreshed successfully");
+            console.log("New tokens: ", result.data);
+            console.log("New RefreshToken: ", result.data!.refreshToken);
+            console.log("New ExpiresAt: ", result.data!.expiresAt);
+            console.log("New JWT: ", result.data!.jwt);
             this.tokens.jwt = result.data!.jwt;
-            this.tokens.expiresAt = result.data!.expiresAt;
+            this.tokens.refreshToken = result.data!.refreshToken;
+            this.tokens.expiresAt = new Date(result.data!.expiresAt);
+            console.log("Tokens: ", this.tokens);
         }
         else {
             console.error(result.errorMessage);
         }
-
     }
 
     private async generateTokensViaNonce(): Promise<void> {
+        console.log("Generating tokens via nonce");
 
+        try {
+            // Step 1: Fetch nonce
+            const nonceResult = await this.getNonceApi.handle({ UserId: this.userId!, DeviceId: this.deviceId! });
+
+            if (!nonceResult.success || !nonceResult.data) {
+                throw new Error("Failed to fetch nonce: " + (nonceResult.errorMessage?.message || "Unknown error"));
+            }
+
+            // Step 2: Sign nonce
+            const signedNonceResult = await window.electron.sendRequestAsync<Result<SignNonceDto>>(
+                new SignNonceRequest(nonceResult.data.nonceValue)
+            );
+
+            if (!signedNonceResult.success || !signedNonceResult.data) {
+                throw new Error("Failed to sign nonce: " + (signedNonceResult.errorMessage?.message || "Unknown error"));
+            }
+
+            // Step 3: Verify nonce
+            const verifyNonceResult = await this.verifyNonceApi.handle({
+                userId: this.userId!,
+                deviceId: this.deviceId!,
+                nonceId: nonceResult.data.nonceId,
+                nonce: signedNonceResult.data.signature,
+            });
+
+            if (!verifyNonceResult.success || !verifyNonceResult.data) {
+                throw new Error(
+                    "Failed to verify nonce: " + (verifyNonceResult.errorMessage?.message || "Unknown error")
+                );
+            }
+
+            // Step 4: Save tokens
+            this.tokens.jwt = verifyNonceResult.data.jwt;
+            this.tokens.refreshToken = verifyNonceResult.data.refreshToken;
+            this.tokens.expiresAt = new Date(verifyNonceResult.data.expiresAt);
+
+            console.log("Tokens generated successfully:", this.tokens);
+        } catch (error) {
+            console.error("Error generating tokens via nonce:", error);
+            throw new Error("Failed to generate tokens via nonce.");
+        }
     }
 
-    private async startBackgroundTokenRefresh(): Promise<void> {
 
+    // private async startBackgroundTokenRefresh(): Promise<void> {
+    //     const REFRESH_INTERVAL = 1000 * 60 * 1; // 1 minutes
+
+    //     if (this.refreshInterval) {
+    //         clearInterval(this.refreshInterval);
+    //         console.log("clearing interval");
+    //     }
+
+    //     this.refreshInterval = setInterval(async () => {
+    //         if (this.tokens.refreshToken) {
+    //             console.log("Refreshing tokens in background");
+    //             await this.refreshTokens();
+    //         }
+    //     }, REFRESH_INTERVAL);
+    // }
+
+    private async startBackgroundTokenRefresh(): Promise<void> {
+        const REFRESH_INTERVAL = 1000 * 60 * 0.5; // 30 seconds
+
+        const refreshLoop = async () => {
+            if (this.tokens.refreshToken === null) {
+                console.warn("how the fuck is the token null?")
+                return;
+            }
+
+            await this.refreshTokens();
+
+            setTimeout(refreshLoop, REFRESH_INTERVAL);
+        }
+
+        refreshLoop();
     }
 }

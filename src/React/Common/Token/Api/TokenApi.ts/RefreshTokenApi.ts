@@ -4,13 +4,14 @@ import { AuthenticationBaseAPI } from "../../../Api/BaseApi"
 import { RefreshTokenApiRequest } from "./RefreshTokenApiRequest";
 import { RefreshTokenApiResponse } from "./RefreshTokenApiResponse";
 import { ErrorMessage } from "../../../../../Shared/Result/ErrorMessage";
+import { Envelope } from './../../../Api/Envelope';
 
 export class RefreshTokenApi extends AuthenticationBaseAPI<RefreshTokenApiRequest, RefreshTokenApiResponse> {
     public async handle(request: RefreshTokenApiRequest): Promise<Result<RefreshTokenApiResponse>> {
         try {
-            const response: AxiosResponse<RefreshTokenApiResponse> = await this.api.post('Authentication/refresh-token', request);
+            const response: AxiosResponse<Envelope<RefreshTokenApiResponse>> = await this.api.post('Authentication/refresh-token', request);
 
-            return Result.success(response.data);
+            return Result.success(response.data.result!);
         }
         catch (error: unknown) {
             if (error instanceof AxiosError && error.response) {

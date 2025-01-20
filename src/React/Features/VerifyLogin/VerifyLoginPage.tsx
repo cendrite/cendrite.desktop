@@ -14,11 +14,13 @@ import { GenerateKeysRequest } from "./../../../Electron/Application/Features/De
 import { GenerateKeysDto } from "./../../../Electron/Application/Features/Device/Commands/GenerateKeys/GenerateKeysDto";
 import { CreateDeviceApi } from "../../Common/Api/Device/CreateDeviceApi";
 import { CreateDeviceRequest } from "../../../Electron/Application/Features/Device/Commands/CreateDevice/CreateDeviceRequest";
+import { TokenManager } from "../../Common/Token/TokenManager";
 
 const VerifyLoginPage: React.FC = () => {
   const navigate = useNavigate();
   const [isCooldown, setIsCooldown] = useState(false);
   const [, setCooldownTime] = useState(5);
+  const tokenManager = TokenManager.getInstance();
   const verifyLoginApi = new VerifyLoginApi();
   const resendCodeApi = new ResendCodeApi();
   const createDeviceApi = new CreateDeviceApi();
@@ -35,6 +37,11 @@ const VerifyLoginPage: React.FC = () => {
     if (result.success) {
       const keys = await window.electron.sendRequestAsync<Result<GenerateKeysDto>>(new GenerateKeysRequest());
 
+      console.log("LoginNonceId: ", result.data!.nonceId);
+      console.log("LoginNonce: ", result.data!.nonce);
+      console.log("DevicePublicKey: ", keys.data!.publicKey);
+      console.log("DevicePrivateKey: ", keys.data!.privateKey);
+
       const crtDevResult = await createDeviceApi.handle({
         userId: loginState.UserId!,
         loginNonceId: result.data!.nonceId,
@@ -42,7 +49,7 @@ const VerifyLoginPage: React.FC = () => {
         deviceAppVersion: "1.0",
         deviceType: 1,
         devicePlatform: 1,
-        base64DevicePublickKey: keys.data!.publicKey,
+        base64DevicePublicKey: keys.data!.publicKey,
       });
 
       if (crtDevResult.success === false) {
@@ -52,14 +59,19 @@ const VerifyLoginPage: React.FC = () => {
       }
 
       const device = await window.electron.sendRequestAsync<Result>(
-        new CreateDeviceRequest(crtDevResult.data!.deviceId, keys.data!.privateKey, keys.data!.publicKey)
+        new CreateDeviceRequest(crtDevResult.data!.deviceId, keys.data!.publicKey, keys.data!.privateKey)
       );
+
+      tokenManager.setUserId(loginState.UserId!);
+      tokenManager.setDeviceId(crtDevResult.data!.deviceId);
 
       if (device.success === false) {
         console.error(device.errorMessage);
         setFieldError("verificationCode", "Something went wrong. Please try again later.");
         return;
       }
+
+      await tokenManager.initializeTokens();
 
       navigate("/home");
     } else {

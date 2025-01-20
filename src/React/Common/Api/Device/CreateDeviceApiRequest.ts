@@ -5,5 +5,5 @@ export interface CreateDeviceApiRequest {
     deviceAppVersion: string;
     deviceType: number;
     devicePlatform: number;
-    base64DevicePublickKey: string;
+    base64DevicePublicKey: string;
 }
