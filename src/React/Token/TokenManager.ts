@@ -1,12 +1,12 @@
-import { Tokens } from "./Tokens";
-import { GetRefreshTokenDto } from './../../../Electron/Application/Features/RefreshToken/Queries/GetRefreshTokenDto';
-import { GetRefreshTokenQuery } from './../../../Electron/Application/Features/RefreshToken/Queries/GetRefreshTokenQuery';
-import { Result } from "../../../Shared/Result/Result";
-import { RefreshTokenApi } from "./Api/TokenApi.ts/RefreshTokenApi";
+import { Result } from "../../Shared/Result/Result";
 import { GetNonceApi } from "./Api/Nonce/GetNonceApi";
 import { VerifyNonceApi } from "./Api/Nonce/VerifyNonceApi";
-import { SignNonceDto } from "../../../Electron/Application/Features/Device/Commands/SignNonce/SignNonceDto";
-import { SignNonceRequest } from "../../../Electron/Application/Features/Device/Commands/SignNonce/SignNonceRequest";
+import { RefreshTokenApi } from "./Api/TokenApi.ts/RefreshTokenApi";
+import { Tokens } from "./Tokens"
+import { GetRefreshTokenDto } from './../../Electron/Application/Features/RefreshToken/Queries/GetRefreshTokenDto';
+import { GetRefreshTokenQuery } from './../../Electron/Application/Features/RefreshToken/Queries/GetRefreshTokenQuery';
+import { SignNonceRequest } from './../../Electron/Application/Features/Device/Commands/SignNonce/SignNonceRequest';
+import { SignNonceDto } from './../../Electron/Application/Features/Device/Commands/SignNonce/SignNonceDto';
 
 export class TokenManager {
     private static instance: TokenManager;

@@ -1,8 +1,8 @@
 import { AxiosError, AxiosResponse } from "axios";
-import { AuthenticationBaseAPI } from "../../../Api/BaseApi";
-import { Envelope } from "../../../Api/Envelope";
-import { Result } from "../../../../../Shared/Result/Result";
-import { ErrorMessage } from "../../../../../Shared/Result/ErrorMessage";
+import { AuthenticationBaseAPI } from "../../../Common/Api/BaseApi";
+import { Envelope } from "../../../Common/Api/Envelope";
+import { Result } from "../../../../Shared/Result/Result";
+import { ErrorMessage } from "../../../../Shared/Result/ErrorMessage";
 
 export interface VerifyNonceRequest {
     userId: string;

@@ -14,7 +14,7 @@ import { GenerateKeysRequest } from "./../../../Electron/Application/Features/De
 import { GenerateKeysDto } from "./../../../Electron/Application/Features/Device/Commands/GenerateKeys/GenerateKeysDto";
 import { CreateDeviceApi } from "../../Common/Api/Device/CreateDeviceApi";
 import { CreateDeviceRequest } from "../../../Electron/Application/Features/Device/Commands/CreateDevice/CreateDeviceRequest";
-import { TokenManager } from "../../Common/Token/TokenManager";
+import { TokenManager } from "../../Token/TokenManager";
 
 const VerifyLoginPage: React.FC = () => {
   const navigate = useNavigate();

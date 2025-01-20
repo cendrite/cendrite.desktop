@@ -1,10 +1,20 @@
 import { AxiosError, AxiosResponse } from "axios";
-import { Result } from "../../../../../Shared/Result/Result";
-import { AuthenticationBaseAPI } from "../../../Api/BaseApi"
-import { RefreshTokenApiRequest } from "./RefreshTokenApiRequest";
-import { RefreshTokenApiResponse } from "./RefreshTokenApiResponse";
-import { ErrorMessage } from "../../../../../Shared/Result/ErrorMessage";
-import { Envelope } from './../../../Api/Envelope';
+import { AuthenticationBaseAPI } from "../../../Common/Api/BaseApi";
+import { Envelope } from "../../../Common/Api/Envelope";
+import { Result } from "../../../../Shared/Result/Result";
+import { ErrorMessage } from "../../../../Shared/Result/ErrorMessage";
+
+export interface RefreshTokenApiResponse {
+    jwt: string;
+    refreshToken: string;
+    expiresAt: string;
+}
+
+export interface RefreshTokenApiRequest {
+    userId: string;
+    deviceId: string;
+    refreshToken: string;
+}
 
 export class RefreshTokenApi extends AuthenticationBaseAPI<RefreshTokenApiRequest, RefreshTokenApiResponse> {
     public async handle(request: RefreshTokenApiRequest): Promise<Result<RefreshTokenApiResponse>> {
