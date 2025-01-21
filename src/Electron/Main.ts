@@ -1,9 +1,9 @@
+import "reflect-metadata";
 import { app, BrowserWindow } from 'electron';
 import path from "path";
 import { getPreloadPath, isDevelopment } from "./Utilities.js";
 import { initializeDatabase } from './Persistence/Context/DatabaseContext.js';
 import { registerIpcHandlers } from './Ipc/IpcMediator.js';
-import "reflect-metadata";
 
 app.on("ready", async () => {
     await initializeDatabase();
