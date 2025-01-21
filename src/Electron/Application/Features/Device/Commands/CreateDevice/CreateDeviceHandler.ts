@@ -16,11 +16,15 @@ export class CreateDeviceRequestHandler implements Handler<CreateDeviceRequest, 
             device.privateKey = request.privateKey;
             device.publicKey = request.publicKey;
 
+            console.log('Creating Device:', device);
+            console.log('Device Repository:', _deviceRepository);
+            console.log(request.id, request.privateKey, request.publicKey);
             await _deviceRepository.create(device);
 
             return Result.success();
         }
         catch (error: unknown) {
+            console.log('Error:', error);
             const errorMessage = (error instanceof Error) ? error.message : 'An unknown error occurred';
             console.error('Create Device Failed:', errorMessage);
             return Result.fail(new ErrorMessage(null, "Create Device Failed"));

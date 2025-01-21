@@ -7,7 +7,7 @@ import { ResendVerificationCodeRequest } from './ResendVerificationCodeRequest';
 export class ResendCodeApi extends AuthenticationBaseAPI<ResendVerificationCodeRequest> {
     public async handle(request: ResendVerificationCodeRequest): Promise<Result<void>> {
         try {
-            await this.api.put("/user/resend-verification", request);
+            await this.api.put('/User/resend-verification', request);
             return Result.success();
         } catch (error) {
             if (error instanceof AxiosError && error.response) {

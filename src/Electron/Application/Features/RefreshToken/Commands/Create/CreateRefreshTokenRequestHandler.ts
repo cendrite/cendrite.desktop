@@ -9,7 +9,9 @@ export class CreateRefreshTokenRequestHandler implements Handler<CreateRefreshTo
 
     async handle(request: CreateRefreshTokenRequest): Promise<Result<void>> {
         try {
+
             const _refreshTokenRepository = new RefreshTokenRepository();
+            await _refreshTokenRepository.deleteAll();
             const refreshToken = new RefreshToken();
             refreshToken.token = request.token;
             refreshToken.expiresAt = new Date(request.expiresAt);

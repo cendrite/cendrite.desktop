@@ -1,6 +1,6 @@
-import { AuthenticationBaseAPI } from "../BaseApi";
-import { AxiosError, AxiosResponse } from 'axios';
-import { Envelope } from "../Envelope";
+import { AxiosError, AxiosResponse } from "axios";
+import { AuthenticationBaseAPI } from "../../../Common/Api/BaseApi";
+import { Envelope } from "../../../Common/Api/Envelope";
 import { Result } from "../../../../Shared/Result/Result";
 import { ErrorMessage } from "../../../../Shared/Result/ErrorMessage";
 

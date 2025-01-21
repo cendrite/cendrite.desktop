@@ -1,7 +1,7 @@
 import { AxiosError, AxiosResponse } from "axios";
+import { AuthenticationBaseAPI } from "../../../Common/Api/BaseApi";
+import { Envelope } from "../../../Common/Api/Envelope";
 import { Result } from "../../../../Shared/Result/Result";
-import { AuthenticationBaseAPI } from "../BaseApi";
-import { Envelope } from "../Envelope";
 import { ErrorMessage } from "../../../../Shared/Result/ErrorMessage";
 
 export interface GetNonceRequest {

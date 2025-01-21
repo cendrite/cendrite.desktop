@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { app, BrowserWindow } from 'electron';
 import path from "path";
 import { getPreloadPath, isDevelopment } from "./Utilities.js";
