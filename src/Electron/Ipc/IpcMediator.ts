@@ -5,6 +5,7 @@ import { GenerateKeysRequestHandler } from "../Application/Features/Device/Comma
 import { SignNonceRequestHandler } from "../Application/Features/Device/Commands/SignNonce/SignNonceRequestHandler.js";
 import { CreateRefreshTokenRequestHandler } from "../Application/Features/RefreshToken/Commands/Create/CreateRefreshTokenRequestHandler.js";
 import { GetRefreshTokenQueryHandler } from "../Application/Features/RefreshToken/Queries/GetRefreshTokenQueryHandler.js";
+import { GetDeviceQueryHandler } from "../Application/Features/Device/Queries/GetDevice/GetDeviceQueryHandler.js";
 
 export function registerIpcHandlers() {
     const mediator = new Mediator();
@@ -14,7 +15,7 @@ export function registerIpcHandlers() {
     mediator.registerHandler("SignNonceRequest", new SignNonceRequestHandler());
     mediator.registerHandler("CreateRefreshTokenRequest", new CreateRefreshTokenRequestHandler());
     mediator.registerHandler("GetRefreshTokenQuery", new GetRefreshTokenQueryHandler());
-
+    mediator.registerHandler("GetDeviceQuery", new GetDeviceQueryHandler());
 
     console.log("Registered Mediator Handlers:", Array.from(mediator["_handlers"].keys()));
 
