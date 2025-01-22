@@ -6,16 +6,22 @@ import { SignNonceRequestHandler } from "../Application/Features/Device/Commands
 import { CreateRefreshTokenRequestHandler } from "../Application/Features/RefreshToken/Commands/Create/CreateRefreshTokenRequestHandler.js";
 import { GetRefreshTokenQueryHandler } from "../Application/Features/RefreshToken/Queries/GetRefreshTokenQueryHandler.js";
 import { GetDeviceQueryHandler } from "../Application/Features/Device/Queries/GetDevice/GetDeviceQueryHandler.js";
+import {CreateUserCommandHandler} from "../Application/Features/User/Commands/CreateUserCommandHandler.js";
+import {GetUserQueryHandler} from "../Application/Features/User/Queries/GetUserQueryHandler.js";
 
 export function registerIpcHandlers() {
     const mediator = new Mediator();
 
     mediator.registerHandler("CreateDeviceRequest", new CreateDeviceRequestHandler());
     mediator.registerHandler("GenerateKeysRequest", new GenerateKeysRequestHandler());
+    mediator.registerHandler("GetDeviceQuery", new GetDeviceQueryHandler());
     mediator.registerHandler("SignNonceRequest", new SignNonceRequestHandler());
+
     mediator.registerHandler("CreateRefreshTokenRequest", new CreateRefreshTokenRequestHandler());
     mediator.registerHandler("GetRefreshTokenQuery", new GetRefreshTokenQueryHandler());
-    mediator.registerHandler("GetDeviceQuery", new GetDeviceQueryHandler());
+
+    mediator.registerHandler("GetUserQuery", new GetUserQueryHandler());
+    mediator.registerHandler("CreateUserCommand", new CreateUserCommandHandler());
 
     console.log("Registered Mediator Handlers:", Array.from(mediator["_handlers"].keys()));
 

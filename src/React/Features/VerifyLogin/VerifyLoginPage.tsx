@@ -52,7 +52,7 @@ const VerifyLoginPage: React.FC = () => {
         base64DevicePublicKey: keys.data!.publicKey,
       });
 
-      if (crtDevResult.success === false) {
+      if (!crtDevResult.success) {
         console.error(crtDevResult.errorMessage);
         setFieldError("verificationCode", "Something went wrong. Please try again later.");
         return;
@@ -65,13 +65,15 @@ const VerifyLoginPage: React.FC = () => {
       tokenManager.setUserId(loginState.UserId!);
       tokenManager.setDeviceId(crtDevResult.data!.deviceId);
 
-      if (device.success === false) {
+      if (!device.success) {
         console.error(device.errorMessage);
         setFieldError("verificationCode", "Something went wrong. Please try again later.");
         return;
       }
 
       await tokenManager.initializeTokens();
+
+      // Create the user here or use some sort of context thing? idk.
 
       navigate("/home");
     } else {

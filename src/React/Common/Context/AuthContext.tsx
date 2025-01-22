@@ -1,8 +1,11 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Result } from "../../../Shared/Result/Result";
 import { GetDeviceDto } from "../../../Electron/Application/Features/Device/Queries/GetDevice/GetDeviceDto";
 import { GetDeviceQuery } from "../../../Electron/Application/Features/Device/Queries/GetDevice/GetDeviceQuery";
+import {GetUserDto} from "../../../Electron/Application/Features/User/Queries/GetUserDto.ts";
+import {GetUserQuery} from "../../../Electron/Application/Features/User/Queries/GetUserQuery.ts";
+import {TokenManager} from "../../Token/TokenManager.ts";
 
 interface AuthContextType {
   isLoggedIn: boolean;
@@ -42,17 +45,24 @@ async function initializeApp(): Promise<boolean> {
   try {
     const deviceResult = await window.electron.sendRequestAsync<Result<GetDeviceDto>>(new GetDeviceQuery());
 
-    if (deviceResult.success == false) {
+    if (!deviceResult.success) {
       return false;
     }
 
-    const userResult = await window.electron.SendRequestAsync<Result<GetUserDto>>(new GetUserQuery());
-
-    if (userResult.success == false) {
+    const userResult = await window.electron.sendRequestAsync<Result<GetUserDto>>(new GetUserQuery());
+    if(!userResult.success){
       return false;
     }
+
+    const tokenManager = TokenManager.getInstance();
+    tokenManager.setDeviceId(deviceResult.data!.id);
+    tokenManager.setUserId(userResult.data!.id);
+
+    await tokenManager.initializeTokens();
+    return true;
+
   } catch (error: unknown) {
     console.error("Error getting device", error);
+    return false;
   }
-  return false;
 }

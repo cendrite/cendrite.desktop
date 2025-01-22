@@ -4,7 +4,7 @@ import { Result } from '../../../Shared/Result/Result';
 export abstract class AuthenticationBaseAPI<Request, Response = void> {
     protected api: AxiosInstance;
 
-    constructor() {
+    protected constructor() {
         this.api = axios.create({
             baseURL: 'http://10.0.0.100:30069/api/',
             headers: {
