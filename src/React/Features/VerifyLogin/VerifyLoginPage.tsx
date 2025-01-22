@@ -19,7 +19,7 @@ import { TokenManager } from "../../Token/TokenManager";
 const VerifyLoginPage: React.FC = () => {
   const navigate = useNavigate();
   const [isCooldown, setIsCooldown] = useState(false);
-  const [, setCooldownTime] = useState(5);
+    const [, setCooldownTime] = useState(5);
   const tokenManager = TokenManager.getInstance();
   const verifyLoginApi = new VerifyLoginApi();
   const resendCodeApi = new ResendCodeApi();
