@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { VerifyLoginApi } from "./Api/VerifyLoginApi";
 import { ResendCodeApi } from "../../Common/Api/ResendVerificationCode/ResendVerificationCodeApi";
-import { useState } from "react";
+import React, { useState } from "react";
 import { CodeType } from "../../Common/Api/ResendVerificationCode/ResendVerificationCodeRequest";
 import { Form, Formik, FormikHelpers } from "formik";
 import FormButton from "../../Common/Components/FormButton";
@@ -15,6 +15,7 @@ import { GenerateKeysDto } from "./../../../Electron/Application/Features/Device
 import { CreateDeviceApi } from "../../Common/Api/Device/CreateDeviceApi";
 import { CreateDeviceRequest } from "../../../Electron/Application/Features/Device/Commands/CreateDevice/CreateDeviceRequest";
 import { TokenManager } from "../../Token/TokenManager";
+import {GetUserProfileApi} from "./Api/CreateUserApi/GetUserProfileApi.ts";
 
 const VerifyLoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -24,6 +25,7 @@ const VerifyLoginPage: React.FC = () => {
   const verifyLoginApi = new VerifyLoginApi();
   const resendCodeApi = new ResendCodeApi();
   const createDeviceApi = new CreateDeviceApi();
+  const getUserProfileApi = new GetUserProfileApi();
   const loginState = useSelector((state: RootState) => state.login);
 
   const handleSubmit = async (
@@ -74,6 +76,12 @@ const VerifyLoginPage: React.FC = () => {
       await tokenManager.initializeTokens();
 
       // Create the user here or use some sort of context thing? idk.
+      const getUserProfileResult  = await getUserProfileApi.getUserProfile({ userProfileId: loginState.UserId! });
+      if(!getUserProfileResult.success){
+        console.error(getUserProfileResult.errorMessage);
+        setFieldError("verificationCode", "Something went wrong. Please try again later.");
+        return;
+      }
 
       navigate("/home");
     } else {
