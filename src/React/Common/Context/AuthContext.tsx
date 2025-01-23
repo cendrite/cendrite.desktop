@@ -42,6 +42,7 @@ async function initializeApp(): Promise<boolean> {
     const deviceResult = await window.electron.sendRequestAsync<Result<GetDeviceDto>>(new GetDeviceQuery());
 
     if (!deviceResult.success) {
+      console.log("Error getting device", deviceResult.errorMessage);
       return false;
     }
 

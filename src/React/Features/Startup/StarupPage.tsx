@@ -1,6 +1,8 @@
 ﻿import React, {useEffect} from "react";
+import Lottie from "lottie-react";
 import {useAuth} from "../../Common/Context/AuthContext.tsx";
 import {useNavigate} from "react-router-dom";
+import loadingAnimation from "../../Assets/Animations/initial_load_animation.json";
 
 const StartupPage: React.FC = () => {
     const {isLoggedIn, loading} = useAuth();
@@ -8,19 +10,22 @@ const StartupPage: React.FC = () => {
 
     useEffect(() => {
         if(!loading) {
-            navigate(isLoggedIn ? "/home" : "/login");
+            // Delay the navigation to the home page or login page by 3 seconds
+            const timer = setTimeout(() => {
+                navigate(isLoggedIn ? "/home" : "/login");
+            }, 5000);
+
+            return () => clearTimeout(timer);
         }
     }, [isLoggedIn, loading, navigate]);
 
-   if(loading) {
-       return (
-           <div className="flex items-center justify-center h-screen">
-               <h1>Loading...</h1>
-           </div>
-       )
-   }
-
-    return null;
+    return (
+        <div className="flex items-center justify-center h-screen bg-zinc-950">
+            <div>
+                <Lottie animationData={loadingAnimation} />
+            </div>
+        </div>
+    );
 };
 
 export default StartupPage;
