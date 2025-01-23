@@ -15,18 +15,21 @@ import { GenerateKeysDto } from "./../../../Electron/Application/Features/Device
 import { CreateDeviceApi } from "../../Common/Api/Device/CreateDeviceApi";
 import { CreateDeviceRequest } from "../../../Electron/Application/Features/Device/Commands/CreateDevice/CreateDeviceRequest";
 import { TokenManager } from "../../Token/TokenManager";
-import {GetUserProfileApi} from "./Api/CreateUserApi/GetUserProfileApi.ts";
+import {UserProfileService} from "./Services/UserProfileService.ts";
+import {useUser} from "../../Common/Context/UserContext.tsx";
 
 const VerifyLoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const [isCooldown, setIsCooldown] = useState(false);
-    const [, setCooldownTime] = useState(5);
+  const [isCooldown, setIsCooldown] = useState(false); // TODO: move to a hook 1
+  const [, setCooldownTime] = useState(5); // TODO: move to a hook 1
   const tokenManager = TokenManager.getInstance();
   const verifyLoginApi = new VerifyLoginApi();
-  const resendCodeApi = new ResendCodeApi();
-  const createDeviceApi = new CreateDeviceApi();
-  const getUserProfileApi = new GetUserProfileApi();
+  const resendCodeApi = new ResendCodeApi(); // TODO: move to a hook 1
+  const createDeviceApi = new CreateDeviceApi(); // TODO: move to a service class with the related electron call
+  const userProfileService = new UserProfileService();
   const loginState = useSelector((state: RootState) => state.login);
+  const { setUser } = useUser();
+
 
   const handleSubmit = async (
     values: { verificationCode: string },
@@ -36,9 +39,11 @@ const VerifyLoginPage: React.FC = () => {
       userId: loginState.UserId!,
       loginVerificationCode: values.verificationCode,
     });
+    //TODO refactor to guard clause
     if (result.success) {
       const keys = await window.electron.sendRequestAsync<Result<GenerateKeysDto>>(new GenerateKeysRequest());
 
+      // remove console logs
       console.log("LoginNonceId: ", result.data!.nonceId);
       console.log("LoginNonce: ", result.data!.nonce);
       console.log("DevicePublicKey: ", keys.data!.publicKey);
@@ -75,13 +80,14 @@ const VerifyLoginPage: React.FC = () => {
 
       await tokenManager.initializeTokens();
 
-      // Create the user here or use some sort of context thing? idk.
-      const getUserProfileResult  = await getUserProfileApi.getUserProfile({ userProfileId: loginState.UserId! });
-      if(!getUserProfileResult.success){
-        console.error(getUserProfileResult.errorMessage);
-        setFieldError("verificationCode", "Something went wrong. Please try again later.");
-        return;
-      }
+      const userProfileResult = await  userProfileService.HandleUserProfile(loginState.UserId!);
+      setUser({
+        id: userProfileResult!.id,
+        username: userProfileResult!.username,
+        userTag: userProfileResult!.userTag,
+        profilePictureUrl: userProfileResult!.profilePictureUrl,
+        displayName: userProfileResult!.displayName
+      });
 
       navigate("/home");
     } else {
@@ -104,7 +110,7 @@ const VerifyLoginPage: React.FC = () => {
       clearInterval(interval);
       setIsCooldown(false);
     }, 5000);
-  };
+  }; // TODO: move to a hook 1
 
   return (
     <div className="flex flex-col justify-center items-center h-screen bg-zinc-950 text-white">

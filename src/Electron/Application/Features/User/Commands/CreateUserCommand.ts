@@ -6,7 +6,8 @@ export class CreateUserCommand implements MediatorRequest{
     public profilePictureUrl?: string;
     public displayName?: string;
 
-    constructor(username: string, userTag: string, profilePictureUrl?: string, displayName?: string) {
+    constructor(id: string, username: string, userTag: string, profilePictureUrl?: string, displayName?: string) {
+        this.id = id;
         this.username = username;
         this.userTag = userTag;
         this.profilePictureUrl = profilePictureUrl;

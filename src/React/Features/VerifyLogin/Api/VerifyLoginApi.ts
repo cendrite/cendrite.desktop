@@ -2,9 +2,17 @@ import { AxiosError, AxiosResponse } from "axios";
 import { Result } from "../../../../Shared/Result/Result";
 import { AuthenticationBaseAPI } from "../../../Common/Api/BaseApi";
 import { Envelope } from "../../../Common/Api/Envelope";
-import { VerifyLoginRequest } from "./VerifyLoginRequest";
-import { VerifyLoginResponse } from "./VerifyLoginResponse";
 import { ErrorMessage } from "../../../../Shared/Result/ErrorMessage";
+
+export interface VerifyLoginRequest {
+    userId: string;
+    loginVerificationCode: string;
+}
+
+export interface VerifyLoginResponse {
+    nonceId: string;
+    nonce: string;
+}
 
 export class VerifyLoginApi extends AuthenticationBaseAPI<VerifyLoginRequest, VerifyLoginResponse> {
     public async handle(request: VerifyLoginRequest): Promise<Result<VerifyLoginResponse>> {
@@ -28,5 +36,4 @@ export class VerifyLoginApi extends AuthenticationBaseAPI<VerifyLoginRequest, Ve
             );
         }
     }
-
 }

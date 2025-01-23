@@ -1,6 +1,7 @@
 import { User } from "../../../../Persistence/Entities/User.js";
 
 export class CreateUserDto {
+    public id!: string;
     public username!: string;
     public userTag!: string;
     public profilePictureUrl?: string;
@@ -10,6 +11,7 @@ export class CreateUserDto {
 
     public static MapFrom(user: User): CreateUserDto {
         const dto = new CreateUserDto();
+        dto.id = user.id;
         dto.username = user.username;
         dto.userTag = user.userTag;
         dto.profilePictureUrl = user.profilePictureUrl;

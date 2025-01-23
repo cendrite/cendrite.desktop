@@ -5,13 +5,16 @@ import App from "./App.tsx";
 import { store } from "./Redux/Store.ts";
 import { Provider } from "react-redux";
 import {UserProvider} from "./Common/Context/UserContext.tsx";
+import {AuthProvider} from "./Common/Context/AuthContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <Provider store={store}>
-        <UserProvider>
-          <App />
-        </UserProvider>
-    </Provider>
+      <Provider store={store}>
+          <AuthProvider>
+              <UserProvider>
+                <App/>
+              </UserProvider>
+          </AuthProvider>
+      </Provider>
   </StrictMode>
 );
