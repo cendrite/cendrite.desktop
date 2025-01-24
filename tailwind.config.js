@@ -10,6 +10,9 @@ export const theme = {
       beige:{
         500: '#F5F5DC',
       }
+    },
+    fontFamily: {
+      sans: ['Inter', 'sans-serif'],
     }
   },
 };

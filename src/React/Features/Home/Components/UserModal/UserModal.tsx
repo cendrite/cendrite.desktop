@@ -9,12 +9,12 @@ interface UserModalProps {
 
 const UserModal: React.FC<UserModalProps> = ({isOpen, onClose }) => {
     const {user} = useUser();
-    console.log(user);
+
     return (
         <Modal
         isOpen = {isOpen}
         onRequestClose = {onClose}
-        className= "p-4 bg-zinc-700 text-white rounded-xl shadow-lg w-[400px] h-[500px] max-auto relative"
+        className= "p-4 bg-zinc-700 text-white rounded-xl shadow-lg w-[350px] h-[500px] max-auto relative"
         overlayClassName="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center"
         contentLabel="User Details">
             <div className="relative h-full flex flex-col">

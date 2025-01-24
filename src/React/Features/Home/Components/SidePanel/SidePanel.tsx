@@ -44,13 +44,14 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onHide, setPaneType, paneT
               </div>
 
               {/* Bottom Icons: User Profile and Settings */}
-              <div className="flex flex-col items-center space-y-8">
+              <div className="flex flex-col items-center space-y-8 mb-2">
+                  <Cog6ToothIcon className="w-6 h-6 cursor-pointer hover:text-gray-300"/>
+
                   <PanelButton
                         onClick={() => setIsModalOpen(true)}
                         icon={<UserIcon className="w-6 h-6 cursor-pointer hover:text-gray-300"/>}
                         activeIcon={<UserIconFilled className="w-5 h-5 text-gray-300"/>}
                         isActive={isModalOpen}/>
-                  <Cog6ToothIcon className="w-6 h-6 cursor-pointer hover:text-gray-300"/>
               </div>
           </div>
           <UserModal isOpen={isModalOpen} onClose={()=> setIsModalOpen(false)} />
