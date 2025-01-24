@@ -14,7 +14,7 @@ const UserModal: React.FC<UserModalProps> = ({isOpen, onClose }) => {
         <Modal
         isOpen = {isOpen}
         onRequestClose = {onClose}
-        className= "p-4 bg-zinc-700 text-white rounded-xl shadow-lg w-[350px] h-[500px] max-auto relative"
+        className= "p-4 bg-darkGray-500 text-white rounded-xl shadow-lg w-[350px] h-[500px] max-auto relative"
         overlayClassName="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center"
         contentLabel="User Details">
             <div className="relative h-full flex flex-col">
@@ -36,8 +36,8 @@ const UserModal: React.FC<UserModalProps> = ({isOpen, onClose }) => {
                             className="w-20 h-20 rounded-full mb-4"
                         />
                     ) : (
-                        <div className="w-20 h-20 rounded-full bg-gray-600 flex items-center justify-center text-2xl text-gray-300">
-                            {user?.username[0] || "?"}
+                        <div className="w-20 h-20 rounded-full bg-gray-700 flex items-center justify-center text-2xl text-gray-200">
+                            {user?.username[0].concat(user?.username[1]).toUpperCase()|| "?"}
                         </div>
                     )}
 
@@ -70,9 +70,10 @@ const UserModal: React.FC<UserModalProps> = ({isOpen, onClose }) => {
                 </div>
 
                 {/* Logout Section */}
-                <div className="mt-6">
-                    <button className="text-sm text-red-500 font-semibold hover:underline">
-                        Log ud
+                <div className="flex justify-center items-center mt-auto">
+                    <button
+                        className="text-[0.8rem] bg-darkGray-light rounded-full px-3.5 py-0.5 text-white hover:bg-darkGray-lighter">
+                        logout
                     </button>
                 </div>
             </div>

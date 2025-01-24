@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import ParentPane from "./Components/Panes/ParentPane";
 import SidePanel from "./Components/SidePanel/SidePanel";
 
@@ -10,7 +10,7 @@ const HomePage: React.FC = () => {
     <div className="flex h-screen w-screen bg-zinc-900">
       {/* SidePanel - conditional rendering */}
       {isSidePanelVisible && (
-        <div className="w-16 bg-zinc-800">
+        <div className="w-16 bg-darkGray-500">
           <SidePanel onHide={() => setIsSidePanelVisible(false)} setPaneType={setPaneType} paneType={paneType} />
         </div>
       )}
@@ -23,6 +23,9 @@ const HomePage: React.FC = () => {
       />
 
       {/* Main content (ChatWindow) */}
+        <div className="flex-1 bg-zinc-950">
+
+        </div>
     </div>
   );
 };

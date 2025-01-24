@@ -20,7 +20,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onHide, setPaneType, paneT
     return (
       <>
           <div
-              className="bg-zinc-800 text-white w-[60px] h-screen flex flex-col justify-between py-2 border-r border-zinc-600">
+              className="bg-darkGray-500 text-white w-[60px] h-screen flex flex-col justify-between py-2 border-r border-zinc-600">
               {/* Top Icons: SidePanelToggle, Chat, Contacts */}
               <div className="flex flex-col items-center space-y-4">
                   {/* SidePanelToggle */}
