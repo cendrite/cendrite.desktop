@@ -22,7 +22,7 @@ const StartupPage: React.FC = () => {
     return (
         <div className="flex items-center justify-center h-screen bg-zinc-950">
             <div>
-                <Lottie animationData={loadingAnimation} />
+                <Lottie animationData={loadingAnimation}/>
             </div>
         </div>
     );

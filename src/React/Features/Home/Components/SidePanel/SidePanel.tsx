@@ -7,7 +7,8 @@ import {
 } from "@heroicons/react/24/solid";
 import SidePanelToggle from "./SidePanelToggle";
 import PanelButton from "./SidePanelButton";
-import UserModal from "../UserModal/UserModal.tsx";
+import UserModal from "../Modals/UserModal.tsx";
+
 
 export interface SidePanelProps {
   onHide: () => void;
