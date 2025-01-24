@@ -54,12 +54,15 @@ export class TokenManager {
     public async initializeTokens(): Promise<void> {
         console.log("Initializing tokens");
         const refreshTokenResult = await window.electron.sendRequestAsync<Result<GetRefreshTokenDto>>(new GetRefreshTokenQuery());
+        console.log("Refresh token result:", refreshTokenResult);
 
-        if (refreshTokenResult.success && refreshTokenResult.data!.expiresAt < new Date()) {
+        if (refreshTokenResult.success && refreshTokenResult.data!.expiresAt > new Date()) {
             this.tokens.refreshToken = refreshTokenResult.data!.refreshToken;
             await this.refreshTokens();
         }
         else {
+            if(!refreshTokenResult.success) console.log("Failed to fetch refresh token:", refreshTokenResult.errorMessage);
+            console.log(refreshTokenResult.errorMessage);
             await this.generateTokensViaNonce();
         }
 
@@ -142,6 +145,11 @@ export class TokenManager {
             }
 
             this.setTokens({ jwt: verifyNonceResult.data!.jwt, refreshToken: verifyNonceResult.data!.refreshToken, expiresAt: verifyNonceResult.data!.expiresAt });
+            const refreshTokenInsertResult = await window.electron.sendRequestAsync<Result>(new CreateRefreshTokenRequest(verifyNonceResult.data!.refreshToken, verifyNonceResult.data!.expiresAt));
+            if (!refreshTokenInsertResult.success) {
+                console.error("Failed to insert new refresh token:", refreshTokenInsertResult.errorMessage);
+                //TODO: fatal
+            }
 
             console.log("Tokens generated successfully:", this.tokens);
         } catch (error) {
@@ -152,18 +160,25 @@ export class TokenManager {
 
     private async startBackgroundTokenRefresh(): Promise<void> {
         const REFRESH_INTERVAL = 1000 * 60 * 10; // 10 minutes
+        let isFirstRun = true;
 
         const refreshLoop = async () => {
+            if(isFirstRun)
+            {
+                console.log("Skipping first refresh loop");
+                isFirstRun = false;
+                setTimeout(refreshLoop, REFRESH_INTERVAL);
+                return;
+            }
+
             if (this.tokens.refreshToken === null) {
                 console.warn("how the fuck is the token null?")
                 return;
             }
-
             await this.refreshTokens();
 
             setTimeout(refreshLoop, REFRESH_INTERVAL);
         }
-
         await refreshLoop();
     }
 }
