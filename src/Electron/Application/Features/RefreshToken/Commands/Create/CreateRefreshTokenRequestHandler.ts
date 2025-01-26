@@ -7,11 +7,11 @@ import { CreateRefreshTokenRequest } from "./CreateRefreshTokenRequest.js";
 
 export class CreateRefreshTokenRequestHandler implements Handler<CreateRefreshTokenRequest, void> {
 
-    async handle(request: CreateRefreshTokenRequest): Promise<Result<void>> {
+    async handle(request: CreateRefreshTokenRequest): Promise<Result> {
         try {
 
             const _refreshTokenRepository = new RefreshTokenRepository();
-            await _refreshTokenRepository.deleteAll();
+            await _refreshTokenRepository.delete();
             const refreshToken = new RefreshToken();
             refreshToken.token = request.token;
             refreshToken.expiresAt = new Date(request.expiresAt);

@@ -1,4 +1,4 @@
-import { User } from "../../../../Persistence/Entities/User.js";
+import {User} from "../../../../../Persistence/Entities/User.js";
 
 export class CreateUserDto {
     public id!: string;

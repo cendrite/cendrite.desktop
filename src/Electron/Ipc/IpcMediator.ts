@@ -6,8 +6,9 @@ import { SignNonceRequestHandler } from "../Application/Features/Device/Commands
 import { CreateRefreshTokenRequestHandler } from "../Application/Features/RefreshToken/Commands/Create/CreateRefreshTokenRequestHandler.js";
 import { GetRefreshTokenQueryHandler } from "../Application/Features/RefreshToken/Queries/GetRefreshTokenQueryHandler.js";
 import { GetDeviceQueryHandler } from "../Application/Features/Device/Queries/GetDevice/GetDeviceQueryHandler.js";
-import {CreateUserCommandHandler} from "../Application/Features/User/Commands/CreateUserCommandHandler.js";
 import {GetUserQueryHandler} from "../Application/Features/User/Queries/GetUserQueryHandler.js";
+import {CreateUserCommandHandler} from "../Application/Features/User/Commands/Create/CreateUserCommandHandler.js";
+import {LogoutCommandHandler} from "../Application/Features/User/Commands/Logout/LogoutCommandHandler.js";
 
 export function registerIpcHandlers() {
     const mediator = new Mediator();
@@ -22,6 +23,8 @@ export function registerIpcHandlers() {
 
     mediator.registerHandler("GetUserQuery", new GetUserQueryHandler());
     mediator.registerHandler("CreateUserCommand", new CreateUserCommandHandler());
+
+    mediator.registerHandler("LogoutCommand", new LogoutCommandHandler());
 
     console.log("Registered Mediator Handlers:", Array.from(mediator["_handlers"].keys()));
 

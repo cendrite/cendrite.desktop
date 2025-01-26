@@ -6,6 +6,7 @@ import VerifyUserPage from "./Features/VerifyUser/VerifyUserPage";
 import HomePage from "./Features/Home/HomePage";
 import VerifyLoginPage from "./Features/VerifyLogin/VerifyLoginPage";
 import StartupPage from "./Features/Startup/StarupPage.tsx";
+import LogoutPage from "./Features/Logout/LogoutPage.tsx";
 
 const App: React.FC = () => {
   return (
@@ -17,6 +18,7 @@ const App: React.FC = () => {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/verifyUser" element={<VerifyUserPage />} />
         <Route path="/verifyLogin" element={<VerifyLoginPage />} />
+        <Route path="/logout" element={<LogoutPage />} />
       </Routes>
     </Router>
   );

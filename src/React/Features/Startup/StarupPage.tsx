@@ -2,7 +2,7 @@
 import Lottie from "lottie-react";
 import {useAuth} from "../../Common/Context/AuthContext.tsx";
 import {useNavigate} from "react-router-dom";
-import loadingAnimation from "../../Assets/Animations/initial_load_animation.json";
+import boxAnimation from "../../Assets/Animations/box_load_animation.json";
 
 const StartupPage: React.FC = () => {
     const {isLoggedIn, loading} = useAuth();
@@ -22,7 +22,7 @@ const StartupPage: React.FC = () => {
     return (
         <div className="flex items-center justify-center h-screen bg-zinc-950">
             <div>
-                <Lottie animationData={loadingAnimation}/>
+                <Lottie animationData={boxAnimation}/>
             </div>
         </div>
     );

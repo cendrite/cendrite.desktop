@@ -86,7 +86,8 @@ const VerifyLoginPage: React.FC = () => {
         username: userProfileResult!.username,
         userTag: userProfileResult!.userTag,
         profilePictureUrl: userProfileResult!.profilePictureUrl,
-        displayName: userProfileResult!.displayName
+        displayName: userProfileResult!.displayName,
+        deviceId: crtDevResult.data!.deviceId,
       });
 
       navigate("/home");

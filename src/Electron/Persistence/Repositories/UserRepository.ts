@@ -12,9 +12,14 @@ export class UserRepository {
     }
 
     public async create(user: User): Promise<User> {
+
+        const originalUser = (JSON.parse(JSON.stringify(user))); // Deep copy, to avoid returning encrypted data
+
         user.id = await this.cryptoService.encrypt(user.id);
         user.userTag = await this.cryptoService.encrypt(user.userTag);
-        return await this.repository.save(user);
+        await this.repository.save(user);
+
+        return originalUser;
     }
 
     public async get(): Promise<User> {
@@ -34,6 +39,6 @@ export class UserRepository {
     }
 
     public async delete(): Promise<void> {
-        throw new Error("Method not implemented.");
+        await this.repository.delete({});
     }
 }

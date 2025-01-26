@@ -4,6 +4,7 @@ interface User {
     id: string;
     username: string;
     userTag: string;
+    deviceId: string;
     profilePictureUrl?: string;
     displayName?: string;
 }

@@ -50,7 +50,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
 
             await tokenManager.initializeTokens();
 
-            setUser(userResult.data!);
+            setUser({...userResult.data!, deviceId: deviceResult.data!.id});
 
             return true;
 

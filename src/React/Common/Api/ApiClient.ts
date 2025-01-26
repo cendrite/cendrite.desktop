@@ -7,6 +7,18 @@ import {ErrorMessage} from "../../../Shared/Result/ErrorMessage.ts";
 export class ApiClient{
     protected api: AxiosInstance;
 
+    /**
+     * Creates an instance of ApiClient.
+     * @param baseURL The base url of the api.
+     * @param requiresAuth A boolean indicating if the api requires authentication.
+     * @returns An instance of ApiClient.
+     * @example
+     * ```typescript
+     * const client = new ApiClient("https://api.example.com", true);
+     * ```
+     * Using the boolean requiresAuth parameter, will add an interceptor to the api instance to add the jwt token to the request headers.
+     * If the token is expired, the interceptor will attempt to refresh the token through the {@link TokenManager}.
+    * */
     public constructor(baseURL: string, requiresAuth: boolean = true) {
         this.api = axios.create({
             baseURL,
