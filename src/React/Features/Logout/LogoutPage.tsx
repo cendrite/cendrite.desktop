@@ -14,16 +14,13 @@ const LogoutPage: React.FC = () => {
 
     useEffect(() => {
         if (user) {
-            const timer = setTimeout(() => {
-                console.log("Logging out user", user.id);
-                console.log("Device id", user.deviceId);
-                logoutService.logout(user.id, user.deviceId).then(() => {
+            logoutService.logout(user.id, user.deviceId).then(() => {
+                const timer = setTimeout(() => {
                     navigate("/login");
-                });
-            }, 3000);
+                }, 3000); // 3-second delay for animation
 
-            // Cleanup the timeout to avoid issues
-            return () => clearTimeout(timer);
+                return () => clearTimeout(timer);
+            });
         }
     }, [user]);
 

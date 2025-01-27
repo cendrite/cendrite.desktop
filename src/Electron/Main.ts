@@ -1,12 +1,11 @@
 // noinspection ES6MissingAwait
-
 import "reflect-metadata";
-import { app, BrowserWindow } from 'electron';
+import {app, BrowserWindow} from 'electron';
 import path from "path";
-import { getPreloadPath, isDevelopment } from "./Utilities.js";
-import { initializeDatabase } from './Persistence/Context/DatabaseContext.js';
-import { registerIpcHandlers } from './Ipc/IpcMediator.js';
-import {LogoutManager} from "./Application/Features/Services/LogoutManager.js";
+import {getPreloadPath, isDevelopment} from "./Utilities.js";
+import {initializeDatabase} from './Persistence/Context/DatabaseContext.js';
+import {registerIpcHandlers} from './Ipc/IpcMediator.js';
+import {LogoutManager} from "./Application/Services/LogoutManager/LogoutManager.js";
 
 app.on("ready", async () => {
     await initializeDatabase();
@@ -28,11 +27,14 @@ app.on("ready", async () => {
     registerIpcHandlers();
 
     mainWindow.on('close', (event) => {
-        if(LogoutManager.getInstance().IsLoggingOut)
-        {
+        const logoutManager = LogoutManager.getInstance();
+        if (logoutManager.IsLoggingOut) {
+            console.log("Logout in progress, cancelling close event");
+            event.preventDefault();
             return;
         }
-        event.preventDefault();
+
+        console.log("Closing app");
         mainWindow.webContents.send('app-close');
     })
 });
