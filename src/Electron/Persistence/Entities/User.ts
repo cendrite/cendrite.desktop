@@ -1,4 +1,5 @@
-import { BaseEntity, Column, Entity, PrimaryColumn } from "typeorm";
+import { Column, Entity, PrimaryColumn } from "typeorm";
+import { BaseEntity } from "./BaseEntity.js";
 
 @Entity()
 export class User extends BaseEntity {
@@ -12,9 +13,9 @@ export class User extends BaseEntity {
     @Column({ type: "text" })
     userTag!: string;
 
-    @Column({ type: "text" })
-    profilePictureUrl!: string;
+    @Column({ type: "text", nullable: true })
+    profilePictureUrl?: string;
 
-    @Column({ type: "text" })
-    displayName!: string;
+    @Column({ type: "text", nullable: true })
+    displayName?: string;
 }

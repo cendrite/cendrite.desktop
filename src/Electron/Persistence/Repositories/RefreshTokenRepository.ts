@@ -27,7 +27,7 @@ export class RefreshTokenRepository {
         return refreshToken[0];
     }
 
-    public async deleteAll(): Promise<void> {
+    public async delete(): Promise<void> {
         await this.repository.delete({});
     }
 }

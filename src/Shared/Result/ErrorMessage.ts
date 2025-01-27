@@ -15,7 +15,7 @@ export class ErrorMessage {
      * @returns An ErrorMessage object.
      * @example
      * ```typescript
-     * const errorMessage = ErrorMessage.fromApiResponse("GetNonceFailed", <your api error>);
+     * const errorMessage = ErrorMessage.fromApiResponse("GetNonceFailed", <api error>);
      * ```
      */
     public static fromApiResponse(code: string, message: string): ErrorMessage {

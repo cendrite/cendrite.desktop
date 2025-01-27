@@ -1,9 +1,9 @@
-import { Column } from "typeorm";
+import {Column} from "typeorm";
 
 export abstract class BaseEntity {
 
     @Column({
-        type: "datetime",
+        type: "text",
         transformer: {
             to: (value: Date) => value,
             from: (value: string) => new Date(value)
@@ -12,7 +12,7 @@ export abstract class BaseEntity {
     createdAt = new Date();
 
     @Column({
-        type: "datetime", nullable: true,
+        type: "text", nullable: true,
         transformer: {
             to: (value: Date) => value,
             from: (value: string) => new Date(value)

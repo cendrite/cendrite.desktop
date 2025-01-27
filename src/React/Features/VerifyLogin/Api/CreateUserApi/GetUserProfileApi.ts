@@ -1,0 +1,30 @@
+﻿import {API_URLS} from "../../../../Common/Api/ApiUrls.ts";
+import {Result} from "../../../../../Shared/Result/Result.ts";
+import {ApiClient} from "../../../../Common/Api/ApiClient.ts";
+
+export interface GetUserProfileResponse{
+    id: string;
+    username: string;
+    userTag: string,
+    profilePictureUrl?: string;
+    displayName?: string;
+}
+
+export interface GetUserProfileRequest {
+    userProfileId: string;
+}
+
+export class GetUserProfileApi{
+    private readonly client: ApiClient;
+
+    constructor() {
+        this.client = new ApiClient(API_URLS.USER_MANAGEMENT.GET_PROFILE, true);
+    }
+
+    public async getUserProfile(request: GetUserProfileRequest): Promise<Result<GetUserProfileResponse>> {
+        return this.client.handle<GetUserProfileResponse>({
+            method: "GET",
+            params: request
+        })
+    }
+}

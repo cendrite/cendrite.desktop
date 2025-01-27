@@ -14,6 +14,8 @@ export class TokenManager {
     private userId: string | null = null;
     private deviceId: string | null = null;
     private tokens: Tokens;
+    private refreshInProgress: Promise<void> | null = null;
+
     private readonly refreshTokenApi = new RefreshTokenApi();
     private readonly getNonceApi = new GetNonceApi();
     private readonly verifyNonceApi = new VerifyNonceApi();
@@ -41,10 +43,6 @@ export class TokenManager {
         this.deviceId = deviceId;
     }
 
-    public getTokens(): Tokens {
-        return this.tokens;
-    }
-
     public getJwt(): string | null {
         return this.tokens.jwt;
     }
@@ -56,39 +54,60 @@ export class TokenManager {
     public async initializeTokens(): Promise<void> {
         console.log("Initializing tokens");
         const refreshTokenResult = await window.electron.sendRequestAsync<Result<GetRefreshTokenDto>>(new GetRefreshTokenQuery());
+        console.log("Refresh token result:", refreshTokenResult);
 
-        if (refreshTokenResult.success && refreshTokenResult.data!.expiresAt < new Date()) {
+        if (refreshTokenResult.success && refreshTokenResult.data!.expiresAt > new Date()) {
             this.tokens.refreshToken = refreshTokenResult.data!.refreshToken;
             await this.refreshTokens();
         }
         else {
+            if(!refreshTokenResult.success) console.log("Failed to fetch refresh token:", refreshTokenResult.errorMessage);
+            console.log(refreshTokenResult.errorMessage);
             await this.generateTokensViaNonce();
         }
 
         await this.startBackgroundTokenRefresh();
     }
 
-    private async refreshTokens(): Promise<void> {
-        console.log("Refreshing tokens");
+    public async refreshTokens(): Promise<void> {
+        if (this.refreshInProgress) {
+            console.log("Refresh in progress, waiting for it to finish");
+            await this.refreshInProgress;
+            return;
+        }
 
-        if (this.tokens.refreshToken === null) {
-            console.error("Refresh token is null, generating tokens via nonce");
+        this.refreshInProgress = this.refreshTokensInternal();
+
+        try{
+            await this.refreshInProgress;
+        }
+        finally{
+            this.refreshInProgress = null;
+        }
+    }
+
+    private async refreshTokensInternal(): Promise<void>
+    {
+        if(this.tokens.refreshToken === null) {
+            console.error("Refresh token is null, default to generating tokens via nonce");
             await this.generateTokensViaNonce();
             return;
         }
+
         const result = await this.refreshTokenApi.handle({ userId: this.userId!, deviceId: this.deviceId!, refreshToken: this.tokens.refreshToken });
 
-        if (result.errorMessage?.message.includes("Invalid refresh token")) {
+
+        if(result.errorMessage?.message.includes("Invalid refresh token")) {
             console.log("Invalid refresh token, generating tokens via nonce");
             await this.generateTokensViaNonce();
             return;
         }
 
-        if (result.success) {
+        if(result.success) {
             console.log("New tokens: ", result.data);
             this.setTokens({ jwt: result.data!.jwt, refreshToken: result.data!.refreshToken, expiresAt: result.data!.expiresAt });
             const refreshTokenInsertResult = await window.electron.sendRequestAsync<Result>(new CreateRefreshTokenRequest(result.data!.refreshToken, result.data!.expiresAt));
-            if (!refreshTokenInsertResult.success) {
+            if(!refreshTokenInsertResult.success) {
                 console.error("Failed to insert new refresh token:", refreshTokenInsertResult.errorMessage);
             }
         }
@@ -126,6 +145,11 @@ export class TokenManager {
             }
 
             this.setTokens({ jwt: verifyNonceResult.data!.jwt, refreshToken: verifyNonceResult.data!.refreshToken, expiresAt: verifyNonceResult.data!.expiresAt });
+            const refreshTokenInsertResult = await window.electron.sendRequestAsync<Result>(new CreateRefreshTokenRequest(verifyNonceResult.data!.refreshToken, verifyNonceResult.data!.expiresAt));
+            if (!refreshTokenInsertResult.success) {
+                console.error("Failed to insert new refresh token:", refreshTokenInsertResult.errorMessage);
+                //TODO: fatal
+            }
 
             console.log("Tokens generated successfully:", this.tokens);
         } catch (error) {
@@ -136,18 +160,25 @@ export class TokenManager {
 
     private async startBackgroundTokenRefresh(): Promise<void> {
         const REFRESH_INTERVAL = 1000 * 60 * 10; // 10 minutes
+        let isFirstRun = true;
 
         const refreshLoop = async () => {
+            if(isFirstRun)
+            {
+                console.log("Skipping first refresh loop");
+                isFirstRun = false;
+                setTimeout(refreshLoop, REFRESH_INTERVAL);
+                return;
+            }
+
             if (this.tokens.refreshToken === null) {
                 console.warn("how the fuck is the token null?")
                 return;
             }
-
             await this.refreshTokens();
 
             setTimeout(refreshLoop, REFRESH_INTERVAL);
         }
-
-        refreshLoop();
+        await refreshLoop();
     }
 }
