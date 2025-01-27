@@ -35,8 +35,6 @@ app.on("ready", async () => {
             event.preventDefault();
             return;
         }
-
-        console.log("Closing app");
         mainWindow.webContents.send('app-close');
     })
 });
