@@ -8,7 +8,10 @@ import {registerIpcHandlers} from './Ipc/IpcMediator.js';
 import {LogoutManager} from "./Application/Services/LogoutManager/LogoutManager.js";
 
 app.on("ready", async () => {
+    const logoutManager = LogoutManager.getInstance();
     await initializeDatabase();
+
+    await logoutManager.recoverIfNeeded();
 
     const mainWindow = new BrowserWindow({
         width: 1000,
@@ -27,7 +30,6 @@ app.on("ready", async () => {
     registerIpcHandlers();
 
     mainWindow.on('close', (event) => {
-        const logoutManager = LogoutManager.getInstance();
         if (logoutManager.IsLoggingOut) {
             console.log("Logout in progress, cancelling close event");
             event.preventDefault();

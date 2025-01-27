@@ -1,6 +1,7 @@
 ﻿import path from "path";
 import { app } from "electron";
 import * as fs from "node:fs";
+import {PurgeLocalDataService} from "../Data/PurgeLocalDataService.js";
 
 export class LogoutManager {
     private static instance: LogoutManager;
@@ -37,6 +38,17 @@ export class LogoutManager {
         this.isLoggingOut = false;
         this.deleteFlag();
         console.log("isLoggingOut reset to false and file deleted.");
+    }
+
+    public async recoverIfNeeded(){
+        if(this.isLoggingOut){
+            console.log("Recovering from unexpected shutdown during logout...");
+
+            const purger = new PurgeLocalDataService();
+            await purger.purgeLocalData();
+
+            this.endLogout();
+        }
     }
 
     private saveFlag(): void {

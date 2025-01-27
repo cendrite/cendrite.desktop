@@ -6,6 +6,7 @@ import {DeviceRepository} from "../../../../../Persistence/Repositories/DeviceRe
 import {RefreshTokenRepository} from "../../../../../Persistence/Repositories/RefreshTokenRepository.js";
 import {ErrorMessage} from "../../../../../../Shared/Result/ErrorMessage.js";
 import {LogoutManager} from "../../../../Services/LogoutManager/LogoutManager.js";
+import { PurgeLocalDataService } from "../../../../Services/Data/PurgeLocalDataService.js";
 
 export class LogoutCommandHandler implements Handler<LogoutCommand, void> {
 
@@ -19,13 +20,8 @@ export class LogoutCommandHandler implements Handler<LogoutCommand, void> {
             // Add a delay for 3 seconds
             await new Promise(resolve => setTimeout(resolve, 10000));
 
-            const userRepo = new UserRepository();
-            const deviceRepo = new DeviceRepository();
-            const refreshTokenRepo = new RefreshTokenRepository();
-
-            await userRepo.delete();
-            await deviceRepo.delete();
-            await refreshTokenRepo.delete();
+            const purger = new PurgeLocalDataService();
+            await purger.purgeLocalData();
 
             logoutManager.endLogout();
             console.log("ended logout: ", logoutManager.IsLoggingOut);
