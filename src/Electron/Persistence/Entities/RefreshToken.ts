@@ -11,7 +11,7 @@ export class RefreshToken extends BaseEntity {
     token!: string;
 
     @Column({
-        type: "datetime",
+        type: "text",
         transformer: {
             to: (value: Date) => value,
             from: (value: string) => new Date(value)

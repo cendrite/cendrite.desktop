@@ -8,8 +8,8 @@ import {registerIpcHandlers} from './Ipc/IpcMediator.js';
 import {LogoutManager} from "./Application/Services/LogoutManager/LogoutManager.js";
 
 app.on("ready", async () => {
-    const logoutManager = LogoutManager.getInstance();
     await initializeDatabase();
+    const logoutManager = LogoutManager.getInstance();
 
     await logoutManager.recoverIfNeeded();
 
