@@ -34,24 +34,25 @@ export class TokenManager {
         }
         return TokenManager.instance;
     }
+    public getJwt(): string | null {
+        return this.tokens.jwt;
+    }
 
-    public setUserId(userId: string): void {
+    private setUserId(userId: string): void {
         this.userId = userId;
     }
 
-    public setDeviceId(deviceId: string): void {
+    private setDeviceId(deviceId: string): void {
         this.deviceId = deviceId;
-    }
-
-    public getJwt(): string | null {
-        return this.tokens.jwt;
     }
 
     private setTokens(tokens: Tokens): void {
         this.tokens = tokens;
     }
 
-    public async initializeTokens(): Promise<void> {
+    public async initialize(userId: string, deviceId: string): Promise<void> {
+        this.setUserId(userId);
+        this.setDeviceId(deviceId);
         console.log("Initializing tokens");
         const refreshTokenResult = await window.electron.sendRequestAsync<Result<GetRefreshTokenDto>>(new GetRefreshTokenQuery());
         console.log("Refresh token result:", refreshTokenResult);
@@ -95,7 +96,6 @@ export class TokenManager {
         }
 
         const result = await this.refreshTokenApi.refreshToken({ userId: this.userId!, deviceId: this.deviceId!, refreshToken: this.tokens.refreshToken });
-
 
         if(result.errorMessage?.message.includes("Invalid refresh token")) {
             console.log("Invalid refresh token, generating tokens via nonce");

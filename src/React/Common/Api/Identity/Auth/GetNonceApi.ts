@@ -23,7 +23,7 @@ export class GetNonceApi{
     public async getNonce(request: GetNonceRequest): Promise<Result<GetNonceResponse>> {
         return this.client.handle<GetNonceResponse>({
             method: "GET",
-            data: request
+            params: request
         });
     }
 }
