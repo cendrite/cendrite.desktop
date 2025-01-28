@@ -45,10 +45,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
             }
 
             const tokenManager = TokenManager.getInstance();
-            tokenManager.setDeviceId(deviceResult.data!.id);
-            tokenManager.setUserId(userResult.data!.id);
 
-            await tokenManager.initializeTokens();
+            await tokenManager.initialize(deviceResult.data!.id, userResult.data!.id);
 
             setUser({...userResult.data!, deviceId: deviceResult.data!.id});
 
