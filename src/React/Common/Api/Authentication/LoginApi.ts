@@ -1,9 +1,18 @@
 import { AxiosError, AxiosResponse } from "axios";
 import { Result } from "../../../../Shared/Result/Result";
-import { AuthenticationBaseAPI } from "../../../Common/Api/BaseApi";
-import { LoginRequest, LoginResponse } from "./LoginRequest";
 import { Envelope } from "../../../Common/Api/Envelope";
 import { ErrorMessage } from "../../../../Shared/Result/ErrorMessage";
+import { AuthenticationBaseAPI } from "../BaseApi";
+
+export interface LoginRequest {
+    email: string;
+    password: string;
+}
+
+export interface LoginResponse {
+    userId: string;
+    isVerified: boolean;
+}
 
 export class LoginApi extends AuthenticationBaseAPI<LoginRequest, LoginResponse> {
     public async handle(request: LoginRequest): Promise<Result<LoginResponse>> {

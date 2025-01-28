@@ -1,10 +1,24 @@
 import { AxiosError, AxiosResponse } from "axios";
 import { Result } from "../../../../Shared/Result/Result";
 import { AuthenticationBaseAPI } from "../BaseApi";
-import { CreateDeviceApiRequest } from "./CreateDeviceApiRequest";
-import { CreateDeviceApiResponse } from "./CreateDeviceApiResponse";
 import { ErrorMessage } from "../../../../Shared/Result/ErrorMessage";
 import { Envelope } from "../Envelope";
+
+export interface CreateDeviceApiRequest {
+    userId: string;
+    loginNonceId: string;
+    loginNonce: string;
+    deviceAppVersion: string;
+    deviceType: number;
+    devicePlatform: number;
+    base64DevicePublicKey: string;
+}
+
+export interface CreateDeviceApiResponse {
+    deviceId: string;
+    deviceConnectionId: string;
+}
+
 
 export class CreateDeviceApi extends AuthenticationBaseAPI<CreateDeviceApiRequest, CreateDeviceApiResponse> {
 

@@ -17,9 +17,6 @@ export class LogoutCommandHandler implements Handler<LogoutCommand, void> {
             logoutManager.startLogout();
             console.log("started logout: ", logoutManager.IsLoggingOut);
 
-            // Add a delay for 3 seconds
-            await new Promise(resolve => setTimeout(resolve, 10000));
-
             const purger = new PurgeLocalDataService();
             await purger.purgeLocalData();
 

@@ -2,8 +2,6 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Formik, Form, FormikHelpers } from "formik";
 import { RegisterFieldName, RegisterFormValues } from "./Form/RegisterFormValues";
-import { RegisterRequest } from "./Api/RegisterRequest";
-import { RegisterApi } from "./Api/RegisterApi";
 import InputBox from "../../Common/Components/InputBox";
 import FormButton from "../../Common/Components/FormButton";
 import ErrorTooltip from "../../Common/Components/ErrorToolTip";
@@ -12,6 +10,7 @@ import { RegisterValidationSchema } from "./Validation/RegisterFormValidation";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../Redux/Store";
 import { setEmail, setRegisterUserId, setUsername } from "../../Redux/States/RegisterState";
+import {RegisterApi, RegisterRequest} from "../../Common/Api/Authentication/RegisterApi.ts";
 
 const RegisterPage: React.FC = () => {
   const navigate = useNavigate();

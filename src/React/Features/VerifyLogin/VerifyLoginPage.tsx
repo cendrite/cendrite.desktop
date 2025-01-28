@@ -1,8 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { VerifyLoginApi } from "./Api/VerifyLoginApi";
-import { ResendCodeApi } from "../../Common/Api/ResendVerificationCode/ResendVerificationCodeApi";
 import React, { useState } from "react";
-import { CodeType } from "../../Common/Api/ResendVerificationCode/ResendVerificationCodeRequest";
 import { Form, Formik, FormikHelpers } from "formik";
 import FormButton from "../../Common/Components/FormButton";
 import ErrorTooltip from "../../Common/Components/ErrorToolTip";
@@ -12,11 +9,13 @@ import { RootState } from "../../Redux/Store";
 import { Result } from "../../../Shared/Result/Result";
 import { GenerateKeysRequest } from "./../../../Electron/Application/Features/Device/Commands/GenerateKeys/GenerateKeysRequest";
 import { GenerateKeysDto } from "./../../../Electron/Application/Features/Device/Commands/GenerateKeys/GenerateKeysDto";
-import { CreateDeviceApi } from "../../Common/Api/Device/CreateDeviceApi";
 import { CreateDeviceRequest } from "../../../Electron/Application/Features/Device/Commands/CreateDevice/CreateDeviceRequest";
 import { TokenManager } from "../../Token/TokenManager";
 import {UserProfileService} from "./Services/UserProfileService.ts";
 import {useUser} from "../../Common/Context/UserContext.tsx";
+import {CreateDeviceApi} from "../../Common/Api/Authentication/CreateDeviceApi.ts";
+import {CodeType, ResendCodeApi} from "../../Common/Api/Authentication/ResendVerificationCodeApi.ts";
+import {VerifyLoginApi} from "../../Common/Api/Authentication/VerifyLoginApi.ts";
 
 const VerifyLoginPage: React.FC = () => {
   const navigate = useNavigate();

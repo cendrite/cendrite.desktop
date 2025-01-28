@@ -6,9 +6,8 @@ import ErrorTooltip from "../../Common/Components/ErrorToolTip";
 import FormButton from "../../Common/Components/FormButton";
 import { useSelector } from "react-redux";
 import { RootState } from "../../Redux/Store";
-import { VerifyUserApi } from "./Api/VerifyUserApi";
-import { ResendCodeApi } from "../../Common/Api/ResendVerificationCode/ResendVerificationCodeApi";
-import { CodeType } from "../../Common/Api/ResendVerificationCode/ResendVerificationCodeRequest";
+import {CodeType, ResendCodeApi} from "../../Common/Api/Authentication/ResendVerificationCodeApi";
+import { VerifyUserApi } from "../../Common/Api/Authentication/VerifyUserApi";
 
 const VerifyUserPage: React.FC = () => {
   const navigate = useNavigate();
