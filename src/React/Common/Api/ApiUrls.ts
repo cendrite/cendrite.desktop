@@ -9,6 +9,9 @@
             LOGOUT: "http://10.0.0.100:30069/api/Authentication/logout",
             LOGIN: "http://10.0.0.100:30069/api/Authentication/login",
             VERIFY_LOGIN: "http://10.0.0.100:30069/api/Authentication/verify-login",
+            GET_NONCE: "http://10.0.0.100:30069/api/Authentication/nonce",
+            REFRESH_TOKEN: "http://10.0.0.100:30069/api/Authentication/refresh-token",
+            VERIFY_NONCE: "http://10.0.0.100:30069/api/Authentication/verify-nonce",
         },
         USER: {
             REGISTER: "http://10.0.0.100:30069/api/User",

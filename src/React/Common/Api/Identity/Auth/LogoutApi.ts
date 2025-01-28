@@ -7,7 +7,6 @@ export interface LogoutApiRequest{
     deviceId: string;
 }
 
-
 export class LogoutApi {
     private readonly client: ApiClient;
 
