@@ -1,5 +1,5 @@
 import {useNavigate} from "react-router-dom";
-import React, {useState} from "react";
+import React from "react";
 import {Form, Formik, FormikHelpers} from "formik";
 import FormButton from "../../Common/Components/FormButton";
 import ErrorTooltip from "../../Common/Components/ErrorToolTip";
@@ -10,16 +10,14 @@ import {TokenManager} from "../../Token/TokenManager";
 import {UserProfileService} from "./Services/UserProfileService.ts";
 import {useUser} from "../../Common/Context/UserContext.tsx";
 import {VerifyLoginApi} from "../../Common/Api/Identity/Auth/VerifyLoginApi.ts";
-import {CodeType, ResendCodeApi} from "../../Common/Api/Identity/User/ResendVerificationCodeApi.ts";
 import {DeviceService} from "./Services/CreateDeviceService.ts";
+import ResendCodeButton from "../../Common/Components/ResendCodeButton.tsx";
+import {CodeType} from "../../Common/Api/Identity/User/ResendVerificationCodeApi.ts";
 
 const VerifyLoginPage: React.FC = () => {
     const navigate = useNavigate();
-    const [isCooldown, setIsCooldown] = useState(false); // TODO: move to a hook 1
-    const [, setCooldownTime] = useState(5); // TODO: move to a hook 1
     const tokenManager = TokenManager.getInstance();
     const verifyLoginApi = new VerifyLoginApi();
-    const resendCodeApi = new ResendCodeApi(); // TODO: move to a hook 1
     const userProfileService = new UserProfileService();
     const deviceService = new DeviceService();
     const loginState = useSelector((state: RootState) => state.login);
@@ -67,22 +65,6 @@ const VerifyLoginPage: React.FC = () => {
 
         navigate("/home");
     };
-
-    const handleResendCode = () => {
-        if (isCooldown) return;
-        resendCodeApi.resendCode({userId: loginState.UserId!, codeType: CodeType.Login});
-        setIsCooldown(true);
-        setCooldownTime(7);
-
-        const interval = setInterval(() => {
-            setCooldownTime(prev => prev - 1);
-        }, 1000);
-
-        setTimeout(() => {
-            clearInterval(interval);
-            setIsCooldown(false);
-        }, 5000);
-    }; // TODO: move to a hook 1
 
     return (
         <div className="flex flex-col justify-center items-center h-screen bg-zinc-950 text-white">
@@ -133,20 +115,9 @@ const VerifyLoginPage: React.FC = () => {
                     )}
                 </Formik>
 
-                {/* Resend link */}
-                <div className="mt-4">
-                    <p>
-                        Lost your code?{" "}
-                        <span
-                            className={`text-blue-400 cursor-pointer ${
-                                isCooldown ? "opacity-50 cursor-not-allowed" : "hover:underline"
-                            }`}
-                            onClick={handleResendCode}
-                        >
-              {isCooldown ? "sending verification code" : "Press to resend"}
-            </span>
-                    </p>
-                </div>
+                <ResendCodeButton
+                    codeType={CodeType.Login}
+                    userId={loginState!.UserId!}/>
             </div>
         </div>
     );
