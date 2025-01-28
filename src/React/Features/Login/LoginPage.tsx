@@ -9,8 +9,8 @@ import { AppDispatch } from "../../Redux/Store";
 import { useDispatch } from "react-redux";
 import { setEmail, setRegisterUserId } from "../../Redux/States/RegisterState";
 import { setLoginUserId } from "../../Redux/States/LoginState";
-import {LoginApi} from "../../Common/Api/Authentication/LoginApi.ts";
 import React from "react";
+import {LoginApi} from "../../Common/Api/Identity/Auth/LoginApi.ts";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ const LoginPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const handleLogin = async (values: LoginFormValues, { setFieldError }: FormikHelpers<LoginFormValues>) => {
-    const result = await loginApi.handle({
+    const result = await loginApi.login({
       email: values.email,
       password: values.password,
     });

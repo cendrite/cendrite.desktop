@@ -13,9 +13,9 @@ import { CreateDeviceRequest } from "../../../Electron/Application/Features/Devi
 import { TokenManager } from "../../Token/TokenManager";
 import {UserProfileService} from "./Services/UserProfileService.ts";
 import {useUser} from "../../Common/Context/UserContext.tsx";
-import {CreateDeviceApi} from "../../Common/Api/Authentication/CreateDeviceApi.ts";
-import {CodeType, ResendCodeApi} from "../../Common/Api/Authentication/ResendVerificationCodeApi.ts";
-import {VerifyLoginApi} from "../../Common/Api/Authentication/VerifyLoginApi.ts";
+import {VerifyLoginApi} from "../../Common/Api/Identity/Auth/VerifyLoginApi.ts";
+import {CodeType, ResendCodeApi} from "../../Common/Api/Identity/User/ResendVerificationCodeApi.ts";
+import {CreateDeviceApi} from "../../Common/Api/Identity/User/CreateDeviceApi.ts";
 
 const VerifyLoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -34,7 +34,7 @@ const VerifyLoginPage: React.FC = () => {
     values: { verificationCode: string },
     { setFieldError }: FormikHelpers<{ verificationCode: string }>
   ) => {
-    const result = await verifyLoginApi.handle({
+    const result = await verifyLoginApi.verifyLogin({
       userId: loginState.UserId!,
       loginVerificationCode: values.verificationCode,
     });
@@ -48,7 +48,7 @@ const VerifyLoginPage: React.FC = () => {
       console.log("DevicePublicKey: ", keys.data!.publicKey);
       console.log("DevicePrivateKey: ", keys.data!.privateKey);
 
-      const crtDevResult = await createDeviceApi.handle({
+      const crtDevResult = await createDeviceApi.createDevice({
         userId: loginState.UserId!,
         loginNonceId: result.data!.nonceId,
         loginNonce: result.data!.nonce,
@@ -98,7 +98,7 @@ const VerifyLoginPage: React.FC = () => {
 
   const handleResendCode = () => {
     if (isCooldown) return;
-    resendCodeApi.handle({ userId: loginState.UserId!, codeType: CodeType.Login });
+    resendCodeApi.resendCode({ userId: loginState.UserId!, codeType: CodeType.Login });
     setIsCooldown(true);
     setCooldownTime(7);
 

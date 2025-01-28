@@ -10,7 +10,7 @@ import { RegisterValidationSchema } from "./Validation/RegisterFormValidation";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../Redux/Store";
 import { setEmail, setRegisterUserId, setUsername } from "../../Redux/States/RegisterState";
-import {RegisterApi, RegisterRequest} from "../../Common/Api/Authentication/RegisterApi.ts";
+import {RegisterApi, RegisterRequest} from "../../Common/Api/Identity/User/RegisterApi.ts";
 
 const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ const RegisterPage: React.FC = () => {
   const registerApi = new RegisterApi();
 
   const handleSubmit = async (values: RegisterRequest, { setFieldError }: FormikHelpers<RegisterFormValues>) => {
-    const result = await registerApi.handle(values);
+    const result = await registerApi.register(values);
     if (result.success) {
       dispatch(setEmail(result.data!.email));
       dispatch(setUsername(values.username));
