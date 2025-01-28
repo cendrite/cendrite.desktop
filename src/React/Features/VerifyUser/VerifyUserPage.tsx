@@ -1,20 +1,18 @@
 import { Formik, Form, FormikHelpers } from "formik";
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { VerifyUserValidationSchema } from "./Validation/VerifyUserFormValidation";
 import ErrorTooltip from "../../Common/Components/ErrorToolTip";
 import FormButton from "../../Common/Components/FormButton";
 import { useSelector } from "react-redux";
 import { RootState } from "../../Redux/Store";
-import {CodeType, ResendCodeApi} from "../../Common/Api/Identity/User/ResendVerificationCodeApi.ts";
+import {CodeType} from "../../Common/Api/Identity/User/ResendVerificationCodeApi.ts";
 import {VerifyUserApi} from "../../Common/Api/Identity/User/VerifyUserApi.ts";
+import ResendCodeButton from "../../Common/Components/ResendCodeButton.tsx";
 
 const VerifyUserPage: React.FC = () => {
   const navigate = useNavigate();
-  const [isCooldown, setIsCooldown] = useState(false);
-  const [, setCooldownTime] = useState(5);
   const verifyUserApi = new VerifyUserApi();
-  const resendCodeApi = new ResendCodeApi();
   const registerState = useSelector((state: RootState) => state.register);
 
   const handleSubmit = async (
@@ -31,22 +29,6 @@ const VerifyUserPage: React.FC = () => {
       console.error(result.errorMessage);
       setFieldError("verificationCode", result.errorMessage!.message);
     }
-  };
-
-  const handleResendCode = () => {
-    if (isCooldown) return;
-    resendCodeApi.resendCode({ userId: registerState.UserId!, codeType: CodeType.EmailVerification });
-    setIsCooldown(true);
-    setCooldownTime(7);
-
-    const interval = setInterval(() => {
-      setCooldownTime(prev => prev - 1);
-    }, 1000);
-
-    setTimeout(() => {
-      clearInterval(interval);
-      setIsCooldown(false);
-    }, 5000);
   };
 
   return (
@@ -96,20 +78,7 @@ const VerifyUserPage: React.FC = () => {
           )}
         </Formik>
 
-        {/* Resend link */}
-        <div className="mt-4">
-          <p>
-            Lost your code?{" "}
-            <span
-              className={`text-blue-400 cursor-pointer ${
-                isCooldown ? "opacity-50 cursor-not-allowed" : "hover:underline"
-              }`}
-              onClick={handleResendCode}
-            >
-              {isCooldown ? "sending verification code" : "Press to resend"}
-            </span>
-          </p>
-        </div>
+        <ResendCodeButton userId={registerState.UserId!} codeType={CodeType.EmailVerification}/>
       </div>
     </div>
   );
