@@ -6,9 +6,8 @@ import ErrorTooltip from "../../Common/Components/ErrorToolTip";
 import FormButton from "../../Common/Components/FormButton";
 import { useSelector } from "react-redux";
 import { RootState } from "../../Redux/Store";
-import { VerifyUserApi } from "./Api/VerifyUserApi";
-import { ResendCodeApi } from "../../Common/Api/ResendVerificationCode/ResendVerificationCodeApi";
-import { CodeType } from "../../Common/Api/ResendVerificationCode/ResendVerificationCodeRequest";
+import {CodeType, ResendCodeApi} from "../../Common/Api/Identity/User/ResendVerificationCodeApi.ts";
+import {VerifyUserApi} from "../../Common/Api/Identity/User/VerifyUserApi.ts";
 
 const VerifyUserPage: React.FC = () => {
   const navigate = useNavigate();
@@ -22,7 +21,7 @@ const VerifyUserPage: React.FC = () => {
     values: { verificationCode: string },
     { setFieldError }: FormikHelpers<{ verificationCode: string }>
   ) => {
-    const result = await verifyUserApi.handle({
+    const result = await verifyUserApi.verifyUser({
       userId: registerState.UserId!,
       verificationCode: values.verificationCode,
     });
@@ -36,7 +35,7 @@ const VerifyUserPage: React.FC = () => {
 
   const handleResendCode = () => {
     if (isCooldown) return;
-    resendCodeApi.handle({ userId: registerState.UserId!, codeType: CodeType.EmailVerification });
+    resendCodeApi.resendCode({ userId: registerState.UserId!, codeType: CodeType.EmailVerification });
     setIsCooldown(true);
     setCooldownTime(7);
 

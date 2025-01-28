@@ -1,6 +1,7 @@
-﻿import {API_URLS} from "../../../../Common/Api/ApiUrls.ts";
-import {Result} from "../../../../../Shared/Result/Result.ts";
-import {ApiClient} from "../../../../Common/Api/ApiClient.ts";
+﻿import { Result } from "../../../../Shared/Result/Result.ts";
+import { ApiClient } from "../ApiClient";
+import {API_URLS} from "../ApiUrls.ts";
+
 
 export interface GetUserProfileResponse{
     id: string;

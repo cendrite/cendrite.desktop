@@ -1,7 +1,7 @@
-﻿import {GetUserProfileApi} from "../Api/CreateUserApi/GetUserProfileApi.ts";
-import {Result} from "../../../../Shared/Result/Result.ts";
+﻿import {Result} from "../../../../Shared/Result/Result.ts";
 import {CreateUserDto} from "../../../../Electron/Application/Features/User/Commands/Create/CreateUserDto.ts";
 import {CreateUserCommand} from "../../../../Electron/Application/Features/User/Commands/Create/CreateUserCommand.ts";
+import {GetUserProfileApi} from "../../../Common/Api/UserProfile/GetUserProfileApi.ts";
 
 export class UserProfileService {
     private readonly getUserProfileApi = new GetUserProfileApi();

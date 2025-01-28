@@ -1,7 +1,7 @@
 ﻿import { ErrorMessage } from "../../../Shared/Result/ErrorMessage";
 import { Result } from "../../../Shared/Result/Result";
-import { LogoutApi } from "../Api/Authentication/LogoutApi";
 import {LogoutCommand} from "../../../Electron/Application/Features/User/Commands/Logout/LogoutCommand.ts";
+import {LogoutApi} from "../Api/Identity/Auth/LogoutApi.ts";
 
 export class LogoutService{
     async logout(id: string, deviceId: string): Promise<Result> {

@@ -1,13 +1,13 @@
 import { Result } from "../../Shared/Result/Result";
-import { GetNonceApi } from "./Api/Nonce/GetNonceApi";
-import { VerifyNonceApi } from "./Api/Nonce/VerifyNonceApi";
-import { RefreshTokenApi } from "./Api/TokenApi.ts/RefreshTokenApi";
 import { Tokens } from "./Tokens"
 import { GetRefreshTokenDto } from './../../Electron/Application/Features/RefreshToken/Queries/GetRefreshTokenDto';
 import { GetRefreshTokenQuery } from './../../Electron/Application/Features/RefreshToken/Queries/GetRefreshTokenQuery';
 import { SignNonceRequest } from './../../Electron/Application/Features/Device/Commands/SignNonce/SignNonceRequest';
 import { SignNonceDto } from './../../Electron/Application/Features/Device/Commands/SignNonce/SignNonceDto';
 import { CreateRefreshTokenRequest } from './../../Electron/Application/Features/RefreshToken/Commands/Create/CreateRefreshTokenRequest';
+import {RefreshTokenApi} from "../Common/Api/Identity/Auth/RefreshTokenApi.ts";
+import {GetNonceApi} from "../Common/Api/Identity/Auth/GetNonceApi.ts";
+import {VerifyNonceApi} from "../Common/Api/Identity/Auth/VerifyNonceApi.ts";
 
 export class TokenManager {
     private static instance: TokenManager;
@@ -94,7 +94,7 @@ export class TokenManager {
             return;
         }
 
-        const result = await this.refreshTokenApi.handle({ userId: this.userId!, deviceId: this.deviceId!, refreshToken: this.tokens.refreshToken });
+        const result = await this.refreshTokenApi.refreshToken({ userId: this.userId!, deviceId: this.deviceId!, refreshToken: this.tokens.refreshToken });
 
 
         if(result.errorMessage?.message.includes("Invalid refresh token")) {
@@ -119,7 +119,7 @@ export class TokenManager {
     private async generateTokensViaNonce(): Promise<void> {
         console.log("Generating tokens via nonce");
         try {
-            const nonceResult = await this.getNonceApi.handle({ UserId: this.userId!, DeviceId: this.deviceId! });
+            const nonceResult = await this.getNonceApi.getNonce({ UserId: this.userId!, DeviceId: this.deviceId! });
 
             if (!nonceResult.success) {
                 throw new Error("Failed to fetch nonce: " + (nonceResult.errorMessage?.message || "Unknown error"));
@@ -133,7 +133,7 @@ export class TokenManager {
                 throw new Error("Failed to sign nonce: " + (signedNonceResult.errorMessage?.message || "Unknown error"));
             }
 
-            const verifyNonceResult = await this.verifyNonceApi.handle({
+            const verifyNonceResult = await this.verifyNonceApi.verifyNonce({
                 userId: this.userId!,
                 deviceId: this.deviceId!,
                 nonceId: nonceResult.data!.nonceId,
