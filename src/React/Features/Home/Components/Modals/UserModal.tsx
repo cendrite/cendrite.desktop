@@ -2,6 +2,9 @@
 import Modal from "react-modal";
 import {useUser} from "../../../../Common/Context/UserContext.tsx";
 import LogoutModal from "./LogoutModal.tsx";
+import {
+    UpdateProfilePictureCommand
+} from "../../../../../Electron/Application/Features/User/Commands/Update/ProfilePicture/UpdateProfilePictureCommand.ts";
 
 
 interface UserModalProps {
@@ -12,6 +15,12 @@ interface UserModalProps {
 const UserModal: React.FC<UserModalProps> = ({isOpen, onClose}) => {
     const {user} = useUser();
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+
+    const setProfilePicture = async ()  => {
+        console.log("Change Picture");
+        const result = await window.electron.sendRequestAsync(new UpdateProfilePictureCommand());
+        console.log(result);
+    };
 
     return (
         <>
@@ -48,7 +57,8 @@ const UserModal: React.FC<UserModalProps> = ({isOpen, onClose}) => {
                             )}
 
                             {/* Edit Button */}
-                            <button className="text-sm text-blue-500 font-semibold hover:underline mt-2">
+                            <button className="text-sm text-blue-500 font-semibold hover:underline mt-2"
+                            onClick={setProfilePicture}>
                                 Change Picture
                             </button>
 

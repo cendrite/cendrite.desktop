@@ -27,7 +27,7 @@ app.on("ready", async () => {
     } else {
         mainWindow.loadFile(path.join(app.getAppPath(), './dist-react/index.html'))
     }
-    registerIpcHandlers();
+    registerIpcHandlers(mainWindow);
 
     mainWindow.on('close', (event) => {
         if (logoutManager.IsLoggingOut) {

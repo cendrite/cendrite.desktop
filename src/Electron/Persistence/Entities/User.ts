@@ -16,6 +16,9 @@ export class User extends BaseEntity {
     @Column({ type: "text", nullable: true })
     profilePictureUrl?: string;
 
+    @Column({type: "blob", nullable: true})
+    profilePicture?: Buffer;
+
     @Column({ type: "text", nullable: true })
     displayName?: string;
 }
