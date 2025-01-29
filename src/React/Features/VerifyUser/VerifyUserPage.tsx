@@ -4,23 +4,22 @@ import { useNavigate } from "react-router-dom";
 import { VerifyUserValidationSchema } from "./Validation/VerifyUserFormValidation";
 import ErrorTooltip from "../../Common/Components/ErrorToolTip";
 import FormButton from "../../Common/Components/FormButton";
-import { useSelector } from "react-redux";
-import { RootState } from "../../Redux/Store";
 import {CodeType} from "../../Common/Api/Identity/User/ResendVerificationCodeApi.ts";
 import {VerifyUserApi} from "../../Common/Api/Identity/User/VerifyUserApi.ts";
 import ResendCodeButton from "../../Common/Components/ResendCodeButton.tsx";
+import {useOnboarding} from "../../Common/Context/OnboardingContext.tsx";
 
 const VerifyUserPage: React.FC = () => {
   const navigate = useNavigate();
   const verifyUserApi = new VerifyUserApi();
-  const registerState = useSelector((state: RootState) => state.register);
+  const onboardingContext = useOnboarding();
 
   const handleSubmit = async (
     values: { verificationCode: string },
     { setFieldError }: FormikHelpers<{ verificationCode: string }>
   ) => {
     const result = await verifyUserApi.verifyUser({
-      userId: registerState.UserId!,
+      userId: onboardingContext.onboardingData.UserId!,
       verificationCode: values.verificationCode,
     });
     if (result.success) {
@@ -78,7 +77,7 @@ const VerifyUserPage: React.FC = () => {
           )}
         </Formik>
 
-        <ResendCodeButton userId={registerState.UserId!} codeType={CodeType.EmailVerification}/>
+        <ResendCodeButton userId={onboardingContext.onboardingData.UserId!} codeType={CodeType.EmailVerification}/>
       </div>
     </div>
   );

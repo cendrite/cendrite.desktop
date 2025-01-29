@@ -5,17 +5,14 @@ import { InitialFormValues, LoginFieldName, LoginFormValues } from "./FormValues
 import InputBox from "../../Common/Components/InputBox";
 import ErrorTooltip from "../../Common/Components/ErrorToolTip";
 import FormButton from "../../Common/Components/FormButton";
-import { AppDispatch } from "../../Redux/Store";
-import { useDispatch } from "react-redux";
-import { setEmail, setRegisterUserId } from "../../Redux/States/RegisterState";
-import { setLoginUserId } from "../../Redux/States/LoginState";
 import React from "react";
 import {LoginApi} from "../../Common/Api/Identity/Auth/LoginApi.ts";
+import {useOnboarding} from "../../Common/Context/OnboardingContext.tsx";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const loginApi = new LoginApi();
-  const dispatch = useDispatch<AppDispatch>();
+  const onboardingData = useOnboarding();
 
   const handleLogin = async (values: LoginFormValues, { setFieldError }: FormikHelpers<LoginFormValues>) => {
     const result = await loginApi.login({
@@ -24,12 +21,12 @@ const LoginPage: React.FC = () => {
     });
 
     if (result.success && result.data) {
-      if (result.data!.isVerified === true) {
-        dispatch(setLoginUserId(result.data!.userId));
+      if (result.data!.isVerified) {
+        onboardingData.updateOnboardingData({UserId: result.data!.userId});
         navigate("/verifyLogin");
-      } else if (result.data!.isVerified === false) {
-        dispatch(setEmail(values.email));
-        dispatch(setRegisterUserId(result.data!.userId));
+      } else if (!result.data.isVerified) {
+        onboardingData.updateOnboardingData({UserId: result.data!.userId});
+        onboardingData.updateOnboardingData({email: values.email});
         navigate("/verifyUser");
       }
     } else {
