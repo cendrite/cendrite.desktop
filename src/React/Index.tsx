@@ -6,15 +6,18 @@ import {store} from "./Redux/Store.ts";
 import {Provider} from "react-redux";
 import {UserProvider} from "./Common/Context/UserContext.tsx";
 import {AuthProvider} from "./Common/Context/AuthContext.tsx";
+import {OnboardingProvider} from "./Common/Context/OnboardingContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
         <Provider store={store}>
-            <UserProvider>
-                <AuthProvider>
-                    <App/>
-                </AuthProvider>
-            </UserProvider>
+            <OnboardingProvider>
+                <UserProvider>
+                    <AuthProvider>
+                        <App/>
+                    </AuthProvider>
+                </UserProvider>
+            </OnboardingProvider>
         </Provider>
     </StrictMode>
 );

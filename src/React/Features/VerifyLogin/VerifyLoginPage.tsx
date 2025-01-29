@@ -4,15 +4,14 @@ import {Form, Formik, FormikHelpers} from "formik";
 import FormButton from "../../Common/Components/FormButton";
 import ErrorTooltip from "../../Common/Components/ErrorToolTip";
 import {VerifyLoginValidationSchema} from "./Validation/VerifyLoginValidationSchema";
-import {useSelector} from "react-redux";
-import {RootState} from "../../Redux/Store";
 import {TokenManager} from "../../Token/TokenManager";
 import {UserProfileService} from "./Services/UserProfileService.ts";
-import {useUser} from "../../Common/Context/UserContext.tsx";
 import {VerifyLoginApi} from "../../Common/Api/Identity/Auth/VerifyLoginApi.ts";
 import {DeviceService} from "./Services/CreateDeviceService.ts";
 import ResendCodeButton from "../../Common/Components/ResendCodeButton.tsx";
 import {CodeType} from "../../Common/Api/Identity/User/ResendVerificationCodeApi.ts";
+import {useUser} from "../../Common/Context/UserContext.tsx";
+import {useOnboarding} from "../../Common/Context/OnboardingContext.tsx";
 
 const VerifyLoginPage: React.FC = () => {
     const navigate = useNavigate();
@@ -20,17 +19,15 @@ const VerifyLoginPage: React.FC = () => {
     const verifyLoginApi = new VerifyLoginApi();
     const userProfileService = new UserProfileService();
     const deviceService = new DeviceService();
-    const loginState = useSelector((state: RootState) => state.login);
-    const {setUser} = useUser();
+    const userContext = useUser();
+    const onboardingContext = useOnboarding();
 
 
-    const handleSubmit = async (
-        values: { verificationCode: string },
+    const handleSubmit = async (values: { verificationCode: string },
         {setFieldError}: FormikHelpers<{ verificationCode: string }>
     ) => {
-
         const verifyLoginResult = await verifyLoginApi.verifyLogin({
-            userId: loginState.UserId!,
+            userId: onboardingContext.onboardingData.UserId!,
             loginVerificationCode: values.verificationCode,
         });
 
@@ -41,7 +38,7 @@ const VerifyLoginPage: React.FC = () => {
         }
 
         const deviceRegistrationResult = await deviceService.HandleDeviceRegistration(
-            loginState.UserId!,
+            onboardingContext.onboardingData.UserId!,
             verifyLoginResult.data!.nonceId,
             verifyLoginResult.data!.nonce);
 
@@ -51,10 +48,10 @@ const VerifyLoginPage: React.FC = () => {
             return;
         }
 
-        await tokenManager.initialize(loginState.UserId!, deviceRegistrationResult.data!);
+        await tokenManager.initialize(onboardingContext.onboardingData.UserId!, deviceRegistrationResult.data!);
 
-        const userProfileResult = await userProfileService.HandleUserProfile(loginState.UserId!);
-        setUser({
+        const userProfileResult = await userProfileService.HandleUserProfile(onboardingContext.onboardingData.UserId!);
+        userContext.setUser({
             id: userProfileResult!.id,
             username: userProfileResult!.username,
             userTag: userProfileResult!.userTag,
@@ -117,7 +114,7 @@ const VerifyLoginPage: React.FC = () => {
 
                 <ResendCodeButton
                     codeType={CodeType.Login}
-                    userId={loginState!.UserId!}/>
+                    userId={onboardingContext.onboardingData.UserId!}/>
             </div>
         </div>
     );
