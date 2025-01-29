@@ -21,10 +21,10 @@ const LoginPage: React.FC = () => {
     });
 
     if (result.success && result.data) {
-      if (result.data!.isVerified === true) {
+      if (result.data!.isVerified) {
         onboardingData.updateOnboardingData({UserId: result.data!.userId});
         navigate("/verifyLogin");
-      } else if (result.data!.isVerified === false) {
+      } else if (!result.data.isVerified) {
         onboardingData.updateOnboardingData({UserId: result.data!.userId});
         onboardingData.updateOnboardingData({email: values.email});
         navigate("/verifyUser");

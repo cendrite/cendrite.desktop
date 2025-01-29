@@ -48,6 +48,8 @@ const VerifyLoginPage: React.FC = () => {
             return;
         }
 
+        console.log("USER ONBOARDING DATA", onboardingContext.onboardingData);
+        console.log("DEVICE REGISTRATION RESULT", deviceRegistrationResult);
         await tokenManager.initialize(onboardingContext.onboardingData.UserId!, deviceRegistrationResult.data!);
 
         const userProfileResult = await userProfileService.HandleUserProfile(onboardingContext.onboardingData.UserId!);
