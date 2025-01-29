@@ -2,14 +2,18 @@
 import { Result } from "../../../Shared/Result/Result";
 import {LogoutCommand} from "../../../Electron/Application/Features/User/Commands/Logout/LogoutCommand.ts";
 import {LogoutApi} from "../Api/Identity/Auth/LogoutApi.ts";
+import {TokenManager} from "../../Token/TokenManager.ts";
 
 export class LogoutService{
     async logout(id: string, deviceId: string): Promise<Result> {
+
         const logoutApi = new LogoutApi();
         const result = await logoutApi.logout({id, deviceId});
 
         if(!result.success)
             console.warn("Backend logout failed", result.errorMessage);
+
+        TokenManager.getInstance().disableAndClear();
 
         const localDeleteResult = await window.electron.sendRequestAsync<Result>(new LogoutCommand())
 

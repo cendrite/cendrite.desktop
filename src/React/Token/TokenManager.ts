@@ -14,7 +14,9 @@ export class TokenManager {
     private userId: string | null = null;
     private deviceId: string | null = null;
     private tokens: Tokens;
+    private stopRefreshLoop: boolean = false;
     private refreshInProgress: Promise<void> | null = null;
+    private refreshLoopTimer: ReturnType<typeof setTimeout> | null = null;
 
     private readonly refreshTokenApi = new RefreshTokenApi();
     private readonly getNonceApi = new GetNonceApi();
@@ -71,6 +73,11 @@ export class TokenManager {
     }
 
     public async refreshTokens(): Promise<void> {
+        if(this.stopRefreshLoop){
+            console.log("Refresh loop stopped by request. Aborting.");
+            return;
+        }
+
         if (this.refreshInProgress) {
             console.log("Refresh in progress, waiting for it to finish");
             await this.refreshInProgress;
@@ -162,6 +169,11 @@ export class TokenManager {
         const REFRESH_INTERVAL = 1000 * 60 * 10; // 10 minutes
         let isFirstRun = true;
 
+        if(this.stopRefreshLoop){
+            console.log("Refresh loop stopped by request. Aborting.");
+            return;
+        }
+
         const refreshLoop = async () => {
             if(isFirstRun)
             {
@@ -177,8 +189,26 @@ export class TokenManager {
             }
             await this.refreshTokens();
 
-            setTimeout(refreshLoop, REFRESH_INTERVAL);
+            this.refreshLoopTimer = setTimeout(refreshLoop, REFRESH_INTERVAL);
         }
         await refreshLoop();
+    }
+
+    public disableAndClear(): void {
+        console.log("Disabling TokenManager and clearing data.")
+        this.stopRefreshLoop = true;
+
+        if(this.refreshLoopTimer){
+            clearTimeout(this.refreshLoopTimer)
+            this.refreshLoopTimer = null;
+        }
+
+        this.userId = null;
+        this.deviceId = null;
+        this.tokens = {
+            jwt: null,
+            refreshToken: null,
+            expiresAt: null
+        }
     }
 }
