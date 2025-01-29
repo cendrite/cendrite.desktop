@@ -53,6 +53,7 @@ export class TokenManager {
     }
 
     public async initialize(userId: string, deviceId: string): Promise<void> {
+        this.stopRefreshLoop = false;
         this.setUserId(userId);
         this.setDeviceId(deviceId);
         console.log("Initializing tokens");
@@ -104,22 +105,17 @@ export class TokenManager {
 
         const result = await this.refreshTokenApi.refreshToken({ userId: this.userId!, deviceId: this.deviceId!, refreshToken: this.tokens.refreshToken });
 
-        if(result.errorMessage?.message.includes("Invalid refresh token")) {
+        if(!result.success) {
             console.log("Invalid refresh token, generating tokens via nonce");
             await this.generateTokensViaNonce();
             return;
-        }
-
-        if(result.success) {
+        }else{
             console.log("New tokens: ", result.data);
             this.setTokens({ jwt: result.data!.jwt, refreshToken: result.data!.refreshToken, expiresAt: result.data!.expiresAt });
             const refreshTokenInsertResult = await window.electron.sendRequestAsync<Result>(new CreateRefreshTokenRequest(result.data!.refreshToken, result.data!.expiresAt));
             if(!refreshTokenInsertResult.success) {
                 console.error("Failed to insert new refresh token:", refreshTokenInsertResult.errorMessage);
             }
-        }
-        else {
-            console.error(result.errorMessage);
         }
     }
 
