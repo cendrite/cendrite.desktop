@@ -1,7 +1,7 @@
 ﻿import React, {useState} from "react";
 import Modal from "react-modal";
 import {useUser} from "../../../../Common/Context/UserContext.tsx";
-import {PhotoIcon, PencilIcon} from "@heroicons/react/24/outline";
+import {PencilIcon, PhotoIcon} from "@heroicons/react/24/outline";
 import avatar1 from "../../../../Assets/StockProfilePictures/avatar1.png";
 import avatar2 from "../../../../Assets/StockProfilePictures/avatar2.png";
 import avatar3 from "../../../../Assets/StockProfilePictures/avatar3.png";
@@ -11,6 +11,13 @@ import avatar6 from "../../../../Assets/StockProfilePictures/avatar6.png";
 import avatar7 from "../../../../Assets/StockProfilePictures/avatar7.png";
 import avatar8 from "../../../../Assets/StockProfilePictures/avatar8.png";
 import avatar9 from "../../../../Assets/StockProfilePictures/avatar9.png";
+import {GetMediaDto} from "../../../../../Electron/Application/Features/Files/Queries/GetMedia/GetMediaDto.ts";
+import {Result} from "../../../../../Shared/Result/Result.ts";
+import {
+    GetMediaQuery,
+    MediaType
+} from "../../../../../Electron/Application/Features/Files/Queries/GetMedia/GetMediaQuery.ts";
+import {ProfilePictureService} from "../../Services/ProfilePictureService.ts";
 
 interface ProfilePictureModalProps {
     isOpen: boolean;
@@ -18,8 +25,9 @@ interface ProfilePictureModalProps {
 }
 
 const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClose}) => {
-    const {user} = useUser();
+    const {user, updateUser} = useUser();
     const [selectedProfilePicture, setSelectedProfilePicture] = useState<string | null>(null);
+    const profilePictureService = new ProfilePictureService();
 
     const predefinedProfilePictures = [
         avatar1,
@@ -33,8 +41,25 @@ const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClos
         avatar9
     ];
 
-    const updateProfilePicture = () => {
+    const saveProfilePicture = async () => {
+        const result = await profilePictureService.updateProfilePicture(user!.id!, selectedProfilePicture!);
+        if(result.success){
+            updateUser({profilePictureUrl: selectedProfilePicture!});
+            onClose(true);
+        }
+        else{
+            console.error(result.errorMessage);
+        }
+    }
 
+    const uploadProfilePicture = async () => {
+        const base64Image = await window.electron.sendRequestAsync<Result<GetMediaDto>>(new GetMediaQuery(MediaType.Image));
+        if (base64Image.success) {
+            setSelectedProfilePicture(base64Image.data!.media);
+        }
+        else{
+            console.error(base64Image.errorMessage);
+        }
     }
 
     return (
@@ -80,7 +105,8 @@ const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClos
                 <div className="flex justify-center items-center space-x-4 mb-8">
                     {/* Upload Image Option */}
                     <button
-                        className="flex flex-col items-center justify-center bg-darkGray-200 hover:bg-darkGray-300 px-1.5 py-1 rounded-lg">
+                        className="flex flex-col items-center justify-center bg-darkGray-200 hover:bg-darkGray-300 px-1.5 py-1 rounded-lg"
+                        onClick={()=> uploadProfilePicture()}>
                         <PhotoIcon className="w-4 h-4 text-gray-200"/>
                         <h3 className="font-extralight text-[0.6rem]">image</h3>
                     </button>
@@ -118,8 +144,13 @@ const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClos
                         Cancel
                     </button>
                     <button
-                        onClick={() => updateProfilePicture()}
-                        className="text-[0.8rem] font-semibold bg-darkGray-200 rounded-full px-5 py-0.5 text-white hover:bg-darkGray-300">
+                        onClick={() => saveProfilePicture()}
+                        disabled={!selectedProfilePicture}
+                        className={`text-[0.8rem] font-semibold rounded-full px-5 py-0.5 ${
+                            !selectedProfilePicture
+                                ? "bg-darkGray-200 text-gray-400 cursor-not-allowed"
+                                : "bg-darkGray-200 text-white hover:bg-darkGray-300"
+                        }`}>
                         Save
                     </button>
                 </div>
