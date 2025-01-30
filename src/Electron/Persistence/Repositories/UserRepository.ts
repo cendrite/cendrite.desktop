@@ -34,8 +34,16 @@ export class UserRepository {
         return user[0];
     }
 
-    public async update(user: User): Promise<User> {
-        throw new Error("Method not implemented.");
+    public async update(userUpdate: Partial<User>) {
+        const user = await this.repository.find({ take: 1 });
+
+        if (user.length === 0) {
+            throw new Error("No user found");
+        }
+
+        user[0]!.profilePicture = userUpdate.profilePicture;
+        user[0]!.displayName = userUpdate.displayName;
+        await this.repository.save(user[0]);
     }
 
     public async delete(): Promise<void> {

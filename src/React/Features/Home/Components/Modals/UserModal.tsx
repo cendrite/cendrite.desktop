@@ -5,6 +5,10 @@ import LogoutModal from "./LogoutModal.tsx";
 import {
     UpdateProfilePictureCommand
 } from "../../../../../Electron/Application/Features/User/Commands/Update/ProfilePicture/UpdateProfilePictureCommand.ts";
+import {
+    UpdateProfilePictureDto
+} from "../../../../../Electron/Application/Features/User/Commands/Update/ProfilePicture/UpdateProfilePictureDto.ts";
+import {Result} from "../../../../../Shared/Result/Result.ts";
 
 
 interface UserModalProps {
@@ -13,13 +17,19 @@ interface UserModalProps {
 }
 
 const UserModal: React.FC<UserModalProps> = ({isOpen, onClose}) => {
-    const {user} = useUser();
+    const {user, updateUser} = useUser();
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
     const setProfilePicture = async ()  => {
         console.log("Change Picture");
-        const result = await window.electron.sendRequestAsync(new UpdateProfilePictureCommand());
-        console.log(result);
+        const result = await window.electron.sendRequestAsync<Result<UpdateProfilePictureDto>>(new UpdateProfilePictureCommand());
+        if(result.success){
+            console.log("Profile Picture Updated:", result.data?.profilePicturePath);
+            updateUser({profilePictureUrl: result.data?.profilePicturePath});
+        }
+        else{
+            console.error("Profile Picture Update Failed:", result.errorMessage?.message);
+        }
     };
 
     return (

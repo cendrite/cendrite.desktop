@@ -1,4 +1,4 @@
-﻿import { app, ipcMain } from "electron";
+﻿import { app } from "electron";
 import path from "path";
 
 export function isDevelopment() {
