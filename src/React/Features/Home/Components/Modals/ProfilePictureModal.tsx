@@ -27,6 +27,7 @@ interface ProfilePictureModalProps {
 const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClose}) => {
     const {user, updateUser} = useUser();
     const [selectedProfilePicture, setSelectedProfilePicture] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
     const profilePictureService = new ProfilePictureService();
 
     const predefinedProfilePictures = [
@@ -42,6 +43,7 @@ const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClos
     ];
 
     const saveProfilePicture = async () => {
+        setLoading(true);
         const result = await profilePictureService.updateProfilePicture(user!.id!, selectedProfilePicture!);
         if(result.success){
             updateUser({profilePictureUrl: selectedProfilePicture!});
@@ -50,6 +52,7 @@ const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClos
         else{
             console.error(result.errorMessage);
         }
+        setLoading(false);
     }
 
     const uploadProfilePicture = async () => {
@@ -65,6 +68,8 @@ const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClos
     return (
         <Modal isOpen={isOpen}
                onRequestClose={() => onClose(false)}
+               shouldCloseOnEsc={!loading}
+               shouldCloseOnOverlayClick={!loading}
                className="p-4 bg-darkGray-500 text-white rounded-xl shadow-lg w-[350px] h-[550px] max-auto relative"
                overlayClassName="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center"
                contentLabel="User Details">
@@ -106,7 +111,8 @@ const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClos
                     {/* Upload Image Option */}
                     <button
                         className="flex flex-col items-center justify-center bg-darkGray-200 hover:bg-darkGray-300 px-1.5 py-1 rounded-lg"
-                        onClick={()=> uploadProfilePicture()}>
+                        onClick={()=> uploadProfilePicture()}
+                        disabled={loading}>
                         <PhotoIcon className="w-4 h-4 text-gray-200"/>
                         <h3 className="font-extralight text-[0.6rem]">image</h3>
                     </button>
@@ -124,7 +130,8 @@ const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClos
                         <button
                             key={index}
                             className="w-16 h-16 rounded-full border-2 border-transparent hover:border-blue-500"
-                            onClick={() => setSelectedProfilePicture(avatar)}>
+                            onClick={() => setSelectedProfilePicture(avatar)}
+                            disabled={loading}>
                             <img
                                 src={avatar}
                                 alt={`Avatar ${index + 1}`}
@@ -145,12 +152,12 @@ const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClos
                     </button>
                     <button
                         onClick={() => saveProfilePicture()}
-                        disabled={!selectedProfilePicture}
+                        disabled={!selectedProfilePicture || loading}
                         className={`text-[0.8rem] font-semibold rounded-full px-5 py-0.5 ${
                             !selectedProfilePicture
                                 ? "bg-darkGray-200 text-gray-400 cursor-not-allowed"
-                                : "bg-darkGray-200 text-white hover:bg-darkGray-300"
-                        }`}>
+                                : "bg-darkGray-200 text-white hover:bg-darkGray-300"}
+                                ${loading ? "cursor-wait" : ""}`}>
                         Save
                     </button>
                 </div>
