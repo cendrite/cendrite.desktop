@@ -1,10 +1,6 @@
 import React, {useState} from "react";
-import { UserIcon, Cog6ToothIcon, ChatBubbleOvalLeftIcon, UserGroupIcon } from "@heroicons/react/24/outline";
-import {
-  ChatBubbleOvalLeftIcon as ChatBubbleOvalLeftIconFilled,
-  UserGroupIcon as UserGroupIconFilled,
-    UserIcon as UserIconFilled,
-} from "@heroicons/react/24/solid";
+import { Cog6ToothIcon, ChatBubbleOvalLeftIcon, UserGroupIcon } from "@heroicons/react/24/outline";
+import {ChatBubbleOvalLeftIcon as ChatBubbleOvalLeftIconFilled, UserGroupIcon as UserGroupIconFilled,} from "@heroicons/react/24/solid";
 import SidePanelToggle from "./SidePanelToggle";
 import PanelButton from "./SidePanelButton";
 import UserModal from "../Modals/UserModal.tsx";
