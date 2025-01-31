@@ -13,10 +13,7 @@ import avatar8 from "../../../../Assets/StockProfilePictures/avatar8.png";
 import avatar9 from "../../../../Assets/StockProfilePictures/avatar9.png";
 import {GetMediaDto} from "../../../../../Electron/Application/Features/Files/Queries/GetMedia/GetMediaDto.ts";
 import {Result} from "../../../../../Shared/Result/Result.ts";
-import {
-    GetMediaQuery,
-    MediaType
-} from "../../../../../Electron/Application/Features/Files/Queries/GetMedia/GetMediaQuery.ts";
+import {GetMediaQuery, MediaType} from "../../../../../Electron/Application/Features/Files/Queries/GetMedia/GetMediaQuery.ts";
 import {ProfilePictureService} from "../../Services/ProfilePictureService.ts";
 
 interface ProfilePictureModalProps {
@@ -27,6 +24,7 @@ interface ProfilePictureModalProps {
 const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClose}) => {
     const {user, updateUser} = useUser();
     const [selectedProfilePicture, setSelectedProfilePicture] = useState<string | null>(null);
+    const [isStock, setIsStock] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
     const profilePictureService = new ProfilePictureService();
 
@@ -44,7 +42,7 @@ const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClos
 
     const saveProfilePicture = async () => {
         setLoading(true);
-        const result = await profilePictureService.updateProfilePicture(user!.id!, selectedProfilePicture!);
+        const result = await profilePictureService.updateProfilePicture(user!.id!, selectedProfilePicture!, isStock);
         if(result.success){
             updateUser({profilePictureUrl: selectedProfilePicture!});
             onClose(true);
@@ -59,6 +57,7 @@ const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClos
         const base64Image = await window.electron.sendRequestAsync<Result<GetMediaDto>>(new GetMediaQuery(MediaType.Image));
         if (base64Image.success) {
             setSelectedProfilePicture(base64Image.data!.media);
+            setIsStock(false);
         }
         else{
             console.error(base64Image.errorMessage);
@@ -130,7 +129,7 @@ const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClos
                         <button
                             key={index}
                             className="w-16 h-16 rounded-full border-2 border-transparent hover:border-blue-500"
-                            onClick={() => setSelectedProfilePicture(avatar)}
+                            onClick={() => {setSelectedProfilePicture(avatar), setIsStock(true)}}
                             disabled={loading}>
                             <img
                                 src={avatar}
