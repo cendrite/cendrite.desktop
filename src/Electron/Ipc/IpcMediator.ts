@@ -1,4 +1,4 @@
-import { ipcMain } from "electron";
+import {BrowserWindow, ipcMain} from "electron";
 import { Mediator } from "../Application/Mediator/Mediator.js";
 import { CreateDeviceRequestHandler } from "../Application/Features/Device/Commands/CreateDevice/CreateDeviceHandler.js";
 import { GenerateKeysRequestHandler } from "../Application/Features/Device/Commands/GenerateKeys/GenerateKeysRequestHandler.js";
@@ -9,22 +9,28 @@ import { GetDeviceQueryHandler } from "../Application/Features/Device/Queries/Ge
 import {GetUserQueryHandler} from "../Application/Features/User/Queries/GetUserQueryHandler.js";
 import {CreateUserCommandHandler} from "../Application/Features/User/Commands/Create/CreateUserCommandHandler.js";
 import {LogoutCommandHandler} from "../Application/Features/User/Commands/Logout/LogoutCommandHandler.js";
+import {
+    UpdateProfilePictureCommandHandler
+} from "../Application/Features/User/Commands/Update/ProfilePicture/UpdateProfilePictureCommandHandler.js";
+import {GetMediaQueryHandler} from "../Application/Features/Files/Queries/GetMedia/GetMediaQueryHandler.js";
 
-export function registerIpcHandlers() {
+export function registerIpcHandlers(mainWindow: BrowserWindow) {
     const mediator = new Mediator();
 
     mediator.registerHandler("CreateDeviceRequest", new CreateDeviceRequestHandler());
     mediator.registerHandler("GenerateKeysRequest", new GenerateKeysRequestHandler());
     mediator.registerHandler("GetDeviceQuery", new GetDeviceQueryHandler());
     mediator.registerHandler("SignNonceRequest", new SignNonceRequestHandler());
+    mediator.registerHandler("LogoutCommand", new LogoutCommandHandler());
 
     mediator.registerHandler("CreateRefreshTokenRequest", new CreateRefreshTokenRequestHandler());
     mediator.registerHandler("GetRefreshTokenQuery", new GetRefreshTokenQueryHandler());
 
     mediator.registerHandler("GetUserQuery", new GetUserQueryHandler());
     mediator.registerHandler("CreateUserCommand", new CreateUserCommandHandler());
+    mediator.registerHandler("UpdateProfilePictureCommand", new UpdateProfilePictureCommandHandler());
 
-    mediator.registerHandler("LogoutCommand", new LogoutCommandHandler());
+    mediator.registerHandler("GetMediaQuery", new GetMediaQueryHandler(mainWindow));
 
     console.log("Registered Mediator Handlers:", Array.from(mediator["_handlers"].keys()));
 

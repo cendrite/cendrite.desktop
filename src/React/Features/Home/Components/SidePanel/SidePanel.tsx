@@ -9,7 +9,6 @@ import SidePanelToggle from "./SidePanelToggle";
 import PanelButton from "./SidePanelButton";
 import UserModal from "../Modals/UserModal.tsx";
 
-
 export interface SidePanelProps {
   onHide: () => void;
   setPaneType: (type: "chats" | "contacts") => void;
@@ -18,6 +17,7 @@ export interface SidePanelProps {
 
 export const SidePanel: React.FC<SidePanelProps> = ({ onHide, setPaneType, paneType }) => {
    const [isModalOpen, setIsModalOpen] = useState(false);
+
     return (
       <>
           <div

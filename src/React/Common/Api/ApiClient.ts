@@ -38,6 +38,7 @@ export class ApiClient{
         // Request interceptor -> add token to any request made by the api
         this.api.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
             const token = tokenManager.getJwt();
+            console.log("Token:", token);
             if(token){
                 config.headers.Authorization = `Bearer ${token}`;
             }

@@ -2,6 +2,7 @@
 import Modal from "react-modal";
 import {useUser} from "../../../../Common/Context/UserContext.tsx";
 import LogoutModal from "./LogoutModal.tsx";
+import ProfilePictureModal from "./ProfilePictureModal.tsx";
 
 
 interface UserModalProps {
@@ -12,10 +13,11 @@ interface UserModalProps {
 const UserModal: React.FC<UserModalProps> = ({isOpen, onClose}) => {
     const {user} = useUser();
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+    const [isProfilePictureModalOpen, setIsProfilePictureModalOpen] = useState(false);
 
     return (
         <>
-            {!isLogoutModalOpen &&
+            {!isLogoutModalOpen && !isProfilePictureModalOpen &&
                 <Modal
                     isOpen={isOpen}
                     onRequestClose={onClose}
@@ -26,13 +28,18 @@ const UserModal: React.FC<UserModalProps> = ({isOpen, onClose}) => {
                         {/* Close Button */}
                         <button
                             onClick={onClose}
-                            className="absolute top-2 right-2 text-gray-400 hover:text-gray-300"
+                            className="absolute top-1 right-1 text-gray-400 hover:text-gray-300"
                         >
                             ✕
                         </button>
 
+                        <h3
+                        className="absolute top-1 left-1 text-m text-gray-50">
+                            Profile
+                        </h3>
+
                         {/* Profile Section */}
-                        <div className="flex flex-col items-center">
+                        <div className="flex flex-col items-center mt-8">
                             {/* Profile Picture */}
                             {user?.profilePictureUrl ? (
                                 <img
@@ -48,7 +55,8 @@ const UserModal: React.FC<UserModalProps> = ({isOpen, onClose}) => {
                             )}
 
                             {/* Edit Button */}
-                            <button className="text-sm text-blue-500 font-semibold hover:underline mt-2">
+                            <button className="text-sm text-blue-500 font-semibold hover:underline mt-2"
+                            onClick={()=> setIsProfilePictureModalOpen(true)}>
                                 Change Picture
                             </button>
 
@@ -88,6 +96,14 @@ const UserModal: React.FC<UserModalProps> = ({isOpen, onClose}) => {
 
             <LogoutModal isOpen={isLogoutModalOpen} onClose={(shouldReopenParent) => {
                 setIsLogoutModalOpen(false);
+                if (shouldReopenParent) {
+                    return;
+                }
+                onClose();
+            }}/>
+
+            <ProfilePictureModal isOpen={isProfilePictureModalOpen} onClose={(shouldReopenParent) => {
+                setIsProfilePictureModalOpen(false);
                 if (shouldReopenParent) {
                     return;
                 }

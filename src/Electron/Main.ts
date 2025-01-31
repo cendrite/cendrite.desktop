@@ -10,7 +10,6 @@ import {LogoutManager} from "./Application/Services/LogoutManager/LogoutManager.
 app.on("ready", async () => {
     await initializeDatabase();
     const logoutManager = LogoutManager.getInstance();
-
     await logoutManager.recoverIfNeeded();
 
     const mainWindow = new BrowserWindow({
@@ -19,7 +18,8 @@ app.on("ready", async () => {
 
         webPreferences: {
             nodeIntegration: false,
-            preload: path.join(getPreloadPath())
+            preload: path.join(getPreloadPath()),
+            contextIsolation: true,
         }
     });
     if (isDevelopment()) {
@@ -27,7 +27,7 @@ app.on("ready", async () => {
     } else {
         mainWindow.loadFile(path.join(app.getAppPath(), './dist-react/index.html'))
     }
-    registerIpcHandlers();
+    registerIpcHandlers(mainWindow);
 
     mainWindow.on('close', (event) => {
         if (logoutManager.IsLoggingOut) {
