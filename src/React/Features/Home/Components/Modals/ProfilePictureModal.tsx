@@ -13,7 +13,10 @@ import avatar8 from "../../../../Assets/StockProfilePictures/avatar8.png";
 import avatar9 from "../../../../Assets/StockProfilePictures/avatar9.png";
 import {GetMediaDto} from "../../../../../Electron/Application/Features/Files/Queries/GetMedia/GetMediaDto.ts";
 import {Result} from "../../../../../Shared/Result/Result.ts";
-import {GetMediaQuery, MediaType} from "../../../../../Electron/Application/Features/Files/Queries/GetMedia/GetMediaQuery.ts";
+import {
+    GetMediaQuery,
+    MediaType
+} from "../../../../../Electron/Application/Features/Files/Queries/GetMedia/GetMediaQuery.ts";
 import {ProfilePictureService} from "../../Services/ProfilePictureService.ts";
 
 interface ProfilePictureModalProps {
@@ -43,11 +46,10 @@ const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClos
     const saveProfilePicture = async () => {
         setLoading(true);
         const result = await profilePictureService.updateProfilePicture(user!.id!, selectedProfilePicture!, isStock);
-        if(result.success){
+        if (result.success) {
             updateUser({profilePictureUrl: selectedProfilePicture!});
             onClose(true);
-        }
-        else{
+        } else {
             console.error(result.errorMessage);
         }
         setLoading(false);
@@ -58,8 +60,7 @@ const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClos
         if (base64Image.success) {
             setSelectedProfilePicture(base64Image.data!.media);
             setIsStock(false);
-        }
-        else{
+        } else {
             console.error(base64Image.errorMessage);
         }
     }
@@ -110,7 +111,7 @@ const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClos
                     {/* Upload Image Option */}
                     <button
                         className="flex flex-col items-center justify-center bg-darkGray-200 hover:bg-darkGray-300 px-1.5 py-1 rounded-lg"
-                        onClick={()=> uploadProfilePicture()}
+                        onClick={() => uploadProfilePicture()}
                         disabled={loading}>
                         <PhotoIcon className="w-4 h-4 text-gray-200"/>
                         <h3 className="font-extralight text-[0.6rem]">image</h3>
@@ -129,7 +130,10 @@ const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClos
                         <button
                             key={index}
                             className="w-16 h-16 rounded-full border-2 border-transparent hover:border-blue-500"
-                            onClick={() => {setSelectedProfilePicture(avatar), setIsStock(true)}}
+                            onClick={() => {
+                                setSelectedProfilePicture(avatar);
+                                setIsStock(true);
+                            }}
                             disabled={loading}>
                             <img
                                 src={avatar}
@@ -144,7 +148,9 @@ const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClos
                 <div className="flex justify-center mt-8 space-x-4">
                     <button
                         onClick={() => {
-                            onClose(true), setSelectedProfilePicture(null)
+                            onClose(true);
+                            setSelectedProfilePicture(null);
+                            setIsStock(false);
                         }}
                         className="text-[0.8rem] font-semibold bg-darkGray-200 rounded-full px-3.5 py-0.5 text-white hover:bg-darkGray-300">
                         Cancel
