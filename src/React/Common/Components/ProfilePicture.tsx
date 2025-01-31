@@ -6,7 +6,7 @@ const ProfilePicture: React.FC = () => {
 
     return (
         <img
-            src={user?.profilePictureUrl}
+            src={user?.base64ProfilePicture}
             alt="Profile Picture"
             className="h-10 w-10 rounded-full"
         />

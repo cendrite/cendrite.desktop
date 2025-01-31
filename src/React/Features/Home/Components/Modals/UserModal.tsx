@@ -41,9 +41,9 @@ const UserModal: React.FC<UserModalProps> = ({isOpen, onClose}) => {
                         {/* Profile Section */}
                         <div className="flex flex-col items-center mt-8">
                             {/* Profile Picture */}
-                            {user?.profilePictureUrl ? (
+                            {user?.base64ProfilePicture ? (
                                 <img
-                                    src={user.profilePictureUrl}
+                                    src={user.base64ProfilePicture}
                                     alt={`${user.username}'s profile`}
                                     className="w-20 h-20 rounded-full mb-4"
                                 />

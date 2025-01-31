@@ -47,7 +47,7 @@ const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClos
         setLoading(true);
         const result = await profilePictureService.updateProfilePicture(user!.id!, selectedProfilePicture!, isStock);
         if (result.success) {
-            updateUser({profilePictureUrl: selectedProfilePicture!});
+            updateUser({base64ProfilePicture: selectedProfilePicture!});
             onClose(true);
         } else {
             console.error(result.errorMessage);
@@ -93,9 +93,9 @@ const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClos
                             alt="Selected profile"
                             className="w-20 h-20 rounded-full"
                         />
-                    ) : user?.profilePictureUrl ? (
+                    ) : user?.base64ProfilePicture ? (
                         <img
-                            src={user.profilePictureUrl}
+                            src={user.base64ProfilePicture}
                             alt={`${user.username}'s profile`}
                             className="w-20 h-20 rounded-full"
                         />
