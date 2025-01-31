@@ -1,21 +1,18 @@
 import {Result} from "../../../../Shared/Result/Result.ts";
 import { UpdateProfilePictureApi } from "../../../Common/Api/UserProfile/UpdateProfilePictureApi.ts";
-import {
-    UpdateProfilePictureCommand
-} from "../../../../Electron/Application/Features/User/Commands/Update/ProfilePicture/UpdateProfilePictureCommand.ts";
+import {UpdateProfilePictureCommand} from "../../../../Electron/Application/Features/User/Commands/Update/ProfilePicture/UpdateProfilePictureCommand.ts";
 
 export class ProfilePictureService {
     private readonly updateProfilePictureApi = new UpdateProfilePictureApi();
 
     public async updateProfilePicture(id: string, profilePicture: string, isStock: boolean): Promise<Result> {
-        let file: File | null = null;
+        let file: File | null
 
         if(isStock){
             file = await this.imagePathToBlob(profilePicture);
         }else{
             file = this.base64ToFile(profilePicture, "profilePicture.png");
         }
-
 
         const remoteUpdateResult = await this.updateProfilePictureApi.updateProfilePicture(
             {Id: id, NewProfilePicture: file });
