@@ -5,5 +5,4 @@ export const initialRegisterValues: RegisterFormValues = {
     email: "",
     password: "",
     confirmPassword: "",
-    displayName: ""
 };

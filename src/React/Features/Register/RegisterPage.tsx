@@ -61,18 +61,6 @@ const RegisterPage: React.FC = () => {
                                 />
                             </div>
 
-                            {/* DisplayName field */}
-                            <div className="w-full relative mb-4">
-                                {touched.username && errors.username && renderErrorTooltip(errors.username, touched.username)}
-                                <InputBox
-                                    name={RegisterFieldName.DisplayName}
-                                    type="text"
-                                    placeholder="Enter your display name"
-                                    value={values.displayName}
-                                    onChange={handleChange}
-                                />
-                            </div>
-
                             {/* Email field */}
                             <div className="w-full relative mb-4">
                                 {touched.email && errors.email && renderErrorTooltip(errors.email, touched.email)}
