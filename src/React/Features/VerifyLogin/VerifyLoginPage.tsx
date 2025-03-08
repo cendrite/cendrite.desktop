@@ -58,7 +58,7 @@ const VerifyLoginPage: React.FC = () => {
             id: userProfileResult!.id,
             username: userProfileResult!.username,
             userTag: userProfileResult!.userTag,
-            base64ProfilePicture: userProfileResult!.profilePictureUrl,
+            base64ProfilePicture: userProfileResult!.base64ProfilePicture,
             displayName: userProfileResult!.displayName,
             deviceId: deviceRegistrationResult.data!,
         });

@@ -20,7 +20,7 @@ export class GetUserProfilePictureApi {
     public async getUserProfilePicture(request: GetUserProfilePictureRequest): Promise<Result<GetUserProfilePictureResponse>> {
         return this.client.handle<GetUserProfilePictureResponse>({
             method: "GET",
-            data: request
+            params: request
         });
     }
 }
