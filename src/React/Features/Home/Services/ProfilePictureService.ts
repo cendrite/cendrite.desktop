@@ -7,11 +7,14 @@ export class ProfilePictureService {
 
     public async updateProfilePicture(id: string, profilePicture: string, isStock: boolean): Promise<Result> {
         let file: File | null
+        let base64: string | null
 
         if(isStock){
             file = await this.imagePathToBlob(profilePicture);
+            base64 = await this.convertToBase64(file);
         }else{
-            file = this.base64ToFile(profilePicture, "profilePicture.png");
+            file = this.base64ToFile(profilePicture, "profilePicture.png")
+            base64 = profilePicture
         }
 
         const remoteUpdateResult = await this.updateProfilePictureApi.updateProfilePicture(
@@ -21,7 +24,7 @@ export class ProfilePictureService {
             return Result.fail(remoteUpdateResult.errorMessage!);
         }
 
-        const localUpdateResult = await window.electron.sendRequestAsync<Result>(new UpdateProfilePictureCommand(profilePicture));
+        const localUpdateResult = await window.electron.sendRequestAsync<Result>(new UpdateProfilePictureCommand(base64));
 
         if(!localUpdateResult.success){
             return Result.fail(localUpdateResult.errorMessage!);
@@ -53,5 +56,14 @@ export class ProfilePictureService {
         const response = await fetch(imageUrl);
         const blob = await response.blob();
         return new File([blob], "profilePicture.png", { type: "image/png" });
+    }
+
+    private async convertToBase64(file: File): Promise<string>{
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = error => reject(error);
+            reader.readAsDataURL(file);
+        });
     }
 }

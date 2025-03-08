@@ -1,13 +1,10 @@
 import React, {useState} from "react";
-import { UserIcon, Cog6ToothIcon, ChatBubbleOvalLeftIcon, UserGroupIcon } from "@heroicons/react/24/outline";
-import {
-  ChatBubbleOvalLeftIcon as ChatBubbleOvalLeftIconFilled,
-  UserGroupIcon as UserGroupIconFilled,
-    UserIcon as UserIconFilled,
-} from "@heroicons/react/24/solid";
+import { Cog6ToothIcon, ChatBubbleOvalLeftIcon, UserGroupIcon } from "@heroicons/react/24/outline";
+import {ChatBubbleOvalLeftIcon as ChatBubbleOvalLeftIconFilled, UserGroupIcon as UserGroupIconFilled,} from "@heroicons/react/24/solid";
 import SidePanelToggle from "./SidePanelToggle";
 import PanelButton from "./SidePanelButton";
 import UserModal from "../Modals/UserModal.tsx";
+import ProfilePicture from "../../../../Common/Components/ProfilePicture.tsx";
 
 export interface SidePanelProps {
   onHide: () => void;
@@ -50,8 +47,8 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onHide, setPaneType, paneT
 
                   <PanelButton
                         onClick={() => setIsModalOpen(true)}
-                        icon={<UserIcon className="w-6 h-6 cursor-pointer hover:text-gray-300"/>}
-                        activeIcon={<UserIconFilled className="w-5 h-5 text-gray-300"/>}
+                        icon={<ProfilePicture className="w-8, h-8"/>}
+                        activeIcon={<ProfilePicture className="w-8, h-8"/>}
                         isActive={isModalOpen}/>
               </div>
           </div>

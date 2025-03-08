@@ -3,6 +3,7 @@ import Modal from "react-modal";
 import {useUser} from "../../../../Common/Context/UserContext.tsx";
 import LogoutModal from "./LogoutModal.tsx";
 import ProfilePictureModal from "./ProfilePictureModal.tsx";
+import ProfilePicture from "../../../../Common/Components/ProfilePicture.tsx";
 
 
 interface UserModalProps {
@@ -41,18 +42,7 @@ const UserModal: React.FC<UserModalProps> = ({isOpen, onClose}) => {
                         {/* Profile Section */}
                         <div className="flex flex-col items-center mt-8">
                             {/* Profile Picture */}
-                            {user?.profilePictureUrl ? (
-                                <img
-                                    src={user.profilePictureUrl}
-                                    alt={`${user.username}'s profile`}
-                                    className="w-20 h-20 rounded-full mb-4"
-                                />
-                            ) : (
-                                <div
-                                    className="w-20 h-20 rounded-full bg-blue-200 flex items-center justify-center text-2xl font-extralight text-blue-900">
-                                    {user?.username[0].concat(user?.username[1]).toUpperCase() || "?"}
-                                </div>
-                            )}
+                            <ProfilePicture className="w-20 h-20"/>
 
                             {/* Edit Button */}
                             <button className="text-sm text-blue-500 font-semibold hover:underline mt-2"

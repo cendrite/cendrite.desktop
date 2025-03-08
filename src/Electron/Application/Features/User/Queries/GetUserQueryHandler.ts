@@ -15,7 +15,11 @@ export class GetUserQueryHandler implements Handler<GetUserQuery, GetUserDto> {
                 return Result.fail<GetUserDto>(new ErrorMessage(null, "User not found"));
             }
 
-            const dto = GetUserDto.MapFrom(user);
+            const base64Image = user.profilePicture ?
+                `data:image/png;base64,${user.profilePicture.toString("base64")}`
+                : undefined;
+
+            const dto = GetUserDto.MapFrom(user, base64Image);
 
             return Result.success<GetUserDto>(dto);
         }

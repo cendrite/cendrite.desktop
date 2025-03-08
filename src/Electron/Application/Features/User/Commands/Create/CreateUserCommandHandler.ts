@@ -5,10 +5,12 @@ import {Handler} from "../../../../Mediator/Handler.js";
 import {CreateUserDto} from "./CreateUserDto.js";
 import { User } from "../../../../../Persistence/Entities/User.js";
 import { ErrorMessage } from "../../../../../../Shared/Result/ErrorMessage.js";
+import {ImageConverter} from "../../../../Services/Images/ImageConverter.js";
 
 
 export class CreateUserCommandHandler implements Handler<CreateUserCommand, CreateUserDto>
 {
+    private readonly ImageConverter = new ImageConverter();
     public async handle(request: CreateUserCommand): Promise<Result<CreateUserDto>>
     {
         try
@@ -18,14 +20,14 @@ export class CreateUserCommandHandler implements Handler<CreateUserCommand, Crea
             user.id = request.id;
             user.username = request.username;
             user.userTag = request.userTag;
-            user.profilePictureUrl = request.profilePictureUrl;
+            user.profilePicture = request.base64ProfilePicture ? await this.ImageConverter.base64ToBuffer(request.base64ProfilePicture) : null;
             user.displayName = request.displayName;
 
             console.log('Creating User:', user);
 
             const savedUser = await _userRepository.create(user);
 
-            const dto = CreateUserDto.MapFrom(savedUser);
+            const dto = CreateUserDto.MapFrom(savedUser, request.base64ProfilePicture);
 
             return Result.success<CreateUserDto>(dto);
         }

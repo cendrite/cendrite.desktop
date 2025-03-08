@@ -2,9 +2,13 @@
 import {CreateUserDto} from "../../../../Electron/Application/Features/User/Commands/Create/CreateUserDto.ts";
 import {CreateUserCommand} from "../../../../Electron/Application/Features/User/Commands/Create/CreateUserCommand.ts";
 import {GetUserProfileApi} from "../../../Common/Api/UserProfile/GetUserProfileApi.ts";
+import {GetUserProfilePictureApi} from "../../../Common/Api/UserProfile/GetUserProfilePicture.ts";
 
 export class UserProfileService {
     private readonly getUserProfileApi = new GetUserProfileApi();
+    private readonly getProfilePictureApi = new GetUserProfilePictureApi();
+    private profilePicture?: string;
+
     public async HandleUserProfile(userId: string){
         const getUserProfileResult  = await this.getUserProfileApi.getUserProfile({ userProfileId: userId });
 
@@ -15,17 +19,35 @@ export class UserProfileService {
             // TODO: Handle fatal error here
         }
 
+        if(getUserProfileResult.data?.profilePictureUrl !== null)
+        {
+            console.log("Fetching Profile Picture");
+            const getProfilePictureResult = await this.getProfilePictureApi.getUserProfilePicture({ profilePictureUrl: getUserProfileResult.data!.profilePictureUrl! });
+
+            console.log("Get Profile Picture Result: ", getProfilePictureResult);
+            if(!getProfilePictureResult.success) {
+                console.log(getProfilePictureResult.errorMessage);
+            }
+
+            if(getProfilePictureResult.success) {
+                console.log("Profile Picture: ", getProfilePictureResult.data!.base64ProfilePicture);
+                this.profilePicture = getProfilePictureResult.data!.base64ProfilePicture;
+            }
+        }
+
+        console.log("User Profile: ", getUserProfileResult.data);
+        console.log("Profile Picture: ", this.profilePicture);
         const result = await window.electron.sendRequestAsync<Result<CreateUserDto>>(
             new CreateUserCommand(
                 getUserProfileResult.data!.id,
                 getUserProfileResult.data!.username,
                 getUserProfileResult.data!.userTag,
-                // Todo: make this null if it is empty string or undefined
-                getUserProfileResult.data?.profilePictureUrl,
+                this.profilePicture,
                 getUserProfileResult.data?.displayName
             ));
 
         if(!result.success){
+            console.log("Error creating user");
             console.error(result.errorMessage);
             return null;
             //this would be fatal error.

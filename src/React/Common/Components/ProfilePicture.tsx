@@ -1,15 +1,25 @@
 ﻿import React from "react";
 import {useUser} from "../Context/UserContext.tsx";
+import clsx from "clsx";
 
-const ProfilePicture: React.FC = () => {
+interface ProfilePictureProps {
+    className?: string;
+}
+
+const ProfilePicture: React.FC<ProfilePictureProps> = ({className}) => {
     const {user} = useUser();
 
-    return (
+    return user!.base64ProfilePicture ? (
         <img
-            src={user?.profilePictureUrl}
+            src={user?.base64ProfilePicture}
             alt="Profile Picture"
-            className="h-10 w-10 rounded-full"
+            className={clsx("rounded-full", className)}
         />
+    ) : (
+        <div
+            className= {clsx("rounded-full bg-blue-200 flex items-center justify-center text-2xl font-extralight text-blue-900", className)}>
+            {user?.username[0].concat(user?.username[1]).toUpperCase() || "?"}
+        </div>
     );
 };
 

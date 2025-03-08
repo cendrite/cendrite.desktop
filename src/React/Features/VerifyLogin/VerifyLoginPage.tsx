@@ -53,11 +53,12 @@ const VerifyLoginPage: React.FC = () => {
         await tokenManager.initialize(onboardingContext.onboardingData.UserId!, deviceRegistrationResult.data!);
 
         const userProfileResult = await userProfileService.HandleUserProfile(onboardingContext.onboardingData.UserId!);
+        console.log("USER PROFILE RESULT", userProfileResult);
         userContext.setUser({
             id: userProfileResult!.id,
             username: userProfileResult!.username,
             userTag: userProfileResult!.userTag,
-            profilePictureUrl: userProfileResult!.profilePictureUrl,
+            base64ProfilePicture: userProfileResult!.base64ProfilePicture,
             displayName: userProfileResult!.displayName,
             deviceId: deviceRegistrationResult.data!,
         });

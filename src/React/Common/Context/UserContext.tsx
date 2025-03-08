@@ -5,7 +5,7 @@ interface User {
     username: string;
     userTag: string;
     deviceId: string;
-    profilePictureUrl?: string;
+    base64ProfilePicture?: string;
     displayName?: string;
 }
 

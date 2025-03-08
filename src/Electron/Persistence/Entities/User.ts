@@ -13,13 +13,9 @@ export class User extends BaseEntity {
     @Column({ type: "text" })
     userTag!: string;
 
-    //Will be removed in a bit and is not used, besides being called some places
-    @Column({ type: "text", nullable: true })
-    profilePictureUrl?: string;
-
     // Will be used.
     @Column({type: "blob", nullable: true})
-    profilePicture?: Buffer;
+    profilePicture?: Buffer | null;
 
     @Column({ type: "text", nullable: true })
     displayName?: string;
