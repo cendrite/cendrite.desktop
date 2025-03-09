@@ -5,13 +5,16 @@ import App from "./App.tsx";
 import {UserProvider} from "./Common/Context/UserContext.tsx";
 import {AuthProvider} from "./Common/Context/AuthContext.tsx";
 import {OnboardingProvider} from "./Common/Context/OnboardingContext.tsx";
+import {SignalRProvider} from "./SignalR/SignalRContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
         <OnboardingProvider>
             <UserProvider>
                 <AuthProvider>
-                    <App/>
+                    <SignalRProvider>
+                        <App/>
+                    </SignalRProvider>
                 </AuthProvider>
             </UserProvider>
         </OnboardingProvider>
