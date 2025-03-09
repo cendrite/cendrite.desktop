@@ -36,7 +36,10 @@ export class TokenManager {
         }
         return TokenManager.instance;
     }
-    public getJwt(): string | null {
+    public getJwt(): string {
+        if(this.tokens.jwt === null) {
+            throw new Error("JWT token is null");
+        }
         return this.tokens.jwt;
     }
 

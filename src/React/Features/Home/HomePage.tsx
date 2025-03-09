@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import ParentPane from "./Components/Panes/ParentPane";
 import SidePanel from "./Components/SidePanel/SidePanel";
 
