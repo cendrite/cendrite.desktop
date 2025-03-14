@@ -15,7 +15,7 @@ export const UserProfileImage: React.FC<UserProfileImageProps> = ({ profilePictu
         .slice(0, 2)
         .toUpperCase();
 
-    // Use base64 image if available, otherwise use the profilePictureUrl and fetch from the bucket
+    // Use base64 image if available, otherwise use the profilePictureUrl and fetch from the bucket.
     const imageSource = base64ProfilePicture ? base64ProfilePicture : `${API_URLS.BUCKET.BUCKET_BASE}${profilePictureUrl}`;
 
     return (
