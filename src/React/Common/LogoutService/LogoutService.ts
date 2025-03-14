@@ -3,6 +3,7 @@ import { Result } from "../../../Shared/Result/Result";
 import {LogoutCommand} from "../../../Electron/Application/Features/User/Commands/Logout/LogoutCommand.ts";
 import {LogoutApi} from "../Api/Identity/Auth/LogoutApi.ts";
 import {TokenManager} from "../../Token/TokenManager.ts";
+import {SignalRClient} from "../../SignalR/SignalRClient.ts";
 
 export class LogoutService{
     async logout(id: string, deviceId: string): Promise<Result> {
@@ -14,6 +15,7 @@ export class LogoutService{
             console.warn("Backend logout failed", result.errorMessage);
 
         TokenManager.getInstance().disableAndClear();
+        await SignalRClient.getInstance().disconnect();
 
         const localDeleteResult = await window.electron.sendRequestAsync<Result>(new LogoutCommand())
 
