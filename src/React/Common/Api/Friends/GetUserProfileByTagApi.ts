@@ -26,6 +26,6 @@ export class GetUserProfileByTagApi {
         return this.client.handle<GetUserProfileByTagResponse>({
             method: "GET",
             params: request
-        })
+        }, true);
     }
 }

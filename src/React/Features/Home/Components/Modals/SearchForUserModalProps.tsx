@@ -42,11 +42,6 @@ const SearchForUserModal: React.FC<SearchForUserModalProps> = ({isOpen, onClose}
             return;
         }
 
-        // if (!/^\d{6}$/.test(searchQuery)) {
-        //     setSearchResult(null);
-        //     return; // Don't show an error for incomplete input
-        // }
-
         setLoading(true);
         setError(null); // Reset previous errors
 
@@ -60,7 +55,6 @@ const SearchForUserModal: React.FC<SearchForUserModalProps> = ({isOpen, onClose}
             }
             console.log(result.data);
             if (result.data) {
-
                 setSearchResult(result.data);
             } else {
                 setSearchResult(null);
