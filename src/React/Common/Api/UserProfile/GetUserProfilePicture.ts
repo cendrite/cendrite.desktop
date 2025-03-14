@@ -17,7 +17,7 @@ export class GetUserProfilePictureApi {
         this.client = new ApiClient(API_URLS.USER_MANAGEMENT.GET_PROFILE_PICTURE, true);
     }
 
-    public async getUserProfilePicture(request: GetUserProfilePictureRequest): Promise<Result<GetUserProfilePictureResponse>> {
+    public async getUserProfilePicture(request: GetUserProfilePictureRequest): Promise<Result<GetUserProfilePictureResponse | void>> {
         return this.client.handle<GetUserProfilePictureResponse>({
             method: "GET",
             params: request

@@ -66,16 +66,25 @@ export class ApiClient{
             });
     }
 
-    public async handle<T>(config: AxiosRequestConfig): Promise<Result<T>> {
-        try{
-            const response: AxiosResponse<Envelope<T>> = await this.api.request<Envelope<T>>(config);
+    public async handle<T>(config: AxiosRequestConfig): Promise<Result<T>>;
+    public async handle<T>(config: AxiosRequestConfig, allowEmpty: true): Promise<Result<T | void>>;
+
+    public async handle<T>(config: AxiosRequestConfig, allowEmpty?: boolean): Promise<Result<T | void>> {
+        try {
+            const response: AxiosResponse<Envelope<T | null>> = await this.api.request<Envelope<T>>(config);
+
+            if (response.status === 204 && allowEmpty) {
+                return Result.success();
+            }
+
             return Result.success(response.data.result!);
-        } catch(error){
-            if(error instanceof AxiosError && error.response){
+        } catch (error) {
+            if (error instanceof AxiosError && error.response) {
                 return Result.fail<T>(ErrorMessage.fromApiResponse("ApiError", error.response.data?.errorMessage || "An error occurred."));
             }
             console.error("Unexpected error during api call:", error);
             return Result.fail<T>(new ErrorMessage("ApiError", "An unexpected error occurred."));
         }
     }
+
 }
