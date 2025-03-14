@@ -22,7 +22,7 @@ export class GetUserProfileApi{
         this.client = new ApiClient(API_URLS.USER_MANAGEMENT.GET_PROFILE, true);
     }
 
-    public async getUserProfile(request: GetUserProfileRequest): Promise<Result<GetUserProfileResponse>> {
+    public async getUserProfile(request: GetUserProfileRequest): Promise<Result<GetUserProfileResponse | void>> {
         return this.client.handle<GetUserProfileResponse>({
             method: "GET",
             params: request

@@ -43,7 +43,6 @@ const LogoutModal: React.FC<LogoutModalProps> = ({isOpen, onClose }) => {
                     >
                         Logout
                     </button>
-
                 </div>
             </div>
         </Modal>

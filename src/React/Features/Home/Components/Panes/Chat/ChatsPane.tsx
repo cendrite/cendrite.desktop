@@ -1,7 +1,6 @@
 import React from "react";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import SidePanelToggle from "../../SidePanel/SidePanelToggle";
-import SearchBar from "../../SearchBar";
 
 interface ChatsPaneProps {
   isSidePanelVisible: boolean;
@@ -29,8 +28,8 @@ export const ChatsPane: React.FC<ChatsPaneProps> = ({ isSidePanelVisible, toggle
         </button>
       </div>
 
-      {/* Search Bar */}
-      <SearchBar />
+      {/*/!* Search Bar *!/*/}
+      {/*<SearchBar />*/}
 
       {/* Chat List */}
       <ul>

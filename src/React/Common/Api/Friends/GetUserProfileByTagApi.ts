@@ -4,7 +4,8 @@ import {Result} from "../../../../Shared/Result/Result.ts";
 
 
 export interface GetUserProfileByTagRequest {
-    userTag: string;
+    id: string;
+    tag: string;
 }
 
 export interface GetUserProfileByTagResponse {
@@ -21,7 +22,7 @@ export class GetUserProfileByTagApi {
         this.client = new ApiClient(API_URLS.USER_MANAGEMENT.GET_BY_TAG, true);
     }
 
-    public async getUserProfileByTag(request: GetUserProfileByTagRequest): Promise<Result<GetUserProfileByTagResponse>> {
+    public async getUserProfileByTag(request: GetUserProfileByTagRequest): Promise<Result<GetUserProfileByTagResponse | void>> {
         return this.client.handle<GetUserProfileByTagResponse>({
             method: "GET",
             params: request

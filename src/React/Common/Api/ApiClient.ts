@@ -66,9 +66,12 @@ export class ApiClient{
             });
     }
 
-    public async handle<T>(config: AxiosRequestConfig): Promise<Result<T>> {
+    public async handle<T>(config: AxiosRequestConfig): Promise<Result<T | void>> {
         try{
-            const response: AxiosResponse<Envelope<T>> = await this.api.request<Envelope<T>>(config);
+            const response: AxiosResponse<Envelope<T | null>> = await this.api.request<Envelope<T>>(config);
+            if(response.status === 204) {
+                return Result.success();
+            }
             return Result.success(response.data.result!);
         } catch(error){
             if(error instanceof AxiosError && error.response){

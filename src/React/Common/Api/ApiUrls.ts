@@ -22,5 +22,8 @@
             CREATE_DEVICE: "http://10.0.0.100:30069/api/User/device",
             GET_DEVICES: "http://10.0.0.100:30069/api/User/device",
         }
+    },
+    BUCKET: {
+        BUCKET_BASE: "http://10.0.0.100:30000",
     }
 }

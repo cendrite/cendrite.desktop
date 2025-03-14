@@ -82,7 +82,7 @@ const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClos
             <div className="relative h-full flex flex-col">
                 <button
                     onClick={() => onClose(true)}
-                    className="absolute top-1 right-1 text-gray-400 hover:text-gray-300">
+                    className="absolute top-1 right-1 text-gray-400 hover:text-gray-300 text-xs">
                     ✕
                 </button>
 
