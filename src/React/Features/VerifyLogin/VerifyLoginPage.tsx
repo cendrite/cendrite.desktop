@@ -12,6 +12,7 @@ import ResendCodeButton from "../../Common/Components/ResendCodeButton.tsx";
 import {CodeType} from "../../Common/Api/Identity/User/ResendVerificationCodeApi.ts";
 import {useUser} from "../../Common/Context/UserContext.tsx";
 import {useOnboarding} from "../../Common/Context/OnboardingContext.tsx";
+import {useSignal} from "../../SignalR/SignalRContext.tsx";
 
 const VerifyLoginPage: React.FC = () => {
     const navigate = useNavigate();
@@ -21,6 +22,7 @@ const VerifyLoginPage: React.FC = () => {
     const deviceService = new DeviceService();
     const userContext = useUser();
     const onboardingContext = useOnboarding();
+    const signalRContext = useSignal();
 
 
     const handleSubmit = async (values: { verificationCode: string },
@@ -63,6 +65,7 @@ const VerifyLoginPage: React.FC = () => {
             deviceId: deviceRegistrationResult.data!,
         });
 
+        await signalRContext.client.connect();
         navigate("/home");
     };
 

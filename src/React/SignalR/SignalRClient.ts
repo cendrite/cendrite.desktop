@@ -43,4 +43,16 @@ export class SignalRClient {
             }
         }
     }
+
+    public async disconnect() {
+        for (const key in HUB_PATHS) {
+            const hubPath = HUB_PATHS[key as HubPathKey];
+            const connection = this.connection.get(key as HubPathKey);
+            if(connection) {
+                await connection.stop();
+                this.connection.delete(key as HubPathKey);
+                console.log(`Disconnected from ${hubPath}`);
+            }
+        }
+    }
 }
