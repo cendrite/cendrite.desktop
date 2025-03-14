@@ -3,7 +3,7 @@ import React, {createContext, useContext, useEffect} from "react";
 import {useAuth} from "../Common/Context/AuthContext.tsx";
 
 interface SignalRContextProps {
-    client: SignalRClient | null;
+    client: SignalRClient;
 }
 
 const SignalRContext = createContext<SignalRContextProps | undefined>(undefined);
