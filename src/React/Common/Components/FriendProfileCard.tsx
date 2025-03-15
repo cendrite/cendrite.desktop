@@ -13,6 +13,7 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({ username,
 
     const onAddFriend = () => {
         // Add friend logic
+
     };
 
     return (

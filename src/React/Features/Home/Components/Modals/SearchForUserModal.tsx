@@ -33,11 +33,12 @@ const SearchForUserModal: React.FC<SearchForUserModalProps> = ({isOpen, onClose}
             setSearchQuery("");
             setSearchResult(null);
         }
-    }, []);
+    }, [isOpen]);
 
     useEffect(() => {
         if (searchQuery.length === 0) {
             setSearchResult(null);
+            setLoading(false);
             setError(null); // Reset error when search is cleared
             return;
         }
@@ -88,7 +89,7 @@ const SearchForUserModal: React.FC<SearchForUserModalProps> = ({isOpen, onClose}
                         ✕
                     </button>
 
-                    <div className="p-4">
+                    <div className="p-4 justify-center">
                         {/* Search Bar */}
                         <SearchBar
                             placeHolder={"Search for user"}
@@ -97,10 +98,10 @@ const SearchForUserModal: React.FC<SearchForUserModalProps> = ({isOpen, onClose}
                         />
 
                         {/* Loading Indicator */}
-                        {isLoading && <div className="mt-2 text-sm text-gray-400">Loading...</div>}
+                        {isLoading && <div className="mt-2 text-sm text-center text-gray-400">Loading...</div>}
 
                         {/* Error Message */}
-                        {error && <div className="mt-2 text-sm text-red-500">{error}</div>}
+                        {error && <div className="mt-2 text-sm text-center text-gray-400">{error}</div>}
 
                         {/* Display Profile Card if a User is Found */}
                         {!isLoading && searchResult && (
