@@ -6,7 +6,7 @@ import {
     GetUserProfileByTagResponse
 } from "../../../../Common/Api/Friends/GetUserProfileByTagApi.ts";
 import {useUser} from "../../../../Common/Context/UserContext.tsx";
-import PublicUserProfileCard from "../../../../Common/Components/FriendProfileCard.tsx";
+import PublicUserProfileCard from "../../../../Common/Components/PublicUserProfileCard.tsx";
 
 interface SearchForUserModalProps {
     isOpen: boolean;
@@ -107,9 +107,11 @@ const SearchForUserModal: React.FC<SearchForUserModalProps> = ({isOpen, onClose}
                         {!isLoading && searchResult && (
                             <PublicUserProfileCard
                                 username={searchResult.username}
-                                userTag={searchResult.userTag}
+                                friendTag={searchResult.userTag}
                                 displayName={searchResult.displayName}
                                 profilePictureUrl={searchResult.profilePictureUrl}
+                                friendshipStatus={searchResult.friendshipStatus.status ?? undefined}
+                                friendshipDirection={searchResult.friendshipStatus.direction}
                             />
                         )}
                     </div>

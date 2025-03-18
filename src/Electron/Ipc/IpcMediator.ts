@@ -32,8 +32,6 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
 
     mediator.registerHandler("GetMediaQuery", new GetMediaQueryHandler(mainWindow));
 
-    console.log("Registered Mediator Handlers:", Array.from(mediator["_handlers"].keys()));
-
     ipcMain.handle("mediator:send", async (event, request) => {
         return await mediator.send(request);
     });
