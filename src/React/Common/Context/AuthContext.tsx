@@ -1,11 +1,11 @@
-import React, {createContext, useContext, useEffect, useRef, useState} from "react";
-import {Result} from "../../../Shared/Result/Result";
-import {GetDeviceDto} from "../../../Electron/Application/Features/Device/Queries/GetDevice/GetDeviceDto";
-import {GetDeviceQuery} from "../../../Electron/Application/Features/Device/Queries/GetDevice/GetDeviceQuery";
-import {GetUserDto} from "../../../Electron/Application/Features/User/Queries/GetUserDto.ts";
-import {GetUserQuery} from "../../../Electron/Application/Features/User/Queries/GetUserQuery.ts";
-import {TokenManager} from "../../Token/TokenManager.ts";
-import {useUser} from "./UserContext.tsx";
+import React, { createContext, useContext, useEffect, useRef, useState, useCallback } from "react";
+import { Result } from "../../../Shared/Result/Result";
+import { GetDeviceDto } from "../../../Electron/Application/Features/Device/Queries/GetDevice/GetDeviceDto";
+import { GetDeviceQuery } from "../../../Electron/Application/Features/Device/Queries/GetDevice/GetDeviceQuery";
+import { GetUserDto } from "../../../Electron/Application/Features/User/Queries/GetUserDto.ts";
+import { GetUserQuery } from "../../../Electron/Application/Features/User/Queries/GetUserQuery.ts";
+import { TokenManager } from "../../Token/TokenManager.ts";
+import { useUser } from "./UserContext.tsx";
 
 interface AuthContextType {
     isLoggedIn: boolean;
@@ -14,24 +14,13 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
     const initializedRef = useRef(false);
-    const {setUser} = useUser();
+    const { setUser } = useUser();
 
-    useEffect(() => {
-        if (initializedRef.current) return;
-        initializedRef.current = true;
-
-        (async () => {
-            const isLoggedIn = await initializeApp();
-            setIsLoggedIn(isLoggedIn);
-            setLoading(false);
-        })();
-    }, []);
-
-    async function initializeApp(): Promise<boolean> {
+    const initializeApp = useCallback(async (): Promise<boolean> => {
         try {
             const deviceResult = await window.electron.sendRequestAsync<Result<GetDeviceDto>>(new GetDeviceQuery());
             if (!deviceResult.success) {
@@ -45,20 +34,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
             }
 
             const tokenManager = TokenManager.getInstance();
-
             await tokenManager.initialize(userResult.data!.id, deviceResult.data!.id);
 
-            setUser({...userResult.data!, deviceId: deviceResult.data!.id});
-
+            setUser({ ...userResult.data!, deviceId: deviceResult.data!.id });
             return true;
-
         } catch (error: unknown) {
             console.error("Error getting device", error);
             return false;
         }
-    }
+    }, [setUser]);
 
-    return <AuthContext.Provider value={{isLoggedIn, loading}}>{children}</AuthContext.Provider>;
+    useEffect(() => {
+        if (initializedRef.current) return;
+        initializedRef.current = true;
+
+        (async () => {
+            const loggedIn = await initializeApp();
+            setIsLoggedIn(loggedIn);
+            setLoading(false);
+        })();
+    }, [initializeApp]);
+
+    return <AuthContext.Provider value={{ isLoggedIn, loading }}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {
@@ -70,4 +67,3 @@ export const useAuth = () => {
 
     return context;
 };
-

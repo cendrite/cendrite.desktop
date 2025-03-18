@@ -22,7 +22,7 @@ const LogoutPage: React.FC = () => {
                 return () => clearTimeout(timer);
             });
         }
-    }, [user]);
+    }, [user, navigate]);
 
     return (
         <div className="flex items-center justify-center h-screen bg-zinc-950">
