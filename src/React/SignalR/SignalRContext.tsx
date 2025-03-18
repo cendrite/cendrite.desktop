@@ -1,5 +1,5 @@
 ﻿import {SignalRClient} from "./SignalRClient.ts";
-import React, {createContext, useContext, useEffect} from "react";
+import {createContext, useContext, useEffect} from "react";
 import {useAuth} from "../Common/Context/AuthContext.tsx";
 
 interface SignalRContextProps {
@@ -7,7 +7,6 @@ interface SignalRContextProps {
 }
 
 const SignalRContext = createContext<SignalRContextProps | undefined>(undefined);
-
 
 export const SignalRProvider = ({children}: { children: React.ReactNode }) => {
     const client = SignalRClient.getInstance();

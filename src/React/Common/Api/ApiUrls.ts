@@ -4,6 +4,8 @@
         GET_BY_TAG: "http://10.0.0.100:30420/api/UserProfile/tag",
         UPDATE_PROFILE_PICTURE: "http://10.0.0.100:30420/api/UserProfile/profile-picture",
         GET_PROFILE_PICTURE: "http://10.0.0.100:30420/api/UserProfile/profile-picture",
+        SEND_FRIEND_REQUEST: "http://10.0.0.100:30420/api/UserProfile/friendship",
+        DELETE_FRIEND_REQUEST: "http://10.0.0.100:30420/api/UserProfile/friendship",
     },
     IDENTITY: {
         AUTH:{

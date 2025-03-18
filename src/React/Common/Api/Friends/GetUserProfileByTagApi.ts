@@ -1,6 +1,8 @@
 ﻿import {ApiClient} from "../ApiClient.ts";
 import {API_URLS} from "../ApiUrls.ts";
 import {Result} from "../../../../Shared/Result/Result.ts";
+import { FriendshipStatus } from "../../../Enums/FriendshipStatus.ts";
+import {FriendshipDirection} from "../../../Enums/FriendshipDirection.ts";
 
 
 export interface GetUserProfileByTagRequest {
@@ -13,6 +15,12 @@ export interface GetUserProfileByTagResponse {
     userTag: string;
     displayName?: string;
     profilePictureUrl?: string;
+    friendshipStatus: FriendshipStatusDto;
+}
+
+export class FriendshipStatusDto {
+    status?: FriendshipStatus;
+    direction!: FriendshipDirection;
 }
 
 export class GetUserProfileByTagApi {

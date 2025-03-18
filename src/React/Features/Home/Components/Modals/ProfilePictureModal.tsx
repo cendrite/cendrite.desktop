@@ -2,15 +2,6 @@
 import Modal from "react-modal";
 import {useUser} from "../../../../Common/Context/UserContext.tsx";
 import {PencilIcon, PhotoIcon} from "@heroicons/react/24/outline";
-import avatar1 from "../../../../Assets/StockProfilePictures/avatar1.png";
-import avatar2 from "../../../../Assets/StockProfilePictures/avatar2.png";
-import avatar3 from "../../../../Assets/StockProfilePictures/avatar3.png";
-import avatar4 from "../../../../Assets/StockProfilePictures/avatar4.png";
-import avatar5 from "../../../../Assets/StockProfilePictures/avatar5.png";
-import avatar6 from "../../../../Assets/StockProfilePictures/avatar6.png";
-import avatar7 from "../../../../Assets/StockProfilePictures/avatar7.png";
-import avatar8 from "../../../../Assets/StockProfilePictures/avatar8.png";
-import avatar9 from "../../../../Assets/StockProfilePictures/avatar9.png";
 import {GetMediaDto} from "../../../../../Electron/Application/Features/Files/Queries/GetMedia/GetMediaDto.ts";
 import {Result} from "../../../../../Shared/Result/Result.ts";
 import {
@@ -31,17 +22,10 @@ const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClos
     const [loading, setLoading] = useState<boolean>(false);
     const profilePictureService = new ProfilePictureService();
 
-    const predefinedProfilePictures = [
-        avatar1,
-        avatar2,
-        avatar3,
-        avatar4,
-        avatar5,
-        avatar6,
-        avatar7,
-        avatar8,
-        avatar9
-    ];
+    const avatarModules = import.meta.glob("../../../../Assets/StockProfilePictures/*.png", { eager: true });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const predefinedProfilePictures = Object.values(avatarModules).map((mod: any) => mod.default);
+
 
     const saveProfilePicture = async () => {
         try {

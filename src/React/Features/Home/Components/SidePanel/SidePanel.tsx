@@ -47,8 +47,8 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onHide, setPaneType, paneT
 
                   <PanelButton
                         onClick={() => setIsModalOpen(true)}
-                        icon={<ProfilePicture className="w-8, h-8"/>}
-                        activeIcon={<ProfilePicture className="w-8, h-8"/>}
+                        icon={<ProfilePicture className="w-8 h-8"/>}
+                        activeIcon={<ProfilePicture className="w-8 h-8"/>}
                         isActive={isModalOpen}/>
               </div>
           </div>

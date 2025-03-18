@@ -1,12 +1,12 @@
 ﻿import Modal from "react-modal";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import SearchBar from "../SearchBar.tsx";
 import {
     GetUserProfileByTagApi,
     GetUserProfileByTagResponse
 } from "../../../../Common/Api/Friends/GetUserProfileByTagApi.ts";
 import {useUser} from "../../../../Common/Context/UserContext.tsx";
-import PublicUserProfileCard from "../../../../Common/Components/FriendProfileCard.tsx";
+import PublicUserProfileCard from "../../../../Common/Components/PublicUserProfileCard.tsx";
 
 interface SearchForUserModalProps {
     isOpen: boolean;
@@ -14,8 +14,9 @@ interface SearchForUserModalProps {
 }
 
 const SearchForUserModal: React.FC<SearchForUserModalProps> = ({isOpen, onClose}) => {
-    const api = new GetUserProfileByTagApi();
-    const userId = useUser().user?.id;
+    const api = useMemo(() => new GetUserProfileByTagApi(), []);
+    const { user } = useUser();
+    const userId = useMemo(() => user?.id, [user]);
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [searchResult, setSearchResult] = useState<GetUserProfileByTagResponse | null>(null);
     const [isLoading, setLoading] = useState<boolean>(false);
@@ -70,7 +71,7 @@ const SearchForUserModal: React.FC<SearchForUserModalProps> = ({isOpen, onClose}
         }, 300); // 300ms debounce
 
         return () => clearTimeout(timeoutId);
-    }, [searchQuery]);
+    }, [searchQuery, userId, api]);
 
     return (
         <>
@@ -107,9 +108,11 @@ const SearchForUserModal: React.FC<SearchForUserModalProps> = ({isOpen, onClose}
                         {!isLoading && searchResult && (
                             <PublicUserProfileCard
                                 username={searchResult.username}
-                                userTag={searchResult.userTag}
+                                friendTag={searchResult.userTag}
                                 displayName={searchResult.displayName}
                                 profilePictureUrl={searchResult.profilePictureUrl}
+                                friendshipStatus={searchResult.friendshipStatus.status ?? undefined}
+                                friendshipDirection={searchResult.friendshipStatus.direction}
                             />
                         )}
                     </div>
