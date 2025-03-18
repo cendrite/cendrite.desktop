@@ -23,6 +23,7 @@ const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClos
     const profilePictureService = new ProfilePictureService();
 
     const avatarModules = import.meta.glob("../../../../Assets/StockProfilePictures/*.png", { eager: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const predefinedProfilePictures = Object.values(avatarModules).map((mod: any) => mod.default);
 
 
