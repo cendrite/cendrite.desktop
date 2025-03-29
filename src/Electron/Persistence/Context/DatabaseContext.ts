@@ -1,8 +1,11 @@
+
 import 'reflect-metadata';
 import { DataSource } from "typeorm";
 import { Device } from "../Entities/Device.js";
 import { RefreshToken } from "../Entities/RefreshToken.js";
 import { User } from "../Entities/User.js";
+import {FriendSchema} from "../Schemas/FriendSchema.js";
+import {ConnectionIdSchema} from "../Schemas/ConnectionIdSchema.js";
 
 export const DatabaseContext = new DataSource({
     type: "sqlite",
@@ -12,6 +15,8 @@ export const DatabaseContext = new DataSource({
         User,
         Device,
         RefreshToken,
+        FriendSchema,
+        ConnectionIdSchema
     ],
     migrations: [],
     synchronize: true,

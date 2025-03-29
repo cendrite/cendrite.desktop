@@ -21,12 +21,12 @@ export class Result<T = void> {
     }
 
     // Overloaded signatures for fail
-    public static fail(errorMessage: ErrorMessage): Result<void>;
+    public static fail(errorMessage: ErrorMessage): Result;
     public static fail<T>(errorMessage: ErrorMessage): Result<T>;
+    public static fail(): Result;
 
     // Implementation for fail
-    public static fail<T>(errorMessage: ErrorMessage): Result<T | void> {
+    public static fail<T>(errorMessage?: ErrorMessage): Result<T | void> {
         return new Result<T | void>(false, null, errorMessage);
     }
-
 }

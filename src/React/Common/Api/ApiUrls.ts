@@ -4,11 +4,12 @@
         GET_BY_TAG: "http://10.0.0.100:30420/api/UserProfile/tag",
         UPDATE_PROFILE_PICTURE: "http://10.0.0.100:30420/api/UserProfile/profile-picture",
         GET_PROFILE_PICTURE: "http://10.0.0.100:30420/api/UserProfile/profile-picture",
-        SEND_FRIEND_REQUEST: "http://10.0.0.100:30420/api/UserProfile/friendship",
-        DELETE_FRIEND_REQUEST: "http://10.0.0.100:30420/api/UserProfile/friendship",
+        SEND_FRIEND_REQUEST: "http://10.0.0.100:30420/api/UserProfile/friendship/create",
+        DELETE_FRIEND_REQUEST: "http://10.0.0.100:30420/api/UserProfile/friendship/delete",
+        ACCEPT_FRIENDSHIP: "http://10.0.0.100:30420/api/UserProfile/friendship/accept",
     },
     IDENTITY: {
-        AUTH:{
+        AUTH: {
             LOGOUT: "http://10.0.0.100:30069/api/Authentication/logout",
             LOGIN: "http://10.0.0.100:30069/api/Authentication/login",
             VERIFY_LOGIN: "http://10.0.0.100:30069/api/Authentication/verify-login",
