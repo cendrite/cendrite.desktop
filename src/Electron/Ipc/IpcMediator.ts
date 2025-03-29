@@ -13,6 +13,10 @@ import {
     UpdateProfilePictureCommandHandler
 } from "../Application/Features/User/Commands/Update/ProfilePicture/UpdateProfilePictureCommandHandler.js";
 import {GetMediaQueryHandler} from "../Application/Features/Files/Queries/GetMedia/GetMediaQueryHandler.js";
+import {
+    CreateFriendCommandHandler
+} from "../Application/Features/Friends/Commands/Create/CreateFriendCommandHandler.js";
+import {CreateFriendCommand} from "../Application/Features/Friends/Commands/Create/CreateFriendCommand.js";
 
 export function registerIpcHandlers(mainWindow: BrowserWindow) {
     const mediator = new Mediator();
@@ -31,6 +35,8 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
     mediator.registerHandler("UpdateProfilePictureCommand", new UpdateProfilePictureCommandHandler());
 
     mediator.registerHandler("GetMediaQuery", new GetMediaQueryHandler(mainWindow));
+
+    mediator.registerHandler("CreateFriendCommand", new CreateFriendCommandHandler());
 
     ipcMain.handle("mediator:send", async (event, request) => {
         return await mediator.send(request);

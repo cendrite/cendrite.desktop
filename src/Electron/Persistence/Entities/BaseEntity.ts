@@ -19,4 +19,12 @@ export abstract class BaseEntity {
         }
     })
     updatedAt?: Date;
+
+    public constructor() {
+        this.createdAt = new Date();
+    }
+
+    public update(): void {
+        this.updatedAt = new Date();
+    }
 }

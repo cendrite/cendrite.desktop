@@ -47,7 +47,15 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
     };
 
     const onAcceptFriendRequest = async () => {
-        throw new Error("Not implemented");
+        const result = await friendService.AcceptFriendship(userContext.user!.id, friendTag);
+        if (result.success) {
+            setCurrentFriendshipStatus(FriendshipStatus.Accepted);
+            setCurrentFriendshipDirection(FriendshipDirection.None);
+            setIsLoading(true);
+        }
+
+        await delay(750);
+        setIsLoading(false);
     };
 
     const onDeclineFriendRequest = async () => {
