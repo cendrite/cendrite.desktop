@@ -6,6 +6,9 @@ on:
       - develop
       - master
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build Electron App (${{ matrix.os }})
