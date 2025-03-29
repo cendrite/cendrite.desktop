@@ -2,15 +2,17 @@
   "appId": "com.dev-cypherly",
   "files": ["dist-electron", "dist-react", "node_modules/libsodium-wrappers"],
   "extraResources": ["dist-electron/Electron/Preload.cjs"],
-  "icon": "./favicon.ico",
   "mac": {
+    "icon": "./icons/mac.icns",
     "target": "dmg"
   },
   "linux": {
+    "icon": "./icons/linux.png",
     "target": "AppImage",
     "category": "Utility"
   },
   "win": {
+    "icon": "./icons/win.ico",
     "target": ["portable", "msi"]
   }
 }
