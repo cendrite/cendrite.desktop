@@ -1,7 +1,7 @@
 ﻿name: Release Electron App
 
 on:
-  pull_request:
+  push:
     branches:
       - develop
       - master
