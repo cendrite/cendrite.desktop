@@ -13,7 +13,6 @@ jobs:
   build:
     name: Build Electron App (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
-
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -50,6 +49,14 @@ jobs:
           name: windows-latest-artifact
           path: ./release/windows
 
+      - name: Filter Windows Files
+        run: |
+          mkdir selected
+          cp release/windows/*.exe selected/ || true
+          cp release/windows/*.msi selected/ || true
+          cp release/windows/latest.yml selected/ || true
+          ls -lh selected
+
       - name: Release Windows Build
         uses: softprops/action-gh-release@v1
         env:
@@ -59,7 +66,7 @@ jobs:
           name: "Release ${{ github.run_number }}"
           draft: false
           prerelease: false
-          files: release/windows/**/*
+          files: selected/*
 
   release-macos:
     name: Release macOS
@@ -73,6 +80,14 @@ jobs:
           name: macos-latest-artifact
           path: ./release/macos
 
+      - name: Filter macOS Files
+        run: |
+          mkdir selected
+          cp release/macos/*.dmg selected/ || true
+          cp release/macos/*.blockmap selected/ || true
+          cp release/macos/latest-mac.yml selected/ || true
+          ls -lh selected
+
       - name: Release macOS Build
         uses: softprops/action-gh-release@v1
         env:
@@ -82,7 +97,7 @@ jobs:
           name: "Release ${{ github.run_number }}"
           draft: false
           prerelease: false
-          files: release/macos/**/*
+          files: selected/*
 
   release-linux:
     name: Release Linux
@@ -96,6 +111,14 @@ jobs:
           name: ubuntu-latest-artifact
           path: ./release/linux
 
+      - name: Filter Linux Files
+        run: |
+          mkdir selected
+          cp release/linux/*.AppImage selected/ || true
+          cp release/linux/*.deb selected/ || true
+          cp release/linux/latest-linux.yml selected/ || true
+          ls -lh selected
+
       - name: Release Linux Build
         uses: softprops/action-gh-release@v1
         env:
@@ -105,4 +128,4 @@ jobs:
           name: "Release ${{ github.run_number }}"
           draft: false
           prerelease: false
-          files: release/linux/**/*
+          files: selected/*
