@@ -13,6 +13,10 @@
   },
   "win": {
     "icon": "./icons/win.ico",
-    "target": ["portable", "msi"]
+    "target": ["nsis"]
+  },
+  "nsis":{
+    "oneClick": true,
+    "allowToChangeInstallationDirectory": true
   }
 }
