@@ -14,12 +14,5 @@
   "win": {
     "icon": "./icons/win.ico",
     "target": ["portable", "msi"]
-  },
-  "publish": [
-    {
-      "provider": "github",
-      "releaseType": "release",
-      "overwrite": true
-    }
-  ]
+  }
 }
