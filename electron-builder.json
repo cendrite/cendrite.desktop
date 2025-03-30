@@ -19,5 +19,5 @@
     "oneClick": false,
     "allowToChangeInstallationDirectory": true
   },
-  "publish": "never"
+  "publish": null
 }
