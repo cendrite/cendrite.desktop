@@ -9,7 +9,7 @@ export class GenerateKeysRequestHandler implements Handler<GenerateKeysRequest, 
 
     async handle(request: GenerateKeysRequest): Promise<Result<GenerateKeysDto>> {
         try {
-            // Generate a Ed25519 key pair
+            // Generate an Ed25519 key pair
             const keyPair = nacl.sign.keyPair();
 
             // Convert the private and public keys to base64
