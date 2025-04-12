@@ -48,7 +48,7 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     useEffect(() => {
         loadContacts();
-    }, [user]);
+    }, [user, loadContacts()]);
 
     const refreshContacts = async () => {
         await loadContacts();
