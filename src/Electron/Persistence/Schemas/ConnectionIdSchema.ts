@@ -1,5 +1,6 @@
 ﻿import {EntitySchema} from "typeorm";
 import {ConnectionId} from "../../Domain/Entities/ConnectionId.js";
+import {Friend} from "../../Domain/Aggregates/Friend.js";
 
 export const ConnectionIdSchema = new EntitySchema<ConnectionId>({
     name: "ConnectionId",
@@ -14,4 +15,13 @@ export const ConnectionIdSchema = new EntitySchema<ConnectionId>({
             type: String
         }
     },
+    relations: {
+        friend: {
+            type: "many-to-one",
+            target: () => Friend,
+            joinColumn: true,
+            inverseSide: "connectionIds",
+            onDelete: "CASCADE"
+        }
+    }
 });

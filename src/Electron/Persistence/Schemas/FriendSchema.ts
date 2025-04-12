@@ -1,14 +1,14 @@
 ﻿import {EntitySchema} from "typeorm";
 import {Friend} from "../../Domain/Aggregates/Friend.js";
+import {ConnectionId} from "../../Domain/Entities/ConnectionId.js";
 
 export const FriendSchema =new EntitySchema<Friend>({
     name: "Friend",
     target: Friend,
     columns: {
         id: {
-            type: "uuid",
+            type: "text",
             primary: true,
-            generated: 'uuid'
         },
         username: {
             type: String
@@ -20,15 +20,13 @@ export const FriendSchema =new EntitySchema<Friend>({
         profilePicture: {
             type: "blob",
             nullable: true
-        },
-        tag: {
-            type: String
         }
     },
     relations: {
         connectionIds: {
-            target: "ConnectionId",
+            target: () => ConnectionId,
             type: "one-to-many",
+            inverseSide: "friend",
             cascade: true,
             eager: true
         },

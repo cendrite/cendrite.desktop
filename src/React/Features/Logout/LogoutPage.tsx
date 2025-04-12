@@ -1,9 +1,9 @@
 ﻿import React, {useEffect} from "react";
-import {LogoutService} from "../../Common/LogoutService/LogoutService.ts";
 import {useUser} from "../../Common/Context/UserContext.tsx";
 import {useNavigate} from "react-router-dom";
 import Lottie from "lottie-react";
 import boxAnimation from "../../Assets/Animations/box_load_animation.json";
+import {LogoutService} from "../../Common/Services/LogoutService.ts";
 
 
 const logoutService = new LogoutService();

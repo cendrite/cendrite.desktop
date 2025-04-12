@@ -12,7 +12,7 @@ export class Result<T = void> {
     }
 
     // Overloaded signatures for success
-    public static success(): Result<void>;
+    public static success(): Result;
     public static success<T>(data: T): Result<T>;
 
     // Implementation for success

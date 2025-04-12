@@ -11,17 +11,19 @@ export class CreateFriendCommandHandler implements Handler<CreateFriendCommand> 
     public async handle(request: CreateFriendCommand): Promise<Result> {
         try {
             const friendRepository = new FriendRepository();
-            const imageConverter = new ImageConverter();
             const friend = new Friend();
+            friend.id = request.tag;
             friend.username = request.username;
             friend.displayName = request.displayName;
-            friend.profilePicture = request.base64ProfilePicture ? await imageConverter.base64ToBuffer(request.base64ProfilePicture) : null;
+            friend.profilePicture = request.base64ProfilePicture ? await ImageConverter.base64ToBuffer(request.base64ProfilePicture) : null;
 
-            friend.connectionIds = request.connectionId.map(connId => {
-                return new ConnectionId(connId);
-            });
 
-            friend.tag = request.tag;
+            if (request.connectionIds) {
+                friend.connectionIds = request.connectionIds.map(id => new ConnectionId(id));
+            } else {
+                friend.connectionIds = [];
+            }
+
             await friendRepository.create(friend);
 
             return Result.success();
