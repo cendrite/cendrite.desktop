@@ -1,6 +1,9 @@
-import {Result} from "../../../../Shared/Result/Result.ts";
-import { UpdateProfilePictureApi } from "../../../Common/Api/UserProfile/UpdateProfilePictureApi.ts";
-import {UpdateProfilePictureCommand} from "../../../../Electron/Application/Features/User/Commands/Update/ProfilePicture/UpdateProfilePictureCommand.ts";
+import { Result } from "../../../Shared/Result/Result";
+import { UpdateProfilePictureApi } from "../Api/UserProfile/UpdateProfilePictureApi";
+import {
+    UpdateProfilePictureCommand
+} from "../../../Electron/Application/Features/User/Commands/Update/ProfilePicture/UpdateProfilePictureCommand.ts";
+
 
 export class ProfilePictureService {
     private readonly updateProfilePictureApi = new UpdateProfilePictureApi();

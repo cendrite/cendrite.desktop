@@ -17,6 +17,7 @@ import {
     CreateFriendCommandHandler
 } from "../Application/Features/Friends/Commands/Create/CreateFriendCommandHandler.js";
 import {CreateFriendCommand} from "../Application/Features/Friends/Commands/Create/CreateFriendCommand.js";
+import {GetFriendsQueryHandler} from "../Application/Features/Friends/Queries/GetFriends/GetFriendsQueryHandler.js";
 
 export function registerIpcHandlers(mainWindow: BrowserWindow) {
     const mediator = new Mediator();
@@ -37,6 +38,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
     mediator.registerHandler("GetMediaQuery", new GetMediaQueryHandler(mainWindow));
 
     mediator.registerHandler("CreateFriendCommand", new CreateFriendCommandHandler());
+    mediator.registerHandler("GetFriendsQuery", new GetFriendsQueryHandler());
 
     ipcMain.handle("mediator:send", async (event, request) => {
         return await mediator.send(request);

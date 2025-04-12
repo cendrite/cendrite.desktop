@@ -8,7 +8,7 @@ import {
     GetMediaQuery,
     MediaType
 } from "../../../../../Electron/Application/Features/Files/Queries/GetMedia/GetMediaQuery.ts";
-import {ProfilePictureService} from "../../Services/ProfilePictureService.ts";
+import {ProfilePictureService} from "../../../../Common/Services/ProfilePictureService.ts";
 
 interface ProfilePictureModalProps {
     isOpen: boolean;

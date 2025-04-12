@@ -1,32 +1,33 @@
 ﻿export const API_URLS = {
     USER_MANAGEMENT: {
-        GET_PROFILE: "http://10.0.0.100:30420/api/UserProfile",
+        GET_PROFILE: "https://usermanagement.xhykl49jkg.org/api/UserProfile",
         GET_BY_TAG: "http://10.0.0.100:30420/api/UserProfile/tag",
-        UPDATE_PROFILE_PICTURE: "http://10.0.0.100:30420/api/UserProfile/profile-picture",
-        GET_PROFILE_PICTURE: "http://10.0.0.100:30420/api/UserProfile/profile-picture",
-        SEND_FRIEND_REQUEST: "http://10.0.0.100:30420/api/UserProfile/friendship/create",
-        DELETE_FRIEND_REQUEST: "http://10.0.0.100:30420/api/UserProfile/friendship/delete",
-        ACCEPT_FRIENDSHIP: "http://10.0.0.100:30420/api/UserProfile/friendship/accept",
+        UPDATE_PROFILE_PICTURE: "https://usermanagement.xhykl49jkg.org/api/UserProfile/profile-picture",
+        GET_PROFILE_PICTURE: "https://usermanagement.xhykl49jkg.org/api/UserProfile/profile-picture",
+        SEND_FRIEND_REQUEST: "https://usermanagement.xhykl49jkg.org/api/UserProfile/friendship/create",
+        DELETE_FRIEND_REQUEST: "https://usermanagement.xhykl49jkg.org/api/UserProfile/friendship/delete",
+        ACCEPT_FRIENDSHIP: "https://usermanagement.xhykl49jkg.org/api/UserProfile/friendship/accept",
+        GET_FRIENDS: "https://usermanagement.xhykl49jkg.org/api/UserProfile/friendships",
     },
     IDENTITY: {
         AUTH: {
-            LOGOUT: "http://10.0.0.100:30069/api/Authentication/logout",
-            LOGIN: "http://10.0.0.100:30069/api/Authentication/login",
-            VERIFY_LOGIN: "http://10.0.0.100:30069/api/Authentication/verify-login",
-            GET_NONCE: "http://10.0.0.100:30069/api/Authentication/nonce",
-            REFRESH_TOKEN: "http://10.0.0.100:30069/api/Authentication/refresh-token",
-            VERIFY_NONCE: "http://10.0.0.100:30069/api/Authentication/verify-nonce",
+            LOGOUT: "https://identity.xhykl49jkg.org/api/Authentication/logout",
+            LOGIN: "https://identity.xhykl49jkg.org/api/Authentication/login",
+            VERIFY_LOGIN: "https://identity.xhykl49jkg.org/api/Authentication/verify-login",
+            GET_NONCE: "https://identity.xhykl49jkg.org/api/Authentication/nonce",
+            REFRESH_TOKEN: "https://identity.xhykl49jkg.org/api/Authentication/refresh-token",
+            VERIFY_NONCE: "https://identity.xhykl49jkg.org/api/Authentication/verify-nonce",
         },
         USER: {
-            REGISTER: "http://10.0.0.100:30069/api/User",
-            DELETE: "http://10.0.0.100:30069/api/User",
-            VERIFY_USER: "http://10.0.0.100:30069/api/User/verify",
-            RESEND_VERIFICATION: "http://10.0.0.100:30069/api/User/resend-verification",
-            CREATE_DEVICE: "http://10.0.0.100:30069/api/User/device",
-            GET_DEVICES: "http://10.0.0.100:30069/api/User/device",
+            REGISTER: "https://identity.xhykl49jkg.org/api/User",
+            DELETE: "https://identity.xhykl49jkg.org/api/User",
+            VERIFY_USER: "https://identity.xhykl49jkg.org/api/User/verify",
+            RESEND_VERIFICATION: "https://identity.xhykl49jkg.org/api/User/resend-verification",
+            CREATE_DEVICE: "https://identity.xhykl49jkg.org/api/User/device",
+            GET_DEVICES: "https://identity.xhykl49jkg.org/api/User/device",
         }
     },
     BUCKET: {
-        BUCKET_BASE: "http://10.0.0.100:30000",
+        BUCKET_BASE: "https://bucket-console.xhykl49jkg.org",
     }
 }

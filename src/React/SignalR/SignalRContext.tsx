@@ -1,5 +1,5 @@
 ﻿import {SignalRClient} from "./SignalRClient.ts";
-import {createContext, useContext, useEffect} from "react";
+import React, {createContext, useContext, useEffect} from "react";
 import {useAuth} from "../Common/Context/AuthContext.tsx";
 
 interface SignalRContextProps {

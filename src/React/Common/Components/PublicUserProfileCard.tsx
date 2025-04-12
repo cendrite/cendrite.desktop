@@ -1,12 +1,13 @@
 ﻿import React, {useState} from "react";
 import {UserProfileImage} from "./UserProfileImage.tsx";
 import { CheckIcon, XMarkIcon, PlusIcon} from "@heroicons/react/24/outline";
-import {FriendService} from "../../Features/Home/Services/FriendService.ts";
 import {useUser} from "../Context/UserContext.tsx";
 import ToolTip from "./ToolTip.tsx";
 import {FriendshipDirection} from "../../Enums/FriendshipDirection.ts";
 import {FriendshipStatus} from "../../Enums/FriendshipStatus.ts";
 import { delay } from "../../../Shared/HelperFunctions.ts";
+import {FriendService} from "../Services/FriendService.ts";
+import {useContacts} from "../../Features/Home/Components/Panes/Contact/ContactContext.tsx";
 
 interface PublicUserProfileCardProps {
     username: string;
@@ -31,6 +32,7 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
     const [currentFriendshipStatus, setCurrentFriendshipStatus] = useState<FriendshipStatus | undefined>(friendshipStatus);
     const [currentFriendshipDirection, setCurrentFriendshipDirection] = useState<FriendshipDirection>(friendshipDirection);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const  { setContacts, refreshContacts } = useContacts();
 
 
     const onAddFriend = async () => {
@@ -52,6 +54,8 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
             setCurrentFriendshipStatus(FriendshipStatus.Accepted);
             setCurrentFriendshipDirection(FriendshipDirection.None);
             setIsLoading(true);
+            setContacts((prevContacts) => [...prevContacts, result.data!]);
+            refreshContacts();
         }
 
         await delay(750);

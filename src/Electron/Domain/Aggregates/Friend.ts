@@ -8,11 +8,9 @@ export class Friend extends BaseEntity {
 
     displayName?: string | null;
 
-    profilePicture?: Buffer | null;
+    profilePicture!: Buffer | null;
 
     connectionIds!: ConnectionId[];
-
-    tag!: string;
 
     constructor() {
         super();
