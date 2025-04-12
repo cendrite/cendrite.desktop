@@ -5,8 +5,8 @@ interface User {
     username: string;
     userTag: string;
     deviceId: string;
-    base64ProfilePicture?: string;
-    displayName?: string;
+    base64ProfilePicture: string | null;
+    displayName: string | null;
 }
 
 interface UserContextType {

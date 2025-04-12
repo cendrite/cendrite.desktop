@@ -12,7 +12,7 @@ export class CreateRefreshTokenRequestHandler implements Handler<CreateRefreshTo
 
             const _refreshTokenRepository = new RefreshTokenRepository();
             await _refreshTokenRepository.delete();
-            const refreshToken = new RefreshToken(request.token, new Date(request.expiresAt));
+            const refreshToken = new RefreshToken(request.token, request.expiresAt);
             await _refreshTokenRepository.create(refreshToken);
 
             return Result.success();

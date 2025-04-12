@@ -1,9 +1,9 @@
 export class RefreshToken {
     id!: string;
     token!: string;
-    expiresAt!: Date;
+    expiresAt!: string;
 
-    constructor(token: string, expiresAt: Date) {
+    constructor(token: string, expiresAt: string) {
         this.token = token;
         this.expiresAt = expiresAt;
     }

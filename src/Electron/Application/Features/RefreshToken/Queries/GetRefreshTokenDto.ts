@@ -10,7 +10,7 @@ export class GetRefreshTokenDto {
     public static MapFrom(token: RefreshToken): GetRefreshTokenDto {
         const dto = new GetRefreshTokenDto();
         dto.refreshToken = token.token;
-        dto.expiresAt = token.expiresAt;
+        dto.expiresAt = new Date(token.expiresAt);
         return dto;
     }
 }

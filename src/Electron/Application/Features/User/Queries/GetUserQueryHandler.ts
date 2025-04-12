@@ -17,7 +17,7 @@ export class GetUserQueryHandler implements Handler<GetUserQuery, GetUserDto> {
 
             const base64Image = user.profilePicture ?
                 `data:image/png;base64,${user.profilePicture.toString("base64")}`
-                : undefined;
+                : null;
 
             const dto = GetUserDto.MapFrom(user, base64Image);
 

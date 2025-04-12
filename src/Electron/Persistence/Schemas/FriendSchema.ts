@@ -1,11 +1,13 @@
 ﻿import {EntitySchema} from "typeorm";
 import {Friend} from "../../Domain/Aggregates/Friend.js";
 import {ConnectionId} from "../../Domain/Entities/ConnectionId.js";
+import { BaseSchema } from "./BaseSchema.js";
 
 export const FriendSchema =new EntitySchema<Friend>({
     name: "Friend",
     target: Friend,
     columns: {
+        ...BaseSchema.columns,
         id: {
             type: "text",
             primary: true,

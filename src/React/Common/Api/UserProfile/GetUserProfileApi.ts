@@ -7,8 +7,8 @@ export interface GetUserProfileResponse{
     id: string;
     username: string;
     userTag: string,
-    profilePictureUrl?: string;
-    displayName?: string;
+    profilePictureUrl: string | null;
+    displayName: string | null;
 }
 
 export interface GetUserProfileRequest {

@@ -17,11 +17,7 @@ export const RefreshTokenSchema = new EntitySchema<RefreshToken>({
             unique: true
         },
         expiresAt: {
-            type: "datetime",
-            transformer: {
-                to: (value: Date) => value,
-                from: (value: string) => new Date(value)
-            }
+            type: "text",
         }
     }
 });

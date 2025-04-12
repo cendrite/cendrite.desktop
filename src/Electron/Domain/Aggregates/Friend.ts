@@ -1,7 +1,6 @@
 ﻿import {ConnectionId} from "../Entities/ConnectionId.js";
-import {BaseEntity} from "../../Persistence/Entities/BaseEntity.js";
 
-export class Friend extends BaseEntity {
+export class Friend {
     id!: string;
 
     username!: string;
@@ -11,8 +10,4 @@ export class Friend extends BaseEntity {
     profilePicture!: Buffer | null;
 
     connectionIds!: ConnectionId[];
-
-    constructor() {
-        super();
-    }
 }

@@ -7,7 +7,7 @@ import {GetUserProfilePictureApi} from "../../../Common/Api/UserProfile/GetUserP
 export class UserProfileService {
     private readonly getUserProfileApi = new GetUserProfileApi();
     private readonly getProfilePictureApi = new GetUserProfilePictureApi();
-    private profilePicture?: string;
+    private profilePicture!: string | null;
 
     public async HandleUserProfile(userId: string){
         const getUserProfileResult  = await this.getUserProfileApi.getUserProfile({ userProfileId: userId });
@@ -43,7 +43,7 @@ export class UserProfileService {
                 getUserProfileResult.data!.username,
                 getUserProfileResult.data!.userTag,
                 this.profilePicture,
-                getUserProfileResult.data?.displayName
+                getUserProfileResult.data!.displayName
             ));
 
         if(!result.success){

@@ -1,17 +1,17 @@
 import 'reflect-metadata';
 import { DataSource } from "typeorm";
-import { User } from "../Entities/User.js";
 import {FriendSchema} from "../Schemas/FriendSchema.js";
 import {ConnectionIdSchema} from "../Schemas/ConnectionIdSchema.js";
 import { DeviceSchema } from '../Schemas/DeviceSchema.js';
 import {RefreshTokenSchema} from "../Schemas/RefreshTokenSchema.js";
+import {UserSchema} from "../Schemas/UserSchema.js";
 
 export const DatabaseContext = new DataSource({
     type: "sqlite",
     database: "./src/Electron/Persistence/Context/msg.db",
     logging: false,
     entities: [
-        User,
+        UserSchema,
         RefreshTokenSchema,
         DeviceSchema,
         FriendSchema,
