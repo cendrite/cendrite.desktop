@@ -31,7 +31,7 @@ export class FriendService {
     }
 
     public async GetFriends(id: string): Promise<Array<Contact>>{
-        let contacts = new Set<Contact>();
+        const contacts = new Set<Contact>();
         const result = await window.electron.sendRequestAsync<Result<Array<FriendDto>>>(new GetFriendsQuery());
 
         if(result.success && result.data !== null){

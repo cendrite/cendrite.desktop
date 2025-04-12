@@ -1,4 +1,4 @@
-﻿import React, {useEffect} from "react";
+﻿import React, {useCallback, useEffect, useMemo} from "react";
 import {useUser} from "../../../../../Common/Context/UserContext.tsx";
 import {FriendService} from "../../../../../Common/Services/FriendService.ts";
 
@@ -28,27 +28,25 @@ const ContactContext = React.createContext<ContactContextType | undefined>(undef
 
 export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [contacts, setContacts] = React.useState<Contact[]>([]);
-    const friendService = new FriendService();
+    const friendService = useMemo(() => new FriendService(), []);
     const {user} = useUser();
 
-    const loadContacts = async () => {
-        try{
-            if(!user){
-                console.warn("User is not defined, cannot load contacts.");
-                return;
-            }
-
+    const loadContacts = useCallback(async () => {
+        if (!user) {
+            console.warn("User is not defined, cannot load contacts.");
+            return;
+        }
+        try {
             const loadedContacts = await friendService.GetFriends(user.id);
             setContacts(loadedContacts);
-        }
-        catch (error) {
+        } catch (error) {
             console.error("Error loading contacts:", error);
         }
-    }
+    }, [user, friendService]);
 
     useEffect(() => {
         loadContacts();
-    }, [user, loadContacts()]);
+    }, [loadContacts]);
 
     const refreshContacts = async () => {
         await loadContacts();
