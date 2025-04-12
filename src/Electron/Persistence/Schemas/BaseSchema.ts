@@ -10,7 +10,7 @@ export const BaseSchema = {
             },
         } as EntitySchemaColumnOptions,
         updatedAt: {
-            type: "text",
+            type: "datetime",
             nullable: true,
             transformer: {
                 to: (value: Date) => value,

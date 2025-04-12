@@ -1,10 +1,10 @@
 import 'reflect-metadata';
 import { DataSource } from "typeorm";
-import { RefreshToken } from "../Entities/RefreshToken.js";
 import { User } from "../Entities/User.js";
 import {FriendSchema} from "../Schemas/FriendSchema.js";
 import {ConnectionIdSchema} from "../Schemas/ConnectionIdSchema.js";
 import { DeviceSchema } from '../Schemas/DeviceSchema.js';
+import {RefreshTokenSchema} from "../Schemas/RefreshTokenSchema.js";
 
 export const DatabaseContext = new DataSource({
     type: "sqlite",
@@ -12,7 +12,7 @@ export const DatabaseContext = new DataSource({
     logging: false,
     entities: [
         User,
-        RefreshToken,
+        RefreshTokenSchema,
         DeviceSchema,
         FriendSchema,
         ConnectionIdSchema

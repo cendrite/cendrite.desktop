@@ -1,4 +1,4 @@
-import { RefreshToken } from "../../../../Persistence/Entities/RefreshToken.js";
+import { RefreshToken } from "../../../../Domain/Entities/RefreshToken.js";
 
 export class GetRefreshTokenDto {
     refreshToken!: string;
