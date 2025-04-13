@@ -1,6 +1,6 @@
 import React from "react";
 import { Contact } from "./ContactContext.tsx";
-import {UserProfileImage} from "../../../../../Common/Components/UserProfileImage.tsx";
+import {UserProfileImage} from "../../../Common/Components/UserProfileImage.tsx";
 
 interface ContactCardProps {
     contact: Contact;

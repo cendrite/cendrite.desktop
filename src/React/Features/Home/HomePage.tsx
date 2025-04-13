@@ -1,6 +1,6 @@
 import React, {useState} from "react";
-import ParentPane from "./Components/Panes/ParentPane";
-import SidePanel from "./Components/SidePanel/SidePanel";
+import ParentPane from "./ParentPane";
+import SidePanel from "./SidePanel/SidePanel";
 
 const HomePage: React.FC = () => {
   const [isSidePanelVisible, setIsSidePanelVisible] = useState(true);

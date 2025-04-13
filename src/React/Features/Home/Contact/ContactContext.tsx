@@ -1,6 +1,6 @@
 ﻿import React, {useCallback, useEffect, useMemo} from "react";
-import {useUser} from "../../../../../Common/Context/UserContext.tsx";
-import {FriendService} from "../../../../../Common/Services/FriendService.ts";
+import {useUser} from "../../../Common/Context/UserContext.tsx";
+import {FriendService} from "../../../Common/Services/FriendService.ts";
 
 export class Contact {
     id: string;

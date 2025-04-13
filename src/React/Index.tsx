@@ -6,7 +6,7 @@ import {UserProvider} from "./Common/Context/UserContext.tsx";
 import {AuthProvider} from "./Common/Context/AuthContext.tsx";
 import {OnboardingProvider} from "./Common/Context/OnboardingContext.tsx";
 import {SignalRProvider} from "./SignalR/SignalRContext.tsx";
-import {ContactProvider} from "./Features/Home/Components/Panes/Contact/ContactContext.tsx";
+import {ContactProvider} from "./Features/Home/Contact/ContactContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>

@@ -4,9 +4,9 @@ import SearchBar from "../SearchBar.tsx";
 import {
     GetUserProfileByTagApi,
     GetUserProfileByTagResponse
-} from "../../../../Common/Api/Friends/GetUserProfileByTagApi.ts";
-import {useUser} from "../../../../Common/Context/UserContext.tsx";
-import PublicUserProfileCard from "../../../../Common/Components/PublicUserProfileCard.tsx";
+} from "../../../Common/Api/Friends/GetUserProfileByTagApi.ts";
+import {useUser} from "../../../Common/Context/UserContext.tsx";
+import PublicUserProfileCard from "../../../Common/Components/PublicUserProfileCard.tsx";
 
 interface SearchForUserModalProps {
     isOpen: boolean;

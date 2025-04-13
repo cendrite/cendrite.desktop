@@ -1,14 +1,14 @@
 ﻿import React, {useState} from "react";
 import Modal from "react-modal";
-import {useUser} from "../../../../Common/Context/UserContext.tsx";
+import {useUser} from "../../../Common/Context/UserContext.tsx";
 import {PencilIcon, PhotoIcon} from "@heroicons/react/24/outline";
-import {GetMediaDto} from "../../../../../Electron/Application/Features/Files/Queries/GetMedia/GetMediaDto.ts";
-import {Result} from "../../../../../Shared/Result/Result.ts";
+import {GetMediaDto} from "../../../../Electron/Application/Features/Files/Queries/GetMedia/GetMediaDto.ts";
+import {Result} from "../../../../Shared/Result/Result.ts";
 import {
     GetMediaQuery,
     MediaType
-} from "../../../../../Electron/Application/Features/Files/Queries/GetMedia/GetMediaQuery.ts";
-import {ProfilePictureService} from "../../../../Common/Services/ProfilePictureService.ts";
+} from "../../../../Electron/Application/Features/Files/Queries/GetMedia/GetMediaQuery.ts";
+import {ProfilePictureService} from "../../../Common/Services/ProfilePictureService.ts";
 
 interface ProfilePictureModalProps {
     isOpen: boolean;

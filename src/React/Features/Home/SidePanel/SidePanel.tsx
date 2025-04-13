@@ -4,7 +4,7 @@ import {ChatBubbleOvalLeftIcon as ChatBubbleOvalLeftIconFilled, UserGroupIcon as
 import SidePanelToggle from "./SidePanelToggle";
 import PanelButton from "./SidePanelButton";
 import UserModal from "../Modals/UserModal.tsx";
-import ProfilePicture from "../../../../Common/Components/ProfilePicture.tsx";
+import ProfilePicture from "../../../Common/Components/ProfilePicture.tsx";
 
 export interface SidePanelProps {
   onHide: () => void;

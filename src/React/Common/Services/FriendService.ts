@@ -8,10 +8,10 @@ import {
 } from "../../../Electron/Application/Features/Friends/Commands/Create/CreateFriendCommand.ts";
 import {GetFriendsQuery} from "../../../Electron/Application/Features/Friends/Queries/GetFriends/GetFriendsQuery.ts";
 import {FriendDto} from "../../../Electron/Application/Features/Friends/Dto/FriendDto.ts";
-import { Contact } from "../../Features/Home/Components/Panes/Contact/ContactContext.tsx";
 import {GetFriendsApi} from "../Api/Friends/GetFriendsApi.ts";
 import {ImageHelper} from "../Api/Utility/ImageFetcher.ts";
 import {GetUserProfilePictureApi} from "../Api/UserProfile/GetUserProfilePicture.ts";
+import { Contact } from "../../Features/Home/Contact/ContactContext.tsx";
 
 export class FriendService {
     private readonly addFriendAPi = new SendFriendRequestApi();
