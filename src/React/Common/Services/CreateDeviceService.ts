@@ -1,9 +1,14 @@
-import { GenerateKeysRequest } from "../../../../Electron/Application/Features/Device/Commands/GenerateKeys/GenerateKeysRequest.ts";
-import {Result} from "../../../../Shared/Result/Result.ts";
-import {CreateDeviceApi} from "../../../Common/Api/Identity/User/CreateDeviceApi.ts";
-import {GenerateKeysDto} from "../../../../Electron/Application/Features/Device/Commands/GenerateKeys/GenerateKeysDto.ts";
-import {ErrorMessage} from "../../../../Shared/Result/ErrorMessage.ts";
-import {CreateDeviceRequest} from "../../../../Electron/Application/Features/Device/Commands/CreateDevice/CreateDeviceRequest.ts";
+import { Result } from "../../../Shared/Result/Result";
+import { CreateDeviceApi } from "../Api/Identity/User/CreateDeviceApi";
+import {
+    GenerateKeysRequest
+} from "../../../Electron/Application/Features/Device/Commands/GenerateKeys/GenerateKeysRequest.ts";
+import {GenerateKeysDto} from "../../../Electron/Application/Features/Device/Commands/GenerateKeys/GenerateKeysDto.ts";
+import {ErrorMessage} from "../../../Shared/Result/ErrorMessage.ts";
+import {
+    CreateDeviceRequest
+} from "../../../Electron/Application/Features/Device/Commands/CreateDevice/CreateDeviceRequest.ts";
+
 
 export class DeviceService {
     private readonly CreateDeviceApi = new CreateDeviceApi();
