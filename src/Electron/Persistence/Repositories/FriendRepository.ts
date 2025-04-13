@@ -1,9 +1,9 @@
-import {DatabaseContext} from "../Context/DatabaseContext.js";
+import { getDbContext} from "../Context/DatabaseContext.js";
 import {CryptographyService} from "../Encryption/CryptographyService.js";
 import {Friend} from "../../Domain/Aggregates/Friend.js";
 
 export class FriendRepository {
-    private readonly friendRepository = DatabaseContext.getRepository(Friend);
+    private readonly friendRepository = getDbContext().getRepository(Friend);
     private readonly cryptoService = CryptographyService.getInstance();
 
     public async create(friend: Friend): Promise<void> {

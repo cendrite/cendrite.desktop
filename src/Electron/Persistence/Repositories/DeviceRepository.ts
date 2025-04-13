@@ -1,5 +1,5 @@
 import { Repository } from "typeorm/repository/Repository.js";
-import { DatabaseContext } from "../Context/DatabaseContext.js";
+import { getDbContext} from "../Context/DatabaseContext.js";
 import { CryptographyService } from "../Encryption/CryptographyService.js";
 import { Device } from "../../Domain/Entities/Device.js";
 
@@ -8,7 +8,7 @@ export class DeviceRepository {
     private readonly cryptoService = CryptographyService.getInstance();
 
     public constructor() {
-        this.repository = DatabaseContext.getRepository(Device);
+        this.repository = getDbContext().getRepository(Device);
     }
 
     public async create(device: Device): Promise<Device> {
