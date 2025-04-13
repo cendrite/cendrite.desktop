@@ -1,4 +1,4 @@
-import { Device } from "../../../../../Persistence/Entities/Device.js";
+import { Device } from "../../../../../Domain/Entities/Device.js";
 
 export class GetDeviceDto {
     id!: string;

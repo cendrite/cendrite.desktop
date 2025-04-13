@@ -1,9 +1,9 @@
 import { ErrorMessage } from "../../../../../../Shared/Result/ErrorMessage.js";
 import { Result } from "../../../../../../Shared/Result/Result.js";
-import { RefreshToken } from "../../../../../Persistence/Entities/RefreshToken.js";
 import { RefreshTokenRepository } from "../../../../../Persistence/Repositories/RefreshTokenRepository.js";
 import { Handler } from "../../../../Mediator/Handler.js";
 import { CreateRefreshTokenRequest } from "./CreateRefreshTokenRequest.js";
+import {RefreshToken} from "../../../../../Domain/Entities/RefreshToken.js";
 
 export class CreateRefreshTokenRequestHandler implements Handler<CreateRefreshTokenRequest, void> {
 
@@ -12,10 +12,7 @@ export class CreateRefreshTokenRequestHandler implements Handler<CreateRefreshTo
 
             const _refreshTokenRepository = new RefreshTokenRepository();
             await _refreshTokenRepository.delete();
-            const refreshToken = new RefreshToken();
-            refreshToken.token = request.token;
-            refreshToken.expiresAt = new Date(request.expiresAt);
-
+            const refreshToken = new RefreshToken(request.token, request.expiresAt);
             await _refreshTokenRepository.create(refreshToken);
 
             return Result.success();

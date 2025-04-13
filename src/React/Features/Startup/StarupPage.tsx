@@ -1,6 +1,6 @@
 ﻿import React, {useEffect} from "react";
 import Lottie from "lottie-react";
-import {useAuth} from "../../Common/Context/AuthContext.tsx";
+import {useAuth} from "../../Context/AuthContext.tsx";
 import {useNavigate} from "react-router-dom";
 import boxAnimation from "../../Assets/Animations/box_load_animation.json";
 

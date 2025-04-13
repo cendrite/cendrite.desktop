@@ -1,20 +1,17 @@
 import { ErrorMessage } from "../../../../../../Shared/Result/ErrorMessage.js";
 import { Result } from "../../../../../../Shared/Result/Result.js";
-import { Device } from "../../../../../Persistence/Entities/Device.js";
 import { DeviceRepository } from "../../../../../Persistence/Repositories/DeviceRepository.js";
 import { Handler } from "../../../../Mediator/Handler.js";
 import { CreateDeviceRequest } from "./CreateDeviceRequest.js";
+import {Device} from "../../../../../Domain/Entities/Device.js";
 
-export class CreateDeviceRequestHandler implements Handler<CreateDeviceRequest, void> {
+export class CreateDeviceRequestHandler implements Handler<CreateDeviceRequest> {
 
-    async handle(request: CreateDeviceRequest): Promise<Result<void>> {
+    async handle(request: CreateDeviceRequest): Promise<Result> {
 
         try {
             const _deviceRepository = new DeviceRepository();
-            const device = new Device();
-            device.id = request.id;
-            device.privateKey = request.privateKey;
-            device.publicKey = request.publicKey;
+            const device = new Device(request.id, request.privateKey, request.publicKey);
 
             console.log('Creating Device:', device);
             console.log('Device Repository:', _deviceRepository);

@@ -7,7 +7,7 @@ import FormButton from "../../Common/Components/FormButton";
 import {CodeType} from "../../Common/Api/Identity/User/ResendVerificationCodeApi.ts";
 import {VerifyUserApi} from "../../Common/Api/Identity/User/VerifyUserApi.ts";
 import ResendCodeButton from "../../Common/Components/ResendCodeButton.tsx";
-import {useOnboarding} from "../../Common/Context/OnboardingContext.tsx";
+import {useOnboarding} from "../../Context/OnboardingContext.tsx";
 
 const VerifyUserPage: React.FC = () => {
   const navigate = useNavigate();

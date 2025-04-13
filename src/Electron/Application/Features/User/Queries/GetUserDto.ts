@@ -1,15 +1,15 @@
-﻿import {User} from "../../../../Persistence/Entities/User.js";
+﻿import {User} from "../../../../Domain/Aggregates/User.js";
 
 export class GetUserDto {
     public id!: string;
     public username!: string;
     public userTag!: string;
-    public base64ProfilePicture?: string;
-    public displayName?: string;
+    public base64ProfilePicture!: string | null;
+    public displayName!: string | null;
 
     private constructor() { }
 
-    public static MapFrom(user: User, base64Picture?: string): GetUserDto {
+    public static MapFrom(user: User, base64Picture: string | null): GetUserDto {
         const dto = new GetUserDto();
         dto.id = user.id;
         dto.username = user.username;

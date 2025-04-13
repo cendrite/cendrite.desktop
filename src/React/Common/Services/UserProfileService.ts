@@ -1,13 +1,13 @@
-﻿import {Result} from "../../../../Shared/Result/Result.ts";
-import {CreateUserDto} from "../../../../Electron/Application/Features/User/Commands/Create/CreateUserDto.ts";
-import {CreateUserCommand} from "../../../../Electron/Application/Features/User/Commands/Create/CreateUserCommand.ts";
-import {GetUserProfileApi} from "../../../Common/Api/UserProfile/GetUserProfileApi.ts";
-import {GetUserProfilePictureApi} from "../../../Common/Api/UserProfile/GetUserProfilePicture.ts";
+﻿import { GetUserProfileApi } from "../Api/UserProfile/GetUserProfileApi";
+import { GetUserProfilePictureApi } from "../Api/UserProfile/GetUserProfilePicture";
+import {Result} from "../../../Shared/Result/Result.ts";
+import {CreateUserDto} from "../../../Electron/Application/Features/User/Commands/Create/CreateUserDto.ts";
+import {CreateUserCommand} from "../../../Electron/Application/Features/User/Commands/Create/CreateUserCommand.ts";
 
 export class UserProfileService {
     private readonly getUserProfileApi = new GetUserProfileApi();
     private readonly getProfilePictureApi = new GetUserProfilePictureApi();
-    private profilePicture?: string;
+    private profilePicture!: string | null;
 
     public async HandleUserProfile(userId: string){
         const getUserProfileResult  = await this.getUserProfileApi.getUserProfile({ userProfileId: userId });
@@ -43,7 +43,7 @@ export class UserProfileService {
                 getUserProfileResult.data!.username,
                 getUserProfileResult.data!.userTag,
                 this.profilePicture,
-                getUserProfileResult.data?.displayName
+                getUserProfileResult.data!.displayName
             ));
 
         if(!result.success){

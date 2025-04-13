@@ -1,7 +1,7 @@
 import { Repository } from "typeorm/repository/Repository.js";
 import { CryptographyService } from "../Encryption/CryptographyService.js";
-import { User } from "../Entities/User.js";
 import { DatabaseContext } from "../Context/DatabaseContext.js";
+import { User } from "../../Domain/Aggregates/User.js";
 
 export class UserRepository {
     private repository: Repository<User>;
@@ -35,15 +35,21 @@ export class UserRepository {
     }
 
     public async update(userUpdate: Partial<User>) {
-        const user = await this.repository.find({ take: 1 });
-
-        if (user.length === 0) {
+        const result = await this.repository.find({ take: 1 });
+        if (result.length === 0) {
             throw new Error("No user found");
         }
+        const user = result[0];
 
-        user[0]!.profilePicture = userUpdate.profilePicture;
-        user[0]!.displayName = userUpdate.displayName;
-        await this.repository.save(user[0]);
+        if(userUpdate.profilePicture) {
+            user.setProfilePicture(userUpdate.profilePicture);
+        }
+
+        if(userUpdate.displayName) {
+            user.setDisplayName(userUpdate.displayName);
+        }
+
+        await this.repository.save(user);
     }
 
     public async delete(): Promise<void> {

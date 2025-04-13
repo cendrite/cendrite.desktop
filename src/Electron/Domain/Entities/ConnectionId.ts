@@ -1,7 +1,6 @@
-﻿import {BaseEntity} from "../../Persistence/Entities/BaseEntity.js";
-import {Friend} from "../Aggregates/Friend.js";
+﻿import {Friend} from "../Aggregates/Friend.js";
 
-export class ConnectionId extends BaseEntity {
+export class ConnectionId {
     id!: string;
 
     connectionId: string;
@@ -9,7 +8,6 @@ export class ConnectionId extends BaseEntity {
     friend!: Friend;
 
     constructor(connectionId: string) {
-        super();
         this.connectionId = connectionId;
     }
 }

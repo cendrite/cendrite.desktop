@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useEffect, useRef, useState, useCallback } from "react";
-import { Result } from "../../../Shared/Result/Result";
-import { GetDeviceDto } from "../../../Electron/Application/Features/Device/Queries/GetDevice/GetDeviceDto";
-import { GetDeviceQuery } from "../../../Electron/Application/Features/Device/Queries/GetDevice/GetDeviceQuery";
-import { GetUserDto } from "../../../Electron/Application/Features/User/Queries/GetUserDto.ts";
-import { GetUserQuery } from "../../../Electron/Application/Features/User/Queries/GetUserQuery.ts";
-import { TokenManager } from "../../Token/TokenManager.ts";
+import { Result } from "../../Shared/Result/Result";
+import { GetDeviceDto } from "../../Electron/Application/Features/Device/Queries/GetDevice/GetDeviceDto";
+import { GetDeviceQuery } from "../../Electron/Application/Features/Device/Queries/GetDevice/GetDeviceQuery";
+import { GetUserDto } from "../../Electron/Application/Features/User/Queries/GetUserDto.ts";
+import { GetUserQuery } from "../../Electron/Application/Features/User/Queries/GetUserQuery.ts";
+import { TokenManager } from "../Token/TokenManager.ts";
 import { useUser } from "./UserContext.tsx";
 
 interface AuthContextType {

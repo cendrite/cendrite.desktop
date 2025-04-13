@@ -1,5 +1,5 @@
 ﻿import React, {useEffect} from "react";
-import {useUser} from "../../Common/Context/UserContext.tsx";
+import {useUser} from "../../Context/UserContext.tsx";
 import {useNavigate} from "react-router-dom";
 import Lottie from "lottie-react";
 import boxAnimation from "../../Assets/Animations/box_load_animation.json";
