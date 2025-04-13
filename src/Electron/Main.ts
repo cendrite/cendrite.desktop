@@ -2,13 +2,30 @@
 import "reflect-metadata";
 import {app, BrowserWindow} from 'electron';
 import path from "path";
-import {getPreloadPath, isDevelopment} from "./Utilities.js";
+import {getPreloadPath, isDevelopment, isSpawnDevelopment} from "./Utilities.js";
 import {initializeDatabase} from './Persistence/Context/DatabaseContext.js';
 import {LogoutManager} from "./Application/Services/LogoutManager/LogoutManager.js";
 import {registerIpcHandlers} from "./IpcMediator.js";
+import * as fs from "node:fs";
+import {Db} from "typeorm";
+
+
+if(process.env.ELECTRON_INSTANCE_ID){
+    console.log(`ELECTRON_INSTANCE_ID: ${process.env.ELECTRON_INSTANCE_ID}`);
+    const defaultUserData = app.getPath('userData');
+    const instanceFolder = path.join(defaultUserData, process.env.ELECTRON_INSTANCE_ID);
+    if(!fs.existsSync(instanceFolder)){
+        fs.mkdirSync(instanceFolder, {recursive: true});
+    }
+    app.setPath('userData', instanceFolder);
+    console.log(`User data path set to: ${app.getPath('userData')}`);
+}
+
 
 app.on("ready", async () => {
-    await initializeDatabase();
+    const dbPath = process.env.ELECTRON_INSTANCE_ID ? path.join(app.getPath('userData'), 'msg.sqlite') : null;
+    await initializeDatabase(dbPath);
+
     const logoutManager = LogoutManager.getInstance();
     await logoutManager.recoverIfNeeded();
 
@@ -22,8 +39,9 @@ app.on("ready", async () => {
             contextIsolation: true,
         }
     });
-    if (isDevelopment()) {
-        mainWindow.loadURL("http://localhost:8080");
+    if (isDevelopment() || isSpawnDevelopment()) {
+        const port = process.env.VITE_PORT || "8080";
+        mainWindow.loadURL("http://localhost:" + port);
     } else {
         mainWindow.loadFile(path.join(app.getAppPath(), './dist-react/index.html'))
     }

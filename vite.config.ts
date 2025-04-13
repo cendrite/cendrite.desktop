@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
+const port = Number(process.env.PORT) || 8080;
+
 export default defineConfig({
     plugins: [react()],
     base: './',
@@ -8,7 +10,7 @@ export default defineConfig({
         outDir: 'dist-react'
     },
     server: {
-        port: 8080,
+        port: port,
         strictPort: true,
     }
 })

@@ -1,5 +1,5 @@
 import { Repository } from "typeorm/repository/Repository.js";
-import { DatabaseContext } from "../Context/DatabaseContext.js";
+import { getDbContext} from "../Context/DatabaseContext.js";
 import { CryptographyService } from "../Encryption/CryptographyService.js";
 import { RefreshToken } from "../../Domain/Entities/RefreshToken.js";
 
@@ -8,7 +8,7 @@ export class RefreshTokenRepository {
     private readonly cryptoService = CryptographyService.getInstance();
 
     public constructor() {
-        this.repository = DatabaseContext.getRepository(RefreshToken);
+        this.repository = getDbContext().getRepository(RefreshToken);
     }
 
     public async create(refreshToken: RefreshToken): Promise<RefreshToken> {
