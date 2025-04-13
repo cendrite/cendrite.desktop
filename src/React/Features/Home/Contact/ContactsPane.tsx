@@ -3,7 +3,7 @@ import {UserPlusIcon} from "@heroicons/react/24/outline";
 import SidePanelToggle from "../SidePanel/SidePanelToggle";
 import SearchForUserModal from "../Modals/SearchForUserModal.tsx";
 import ContactCard from "./ContactCard.tsx";
-import {Contact, useContacts} from "./ContactContext.tsx";
+import {Contact, useContacts} from "../../../Context/ContactContext.tsx";
 
 interface ContactsPaneProps {
     isSidePanelVisible: boolean;

@@ -22,7 +22,7 @@ const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClos
     const [loading, setLoading] = useState<boolean>(false);
     const profilePictureService = new ProfilePictureService();
 
-    const avatarModules = import.meta.glob("../../../../Assets/StockProfilePictures/*.png", { eager: true });
+    const avatarModules = import.meta.glob("../../../Assets/StockProfilePictures/*.png", { eager: true });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const predefinedProfilePictures = Object.values(avatarModules).map((mod: any) => mod.default);
 

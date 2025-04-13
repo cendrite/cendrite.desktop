@@ -19,7 +19,7 @@ export const UserProfileImage: React.FC<UserProfileImageProps> = ({ profilePictu
     const imageSource = base64ProfilePicture ? base64ProfilePicture : `${API_URLS.BUCKET.BUCKET_BASE}${profilePictureUrl}`;
 
     return (
-        <div className="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden bg-gray-100">
+        <div>
             {profilePictureUrl ? (
                 <img
                     className="w-full h-full object-cover"

@@ -7,7 +7,7 @@ import {FriendshipDirection} from "../../Enums/FriendshipDirection.ts";
 import {FriendshipStatus} from "../../Enums/FriendshipStatus.ts";
 import { delay } from "../../../Shared/HelperFunctions.ts";
 import {FriendService} from "../Services/FriendService.ts";
-import {useContacts} from "../../Features/Home/Contact/ContactContext.tsx";
+import {useContacts} from "../../Context/ContactContext.tsx";
 
 interface PublicUserProfileCardProps {
     username: string;

@@ -11,7 +11,7 @@ import {FriendDto} from "../../../Electron/Application/Features/Friends/Dto/Frie
 import {GetFriendsApi} from "../Api/Friends/GetFriendsApi.ts";
 import {ImageHelper} from "../Api/Utility/ImageFetcher.ts";
 import {GetUserProfilePictureApi} from "../Api/UserProfile/GetUserProfilePicture.ts";
-import { Contact } from "../../Features/Home/Contact/ContactContext.tsx";
+import { Contact } from "../../Context/ContactContext.tsx";
 
 export class FriendService {
     private readonly addFriendAPi = new SendFriendRequestApi();
