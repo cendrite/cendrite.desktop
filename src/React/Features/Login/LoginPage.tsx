@@ -7,7 +7,7 @@ import ErrorTooltip from "../../Common/Components/ErrorToolTip";
 import FormButton from "../../Common/Components/FormButton";
 import React from "react";
 import {LoginApi} from "../../Common/Api/Identity/Auth/LoginApi.ts";
-import {useOnboarding} from "../../Common/Context/OnboardingContext.tsx";
+import {useOnboarding} from "../../Context/OnboardingContext.tsx";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();

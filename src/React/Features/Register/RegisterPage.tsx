@@ -8,7 +8,7 @@ import ErrorTooltip from "../../Common/Components/ErrorToolTip";
 import {initialRegisterValues} from "./Form/InitialRegisterFormValues";
 import {RegisterValidationSchema} from "./Validation/RegisterFormValidation";
 import {RegisterApi, RegisterRequest} from "../../Common/Api/Identity/User/RegisterApi.ts";
-import {useOnboarding} from "../../Common/Context/OnboardingContext.tsx";
+import {useOnboarding} from "../../Context/OnboardingContext.tsx";
 
 const RegisterPage: React.FC = () => {
     const navigate = useNavigate();

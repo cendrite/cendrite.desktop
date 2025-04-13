@@ -10,8 +10,8 @@ import {VerifyLoginApi} from "../../Common/Api/Identity/Auth/VerifyLoginApi.ts";
 import {DeviceService} from "./Services/CreateDeviceService.ts";
 import ResendCodeButton from "../../Common/Components/ResendCodeButton.tsx";
 import {CodeType} from "../../Common/Api/Identity/User/ResendVerificationCodeApi.ts";
-import {useUser} from "../../Common/Context/UserContext.tsx";
-import {useOnboarding} from "../../Common/Context/OnboardingContext.tsx";
+import {useUser} from "../../Context/UserContext.tsx";
+import {useOnboarding} from "../../Context/OnboardingContext.tsx";
 import {useSignal} from "../../SignalR/SignalRContext.tsx";
 
 const VerifyLoginPage: React.FC = () => {

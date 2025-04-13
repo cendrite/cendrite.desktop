@@ -5,7 +5,7 @@ import {
     GetUserProfileByTagApi,
     GetUserProfileByTagResponse
 } from "../../../Common/Api/Friends/GetUserProfileByTagApi.ts";
-import {useUser} from "../../../Common/Context/UserContext.tsx";
+import {useUser} from "../../../Context/UserContext.tsx";
 import PublicUserProfileCard from "../../../Common/Components/PublicUserProfileCard.tsx";
 
 interface SearchForUserModalProps {

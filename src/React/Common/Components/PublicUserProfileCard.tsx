@@ -1,7 +1,7 @@
 ﻿import React, {useState} from "react";
 import {UserProfileImage} from "./UserProfileImage.tsx";
 import { CheckIcon, XMarkIcon, PlusIcon} from "@heroicons/react/24/outline";
-import {useUser} from "../Context/UserContext.tsx";
+import {useUser} from "../../Context/UserContext.tsx";
 import ToolTip from "./ToolTip.tsx";
 import {FriendshipDirection} from "../../Enums/FriendshipDirection.ts";
 import {FriendshipStatus} from "../../Enums/FriendshipStatus.ts";

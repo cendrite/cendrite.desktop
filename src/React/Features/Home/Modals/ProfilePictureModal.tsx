@@ -1,6 +1,6 @@
 ﻿import React, {useState} from "react";
 import Modal from "react-modal";
-import {useUser} from "../../../Common/Context/UserContext.tsx";
+import {useUser} from "../../../Context/UserContext.tsx";
 import {PencilIcon, PhotoIcon} from "@heroicons/react/24/outline";
 import {GetMediaDto} from "../../../../Electron/Application/Features/Files/Queries/GetMedia/GetMediaDto.ts";
 import {Result} from "../../../../Shared/Result/Result.ts";
