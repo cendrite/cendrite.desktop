@@ -6,7 +6,7 @@ import {
     BellSlashIcon,
     ChatBubbleOvalLeftIcon, ClockIcon, NoSymbolIcon, PaintBrushIcon, PencilIcon,
     PhoneIcon,
-    VideoCameraIcon, XCircleIcon,
+    VideoCameraIcon
 } from "@heroicons/react/24/outline";
 
 interface ContactPageProps {
@@ -16,8 +16,6 @@ interface ContactPageProps {
 
 const ContactPage: React.FC<ContactPageProps> = ({contact, onClose}) => {
     const [slideClass, setSlideClass] = useState("translate-x-full");
-    const [nickname, setNickname] = useState("");
-    const [chatColor, setChatColor] = useState("#f97316");
 
     useEffect(() => {
         // Slide in on mount
