@@ -8,19 +8,25 @@ interface ContactCardProps {
 }
 
 const ContactCard: React.FC<ContactCardProps> = ({contact}) => {
-    const context = useContext(HomePageContext);
-    if (!context) {
-        throw new Error("ContactCard must be used within a HomePageProvider");
-    }
+    const { selectedContact, setSelectedContact } = useContext(HomePageContext)!;
+    const isSelected = selectedContact && selectedContact.id === contact.id;
+
     const name = contact.displayName ?? contact.username;
-    const {setSelectedContact} = context;
 
     const onHandleClick = () => {
+        if (isSelected) {
+            setSelectedContact(null);
+            return;
+        }
+
         setSelectedContact(contact);
     }
 
+    const cardClasses = `flex items-center py-2 px-2 rounded-md cursor-pointer 
+    ${isSelected ? "bg-darkGray-300" : "hover:bg-darkGray-300"}`;
+
     return (
-        <div className="flex items-center py-2 px-2 hover:bg-zinc-700 rounded-md" onClick={onHandleClick}>
+        <div className={cardClasses} onClick={onHandleClick}>
             <div className="w-11 h-11 rounded-full flex items-center justify-center overflow-hidden bg-gray-100">
                 <UserProfileImage
                     base64ProfilePicture={contact.profilePicture ?? undefined}
