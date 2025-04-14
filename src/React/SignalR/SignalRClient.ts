@@ -1,6 +1,7 @@
 ﻿import {HubConnection, HubConnectionBuilder} from '@microsoft/signalr';
 import {HUB_PATHS} from "./SignalRHubPath.ts";
 import {TokenManager} from "../Token/TokenManager.ts";
+import ChangeEventManger from "./ChangeEvent/ChangeEventManager.ts";
 
 
 type HubPathKey = keyof typeof HUB_PATHS;
@@ -8,7 +9,7 @@ type HubPathKey = keyof typeof HUB_PATHS;
 export class SignalRClient {
     private static instance: SignalRClient;
     private connection: Map<HubPathKey, HubConnection> = new Map();
-
+    private eventManger = ChangeEventManger.getInstance();
     private constructor() {
     }
 
@@ -37,7 +38,8 @@ export class SignalRClient {
                 }
                 await connection.start();
                 this.connection.set(key as HubPathKey, connection);
-                console.log(`Connected to ${hubPath}`);
+
+                await this.intializeManagers();
             } catch (error) {
                 console.log(`Failed to connect to ${hubPath}`, error);
             }
@@ -54,5 +56,13 @@ export class SignalRClient {
                 console.log(`Disconnected from ${hubPath}`);
             }
         }
+    }
+
+    public getConnection(hubPath: HubPathKey): HubConnection | undefined {
+        return this.connection.get(hubPath);
+    }
+
+    private async intializeManagers(): Promise<void>{
+        await this.eventManger.initialize();
     }
 }

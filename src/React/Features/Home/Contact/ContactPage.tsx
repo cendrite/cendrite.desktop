@@ -2,12 +2,7 @@
 import {Contact} from "../../../Context/ContactContext";
 import ChevronLeftIcon from "@heroicons/react/24/outline/ChevronLeftIcon";
 import {UserProfileImage} from "../../../Common/Components/UserProfileImage";
-import {
-    BellSlashIcon,
-    ChatBubbleOvalLeftIcon, ClockIcon, NoSymbolIcon, PaintBrushIcon, PencilIcon,
-    PhoneIcon,
-    VideoCameraIcon
-} from "@heroicons/react/24/outline";
+import {BellSlashIcon, ChatBubbleOvalLeftIcon, ClockIcon, NoSymbolIcon, PaintBrushIcon, PencilIcon, PhoneIcon, VideoCameraIcon} from "@heroicons/react/24/outline";
 
 interface ContactPageProps {
     contact: Contact;

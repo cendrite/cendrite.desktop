@@ -15,8 +15,6 @@ export class LogoutApi {
     }
 
     async logout(request: LogoutApiRequest) : Promise<Result> {
-        console.log("Logging out user", request.id);
-        console.log("Device id", request.deviceId);
         return await this.client.handle({
             method: "POST",
             data: request

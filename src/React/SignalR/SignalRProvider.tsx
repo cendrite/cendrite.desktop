@@ -1,6 +1,6 @@
-﻿import {SignalRClient} from "./SignalRClient.ts";
-import React, {createContext, useContext, useEffect} from "react";
-import {useAuth} from "../Context/AuthContext.tsx";
+﻿import React, {createContext, useContext, useEffect} from "react";
+import { SignalRClient } from "./SignalRClient";
+import { useAuth } from "../Context/AuthContext";
 
 interface SignalRContextProps {
     client: SignalRClient;
@@ -15,7 +15,7 @@ export const SignalRProvider = ({children}: { children: React.ReactNode }) => {
     useEffect(() => {
         if (!isLoggedIn) return;
         client.connect()
-            .then(() => console.log("Connected to SignalR"))
+            .then(() =>{})
             .catch((error) => console.log("Failed to connect to SignalR", error));
     }, [isLoggedIn, client]);
 
