@@ -27,14 +27,10 @@ const ContactPage: React.FC<ContactPageProps> = ({contact, onClose}) => {
         setTimeout(() => onClose(), 300);
     };
 
-    const handleVideoCall = () => {/* ... */
-    };
-    const handleCall = () => {/* ... */
-    };
-    const handleMessage = () => {/* ... */
-    };
-    const handleMute = () => {/* ... */
-    };
+    const handleVideoCall = () => {};
+    const handleCall = () => {};
+    const handleMessage = () => {};
+    const handleMute = () => {};
 
     return (
         <>
