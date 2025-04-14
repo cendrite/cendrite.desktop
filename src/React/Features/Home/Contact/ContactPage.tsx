@@ -1,0 +1,175 @@
+﻿import React, {useEffect, useState} from "react";
+import {Contact} from "../../../Context/ContactContext";
+import ChevronLeftIcon from "@heroicons/react/24/outline/ChevronLeftIcon";
+import {UserProfileImage} from "../../../Common/Components/UserProfileImage";
+import {
+    BellSlashIcon,
+    ChatBubbleOvalLeftIcon, ClockIcon, NoSymbolIcon, PaintBrushIcon, PencilIcon,
+    PhoneIcon,
+    VideoCameraIcon
+} from "@heroicons/react/24/outline";
+
+interface ContactPageProps {
+    contact: Contact;
+    onClose: () => void;
+}
+
+const ContactPage: React.FC<ContactPageProps> = ({contact, onClose}) => {
+    const [slideClass, setSlideClass] = useState("translate-x-full");
+
+    useEffect(() => {
+        // Slide in on mount
+        setSlideClass("translate-x-0");
+    }, []);
+
+    const handleSlideOut = () => {
+        setSlideClass("translate-x-full");
+        setTimeout(() => onClose(), 300);
+    };
+
+    const handleVideoCall = () => {};
+    const handleCall = () => {};
+    const handleMessage = () => {};
+    const handleMute = () => {};
+
+    return (
+        <>
+            <div className={`absolute inset-0  text-white shadow-lg transition-transform duration-300 ${slideClass}`}>
+
+                <div className="flex flex-col h-full">
+                    {/* Top Bar */}
+                    <div className="flex items-center p-3 shrink-0">
+                        <button
+                            className="text-gray-400 hover:text-gray-300"
+                            onClick={handleSlideOut}>
+                            <ChevronLeftIcon className="w-6 h-6"/>
+                        </button>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto p-4">
+
+                        {/* Profile Section */}
+                        <div className="flex flex-col items-center mt-4">
+                            <div
+                                className="w-20 h-20 rounded-full flex items-center justify-center overflow-hidden bg-gray-100 mb-3">
+                                <UserProfileImage
+                                    base64ProfilePicture={contact.profilePicture ?? undefined}
+                                    displayName={contact.displayName ?? undefined}
+                                    username={contact.username}
+                                />
+                            </div>
+                            <h2 className="text-lg font-semibold">
+                                {contact.displayName || contact.username}
+                            </h2>
+                            <p className="text-sm text-gray-400 mt-1">{contact.id}</p>
+                        </div>
+
+                        {/* Button section */}
+                        <div className="flex justify-center items-center space-x-4 mt-4">
+                            <button
+                                className="flex flex-col items-center justify-center hover:bg-darkGray-300 px-1.5 py-1 rounded-lg"
+                                onClick={handleMessage}
+                            >
+                                <ChatBubbleOvalLeftIcon className="w-6 h-6 text-gray-200"/>
+                                <h3 className="font-extralight text-[0.6rem]">Message</h3>
+                            </button>
+
+                            <button
+                                className="flex flex-col items-center justify-center hover:bg-darkGray-300 px-4 py-1 rounded-lg"
+                                onClick={handleCall}
+                            >
+                                <PhoneIcon className="w-6 h-6 text-gray-200"/>
+                                <h3 className="font-extralight text-[0.6rem]">Call</h3>
+                            </button>
+
+                            <button
+                                className="flex flex-col items-center justify-center hover:bg-darkGray-300 px-1.5 py-1 rounded-lg"
+                                onClick={handleVideoCall}
+                            >
+                                <VideoCameraIcon className="w-6 h-6 text-gray-200"/>
+                                <h3 className="font-extralight text-[0.6rem]">Video Call</h3>
+                            </button>
+
+                            <button
+                                className="flex flex-col items-center justify-center hover:bg-darkGray-300 px-3 py-1 rounded-lg"
+                                onClick={handleMute}
+                            >
+                                <BellSlashIcon className="w-6 h-6 mb-0.25 text-gray-200"/>
+                                <h3 className="font-extralight text-[0.6rem]">Ignore</h3>
+                            </button>
+                        </div>
+
+                        {/* Divider */}
+                        <div className="mt-4 mx-auto w-3.5/4 border-t border-zinc-700"/>
+
+                        {/* Settings Section */}
+                        <div className="flex items-center mt-6 rounded-md p-3">
+                            <ClockIcon className="w-5 h-5 text-gray-300 mr-2"/>
+                            <h4 className="text-sm text-gray-200 font-light">
+                                Disappearing Messages
+                            </h4>
+
+                            <select
+                                className="ml-auto text-xs bg-zinc-800 border border-zinc-700 text-gray-200 p-1 roundedfocus:outline-none focus:border-gray-500">
+                                <option value="">Off</option>
+                                <option value="30">30 Seconds</option>
+                                <option value="60">1 Minute</option>
+                                <option value="300">5 Minutes</option>
+                                <option value="3600">1 Hour</option>
+                                <option value="86400">24 Hours</option>
+                                <option value="Select">Custom..</option>
+                            </select>
+                        </div>
+
+                        <div className="flex items-center mt-2 hover:bg-darkGray-800 rounded-md p-4">
+                            <PencilIcon className="w-5 h-5 text-gray-300 mr-2"/>
+                            <h4 className="text-sm text-gray-200 font-light">
+                                Nickname
+                            </h4>
+                        </div>
+
+                        <div className="flex items-center mt-2 hover:bg-darkGray-800 rounded-md p-4">
+                            <PaintBrushIcon className="w-5 h-5 text-gray-300 mr-2"/>
+                            <h4 className="text-sm text-gray-200 font-light">
+                                Chat Color
+                            </h4>
+                        </div>
+
+                        {/* Divider */}
+                        <div className="mt-4 mx-auto w-3.5/4 border-t border-zinc-700"/>
+
+                        {/* Shared Media Section */}
+                        <div className="flex items-center mt-1 rounded-md p-3">
+                            <h4 className="text-sm text-gray-200 font-light">
+                                Shared Media
+                            </h4>
+                            <button className="text-sm text-gray-200 font-light ml-auto">
+                                Se All
+                            </button>
+                        </div>
+
+                        {/* Divider */}
+                        <div className="mt-4 mx-auto w-3.5/4 border-t border-zinc-700"/>
+
+                        {/* Block/Report Section */}
+                        <div className="flex items-center mt-2 hover:bg-darkGray-800 rounded-md p-4">
+                            <NoSymbolIcon className="w-5 h-5 text-red-600 mr-2"/>
+                            <h4 className="text-sm text-red-600 font-light">
+                                Delete
+                            </h4>
+                        </div>
+                        <div className="flex items-center mt-2 hover:bg-darkGray-800 rounded-md p-4">
+                            <NoSymbolIcon className="w-5 h-5 text-red-600 mr-2"/>
+                            <h4 className="text-sm text-red-600 font-light">
+                                Block
+                            </h4>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </>
+    );
+};
+
+export default ContactPage;
