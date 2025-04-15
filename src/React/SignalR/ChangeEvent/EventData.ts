@@ -1,5 +1,5 @@
 ﻿
 export interface ProfilePictureUpdatedEvent{
-    id: string;
+    userTag: string;
     profilePictureUrl: string;
 }

@@ -28,10 +28,9 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     useEffect(() => {
         const handleProfilePicChanged = (evt: ChangeEvent) => {
             const data = evt.data as ProfilePictureUpdatedEvent;
-            if (user && user.id === data.id) {
-                setUser(prev =>
-                    prev ? { ...prev, profilePicture: data.profilePictureUrl } : prev
-                );
+            console.log(evt.data);
+            if (user && user.id === data.userTag) {
+                console.log("recieved profile picture change event", data);
             }
         };
         const eventManager = ChangeEventManager.getInstance();

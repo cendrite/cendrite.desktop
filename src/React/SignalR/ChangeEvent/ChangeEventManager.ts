@@ -36,6 +36,7 @@ class ChangeEventManger{
             await waitForConnection(connection);
 
             connection.on("ChangeNotification", (event: ChangeEvent) => {
+                console.log("Received event", event.type);
                 this.publish(event);
             });
 
