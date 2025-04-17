@@ -25,8 +25,6 @@ export class FriendService {
     }
 
     public async DeclineFriendRequest(id: string, tag: string): Promise<Result> {
-        console.log("Decline friend request");
-        console.log(id);
         return this.declineFriendRequestApi.declineFriendRequest({ Id: id, friendTag: tag });
     }
 
@@ -43,6 +41,7 @@ export class FriendService {
         }
 
         const remoteResult = await this.getFriendsApi.getFriends({UserProfileId: id});
+
         if(remoteResult.success && remoteResult.data !== null && remoteResult.data.length > 0){
             for(const r_friend of remoteResult.data){
                 if(this.IsNewContact(r_friend.userTag, contacts)){
