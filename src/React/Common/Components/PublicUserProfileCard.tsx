@@ -12,8 +12,8 @@ import {useContacts} from "../../Context/ContactContext.tsx";
 interface PublicUserProfileCardProps {
     username: string;
     friendTag: string;
-    displayName?: string;
-    profilePictureUrl?: string;
+    displayName: string | null;
+    profilePictureUrl: string | null;
     friendshipStatus?: FriendshipStatus;
     friendshipDirection: FriendshipDirection;
 }

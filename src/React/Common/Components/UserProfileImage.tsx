@@ -3,7 +3,7 @@ import React from "react";
 
 export interface UserProfileImageProps {
     base64ProfilePicture: string | null;
-    profilePictureUrl?: string;
+    profilePictureUrl?: string | null;
     displayName: string | null;
     username: string;
 }
