@@ -13,8 +13,8 @@ export interface GetUserProfileByTagRequest {
 export interface GetUserProfileByTagResponse {
     username: string;
     userTag: string;
-    displayName?: string;
-    profilePictureUrl?: string;
+    displayName: string | null;
+    profilePictureUrl: string | null;
     friendshipStatus: FriendshipStatusDto;
 }
 
