@@ -48,7 +48,7 @@ export class FriendService {
                 if(this.IsNewContact(r_friend.userTag, contacts)){
 
                     const base64ProfilePicture = r_friend.profilePictureUrl ? await this.FetchProfilePicture(r_friend.profilePictureUrl) : null;
-
+                    console.log("Profile picture", base64ProfilePicture);
                     const contact = new Contact(r_friend.userTag, r_friend.username, r_friend.displayName, base64ProfilePicture, r_friend.connectionIds);
                     contacts.add(contact);
 

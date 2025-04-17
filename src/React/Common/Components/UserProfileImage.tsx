@@ -2,7 +2,7 @@
 import React from "react";
 
 export interface UserProfileImageProps {
-    base64ProfilePicture?: string;
+    base64ProfilePicture: string | null;
     profilePictureUrl?: string;
     displayName?: string;
     username: string;
@@ -20,7 +20,7 @@ export const UserProfileImage: React.FC<UserProfileImageProps> = ({ profilePictu
 
     return (
         <div>
-            {profilePictureUrl ? (
+            {imageSource ? (
                 <img
                     className="w-full h-full object-cover"
                     src={imageSource}
