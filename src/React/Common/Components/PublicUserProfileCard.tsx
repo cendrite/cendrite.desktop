@@ -1,19 +1,19 @@
 ﻿import React, {useState} from "react";
 import {UserProfileImage} from "./UserProfileImage.tsx";
-import { CheckIcon, XMarkIcon, PlusIcon} from "@heroicons/react/24/outline";
+import {CheckIcon, XMarkIcon, PlusIcon} from "@heroicons/react/24/outline";
 import {useUser} from "../../Context/UserContext.tsx";
 import ToolTip from "./ToolTip.tsx";
 import {FriendshipDirection} from "../../Enums/FriendshipDirection.ts";
 import {FriendshipStatus} from "../../Enums/FriendshipStatus.ts";
-import { delay } from "../../../Shared/HelperFunctions.ts";
+import {delay} from "../../../Shared/HelperFunctions.ts";
 import {FriendService} from "../Services/FriendService.ts";
 import {useContacts} from "../../Context/ContactContext.tsx";
 
 interface PublicUserProfileCardProps {
     username: string;
     friendTag: string;
-    displayName?: string;
-    profilePictureUrl?: string;
+    displayName: string | null;
+    profilePictureUrl: string | null;
     friendshipStatus?: FriendshipStatus;
     friendshipDirection: FriendshipDirection;
 }
@@ -32,7 +32,7 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
     const [currentFriendshipStatus, setCurrentFriendshipStatus] = useState<FriendshipStatus | undefined>(friendshipStatus);
     const [currentFriendshipDirection, setCurrentFriendshipDirection] = useState<FriendshipDirection>(friendshipDirection);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const  { setContacts, refreshContacts } = useContacts();
+    const {setContacts, refreshContacts} = useContacts();
 
 
     const onAddFriend = async () => {
@@ -81,7 +81,7 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
             return (
                 <ToolTip content="Processing...">
                     <button className="p-1 flex items-center justify-center">
-                        <div className="animate-spin h-6 w-6 border-2 border-t-transparent border-white rounded-full" />
+                        <div className="animate-spin h-6 w-6 border-2 border-t-transparent border-white rounded-full"/>
                     </button>
                 </ToolTip>
             );
@@ -145,11 +145,14 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
     return (
         <div className="flex items-center justify-between p-3 bg-darkGray-600 rounded-lg shadow-lg w-full">
             <div className="flex items-center">
-                <UserProfileImage
-                    username={username}
-                    displayName={displayName}
-                    profilePictureUrl={profilePictureUrl}
-                />
+                <div className="w-11 h-11 rounded-full flex items-center justify-center overflow-hidden bg-gray-100">
+                    <UserProfileImage
+                        username={username}
+                        displayName={displayName}
+                        profilePictureUrl={profilePictureUrl}
+                        base64ProfilePicture={null}
+                    />
+                </div>
                 <div className="ml-3">
                     <div className="text-white font-semibold">{displayName || username}</div>
                     <div className="text-gray-400 text-sm">@{friendTag}</div>

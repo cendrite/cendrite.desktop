@@ -2,12 +2,7 @@
 import {Contact} from "../../../Context/ContactContext";
 import ChevronLeftIcon from "@heroicons/react/24/outline/ChevronLeftIcon";
 import {UserProfileImage} from "../../../Common/Components/UserProfileImage";
-import {
-    BellSlashIcon,
-    ChatBubbleOvalLeftIcon, ClockIcon, NoSymbolIcon, PaintBrushIcon, PencilIcon,
-    PhoneIcon,
-    VideoCameraIcon
-} from "@heroicons/react/24/outline";
+import {BellSlashIcon, ChatBubbleOvalLeftIcon, ClockIcon, NoSymbolIcon, PaintBrushIcon, PencilIcon, PhoneIcon, VideoCameraIcon} from "@heroicons/react/24/outline";
 
 interface ContactPageProps {
     contact: Contact;
@@ -53,8 +48,8 @@ const ContactPage: React.FC<ContactPageProps> = ({contact, onClose}) => {
                             <div
                                 className="w-20 h-20 rounded-full flex items-center justify-center overflow-hidden bg-gray-100 mb-3">
                                 <UserProfileImage
-                                    base64ProfilePicture={contact.profilePicture ?? undefined}
-                                    displayName={contact.displayName ?? undefined}
+                                    base64ProfilePicture={contact.profilePicture}
+                                    displayName={contact.displayName}
                                     username={contact.username}
                                 />
                             </div>

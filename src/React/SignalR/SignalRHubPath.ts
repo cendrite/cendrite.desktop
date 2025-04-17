@@ -1,4 +1,7 @@
-﻿export const HUB_PATHS = {
-    CHANGE_EVENTS: "http://10.0.0.100:30666/change-eventhub",
+﻿
+export type HubKey = keyof typeof HubPaths;
+
+export const HubPaths = {
+    ChangeEvents: "https://chatserver.xhykl49jkg.org/change-eventhub",
 } as const;
 

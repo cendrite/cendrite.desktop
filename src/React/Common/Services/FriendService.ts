@@ -25,8 +25,6 @@ export class FriendService {
     }
 
     public async DeclineFriendRequest(id: string, tag: string): Promise<Result> {
-        console.log("Decline friend request");
-        console.log(id);
         return this.declineFriendRequestApi.declineFriendRequest({ Id: id, friendTag: tag });
     }
 
@@ -43,12 +41,13 @@ export class FriendService {
         }
 
         const remoteResult = await this.getFriendsApi.getFriends({UserProfileId: id});
+
         if(remoteResult.success && remoteResult.data !== null && remoteResult.data.length > 0){
             for(const r_friend of remoteResult.data){
                 if(this.IsNewContact(r_friend.userTag, contacts)){
 
                     const base64ProfilePicture = r_friend.profilePictureUrl ? await this.FetchProfilePicture(r_friend.profilePictureUrl) : null;
-
+                    console.log("Profile picture", base64ProfilePicture);
                     const contact = new Contact(r_friend.userTag, r_friend.username, r_friend.displayName, base64ProfilePicture, r_friend.connectionIds);
                     contacts.add(contact);
 
@@ -105,13 +104,19 @@ export class FriendService {
 
     private async FetchProfilePicture(url: string): Promise<string | null> {
         if (!url) return null;
-        const profilePictureResult = await this.pictureApi.getUserProfilePicture({ profilePictureUrl: url });
+        try {
+            const profilePictureResult =
+                await this.pictureApi.getUserProfilePicture({ profilePictureUrl: url });
 
-        if (!profilePictureResult.success) {
-            console.error(profilePictureResult.errorMessage);
+            if (!profilePictureResult.success) {
+                console.error(profilePictureResult.errorMessage);
+                return null;
+            }
+
+            return profilePictureResult.data?.base64ProfilePicture ?? null;
+        } catch (err) {
+            console.error("Failed to fetch profile picture:", err);
             return null;
         }
-
-        return profilePictureResult.data?.base64ProfilePicture ?? null;
     }
 }

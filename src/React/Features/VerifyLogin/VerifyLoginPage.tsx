@@ -10,9 +10,9 @@ import ResendCodeButton from "../../Common/Components/ResendCodeButton.tsx";
 import {CodeType} from "../../Common/Api/Identity/User/ResendVerificationCodeApi.ts";
 import {useUser} from "../../Context/UserContext.tsx";
 import {useOnboarding} from "../../Context/OnboardingContext.tsx";
-import {useSignal} from "../../SignalR/SignalRContext.tsx";
 import {UserProfileService} from "../../Common/Services/UserProfileService.ts";
 import {DeviceService} from "../../Common/Services/CreateDeviceService.ts";
+import {useSignal} from "../../SignalR/SignalRProvider.tsx";
 
 const VerifyLoginPage: React.FC = () => {
     const navigate = useNavigate();

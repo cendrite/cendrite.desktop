@@ -37,4 +37,8 @@ export class FriendRepository {
     public async delete(id: string): Promise<void> {
         await this.friendRepository.delete(id);
     }
+
+    public async deleteAll() : Promise<void>{
+        await this.friendRepository.delete({})
+    }
 }
