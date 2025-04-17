@@ -1,8 +1,10 @@
 ﻿import React, {createContext, useEffect} from "react";
 import {ChangeEvent} from "../SignalR/ChangeEvent/ChangeEvent.ts";
 import {ChangeEventType} from "../SignalR/ChangeEvent/ChangeEventType.ts";
-import ChangeEventManager from "../SignalR/ChangeEvent/ChangeEventManager.ts";
 import {ProfilePictureUpdatedEvent} from "../SignalR/ChangeEvent/EventData.ts";
+import {SignalManager} from "../SignalR/SignalManager.ts";
+import {ChangeEventReceiver} from "../SignalR/ChangeEvent/ChangeEventReceiver.ts";
+import {GetUserProfilePictureApi} from "../Common/Api/UserProfile/GetUserProfilePicture.ts";
 
 interface User {
     id: string;
@@ -23,22 +25,47 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = React.useState<User | null>(null);
-
+    const eventReceiver = SignalManager.getInstance().getReceiver<ChangeEventReceiver>("ChangeEvents");
+    const pictureApi = new GetUserProfilePictureApi();
 
     useEffect(() => {
-        const handleProfilePicChanged = (evt: ChangeEvent) => {
+        const handleProfilePicChanged = async (evt: ChangeEvent) => {
             const data = evt.data as ProfilePictureUpdatedEvent;
-            console.log(evt.data);
-            if (user && user.id === data.userTag) {
-                console.log("recieved profile picture change event", data);
+
+            console.log("Profile picture changed event received in userContext", data);
+            if (user?.userTag !== data.userTag) {
+                console.log("User ID does not match, ignoring event");
+                return;
+            }
+
+            try {
+                const result = await pictureApi.getUserProfilePicture({
+                    profilePictureUrl: data.profilePictureUrl,
+                });
+
+                if (result.success && result.data) {
+                    setUser(prev => prev && {
+                        ...prev,
+                        base64ProfilePicture: result.data!.base64ProfilePicture
+                    });
+                }
+            } catch (err) {
+                console.error("Failed to fetch updated profile pic", err);
             }
         };
-        const eventManager = ChangeEventManager.getInstance();
-        eventManager.subscribe(ChangeEventType.ProfilePictureChanged, handleProfilePicChanged);
+
+        eventReceiver.subscribe(
+            ChangeEventType.ProfilePictureChanged,
+            handleProfilePicChanged,
+        );
         return () => {
-            eventManager.unsubscribe(ChangeEventType.ProfilePictureChanged, handleProfilePicChanged);
+            eventReceiver.unsubscribe(
+                ChangeEventType.ProfilePictureChanged,
+                handleProfilePicChanged,
+            );
         };
-    }, [user]);
+    }, [user, eventReceiver, pictureApi]);
+
 
 
     const updateUser = (updates: Partial<User>) => {

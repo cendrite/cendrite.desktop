@@ -105,13 +105,19 @@ export class FriendService {
 
     private async FetchProfilePicture(url: string): Promise<string | null> {
         if (!url) return null;
-        const profilePictureResult = await this.pictureApi.getUserProfilePicture({ profilePictureUrl: url });
+        try {
+            const profilePictureResult =
+                await this.pictureApi.getUserProfilePicture({ profilePictureUrl: url });
 
-        if (!profilePictureResult.success) {
-            console.error(profilePictureResult.errorMessage);
+            if (!profilePictureResult.success) {
+                console.error(profilePictureResult.errorMessage);
+                return null;
+            }
+
+            return profilePictureResult.data?.base64ProfilePicture ?? null;
+        } catch (err) {
+            console.error("Failed to fetch profile picture:", err);
             return null;
         }
-
-        return profilePictureResult.data?.base64ProfilePicture ?? null;
     }
 }
