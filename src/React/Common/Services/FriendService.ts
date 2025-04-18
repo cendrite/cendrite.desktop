@@ -12,6 +12,8 @@ import {GetFriendsApi} from "../Api/Friends/GetFriendsApi.ts";
 import {ImageHelper} from "../Api/Utility/ImageFetcher.ts";
 import {GetUserProfilePictureApi} from "../Api/UserProfile/GetUserProfilePicture.ts";
 import { Contact } from "../../Context/ContactContext.tsx";
+import {PendingContact} from "../../Context/PendingContactsContext.tsx";
+import {GetFriendRequestsApi} from "../Api/Friends/GetFriendRequestsApi.ts";
 
 export class FriendService {
     private readonly addFriendAPi = new SendFriendRequestApi();
@@ -19,6 +21,7 @@ export class FriendService {
     private readonly acceptFriendshipApi = new AcceptFriendshipApi();
     private readonly getFriendsApi = new GetFriendsApi();
     private readonly pictureApi = new GetUserProfilePictureApi();
+    private readonly getFriendRequestsApi = new GetFriendRequestsApi();
 
     public async AddFriend(id: string, tag: string): Promise<Result> {
         return this.addFriendAPi.sendFriendRequest({ id: id, friendTag: tag });
@@ -26,6 +29,25 @@ export class FriendService {
 
     public async DeclineFriendRequest(id: string, tag: string): Promise<Result> {
         return this.declineFriendRequestApi.declineFriendRequest({ Id: id, friendTag: tag });
+    }
+
+    public async GetFriendRequests(id: string): Promise<Array<PendingContact>>{
+        const contacts = new Set<PendingContact>();
+
+        const r_result = await this.getFriendRequestsApi.getFriendRequests({ userId: id });
+
+        if(r_result.success && r_result.data != null)
+        {
+            for(const friend of r_result.data){
+                const base64ProfilePicture = friend.profilePicture ? await this.FetchProfilePicture(friend.profilePicture) : null;
+                const contact = new PendingContact(friend.id, friend.username, friend.displayName, base64ProfilePicture);
+                contacts.add(contact);
+            }
+        }else{
+            return [];
+        }
+
+        return Array.from(contacts);
     }
 
     public async GetFriends(id: string): Promise<Array<Contact>>{

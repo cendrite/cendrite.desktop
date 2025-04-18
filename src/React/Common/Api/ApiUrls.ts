@@ -8,6 +8,7 @@
         DELETE_FRIEND_REQUEST: "https://usermanagement.xhykl49jkg.org/api/UserProfile/friendship/delete",
         ACCEPT_FRIENDSHIP: "https://usermanagement.xhykl49jkg.org/api/UserProfile/friendship/accept",
         GET_FRIENDS: "https://usermanagement.xhykl49jkg.org/api/UserProfile/friendships",
+        GET_FRIEND_REQUESTS: "https://usermanagement.xhykl49jkg.org/api/UserProfile/friendship/requests",
     },
     IDENTITY: {
         AUTH: {
