@@ -39,6 +39,7 @@ export const ContactsPane: React.FC<ContactsPaneProps> = ({ isSidePanelVisible, 
                         <li key={contact.id}>
                             <ContactCard contact={contact} />
                         </li>
+
                     ))}
                 </ul>
             </div>
