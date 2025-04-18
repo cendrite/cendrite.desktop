@@ -32,7 +32,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onHide, setPaneType, paneT
                       isActive={paneType === "chats"}
                   />
 
-                  {/* Contacts button */}
+                  {/* Contacts' button */}
                   <PanelButton
                       onClick={() => setPaneType("contacts")}
                       icon={<UserGroupIcon className="w-5 h-5"/>}
