@@ -19,17 +19,19 @@ jobs:
           - name: windows
             os: windows-latest
             buildScript: dist:win
-            glob: '*.exe *.msi *.yml'
+            glob: '*.exe'
             id: 0
+
           - name: macos
             os: macos-latest
             buildScript: dist:mac
-            glob: '*.dmg *.blockmap *.yml'
+            glob: '*.dmg'
             id: 1
+
           - name: linux
             os: ubuntu-latest
             buildScript: dist:linux
-            glob: '*.AppImage *.deb *.yml'
+            glob: '*.AppImage'
             id: 2
 
     env:
@@ -52,21 +54,23 @@ jobs:
         run: npm run ${{ matrix.platform.buildScript }}
 
       - name: List artifacts
-        run: echo Artifacts in dist/:; ls -1 dist
-
-      - name: Upload artifacts
         run: |
-          for pattern in ${{ matrix.platform.glob }}; do \
-            for file in dist/$pattern; do \
-              if [ -f "$file" ]; then \
-                echo "Uploading $file for platform ${{ matrix.platform.id }}"; \
+          echo "Artifacts in dist/:"
+          ls -1 dist
+
+      - name: Upload installer only
+        run: |
+          for pattern in ${{ matrix.platform.glob }}; do
+            for file in dist/$pattern; do
+              if [ -f "$file" ]; then
+                echo "Uploading $file for platform ${{ matrix.platform.id }}"
                 curl --fail -X POST "${API_URL}/create" \
-                  -H "XReleafAppKey: ${PUBLIC_KEY}" \
-                  -H "XReleafUploadKey: ${UPLOAD_KEY}" \
+                  -H "X-Releaf-App-Key: ${PUBLIC_KEY}" \
+                  -H "X-Releaf-Upload-Key: ${UPLOAD_KEY}" \
                   -F version="v${{ github.run_number }}" \
                   -F name="$(basename "$file")" \
                   -F platform=${{ matrix.platform.id }} \
-                  -F file=@"$file"; \
-              fi; \
-            done; \
+                  -F file=@"$file"
+              fi
+            done
           done
