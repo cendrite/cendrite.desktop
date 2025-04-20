@@ -1,21 +1,41 @@
-﻿name: Release Electron App
+﻿name: Build_and_Publish_Electron_App
 
 on:
   push:
-    branches:
-      - develop
-      - master
+    branches: [develop, master]
+  pull_request:
+    branches: [develop, master]
 
 permissions:
   contents: write
 
 jobs:
-  build:
-    name: Build Electron App (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
+  build_and_upload:
+    name: Build and upload ${{ matrix.platform.name }}
+    runs-on: ${{ matrix.platform.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        platform:
+          - name: windows
+            os: windows-latest
+            buildScript: dist:win
+            glob: '*.exe *.msi *.yml'
+            id: 0
+          - name: macos
+            os: macos-latest
+            buildScript: dist:mac
+            glob: '*.dmg *.blockmap *.yml'
+            id: 1
+          - name: linux
+            os: ubuntu-latest
+            buildScript: dist:linux
+            glob: '*.AppImage *.deb *.yml'
+            id: 2
+
+    env:
+      API_URL:    ${{ secrets.RELEAF_API_URL }}
+      PUBLIC_KEY: ${{ secrets.RELEAF_PUBLIC_KEY }}
+      UPLOAD_KEY: ${{ secrets.RELEAF_UPLOAD_KEY }}
 
     steps:
       - uses: actions/checkout@v4
@@ -23,109 +43,30 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-          cache: 'npm'
+          cache: npm
 
       - name: Install dependencies
         run: npm install
 
-      - name: Build Electron App
-        run: npm run dist:${{ matrix.os == 'windows-latest' && 'win' || matrix.os == 'macos-latest' && 'mac' || 'linux' }}
+      - name: Build application
+        run: npm run ${{ matrix.platform.buildScript }}
 
-      - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.os }}-artifact
-          path: dist/
+      - name: List artifacts
+        run: echo Artifacts in dist/:; ls -1 dist
 
-  release-windows:
-    name: Release Windows
-    runs-on: ubuntu-latest
-    needs: build
-    if: always()
-
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: windows-latest-artifact
-          path: ./release/windows
-
-      - name: Filter Windows Files
+      - name: Upload artifacts
         run: |
-          mkdir selected
-          cp release/windows/*.exe selected/ || true
-          cp release/windows/*.msi selected/ || true
-          cp release/windows/latest.yml selected/ || true
-          ls -lh selected
-
-      - name: Release Windows Build
-        uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ github.run_number }}
-          name: "Release ${{ github.run_number }}"
-          draft: false
-          prerelease: false
-          files: selected/*
-
-  release-macos:
-    name: Release macOS
-    runs-on: ubuntu-latest
-    needs: build
-    if: always()
-
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: macos-latest-artifact
-          path: ./release/macos
-
-      - name: Filter macOS Files
-        run: |
-          mkdir selected
-          cp release/macos/*.dmg selected/ || true
-          cp release/macos/*.blockmap selected/ || true
-          cp release/macos/latest-mac.yml selected/ || true
-          ls -lh selected
-
-      - name: Release macOS Build
-        uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ github.run_number }}
-          name: "Release ${{ github.run_number }}"
-          draft: false
-          prerelease: false
-          files: selected/*
-
-  release-linux:
-    name: Release Linux
-    runs-on: ubuntu-latest
-    needs: build
-    if: always()
-
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: ubuntu-latest-artifact
-          path: ./release/linux
-
-      - name: Filter Linux Files
-        run: |
-          mkdir selected
-          cp release/linux/*.AppImage selected/ || true
-          cp release/linux/*.deb selected/ || true
-          cp release/linux/latest-linux.yml selected/ || true
-          ls -lh selected
-
-      - name: Release Linux Build
-        uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ github.run_number }}
-          name: "Release ${{ github.run_number }}"
-          draft: false
-          prerelease: false
-          files: selected/*
+          for pattern in ${{ matrix.platform.glob }}; do \
+            for file in dist/$pattern; do \
+              if [ -f "$file" ]; then \
+                echo "Uploading $file for platform ${{ matrix.platform.id }}"; \
+                curl --fail -X POST "${API_URL}/create" \
+                  -H "XReleafAppKey: ${PUBLIC_KEY}" \
+                  -H "XReleafUploadKey: ${UPLOAD_KEY}" \
+                  -F version="v${{ github.run_number }}" \
+                  -F name="$(basename "$file")" \
+                  -F platform=${{ matrix.platform.id }} \
+                  -F file=@"$file"; \
+              fi; \
+            done; \
+          done
