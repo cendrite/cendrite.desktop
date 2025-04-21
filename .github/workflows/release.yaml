@@ -58,19 +58,56 @@ jobs:
           echo "Artifacts in dist/:"
           ls -1 dist
 
-      - name: Upload installer only
+      - name: Upload installer in chunks
         run: |
-          for pattern in ${{ matrix.platform.glob }}; do
-            for file in dist/$pattern; do
-              if [ -f "$file" ]; then
-                echo "Uploading $file for platform ${{ matrix.platform.id }}"
-                curl --fail -X POST "${API_URL}/create" \
-                  -H "X-Releaf-App-Key: ${PUBLIC_KEY}" \
-                  -H "X-Releaf-Upload-Key: ${UPLOAD_KEY}" \
-                  -F version="v${{ github.run_number }}" \
-                  -F name="$(basename "$file")" \
-                  -F platform=${{ matrix.platform.id }} \
-                  -F file=@"$file"
-              fi
-            done
+          set -e
+
+          # find the installer
+          installer=$(find dist -maxdepth 1 -type f -name "${{ matrix.platform.glob }}" | head -n1)
+          if [[ -z "$installer" ]]; then
+            echo "❌ No installer matching '${{ matrix.platform.glob }}' found"
+            exit 1
+          fi
+          echo "📦 Installer: $installer"
+
+          # derive identifiers
+          version="v${GITHUB_RUN_NUMBER}"
+          releaseId="release-${GITHUB_RUN_NUMBER}"
+          fileName=$(basename "$installer")
+          platform=${{ matrix.platform.id }}
+
+          echo "🔑 releaseId=$releaseId"
+          echo "🔢 Splitting into 50MiB chunks…"
+
+          # split into ~50MiB slices
+          split -b 50m "$installer" "${installer}.part_"
+          parts=( $(ls "${installer}.part_"*) )
+
+          # upload each chunk
+          idx=0
+          for part in "${parts[@]}"; do
+            echo "➡️ Uploading chunk #$idx ($part)"
+            curl --fail -X POST "${API_URL}/upload/chunk" \
+              -H "X-Releaf-App-Key: ${PUBLIC_KEY}" \
+              -H "X-Releaf-Upload-Key: ${UPLOAD_KEY}" \
+              -F "releaseId=${releaseId}" \
+              -F "chunkId=${idx}" \
+              -F "file=@${part}"
+            ((idx++))
           done
+
+          # tell the server to assemble & finish
+          echo "🔄 Completing upload"
+          curl --fail -X POST "${API_URL}/upload/complete" \
+            -H "X-Releaf-App-Key: ${PUBLIC_KEY}" \
+            -H "X-Releaf-Upload-Key: ${UPLOAD_KEY}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "releaseId": "'"${releaseId}"'",
+              "fileName": "'"${fileName}"'",
+              "version": "'"${version}"'",
+              "name": "'"${fileName}"'",
+              "platform": '"${platform}"'
+            }'
+
+          echo "✅ Chunked upload complete for release ${releaseId}"
