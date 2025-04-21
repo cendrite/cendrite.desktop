@@ -2,12 +2,10 @@
 
 on:
   push:
-    branches: [develop, master]
-  pull_request:
-    branches: [develop, master]
+    branches: [master]
 
 permissions:
-  contents: write   # needed for pushing the release
+  contents: write
 
 env:
   NODE_VERSION: 20
