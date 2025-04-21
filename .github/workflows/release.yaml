@@ -87,9 +87,9 @@ jobs:
           idx=0
           for part in "${parts[@]}"; do
             echo "➡️ Uploading chunk #$idx ($part)"
-            curl --fail -X POST "${API_URL}/upload/chunk" \
-              -H "X-Releaf-App-Key: ${PUBLIC_KEY}" \
-              -H "X-Releaf-Upload-Key: ${UPLOAD_KEY}" \
+            curl --fail -X POST "${RELEAF_API_URL}/upload/chunk" \
+              -H "X-Releaf-App-Key: ${RELEAF_PUBLIC_KEY}" \
+              -H "X-Releaf-Upload-Key: ${RELEAF_UPLOAD_KEY}" \
               -F "releaseId=${releaseId}" \
               -F "chunkId=${idx}" \
               -F "file=@${part}"
@@ -98,9 +98,9 @@ jobs:
 
           # tell the server to assemble & finish
           echo "🔄 Completing upload"
-          curl --fail -X POST "${API_URL}/upload/complete" \
-            -H "X-Releaf-App-Key: ${PUBLIC_KEY}" \
-            -H "X-Releaf-Upload-Key: ${UPLOAD_KEY}" \
+          curl --fail -X POST "${RELEAF_API_URL}/upload/complete" \
+            -H "X-Releaf-App-Key: ${RELEAF_PUBLIC_KEY}" \
+            -H "X-Releaf-Upload-Key: ${RELEAF_UPLOAD_KEY}" \
             -H "Content-Type: application/json" \
             -d '{
               "releaseId": "'"${releaseId}"'",
