@@ -2,35 +2,20 @@
 
 on:
   push:
-    branches: [develop, master]
-  pull_request_target:
-    branches: [develop, master]
+    branches:
+      - develop
+      - master
 
 permissions:
   contents: write
 
 jobs:
-  release:
-    name: Build & Release (${{ matrix.platform.name }})
-    runs-on: ${{ matrix.platform.os }}
+  build:
+    name: Build Electron App (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        platform:
-          - name: windows
-            os: windows-latest
-            buildScript: dist:win
-            glob: '*.exe'
-            id: 0
-          - name: macos
-            os: macos-latest
-            buildScript: dist:mac
-            glob: '*.dmg'
-            id: 1
-          - name: linux
-            os: ubuntu-latest
-            buildScript: dist:linux
-            glob: '*.AppImage'
-            id: 2
+        os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
       - uses: actions/checkout@v4
@@ -38,24 +23,109 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 20
-          cache: npm
+          cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
-      - name: Build Electron App (${{ matrix.platform.name }})
-        run: npm run ${{ matrix.platform.buildScript }}
+      - name: Build Electron App
+        run: npm run dist:${{ matrix.os == 'windows-latest' && 'win' || matrix.os == 'macos-latest' && 'mac' || 'linux' }}
 
-      - name: Release to GitHub
-        uses: softprops/action-gh-release@v1
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
         with:
-          tag_name: ${{ github.event_name == 'pull_request_target'
-            && format('pr-{0}-{1}', github.event.pull_request.number, matrix.platform.name)
-            || format('v{0}', github.run_number) }}
-          name:     ${{ github.event_name == 'pull_request_target'
-            && format('PR #{0} — {1}', github.event.pull_request.number, matrix.platform.name)
-            || format('Release v{0} — {1}', github.run_number, matrix.platform.name) }}
-          draft:    ${{ github.event_name == 'pull_request_target' }}
-          files:    dist/${{ matrix.platform.glob }}
+          name: ${{ matrix.os }}-artifact
+          path: dist/
+
+  release-windows:
+    name: Release Windows
+    runs-on: ubuntu-latest
+    needs: build
+    if: always()
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows-latest-artifact
+          path: ./release/windows
+
+      - name: Filter Windows Files
+        run: |
+          mkdir selected
+          cp release/windows/*.exe selected/ || true
+          cp release/windows/*.msi selected/ || true
+          cp release/windows/latest.yml selected/ || true
+          ls -lh selected
+
+      - name: Release Windows Build
+        uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          name: "Release ${{ github.run_number }}"
+          draft: false
+          prerelease: false
+          files: selected/*
+
+  release-macos:
+    name: Release macOS
+    runs-on: ubuntu-latest
+    needs: build
+    if: always()
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: macos-latest-artifact
+          path: ./release/macos
+
+      - name: Filter macOS Files
+        run: |
+          mkdir selected
+          cp release/macos/*.dmg selected/ || true
+          cp release/macos/*.blockmap selected/ || true
+          cp release/macos/latest-mac.yml selected/ || true
+          ls -lh selected
+
+      - name: Release macOS Build
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          name: "Release ${{ github.run_number }}"
+          draft: false
+          prerelease: false
+          files: selected/*
+
+  release-linux:
+    name: Release Linux
+    runs-on: ubuntu-latest
+    needs: build
+    if: always()
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: ubuntu-latest-artifact
+          path: ./release/linux
+
+      - name: Filter Linux Files
+        run: |
+          mkdir selected
+          cp release/linux/*.AppImage selected/ || true
+          cp release/linux/*.deb selected/ || true
+          cp release/linux/latest-linux.yml selected/ || true
+          ls -lh selected
+
+      - name: Release Linux Build
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          name: "Release ${{ github.run_number }}"
+          draft: false
+          prerelease: false
+          files: selected/*
