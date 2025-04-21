@@ -2,12 +2,11 @@
 
 on:
   push:
-    branches: [develop, master]
-  pull_request:
-    branches: [develop, master]
+    tags:
+      - 'v*'    # best practice: only on real version tags
 
 permissions:
-  contents: write  # for GH Releases
+  contents: write
 
 jobs:
   release:
@@ -48,17 +47,11 @@ jobs:
       - name: Build Electron App (${{ matrix.platform.name }})
         run: npm run ${{ matrix.platform.buildScript }}
 
-      - name: Find installer
-        id: find
-        run: |
-          installer=$(find dist -maxdepth 1 -type f -name "${{ matrix.platform.glob }}" | head -n1)
-          echo "installer=$installer" >> $GITHUB_OUTPUT
-
-      - name: Release to GitHub
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ github.run_number }}
-          name: "Release ${{ github.run_number }} (${{ matrix.platform.name }})"
-          files: ${{ steps.find.outputs.installer }}
+          tag_name: ${{ github.ref_name }}
+          name:     "Release ${{ github.ref_name }} — ${{ matrix.platform.name }}"
+          files:    dist/${{ matrix.platform.glob }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
