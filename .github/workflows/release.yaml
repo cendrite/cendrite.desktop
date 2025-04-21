@@ -2,8 +2,9 @@
 
 on:
   push:
-    tags:
-      - 'v*'    # best practice: only on real version tags
+    branches: [develop, master]
+  pull_request_target:
+    branches: [develop, master]
 
 permissions:
   contents: write
@@ -20,13 +21,11 @@ jobs:
             buildScript: dist:win
             glob: '*.exe'
             id: 0
-
           - name: macos
             os: macos-latest
             buildScript: dist:mac
             glob: '*.dmg'
             id: 1
-
           - name: linux
             os: ubuntu-latest
             buildScript: dist:linux
@@ -47,11 +46,16 @@ jobs:
       - name: Build Electron App (${{ matrix.platform.name }})
         run: npm run ${{ matrix.platform.buildScript }}
 
-      - name: Create GitHub Release
+      - name: Release to GitHub
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref_name }}
-          name:     "Release ${{ github.ref_name }} — ${{ matrix.platform.name }}"
+          tag_name: ${{ github.event_name == 'pull_request_target'
+            && format('pr-{0}-{1}', github.event.pull_request.number, matrix.platform.name)
+            || format('v{0}', github.run_number) }}
+          name:     ${{ github.event_name == 'pull_request_target'
+            && format('PR #{0} — {1}', github.event.pull_request.number, matrix.platform.name)
+            || format('Release v{0} — {1}', github.run_number, matrix.platform.name) }}
+          draft:    ${{ github.event_name == 'pull_request_target' }}
           files:    dist/${{ matrix.platform.glob }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
