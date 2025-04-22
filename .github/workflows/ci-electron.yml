@@ -1,4 +1,4 @@
-name: CI - Electron App
+name: CI — Electron App
 
 on:
   push:
@@ -8,13 +8,12 @@ on:
 
 jobs:
   build-and-lint:
+    name: Build & Lint
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
@@ -28,28 +27,23 @@ jobs:
       - name: Transpile Electron Code
         run: npm run transpile:electron
 
-      - name: list contents after transpile
-        run: |
-          echo "=== $(pwd) ==="
-          ls -la
-          echo "=== dist-electron ==="
-          ls -la dist-electron
+      - name: Lint Code
+        run: npm run lint
 
   test-unit:
+    name: Unit Tests
     needs: build-and-lint
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: lts/*
+          node-version: 20
           cache: npm
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
 
       - name: Run Vitest Tests
         run: npm run test:unit
