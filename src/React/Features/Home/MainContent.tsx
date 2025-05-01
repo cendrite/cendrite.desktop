@@ -1,20 +1,27 @@
-﻿import React, {useContext} from "react";
-import { HomePageContext } from "../../Context/HomePageContext";
-import ContactPage from "./Contact/ContactPage.tsx";
+﻿import ContactPage from "./Contact/ContactPage.tsx";
+import React from "react";
+import {useHomePageContext} from "../../Context/HomePageContext.tsx";
+import PendingContactPage from "./Contact/PendingContactPage.tsx";
 
 const MainContent: React.FC = () => {
-    const context = useContext(HomePageContext);
-    if (!context) {
-        throw new Error("MainContent must be used within a HomePageProvider");
-    }
-    const {selectedContact} = context;
+    const {
+        selectedContact,
+        selectedPendingContact,
+        setSelectedPendingContact,
+        setSelectedContact
+    } = useHomePageContext();
+
 
     return (
         <div className="flex-1 bg-zinc-950">
             {selectedContact ? (
-              <ContactPage
-                contact={selectedContact}
-                onClose={() => context.setSelectedContact(null)}/>
+                <ContactPage
+                    contact={selectedContact}
+                    onClose={() => setSelectedContact(null)}/>
+            ) : selectedPendingContact ? (
+                <PendingContactPage
+                    pendingContact={selectedPendingContact}
+                    onClose={() => setSelectedPendingContact(null)}/>
             ) : (
                 <div className="p-4"/>
             )}

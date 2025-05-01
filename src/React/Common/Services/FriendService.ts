@@ -1,17 +1,15 @@
-﻿import { ErrorMessage } from "../../../Shared/Result/ErrorMessage";
-import { Result } from "../../../Shared/Result/Result";
-import {AcceptFriendshipApi } from "../Api/Friends/AcceptFriendRequestApi";
-import { DeclineFriendRequestApi } from "../Api/Friends/DeclineFriendRequestApi";
-import {SendFriendRequestApi } from "../Api/Friends/SendFriendRequestApi";
-import {
-    CreateFriendCommand
-} from "../../../Electron/Application/Features/Friends/Commands/Create/CreateFriendCommand.ts";
+﻿import {ErrorMessage} from "../../../Shared/Result/ErrorMessage";
+import {Result} from "../../../Shared/Result/Result";
+import {AcceptFriendshipApi} from "../Api/Friends/AcceptFriendRequestApi";
+import {DeclineFriendRequestApi} from "../Api/Friends/DeclineFriendRequestApi";
+import {SendFriendRequestApi} from "../Api/Friends/SendFriendRequestApi";
+import {CreateFriendCommand} from "../../../Electron/Application/Features/Friends/Commands/Create/CreateFriendCommand.ts";
 import {GetFriendsQuery} from "../../../Electron/Application/Features/Friends/Queries/GetFriends/GetFriendsQuery.ts";
 import {FriendDto} from "../../../Electron/Application/Features/Friends/Dto/FriendDto.ts";
 import {GetFriendsApi} from "../Api/Friends/GetFriendsApi.ts";
 import {ImageHelper} from "../Api/Utility/ImageFetcher.ts";
 import {GetUserProfilePictureApi} from "../Api/UserProfile/GetUserProfilePicture.ts";
-import { Contact } from "../../Context/ContactContext.tsx";
+import {Contact} from "../../Context/ContactContext.tsx";
 import {PendingContact} from "../../Context/PendingContactsContext.tsx";
 import {GetFriendRequestsApi} from "../Api/Friends/GetFriendRequestsApi.ts";
 
@@ -24,38 +22,40 @@ export class FriendService {
     private readonly getFriendRequestsApi = new GetFriendRequestsApi();
 
     public async AddFriend(id: string, tag: string): Promise<Result> {
-        return this.addFriendAPi.sendFriendRequest({ id: id, friendTag: tag });
+        return this.addFriendAPi.sendFriendRequest({id: id, friendTag: tag});
     }
 
     public async DeclineFriendRequest(id: string, tag: string): Promise<Result> {
-        return this.declineFriendRequestApi.declineFriendRequest({ Id: id, friendTag: tag });
+        return this.declineFriendRequestApi.declineFriendRequest({Id: id, friendTag: tag});
     }
 
-    public async GetFriendRequests(id: string): Promise<Array<PendingContact>>{
-        const contacts = new Set<PendingContact>();
+    public async GetFriendRequests(id: string): Promise<Array<PendingContact>> {
+        const r_result = await this.getFriendRequestsApi.getFriendRequests({userId: id});
 
-        const r_result = await this.getFriendRequestsApi.getFriendRequests({ userId: id });
+        if (!r_result.success || !r_result.data) return [];
 
-        if(r_result.success && r_result.data != null)
-        {
-            for(const friend of r_result.data){
-                const base64ProfilePicture = friend.profilePicture ? await this.FetchProfilePicture(friend.profilePicture) : null;
-                const contact = new PendingContact(friend.id, friend.username, friend.displayName, base64ProfilePicture);
-                contacts.add(contact);
-            }
-        }else{
-            return [];
-        }
+        console.log("Friend requests", r_result.data)
+        const contacts = new Set<PendingContact>(
+            r_result.data.map(friend =>
+                new PendingContact(
+                    friend.userTag,
+                    friend.username,
+                    false,
+                    friend.displayName,
+                    friend.profilePictureUrl,
+                )
+            )
+        );
 
         return Array.from(contacts);
     }
 
-    public async GetFriends(id: string): Promise<Array<Contact>>{
+    public async GetFriends(id: string): Promise<Array<Contact>> {
         const contacts = new Set<Contact>();
         const result = await window.electron.sendRequestAsync<Result<Array<FriendDto>>>(new GetFriendsQuery());
 
-        if(result.success && result.data !== null){
-            for(const friend of result.data){
+        if (result.success && result.data !== null) {
+            for (const friend of result.data) {
                 console.log("Profile picture", friend.profilePicture);
                 const contact = new Contact(friend.id, friend.username, friend.displayName, friend.profilePicture, friend.connectionIds);
                 contacts.add(contact);
@@ -64,9 +64,9 @@ export class FriendService {
 
         const remoteResult = await this.getFriendsApi.getFriends({UserProfileId: id});
 
-        if(remoteResult.success && remoteResult.data !== null && remoteResult.data.length > 0){
-            for(const r_friend of remoteResult.data){
-                if(this.IsNewContact(r_friend.userTag, contacts)){
+        if (remoteResult.success && remoteResult.data !== null && remoteResult.data.length > 0) {
+            for (const r_friend of remoteResult.data) {
+                if (this.IsNewContact(r_friend.userTag, contacts)) {
 
                     const base64ProfilePicture = r_friend.profilePictureUrl ? await this.FetchProfilePicture(r_friend.profilePictureUrl) : null;
                     console.log("Profile picture", base64ProfilePicture);
@@ -87,14 +87,14 @@ export class FriendService {
     }
 
     public async AcceptFriendship(userId: string, friendTag: string): Promise<Result<Contact>> {
-        const acceptResult = await this.acceptFriendshipApi.acceptFriendship({ Id: userId, friendTag: friendTag });
-        if(!acceptResult.success) {
+        const acceptResult = await this.acceptFriendshipApi.acceptFriendship({Id: userId, friendTag: friendTag});
+        if (!acceptResult.success) {
             console.error("Failed to accept friendship");
             return Result.fail<Contact>(new ErrorMessage(null, "Failed to accept friendship"));
         }
 
         const friend = acceptResult.data;
-        if(!friend) {
+        if (!friend) {
             console.error("Failed to accept friendship");
             return Result.fail<Contact>(new ErrorMessage(null, "Failed to accept friendship"));
         }
@@ -107,7 +107,7 @@ export class FriendService {
             base64ProfilePicture
         ));
 
-        if(!storeFriendResult.success) {
+        if (!storeFriendResult.success) {
             console.error("Failed to store friend");
             return Result.fail<Contact>(new ErrorMessage(null, "Failed to store friend"));
         }
@@ -115,9 +115,9 @@ export class FriendService {
         return Result.success(new Contact(friend.tag, friend.username!, friend.displayName ?? null, base64ProfilePicture, friend.connectionIds));
     }
 
-    private IsNewContact(id: string, friends: Set<Contact>) : boolean {
-        for(const friend of friends) {
-            if(friend.id === id) {
+    private IsNewContact(id: string, friends: Set<Contact>): boolean {
+        for (const friend of friends) {
+            if (friend.id === id) {
                 return false;
             }
         }
@@ -128,7 +128,7 @@ export class FriendService {
         if (!url) return null;
         try {
             const profilePictureResult =
-                await this.pictureApi.getUserProfilePicture({ profilePictureUrl: url });
+                await this.pictureApi.getUserProfilePicture({profilePictureUrl: url});
 
             if (!profilePictureResult.success) {
                 console.error(profilePictureResult.errorMessage);

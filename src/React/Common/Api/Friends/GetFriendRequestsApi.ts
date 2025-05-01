@@ -3,10 +3,11 @@ import {API_URLS} from "../ApiUrls.ts";
 import {Result} from "../../../../Shared/Result/Result.ts";
 
 export interface GetFriendRequestResponse {
-    id: string;
+    userTag: string;
     username: string;
     displayName: string | null;
-    profilePicture: string | null;
+    profilePictureUrl: string | null;
+    isSeen: boolean;
 }
 
 export interface GetFriendRequestsRequest{

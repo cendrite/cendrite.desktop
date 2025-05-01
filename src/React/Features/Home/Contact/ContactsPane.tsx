@@ -5,8 +5,9 @@ import SidePanelToggle from "../SidePanel/SidePanelToggle";
 import SearchForUserModal from "../Modals/SearchForUserModal.tsx";
 import ContactCard from "./ContactCard.tsx";
 import {Contact, useContacts} from "../../../Context/ContactContext.tsx";
-import {PendingContact, usePendingContacts} from "../../../Context/PendingContactsContext.tsx";
+import {usePendingContacts} from "../../../Context/PendingContactsContext.tsx";
 import PendingContactCard from "./PendingContactCard.tsx";
+import NotificationBadge from "../../../Common/Components/NotificationBadge.tsx";
 
 interface ContactsPaneProps {
     isSidePanelVisible: boolean;
@@ -14,23 +15,10 @@ interface ContactsPaneProps {
 }
 
 export const ContactsPane: React.FC<ContactsPaneProps> = ({isSidePanelVisible, toggleSidePanel}) => {
-    const {contacts, setContacts} = useContacts();
-    const {pendingContacts, setPendingContacts} = usePendingContacts();
+    const {contacts} = useContacts();
+    const {pendingContacts} = usePendingContacts();
     const [isSearchUserModalOpen, setIsSearchUserModalOpen] = useState(false);
     const [isRequestListSelected, setIsRequestListSelected] = useState(false);
-
-    const handleAccept = (contact: PendingContact) => {
-        setPendingContacts((prev) => prev.filter((c) => c.id !== contact.id));
-        setContacts((prev) => [...prev, new Contact(contact.id, contact.username, contact.displayName, contact.profilePicture, [])]);
-    }
-
-    const handleDecline = (contact: PendingContact) => {
-        setPendingContacts((prev) => prev.filter((c) => c.id !== contact.id));
-    }
-
-    const handleBlock = (contact: PendingContact) => {
-        setPendingContacts((prev) => prev.filter((c) => c.id !== contact.id));
-    }
 
     return (
         <>
@@ -49,18 +37,23 @@ export const ContactsPane: React.FC<ContactsPaneProps> = ({isSidePanelVisible, t
 
                     {/* Right side buttons */}
                     <div className="flex items-center">
-                        <button
-                            className={`p-2 rounded-md text-white hover:bg-darkGray-300 ${
-                                isRequestListSelected ? "bg-darkGray-300" : ""
-                            }`}
-                            onClick={() => setIsRequestListSelected(!isRequestListSelected)}
-                        >
-                            {!isRequestListSelected ? (
-                                <BellAlertIcon className="w-5 h-5"/>
-                            ) : (
-                                <BellAlertIconFilled className="w-5 h-5"/>
-                            )}
-                        </button>
+                        <div className="relative">
+                            <button
+                                className={`p-2 rounded-md text-white hover:bg-darkGray-300 ${
+                                    isRequestListSelected ? "bg-darkGray-300" : ""
+                                }`}
+                                onClick={() => setIsRequestListSelected(!isRequestListSelected)}
+                            >
+                                {!isRequestListSelected ? (
+                                    <div>
+                                        <BellAlertIcon className="w-5 h-5"/>
+                                        <NotificationBadge section="contacts" itemId={null}/>
+                                    </div>
+                                ) : (
+                                    <BellAlertIconFilled className="w-5 h-5"/>
+                                )}
+                            </button>
+                        </div>
 
                         <button
                             className="p-2 rounded-md text-white hover:bg-darkGray-300"
@@ -84,9 +77,7 @@ export const ContactsPane: React.FC<ContactsPaneProps> = ({isSidePanelVisible, t
                     <ul className="mt-4 space-y-2">
                         {pendingContacts.map((contact) => (
                             <li key={contact.id}>
-                                <PendingContactCard contact={contact} onAccept={() => handleAccept(contact)}
-                                                    onDecline={() => handleDecline(contact)}
-                                                    onBlock={() => handleBlock(contact)}/>
+                                <PendingContactCard contact={contact}/>
                             </li>
                         ))}
                     </ul>

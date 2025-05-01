@@ -1,9 +1,12 @@
 ﻿import React, {createContext, useState} from "react";
 import { Contact } from "./ContactContext";
+import {PendingContact} from "./PendingContactsContext.tsx";
 
 interface HomaPageContextType {
     selectedContact: Contact | null;
+    selectedPendingContact: PendingContact | null;
     setSelectedContact: (contact: Contact | null) => void;
+    setSelectedPendingContact: (contact: PendingContact | null) => void;
     // selectedChat: Chat | null;
     // setSelectedChat: (chat: Chat | null) => void;
 }
@@ -17,10 +20,19 @@ interface HomePageProviderProps {
 
 export const HomePageProvider: React.FC<HomePageProviderProps> = ({children}) => {
     const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+    const [selectedPendingContact, setSelectedPendingContact] = useState<PendingContact | null>(null);
 
     return (
-        <HomePageContext.Provider value={{selectedContact, setSelectedContact}}>
+        <HomePageContext.Provider value={{selectedContact, setSelectedContact, selectedPendingContact, setSelectedPendingContact}}>
             {children}
         </HomePageContext.Provider>
     );
+};
+
+export const useHomePageContext = () => {
+    const context = React.useContext(HomePageContext);
+    if (!context) {
+        throw new Error("useHomePageContext must be used within a HomePageProvider");
+    }
+    return context;
 };
