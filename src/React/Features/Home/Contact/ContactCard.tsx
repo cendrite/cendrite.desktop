@@ -1,14 +1,14 @@
-import React, {useContext} from "react";
+import React from "react";
 import {UserProfileImage} from "../../../Common/Components/UserProfileImage.tsx";
 import { Contact } from "../../../Context/ContactContext.tsx";
-import {HomePageContext} from "../../../Context/HomePageContext.tsx";
+import {useHomePageContext} from "../../../Context/HomePageContext.tsx";
 
 interface ContactCardProps {
     contact: Contact;
 }
 
 const ContactCard: React.FC<ContactCardProps> = ({contact}) => {
-    const { selectedContact, setSelectedContact } = useContext(HomePageContext)!;
+    const { selectedContact, setSelectedContact } = useHomePageContext();
     const isSelected = selectedContact && selectedContact.id === contact.id;
 
     const name = contact.displayName ?? contact.username;
