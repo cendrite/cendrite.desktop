@@ -10,13 +10,20 @@ export interface UserProfileImageProps {
 
 export const UserProfileImage: React.FC<UserProfileImageProps> = ({ profilePictureUrl, displayName, username, base64ProfilePicture }) => {
 
-    // Extract initials from displayName (if available) or fallback to username
     const avatarText = (displayName ?? username)
         .slice(0, 2)
         .toUpperCase();
 
-    // Use base64 image if available, otherwise use the profilePictureUrl and fetch from the bucket.
-    const imageSource = base64ProfilePicture ? base64ProfilePicture : `${API_URLS.BUCKET.BUCKET_BASE}${profilePictureUrl}`;
+    function getImageSource() {
+        if (base64ProfilePicture) {
+            return base64ProfilePicture;
+        } else if (profilePictureUrl) {
+            return `${API_URLS.BUCKET.BUCKET_BASE}${profilePictureUrl}`;
+        }
+        return null;
+    }
+
+    const imageSource = getImageSource();
 
     return (
         <div>

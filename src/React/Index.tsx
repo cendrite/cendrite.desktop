@@ -8,6 +8,8 @@ import {ContactProvider} from "./Context/ContactContext.tsx";
 import {HomePageProvider} from "./Context/HomePageContext.tsx";
 import {StrictMode} from "react";
 import {SignalRProvider} from "./SignalR/SignalRProvider.tsx";
+import {PendingContactProvider} from "./Context/PendingContactsContext.tsx";
+import {NotificationProvider} from "./Context/NotificationContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
@@ -15,11 +17,15 @@ createRoot(document.getElementById("root")!).render(
             <UserProvider>
                 <AuthProvider>
                     <SignalRProvider>
-                        <ContactProvider>
-                            <HomePageProvider>
-                                <App/>
-                            </HomePageProvider>
-                        </ContactProvider>
+                        <NotificationProvider>
+                            <ContactProvider>
+                                <PendingContactProvider>
+                                    <HomePageProvider>
+                                        <App/>
+                                    </HomePageProvider>
+                                </PendingContactProvider>
+                            </ContactProvider>
+                        </NotificationProvider>
                     </SignalRProvider>
                 </AuthProvider>
             </UserProvider>

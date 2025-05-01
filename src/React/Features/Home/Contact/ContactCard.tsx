@@ -18,7 +18,6 @@ const ContactCard: React.FC<ContactCardProps> = ({contact}) => {
             setSelectedContact(null);
             return;
         }
-
         setSelectedContact(contact);
     }
 

@@ -2,7 +2,16 @@
 import {Contact} from "../../../Context/ContactContext";
 import ChevronLeftIcon from "@heroicons/react/24/outline/ChevronLeftIcon";
 import {UserProfileImage} from "../../../Common/Components/UserProfileImage";
-import {BellSlashIcon, ChatBubbleOvalLeftIcon, ClockIcon, NoSymbolIcon, PaintBrushIcon, PencilIcon, PhoneIcon, VideoCameraIcon} from "@heroicons/react/24/outline";
+import {
+    BellSlashIcon,
+    ChatBubbleOvalLeftIcon,
+    ClockIcon,
+    NoSymbolIcon,
+    PaintBrushIcon,
+    PencilIcon,
+    PhoneIcon,
+    VideoCameraIcon
+} from "@heroicons/react/24/outline";
 
 interface ContactPageProps {
     contact: Contact;
@@ -13,7 +22,6 @@ const ContactPage: React.FC<ContactPageProps> = ({contact, onClose}) => {
     const [slideClass, setSlideClass] = useState("translate-x-full");
 
     useEffect(() => {
-        // Slide in on mount
         setSlideClass("translate-x-0");
     }, []);
 
@@ -22,10 +30,14 @@ const ContactPage: React.FC<ContactPageProps> = ({contact, onClose}) => {
         setTimeout(() => onClose(), 300);
     };
 
-    const handleVideoCall = () => {};
-    const handleCall = () => {};
-    const handleMessage = () => {};
-    const handleMute = () => {};
+    const handleVideoCall = () => {
+    };
+    const handleCall = () => {
+    };
+    const handleMessage = () => {
+    };
+    const handleMute = () => {
+    };
 
     return (
         <>
@@ -51,6 +63,7 @@ const ContactPage: React.FC<ContactPageProps> = ({contact, onClose}) => {
                                     base64ProfilePicture={contact.profilePicture}
                                     displayName={contact.displayName}
                                     username={contact.username}
+                                    profilePictureUrl={null}
                                 />
                             </div>
                             <h2 className="text-lg font-semibold">
