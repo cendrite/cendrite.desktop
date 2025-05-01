@@ -19,8 +19,19 @@ interface HomePageProviderProps {
 }
 
 export const HomePageProvider: React.FC<HomePageProviderProps> = ({children}) => {
-    const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
-    const [selectedPendingContact, setSelectedPendingContact] = useState<PendingContact | null>(null);
+    const [selectedContact, _setSelectedContact] = useState<Contact | null>(null);
+    const [selectedPendingContact, _setSelectedPendingContact] = useState<PendingContact | null>(null);
+
+    const setSelectedContact = (contact: Contact | null) => {
+        _setSelectedContact(contact);
+        if (contact) _setSelectedPendingContact(null); // Unset pending contact
+    };
+
+    const setSelectedPendingContact = (contact: PendingContact | null) => {
+        _setSelectedPendingContact(contact);
+        if (contact) _setSelectedContact(null); // Unset normal contact
+    };
+
 
     return (
         <HomePageContext.Provider value={{selectedContact, setSelectedContact, selectedPendingContact, setSelectedPendingContact}}>

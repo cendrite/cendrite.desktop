@@ -26,7 +26,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = React.useState<User | null>(null);
     const eventReceiver = SignalManager.getInstance().getReceiver<ChangeEventReceiver>("ChangeEvents");
-    const pictureApi = new GetUserProfilePictureApi();
+    const pictureApi = React.useMemo(() => new GetUserProfilePictureApi(), []);
 
     useEffect(() => {
         const handleProfilePicChanged = async (evt: ChangeEvent) => {

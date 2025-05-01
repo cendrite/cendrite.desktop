@@ -38,7 +38,7 @@ export const PendingContactProvider: React.FC<{ children: React.ReactNode }> = (
     const {user} = useUser();
     const {dispatch} = useNotifications();
 
-    const loadPendingContacts = async () => {
+    const loadPendingContacts = React.useCallback(async () => {
         if (!user) {
             console.warn("User is not defined, cannot load pending contacts.");
             return;
@@ -47,14 +47,13 @@ export const PendingContactProvider: React.FC<{ children: React.ReactNode }> = (
         try {
             const loadedRequests = await friendService.GetFriendRequests(user.id);
             setPendingContacts(loadedRequests);
-            for( const request of loadedRequests) {
-                dispatch({type: ActionType.AddFriendRequest, payload: {userTag: request.id}});
+            for (const request of loadedRequests) {
+                dispatch({ type: ActionType.AddFriendRequest, payload: { userTag: request.id } });
             }
-
         } catch (error) {
             console.error("Error loading pending contacts:", error);
         }
-    }
+    }, [user, dispatch, friendService]);
 
     useEffect(() => {
         const handleFriendRequestReceived = async (evt: ChangeEvent) => {
@@ -83,11 +82,11 @@ export const PendingContactProvider: React.FC<{ children: React.ReactNode }> = (
                 handleFriendRequestReceived,
             );
         };
-    }, []);
+    }, [dispatch, eventReceiver]);
 
     useEffect(() => {
         loadPendingContacts();
-    }, [user]);
+    }, [loadPendingContacts]);
 
     return (
         <PendingContactsContext.Provider value={{pendingContacts, setPendingContacts}}>

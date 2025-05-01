@@ -1,13 +1,13 @@
 ﻿import React from "react";
 
-export interface ChatNotification {}
+//export interface ChatNotification {}
 
 export interface FriendRequestNotification {
     userTag: string;
 }
 
 export class NotificationState {
-    chatNotifications: ChatNotification[];
+    //chatNotifications: ChatNotification[];
     friendRequestNotifications: FriendRequestNotification[];
     count: {
         chats: number;
@@ -16,7 +16,7 @@ export class NotificationState {
     }
 
     constructor() {
-        this.chatNotifications = [];
+  //      this.chatNotifications = [];
         this.friendRequestNotifications = [];
         this.count = {chats: 0, friendRequests: 0, sidebar: 0}
     }
@@ -30,20 +30,21 @@ export enum ActionType {
 }
 
 export type NotificationAction =
-    | { type: ActionType.AddChat; payload: ChatNotification }
-    | { type: ActionType.RemoveChat; payload: ChatNotification }
+ //   | { type: ActionType.AddChat; payload: ChatNotification }
+ //   | { type: ActionType.RemoveChat; payload: ChatNotification }
     | { type: ActionType.AddFriendRequest; payload: FriendRequestNotification }
     | { type: ActionType.RemoveFriendRequest; payload: FriendRequestNotification }
 
 function reducer(state: NotificationState, action: NotificationAction): NotificationState {
-    let {friendRequestNotifications, count } = state;
+    let { friendRequestNotifications } = state;
+    const { count } = state;
 
 
     switch (action.type) {
-        case ActionType.AddChat:
-            throw new Error('Method not implemented.');
-        case ActionType.RemoveChat:
-            throw new Error('Method not implemented.');
+        // case ActionType.AddChat:
+        //     throw new Error('Method not implemented.');
+        // case ActionType.RemoveChat:
+        //     throw new Error('Method not implemented.');
 
         case ActionType.AddFriendRequest:
             friendRequestNotifications = [...friendRequestNotifications, action.payload];
