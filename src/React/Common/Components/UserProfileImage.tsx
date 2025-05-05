@@ -2,7 +2,7 @@
 import React from "react";
 
 export interface UserProfileImageProps {
-    base64ProfilePicture: string | null;
+    base64ProfilePicture?: string | null;
     profilePictureUrl?: string | null;
     displayName: string | null;
     username: string;
@@ -16,8 +16,10 @@ export const UserProfileImage: React.FC<UserProfileImageProps> = ({ profilePictu
 
     function getImageSource() {
         if (base64ProfilePicture) {
+            console.log("base64ProfilePicture", base64ProfilePicture);
             return base64ProfilePicture;
         } else if (profilePictureUrl) {
+            console.log("profilePictureUrl", profilePictureUrl);
             return `${API_URLS.BUCKET.BUCKET_BASE}${profilePictureUrl}`;
         }
         return null;

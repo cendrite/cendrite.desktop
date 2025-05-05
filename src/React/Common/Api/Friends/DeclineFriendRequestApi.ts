@@ -11,7 +11,7 @@ export class DeclineFriendRequestApi {
     private readonly client: ApiClient;
 
     constructor() {
-        this.client = new ApiClient(API_URLS.USER_MANAGEMENT.DELETE_FRIEND_REQUEST, true);
+        this.client = new ApiClient(API_URLS.USER_MANAGEMENT.DECLINE_FRIEND_REQUEST, true);
     }
 
     public async declineFriendRequest(request: DeleteFriendshipRequest): Promise<Result> {

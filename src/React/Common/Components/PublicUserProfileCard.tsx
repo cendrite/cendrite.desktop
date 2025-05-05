@@ -32,7 +32,7 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
     const [currentFriendshipStatus, setCurrentFriendshipStatus] = useState<FriendshipStatus | undefined>(friendshipStatus);
     const [currentFriendshipDirection, setCurrentFriendshipDirection] = useState<FriendshipDirection>(friendshipDirection);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const {setContacts, refreshContacts} = useContacts();
+    const {setContacts} = useContacts();
 
 
     const onAddFriend = async () => {
@@ -55,7 +55,6 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
             setCurrentFriendshipDirection(FriendshipDirection.None);
             setIsLoading(true);
             setContacts((prevContacts) => [...prevContacts, result.data!]);
-            refreshContacts();
         }
 
         await delay(750);

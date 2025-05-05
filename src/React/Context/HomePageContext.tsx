@@ -1,6 +1,6 @@
 ﻿import React, {createContext, useState} from "react";
 import { Contact } from "./ContactContext";
-import {PendingContact} from "./PendingContactsContext.tsx";
+import {PendingContact} from "./PendingContactContext.tsx";
 
 interface HomaPageContextType {
     selectedContact: Contact | null;
@@ -31,7 +31,6 @@ export const HomePageProvider: React.FC<HomePageProviderProps> = ({children}) =>
         _setSelectedPendingContact(contact);
         if (contact) _setSelectedContact(null); // Unset normal contact
     };
-
 
     return (
         <HomePageContext.Provider value={{selectedContact, setSelectedContact, selectedPendingContact, setSelectedPendingContact}}>

@@ -17,7 +17,6 @@ export class CreateFriendCommandHandler implements Handler<CreateFriendCommand> 
             friend.displayName = request.displayName;
             friend.profilePicture = request.base64ProfilePicture ? await ImageConverter.base64ToBuffer(request.base64ProfilePicture) : null;
 
-
             if (request.connectionIds) {
                 friend.connectionIds = request.connectionIds.map(id => new ConnectionId(id));
             } else {
@@ -25,8 +24,8 @@ export class CreateFriendCommandHandler implements Handler<CreateFriendCommand> 
             }
 
             await friendRepository.create(friend);
-
             return Result.success();
+
         } catch (error) {
             const errorMessage = (error instanceof Error) ? error.message : 'An unknown error occurred';
             console.error('Create Refresh Token Failed:', errorMessage);

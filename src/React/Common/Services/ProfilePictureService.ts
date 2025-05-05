@@ -3,11 +3,12 @@ import { UpdateProfilePictureApi } from "../Api/UserProfile/UpdateProfilePicture
 import {
     UpdateProfilePictureCommand
 } from "../../../Electron/Application/Features/User/Commands/Update/ProfilePicture/UpdateProfilePictureCommand.ts";
+import {GetUserProfilePictureApi} from "../Api/UserProfile/GetUserProfilePicture.ts";
 
 
 export class ProfilePictureService {
     private readonly updateProfilePictureApi = new UpdateProfilePictureApi();
-
+    private readonly pictureApi = new GetUserProfilePictureApi();
     public async updateProfilePicture(id: string, profilePicture: string, isStock: boolean): Promise<Result> {
         let file: File | null
         let base64: string | null
@@ -34,6 +35,24 @@ export class ProfilePictureService {
         }
 
         return Result.success();
+    }
+
+    public async FetchProfilePicture(url: string): Promise<string | null> {
+        if (!url) return null;
+        try {
+            const profilePictureResult =
+                await this.pictureApi.getUserProfilePicture({profilePictureUrl: url});
+
+            if (!profilePictureResult.success) {
+                console.error(profilePictureResult.errorMessage);
+                return null;
+            }
+
+            return profilePictureResult.data?.base64ProfilePicture ?? null;
+        } catch (err) {
+            console.error("Failed to fetch profile picture:", err);
+            return null;
+        }
     }
 
     private base64ToFile(base64Data: string, fileName: string): File {

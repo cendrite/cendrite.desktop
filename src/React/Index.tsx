@@ -8,7 +8,7 @@ import {ContactProvider} from "./Context/ContactContext.tsx";
 import {HomePageProvider} from "./Context/HomePageContext.tsx";
 import {StrictMode} from "react";
 import {SignalRProvider} from "./SignalR/SignalRProvider.tsx";
-import {PendingContactProvider} from "./Context/PendingContactsContext.tsx";
+import {PendingContactProvider} from "./Context/PendingContactContext.tsx";
 import {NotificationProvider} from "./Context/NotificationContext.tsx";
 
 createRoot(document.getElementById("root")!).render(

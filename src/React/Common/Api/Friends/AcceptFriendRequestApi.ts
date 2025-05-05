@@ -10,7 +10,7 @@ export interface AcceptFriendshipRequest {
 export interface AcceptFriendshipDto {
     username: string;
     tag: string;
-    displayName?: string | null;
+    displayName: string | null;
     profilePictureUrl?: string;
     connectionIds: string[];
 }

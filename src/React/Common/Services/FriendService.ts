@@ -7,10 +7,9 @@ import {CreateFriendCommand} from "../../../Electron/Application/Features/Friend
 import {GetFriendsQuery} from "../../../Electron/Application/Features/Friends/Queries/GetFriends/GetFriendsQuery.ts";
 import {FriendDto} from "../../../Electron/Application/Features/Friends/Dto/FriendDto.ts";
 import {GetFriendsApi} from "../Api/Friends/GetFriendsApi.ts";
-import {ImageHelper} from "../Api/Utility/ImageFetcher.ts";
 import {GetUserProfilePictureApi} from "../Api/UserProfile/GetUserProfilePicture.ts";
 import {Contact} from "../../Context/ContactContext.tsx";
-import {PendingContact} from "../../Context/PendingContactsContext.tsx";
+import {PendingContact} from "../../Context/PendingContactContext.tsx";
 import {GetFriendRequestsApi} from "../Api/Friends/GetFriendRequestsApi.ts";
 
 export class FriendService {
@@ -98,10 +97,10 @@ export class FriendService {
             console.error("Failed to accept friendship");
             return Result.fail<Contact>(new ErrorMessage(null, "Failed to accept friendship"));
         }
-        const base64ProfilePicture = friend.profilePictureUrl ? await ImageHelper.downloadImageAsBase64(friend.profilePictureUrl) : null;
+        const base64ProfilePicture = friend.profilePictureUrl ? await this.FetchProfilePicture(friend.profilePictureUrl) : null;
         const storeFriendResult = await window.electron.sendRequestAsync<Result>(new CreateFriendCommand(
-            friend.username!,
-            friend.displayName ?? null,
+            friend.username,
+            friend.displayName,
             friend.connectionIds,
             friend.tag,
             base64ProfilePicture
@@ -111,7 +110,6 @@ export class FriendService {
             console.error("Failed to store friend");
             return Result.fail<Contact>(new ErrorMessage(null, "Failed to store friend"));
         }
-
         return Result.success(new Contact(friend.tag, friend.username!, friend.displayName ?? null, base64ProfilePicture, friend.connectionIds));
     }
 
