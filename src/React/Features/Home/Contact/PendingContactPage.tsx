@@ -1,17 +1,26 @@
-﻿import {PendingContact} from "../../../Context/PendingContactsContext.tsx";
-import React, {useEffect, useState} from "react";
+﻿import {PendingContact, usePendingContacts} from "../../../Context/PendingContactContext.tsx";
+import React, {useEffect, useMemo, useState} from "react";
 import ChevronLeftIcon from "@heroicons/react/24/outline/ChevronLeftIcon";
 import {UserProfileImage} from "../../../Common/Components/UserProfileImage.tsx";
 import {CheckIcon, ExclamationTriangleIcon, NoSymbolIcon, XMarkIcon} from "@heroicons/react/24/outline";
 import ToolTip from "../../../Common/Components/ToolTip.tsx";
+import {FriendService} from "../../../Common/Services/FriendService.ts";
+import {delay} from "../../../../Shared/HelperFunctions.ts";
+import {useUser} from "../../../Context/UserContext.tsx";
 
 interface PendingContactPage {
     pendingContact: PendingContact;
     onClose: () => void;
 }
 
+type LoadingAction = 'accept' | 'decline' | 'block' | null;
+
 const PendingContactPage: React.FC<PendingContactPage> = ({pendingContact, onClose}) => {
     const [slideClass, setSlideClass] = useState("translate-x-full");
+    const friendService = useMemo(() => new FriendService(), []);
+    const [loadingAction, setLoadingAction] = useState<LoadingAction>(null);
+    const {setPendingContacts} = usePendingContacts();
+    const {user} = useUser();
 
     useEffect(() => {
         setSlideClass("translate-x-0");
@@ -23,11 +32,27 @@ const PendingContactPage: React.FC<PendingContactPage> = ({pendingContact, onClo
     };
 
     const handleAccept = async () => {
-        // Handle accept friend request logic
+        const result = await friendService.AcceptFriendship(user!.id, pendingContact.id);
+        if(result.success)
+        {
+            setPendingContacts(prev => prev.filter(c => c.id !== pendingContact.id));
+            setLoadingAction("accept");
+        }
+        await delay(750);
+        setLoadingAction(null);
+        onClose();
     };
 
     const handleDecline = async () => {
-        // Handle decline friend request logic
+        const result = await friendService.DeclineFriendRequest(user!.id, pendingContact.id);
+        if(result.success)
+        {
+            setPendingContacts(prev => prev.filter(c => c.id !== pendingContact.id));
+            setLoadingAction("decline");
+        }
+        await delay(750);
+        setLoadingAction(null);
+        onClose();
     };
 
     const handleBlock = async () => {
@@ -80,7 +105,7 @@ const PendingContactPage: React.FC<PendingContactPage> = ({pendingContact, onClo
                                     className="p-2 bg-blue-500 hover:bg-blue-600 rounded-full cursor-pointer transition duration-150 ease-in-out transform hover:scale-105"
                                     onClick={() => handleAccept()}
                                 >
-                                    <CheckIcon className="h-4 w-4 text-white"/>
+                                    {loadingAction === "accept" ? <div className="animate-spin h-6 w-6 border-2 border-t-transparent border-white rounded-full"/> : <CheckIcon className="h-4 w-4 text-white"/> }
                                 </button>
                             </ToolTip>
                             <ToolTip content="Decline friend request">
@@ -88,7 +113,7 @@ const PendingContactPage: React.FC<PendingContactPage> = ({pendingContact, onClo
                                     className="p-2 bg-darkGray-500 hover:accent-darkGray-600 rounded-full cursor-pointer transition duration-150 ease-in-out transform hover:scale-105"
                                     onClick={() => handleDecline()}
                                 >
-                                    <XMarkIcon className="h-4 w-4 text-white"/>
+                                    {loadingAction === "decline" ? <div className="animate-spin h-6 w-6 border-2 border-t-transparent border-white rounded-full"/> : <XMarkIcon className="h-4 w-4 text-white"/>}
                                 </button>
                             </ToolTip>
                             <ToolTip content="Block user">
@@ -96,7 +121,7 @@ const PendingContactPage: React.FC<PendingContactPage> = ({pendingContact, onClo
                                     className="p-2 bg-red-600 hover:bg-red-700 rounded-full cursor-pointer transition duration-150 ease-in-out transform hover:scale-105"
                                     onClick={() => handleBlock()}
                                 >
-                                    <NoSymbolIcon className="h-4 w-4 text-white"/>
+                                    {loadingAction === "block" ? <div className="animate-spin h-6 w-6 border-2 border-t-transparent border-white rounded-full"/> : <NoSymbolIcon className="h-4 w-4 text-white"/>}
                                 </button>
                             </ToolTip>
                         </div>

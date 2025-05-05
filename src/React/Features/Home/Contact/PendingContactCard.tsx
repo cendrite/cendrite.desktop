@@ -1,4 +1,4 @@
-﻿import {PendingContact} from "../../../Context/PendingContactsContext.tsx";
+﻿import {PendingContact} from "../../../Context/PendingContactContext.tsx";
 import React from "react";
 import {UserProfileImage} from "../../../Common/Components/UserProfileImage.tsx";
 import NotificationBadge from "../../../Common/Components/NotificationBadge.tsx";
@@ -14,6 +14,7 @@ const PendingContactCard: React.FC<PendingContactCardProps> = ({contact}) => {
     const {selectedPendingContact, setSelectedPendingContact} = useHomePageContext();
     const isSelected = selectedPendingContact && selectedPendingContact.id === contact.id;
     const {dispatch} = useNotifications();
+    console.log("PendingContactCard", contact, selectedPendingContact);
 
     const cardClasses = `flex items-center py-2 px-2 rounded-md cursor-pointer relative
     ${isSelected ? "bg-darkGray-300" : "hover:bg-darkGray-300"}`;
@@ -35,7 +36,6 @@ const PendingContactCard: React.FC<PendingContactCardProps> = ({contact}) => {
                 <UserProfileImage
                     username={contact.username}
                     displayName={contact.displayName}
-                    base64ProfilePicture={null}
                     profilePictureUrl={contact.profilePicture}
                 />
             </div>

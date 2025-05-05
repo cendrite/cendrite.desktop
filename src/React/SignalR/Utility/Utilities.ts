@@ -1,4 +1,9 @@
 ﻿import {HubConnection, HubConnectionState} from "@microsoft/signalr";
+import { ChangeEventType } from "../ChangeEvent/ChangeEventType";
+import {SignalManager} from "../SignalManager.ts";
+import {ChangeEventReceiver} from "../ChangeEvent/ChangeEventReceiver.ts";
+import {ChangeEvent, ChangeEventHandler} from "../ChangeEvent/ChangeEvent.ts";
+import {useEffect} from "react";
 
 export function waitForConnection(connection: HubConnection): Promise<void> {
     if (connection.state === HubConnectionState.Connected) {
@@ -22,4 +27,20 @@ export function waitForConnection(connection: HubConnection): Promise<void> {
         };
         checkConnection();
     });
+}
+
+export function useSignalEvent<T>(
+    type: ChangeEventType,
+    handler: (event: ChangeEvent<T>) => void
+) {
+    const receiver = SignalManager
+        .getInstance()
+        .getReceiver<ChangeEventReceiver>("ChangeEvents");
+
+    useEffect(() => {
+        receiver.subscribe(type, handler as ChangeEventHandler);
+        return () => {
+            receiver.unsubscribe(type, handler as ChangeEventHandler);
+        };
+    }, [receiver, type, handler]);
 }

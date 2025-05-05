@@ -5,7 +5,7 @@ import SidePanelToggle from "../SidePanel/SidePanelToggle";
 import SearchForUserModal from "../Modals/SearchForUserModal.tsx";
 import ContactCard from "./ContactCard.tsx";
 import {Contact, useContacts} from "../../../Context/ContactContext.tsx";
-import {usePendingContacts} from "../../../Context/PendingContactsContext.tsx";
+import {usePendingContacts} from "../../../Context/PendingContactContext.tsx";
 import PendingContactCard from "./PendingContactCard.tsx";
 import NotificationBadge from "../../../Common/Components/NotificationBadge.tsx";
 

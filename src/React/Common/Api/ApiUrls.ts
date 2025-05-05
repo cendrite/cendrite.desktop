@@ -1,11 +1,12 @@
 ﻿export const API_URLS = {
     USER_MANAGEMENT: {
         GET_PROFILE: "https://usermanagement.xhykl49jkg.org/api/UserProfile",
-        GET_BY_TAG: "http://10.0.0.100:30420/api/UserProfile/tag",
+        GET_BY_TAG: "https://usermanagement.xhykl49jkg.org/api/UserProfile/tag",
         UPDATE_PROFILE_PICTURE: "https://usermanagement.xhykl49jkg.org/api/UserProfile/profile-picture",
         GET_PROFILE_PICTURE: "https://usermanagement.xhykl49jkg.org/api/UserProfile/profile-picture",
         SEND_FRIEND_REQUEST: "https://usermanagement.xhykl49jkg.org/api/UserProfile/friendship/create",
-        DELETE_FRIEND_REQUEST: "https://usermanagement.xhykl49jkg.org/api/UserProfile/friendship/delete",
+        DELETE_FRIENDSHIP: "https://usermanagement.xhykl49jkg.org/api/UserProfile/friendship/delete",
+        DECLINE_FRIEND_REQUEST: "https://usermanagement.xhykl49jkg.org/api/UserProfile/friendship/reject",
         ACCEPT_FRIENDSHIP: "https://usermanagement.xhykl49jkg.org/api/UserProfile/friendship/accept",
         GET_FRIENDS: "https://usermanagement.xhykl49jkg.org/api/UserProfile/friendships",
         GET_FRIEND_REQUESTS: "https://usermanagement.xhykl49jkg.org/api/UserProfile/friendship/requests",
