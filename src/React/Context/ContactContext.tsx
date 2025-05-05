@@ -80,7 +80,7 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setContacts((prevContacts) => {
             return [...prevContacts, newContact];
         });
-    }, [friendService, user]);
+    }, [friendService, profilePictureService, user]);
 
     useSignalEvent<FriendRequestAcceptedEvent>(ChangeEventType.FriendRequestAccepted, handleContactAddedEvent);
 
