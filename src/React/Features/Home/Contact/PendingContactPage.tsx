@@ -56,7 +56,9 @@ const PendingContactPage: React.FC<PendingContactPage> = ({pendingContact, onClo
     };
 
     const handleBlock = async () => {
-        // Handle block user logic
+        setLoadingAction("block");
+        await delay(750);
+        setLoadingAction(null);
     };
 
     return (
@@ -105,7 +107,7 @@ const PendingContactPage: React.FC<PendingContactPage> = ({pendingContact, onClo
                                     className="p-2 bg-blue-500 hover:bg-blue-600 rounded-full cursor-pointer transition duration-150 ease-in-out transform hover:scale-105"
                                     onClick={() => handleAccept()}
                                 >
-                                    {loadingAction === "accept" ? <div className="animate-spin h-6 w-6 border-2 border-t-transparent border-white rounded-full"/> : <CheckIcon className="h-4 w-4 text-white"/> }
+                                    {loadingAction === "accept" ? <div className="animate-spin h-4 w-4 border-2 border-t-transparent border-white rounded-full"/> : <CheckIcon className="h-4 w-4 text-white"/> }
                                 </button>
                             </ToolTip>
                             <ToolTip content="Decline friend request">
@@ -113,7 +115,7 @@ const PendingContactPage: React.FC<PendingContactPage> = ({pendingContact, onClo
                                     className="p-2 bg-darkGray-500 hover:accent-darkGray-600 rounded-full cursor-pointer transition duration-150 ease-in-out transform hover:scale-105"
                                     onClick={() => handleDecline()}
                                 >
-                                    {loadingAction === "decline" ? <div className="animate-spin h-6 w-6 border-2 border-t-transparent border-white rounded-full"/> : <XMarkIcon className="h-4 w-4 text-white"/>}
+                                    {loadingAction === "decline" ? <div className="animate-spin h-4 w-4 border-2 border-t-transparent border-white rounded-full"/> : <XMarkIcon className="h-4 w-4 text-white"/>}
                                 </button>
                             </ToolTip>
                             <ToolTip content="Block user">
@@ -121,7 +123,7 @@ const PendingContactPage: React.FC<PendingContactPage> = ({pendingContact, onClo
                                     className="p-2 bg-red-600 hover:bg-red-700 rounded-full cursor-pointer transition duration-150 ease-in-out transform hover:scale-105"
                                     onClick={() => handleBlock()}
                                 >
-                                    {loadingAction === "block" ? <div className="animate-spin h-6 w-6 border-2 border-t-transparent border-white rounded-full"/> : <NoSymbolIcon className="h-4 w-4 text-white"/>}
+                                    {loadingAction === "block" ? <div className="animate-spin h-4 w-4 border-2 border-t-transparent border-white rounded-full"/> : <NoSymbolIcon className="h-4 w-4 text-white"/>}
                                 </button>
                             </ToolTip>
                         </div>
