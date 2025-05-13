@@ -30,7 +30,7 @@ export class FriendService {
     public async AddFriend(id: string, tag: string): Promise<Result> {
         return this.addFriendAPi.sendFriendRequest({id: id, friendTag: tag});
     }
-
+1
     public async DeclineFriendRequest(id: string, tag: string): Promise<Result> {
         return this.declineFriendRequestApi.declineFriendRequest({Id: id, friendTag: tag});
     }
