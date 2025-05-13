@@ -12,6 +12,7 @@ import {
     PhoneIcon,
     VideoCameraIcon
 } from "@heroicons/react/24/outline";
+import DeleteFriendModal from "../Modals/DeleteFriendModal.tsx";
 
 interface ContactPageProps {
     contact: Contact;
@@ -20,6 +21,7 @@ interface ContactPageProps {
 
 const ContactPage: React.FC<ContactPageProps> = ({contact, onClose}) => {
     const [slideClass, setSlideClass] = useState("translate-x-full");
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
     useEffect(() => {
         setSlideClass("translate-x-0");
@@ -38,6 +40,13 @@ const ContactPage: React.FC<ContactPageProps> = ({contact, onClose}) => {
     };
     const handleMute = () => {
     };
+
+    const handleDelete = () => {
+        setIsDeleteModalOpen(true);
+    }
+
+    const handleBlock = () => {
+    }
 
     return (
         <>
@@ -160,22 +169,25 @@ const ContactPage: React.FC<ContactPageProps> = ({contact, onClose}) => {
                         <div className="mt-4 mx-auto w-3.5/4 border-t border-zinc-700"/>
 
                         {/* Block/Report Section */}
-                        <div className="flex items-center mt-2 hover:bg-darkGray-800 rounded-md p-4">
+                        <button className="flex items-center mt-2 w-full  hover:bg-darkGray-800 rounded-md p-4"
+                                onClick={() => {handleDelete()}}>
                             <NoSymbolIcon className="w-5 h-5 text-red-600 mr-2"/>
                             <h4 className="text-sm text-red-600 font-light">
                                 Delete
                             </h4>
-                        </div>
-                        <div className="flex items-center mt-2 hover:bg-darkGray-800 rounded-md p-4">
+                        </button>
+                        <button className="flex items-center mt-2 w-full  hover:bg-darkGray-800 rounded-md p-4"
+                        onClick={() => {handleBlock()}}>
                             <NoSymbolIcon className="w-5 h-5 text-red-600 mr-2"/>
                             <h4 className="text-sm text-red-600 font-light">
                                 Block
                             </h4>
-                        </div>
+                        </button>
 
                     </div>
                 </div>
             </div>
+            <DeleteFriendModal contact={contact} isOpen={isDeleteModalOpen} onClose={() => {setIsDeleteModalOpen(false)}}/>
         </>
     );
 };

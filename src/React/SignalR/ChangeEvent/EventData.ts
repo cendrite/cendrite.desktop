@@ -22,3 +22,8 @@ export interface FriendRequestAcceptedEvent {
     profilePictureUrl: string | null;
     connectionIds: string[];
 }
+
+export interface FriendDeletedEvent {
+    tag: string;
+    deletedBy: string;
+}

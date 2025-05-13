@@ -1,13 +1,14 @@
 ﻿import React, {useCallback, useEffect, useMemo} from "react";
 import {FriendService} from "../Common/Services/FriendService.ts";
 import {useUser} from "./UserContext.tsx";
-import {FriendRequestAcceptedEvent} from "../SignalR/ChangeEvent/EventData.ts";
+import {FriendDeletedEvent, FriendRequestAcceptedEvent} from "../SignalR/ChangeEvent/EventData.ts";
 import {ChangeEventType} from "../SignalR/ChangeEvent/ChangeEventType.ts";
 import {useSignalEvent} from "../SignalR/Utility/Utilities.ts";
 import {ChangeEvent} from "../SignalR/ChangeEvent/ChangeEvent.ts";
 import {ProfilePictureService} from "../Common/Services/ProfilePictureService.ts";
 import {Result} from "../../Shared/Result/Result.ts";
 import {CreateFriendCommand} from "../../Electron/Application/Features/Friends/Commands/Create/CreateFriendCommand.ts";
+import {DeleteFriendCommand} from "../../Electron/Application/Features/Friends/Commands/Delete/DeleteFriendCommand.ts";
 
 export class Contact {
     id: string;
@@ -33,7 +34,7 @@ interface ContactContextType {
 
 const ContactContext = React.createContext<ContactContextType | undefined>(undefined);
 
-export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
     const [contacts, setContacts] = React.useState<Contact[]>([]);
     const friendService = useMemo(() => new FriendService(), []);
     const profilePictureService = useMemo(() => new ProfilePictureService(), []);
@@ -45,7 +46,7 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({ child
             return;
         }
         try {
-            const loadedContacts = await friendService.GetFriends(user.id);
+            const loadedContacts = await friendService.SyncFriends(user.id);
             setContacts(loadedContacts);
         } catch (error) {
             console.error("Error loading contacts:", error);
@@ -82,10 +83,32 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({ child
         });
     }, [friendService, profilePictureService, user]);
 
+    const handleContactDeletedEvent = useCallback(async (evt: ChangeEvent<FriendDeletedEvent>) => {
+        // Check if we are the deletedContact and then remove opposing contact by tag
+        if (user?.userTag === evt.data.tag) {
+            await window.electron.sendRequestAsync<Result>(new DeleteFriendCommand(evt.data.deletedBy));
+            setContacts((prevContacts) => {
+                return prevContacts.filter(contact => contact.id !== evt.data.deletedBy);
+            });
+        }
+
+        const isAlreadyDeleted = contacts.find(contact => contact.id === evt.data.tag);
+        if (isAlreadyDeleted) {
+            return;
+        }
+
+        await window.electron.sendRequestAsync<Result>(new DeleteFriendCommand(evt.data.tag));
+        setContacts((prevContacts) => {
+            return prevContacts.filter(contact => contact.id !== evt.data.tag);
+        });
+
+    }, [friendService, user]);
+
     useSignalEvent<FriendRequestAcceptedEvent>(ChangeEventType.FriendRequestAccepted, handleContactAddedEvent);
+    useSignalEvent<FriendDeletedEvent>(ChangeEventType.FriendRemoved, handleContactDeletedEvent);
 
     return (
-        <ContactContext.Provider value={{ contacts, setContacts, refreshContacts }}>
+        <ContactContext.Provider value={{contacts, setContacts, refreshContacts}}>
             {children}
         </ContactContext.Provider>
     );

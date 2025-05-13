@@ -11,6 +11,10 @@ import {GetUserProfilePictureApi} from "../Api/UserProfile/GetUserProfilePicture
 import {Contact} from "../../Context/ContactContext.tsx";
 import {PendingContact} from "../../Context/PendingContactContext.tsx";
 import {GetFriendRequestsApi} from "../Api/Friends/GetFriendRequestsApi.ts";
+import {
+    DeleteFriendCommand
+} from "../../../Electron/Application/Features/Friends/Commands/Delete/DeleteFriendCommand.ts";
+import {DeleteFriendApi} from "../Api/Friends/DeleteFriendApi.ts";
 
 export class FriendService {
     private readonly addFriendAPi = new SendFriendRequestApi();
@@ -19,6 +23,7 @@ export class FriendService {
     private readonly getFriendsApi = new GetFriendsApi();
     private readonly pictureApi = new GetUserProfilePictureApi();
     private readonly getFriendRequestsApi = new GetFriendRequestsApi();
+    private readonly deleteFriendApi = new DeleteFriendApi();
 
     public async AddFriend(id: string, tag: string): Promise<Result> {
         return this.addFriendAPi.sendFriendRequest({id: id, friendTag: tag});
@@ -48,8 +53,8 @@ export class FriendService {
 
         return Array.from(contacts);
     }
-
-    public async GetFriends(id: string): Promise<Array<Contact>> {
+    
+    public async SyncFriends(id: string): Promise<Array<Contact>> {
         const contacts = new Set<Contact>();
         const result = await window.electron.sendRequestAsync<Result<Array<FriendDto>>>(new GetFriendsQuery());
 
@@ -138,5 +143,23 @@ export class FriendService {
             console.error("Failed to fetch profile picture:", err);
             return null;
         }
+    }
+
+    public async DeleteFriend(id: string, tag: string): Promise<Result> {
+        console.log("Deleting friend with tag", tag);
+        const result = await window.electron.sendRequestAsync<Result>(new DeleteFriendCommand(tag));
+        if (!result.success) {
+            console.error("Failed to delete friend");
+            return Result.fail(new ErrorMessage(null, "Failed to delete friend"));
+        }
+
+        const deleteResult = await this.deleteFriendApi.deleteFriend({Id: id, friendTag: tag});
+
+        if (!deleteResult.success) {
+            console.error("Failed to delete friend");
+            return Result.fail(new ErrorMessage(null, "Failed to delete friend"));
+        }
+
+        return Result.success();
     }
 }
