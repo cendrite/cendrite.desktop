@@ -7,7 +7,6 @@ import ToolTip from "../../../Common/Components/ToolTip.tsx";
 import {FriendService} from "../../../Common/Services/FriendService.ts";
 import {delay} from "../../../../Shared/HelperFunctions.ts";
 import {useUser} from "../../../Context/UserContext.tsx";
-import {useContacts} from "../../../Context/ContactContext.tsx";
 
 interface PendingContactPage {
     pendingContact: PendingContact;
