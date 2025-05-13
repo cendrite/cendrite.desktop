@@ -84,7 +84,7 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({childr
     }, [friendService, profilePictureService, user]);
 
     const handleContactDeletedEvent = useCallback(async (evt: ChangeEvent<FriendDeletedEvent>) => {
-        // Check if we are the deletedContact and then remove opposing contact by tag
+        // Check if we are the deletedContact and then remove the opposing contact by tag
         if (user?.userTag === evt.data.tag) {
             await window.electron.sendRequestAsync<Result>(new DeleteFriendCommand(evt.data.deletedBy));
             setContacts((prevContacts) => {
