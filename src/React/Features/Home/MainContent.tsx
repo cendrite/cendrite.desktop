@@ -2,9 +2,12 @@
 import React from "react";
 import {useHomePageContext} from "../../Context/HomePageContext.tsx";
 import PendingContactPage from "./Contact/PendingContactPage.tsx";
+import ChatPage from "./Chat/ChatPage.tsx";
 
 const MainContent: React.FC = () => {
     const {
+        selectedChatId,
+        setSelectedChatId,
         selectedContact,
         selectedPendingContact,
         setSelectedPendingContact,
@@ -22,6 +25,10 @@ const MainContent: React.FC = () => {
                 <PendingContactPage
                     pendingContact={selectedPendingContact}
                     onClose={() => setSelectedPendingContact(null)}/>
+            ) : selectedChatId ? (
+                <ChatPage
+                    chatId={selectedChatId}
+                    onClose={() => setSelectedChatId(null)}/>
             ) : (
                 <div className="p-4"/>
             )}
