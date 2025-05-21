@@ -2,9 +2,7 @@
 
 export class ConnectionId {
     id!: string;
-
     connectionId: string;
-
     friend!: Friend;
 
     constructor(connectionId: string) {
