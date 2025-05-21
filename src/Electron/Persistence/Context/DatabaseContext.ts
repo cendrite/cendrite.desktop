@@ -5,6 +5,9 @@ import { ConnectionIdSchema } from "../Schemas/ConnectionIdSchema.js";
 import { DeviceSchema } from "../Schemas/DeviceSchema.js";
 import { RefreshTokenSchema } from "../Schemas/RefreshTokenSchema.js";
 import { UserSchema } from "../Schemas/UserSchema.js";
+import {ChatSchema} from "../Schemas/ChatSchema.js";
+import {ChatMemberSchema} from "../Schemas/ChatMemberSchema.js";
+import {MessageSchema} from "../Schemas/MessageSchema.js";
 
 let dbContext: DataSource;
 
@@ -20,7 +23,10 @@ export async function initializeDatabase(dbPath: string | null = null): Promise<
             RefreshTokenSchema,
             DeviceSchema,
             FriendSchema,
-            ConnectionIdSchema
+            ConnectionIdSchema,
+            ChatSchema,
+            ChatMemberSchema,
+            MessageSchema
         ],
         migrations: [],
         synchronize: true,
