@@ -95,6 +95,6 @@ export const chatReducer = (state: ChatViewModel[], action: ChatContextAction): 
             });
 
         default:
-            throw new Error(`Unknown action type: ${(action as any).type}`);
+            throw new Error(`Unknown action type: ${(action as ChatContextAction).type}`);
     }
 };
