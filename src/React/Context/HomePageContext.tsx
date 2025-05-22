@@ -1,14 +1,15 @@
 ﻿import React, { createContext, useState } from "react";
 import { Contact } from "./ContactContext";
 import { PendingContact } from "./PendingContactContext.tsx";
+import {ChatViewModel} from "../Models/ChatViewModel.ts";
 
 interface HomePageContextType {
     selectedContact: Contact | null;
     selectedPendingContact: PendingContact | null;
     setSelectedContact: (contact: Contact | null) => void;
     setSelectedPendingContact: (contact: PendingContact | null) => void;
-    selectedChatId: string | null;
-    setSelectedChatId: (chatId: string | null) => void;
+    selectedChat: ChatViewModel | null;
+    setSelectedChat: (chat: ChatViewModel | null) => void;
 }
 
 export const HomePageContext = createContext<HomePageContextType | undefined>(undefined);
@@ -20,24 +21,24 @@ interface HomePageProviderProps {
 export const HomePageProvider: React.FC<HomePageProviderProps> = ({ children }) => {
     const [selectedContact, _setSelectedContact] = useState<Contact | null>(null);
     const [selectedPendingContact, _setSelectedPendingContact] = useState<PendingContact | null>(null);
-    const [selectedChatId, _setSelectedChatId] = useState<string | null>(null);
+    const [selectedChat, _setSelectedChat] = useState<ChatViewModel | null>(null);
 
     const setSelectedContact = (contact: Contact | null) => {
         _setSelectedContact(contact);
         if (contact) _setSelectedPendingContact(null); // Unset pending contact
-        if (contact) _setSelectedChatId(null); // Unset chat if a contact is selected
+        if (contact) _setSelectedChat(null); // Unset chat if a contact is selected
     };
 
     const setSelectedPendingContact = (pendingContact: PendingContact | null) => {
         _setSelectedPendingContact(pendingContact);
         if (pendingContact) _setSelectedContact(null); // Unset normal contact
-        if (pendingContact) _setSelectedChatId(null); // Unset chat if a pending contact is selected
+        if (pendingContact) _setSelectedChat(null); // Unset chat if a pending contact is selected
     };
 
-    const setSelectedChatId = (chatId: string | null) => {
-        _setSelectedChatId(chatId);
-        if (chatId) _setSelectedContact(null); // Unset normal contact
-        if (chatId) _setSelectedPendingContact(null); // Unset pending contact
+    const setSelectedChat = (chat: ChatViewModel | null) => {
+        _setSelectedChat(chat);
+        if (chat) _setSelectedContact(null); // Unset normal contact
+        if (chat) _setSelectedPendingContact(null); // Unset pending contact
     };
 
     return (
@@ -47,8 +48,8 @@ export const HomePageProvider: React.FC<HomePageProviderProps> = ({ children }) 
                 setSelectedContact,
                 selectedPendingContact,
                 setSelectedPendingContact,
-                selectedChatId,
-                setSelectedChatId
+                selectedChat,
+                setSelectedChat
             }}>
             {children}
         </HomePageContext.Provider>

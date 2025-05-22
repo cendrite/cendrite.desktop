@@ -1,0 +1,26 @@
+﻿import React from "react";
+import {ChatViewModel} from "../../Models/ChatViewModel.ts";
+import {ChatContextAction} from "./ChatReducer.ts";
+import {getChatByMemberId} from "./ChatSelectors.ts";
+
+export interface ChatContextType {
+    chats: ChatViewModel[];
+    dispatch: React.Dispatch<ChatContextAction>;
+}
+
+export const ChatContext = React.createContext<ChatContextType | undefined>(undefined);
+export const useChatContext = () => {
+    const context = React.useContext(ChatContext);
+
+    if (!context) {
+        throw new Error("useChatContext must be used within a ChatProvider");
+    }
+
+    const {chats, dispatch} = context;
+
+    return {
+        chats,
+        dispatch,
+        getChatByMemberId: (memberId: string) => getChatByMemberId(chats, memberId)
+    }
+}

@@ -22,6 +22,7 @@ interface ContactPageProps {
 const ContactPage: React.FC<ContactPageProps> = ({contact, onClose}) => {
     const [slideClass, setSlideClass] = useState("translate-x-full");
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    //const {setSelectedChatId} = useHomePageContext();
 
     useEffect(() => {
         setSlideClass("translate-x-0");
@@ -37,6 +38,8 @@ const ContactPage: React.FC<ContactPageProps> = ({contact, onClose}) => {
     const handleCall = () => {
     };
     const handleMessage = () => {
+
+        handleSlideOut();
     };
     const handleMute = () => {
     };
