@@ -32,10 +32,10 @@ const PendingContactPage: React.FC<PendingContactPage> = ({pendingContact, onClo
     };
 
     const handleAccept = async () => {
-        const result = await friendService.AcceptFriendship(user!.id, pendingContact.chatId);
+        const result = await friendService.AcceptFriendship(user!.id, pendingContact.id);
         if(result.success)
         {
-            setPendingContacts(prev => prev.filter(c => c.chatId !== pendingContact.chatId));
+            setPendingContacts(prev => prev.filter(c => c.id !== pendingContact.id));
             setLoadingAction("accept");
         }
         await delay(750);
@@ -44,10 +44,10 @@ const PendingContactPage: React.FC<PendingContactPage> = ({pendingContact, onClo
     };
 
     const handleDecline = async () => {
-        const result = await friendService.DeclineFriendRequest(user!.id, pendingContact.chatId);
+        const result = await friendService.DeclineFriendRequest(user!.id, pendingContact.id);
         if(result.success)
         {
-            setPendingContacts(prev => prev.filter(c => c.chatId !== pendingContact.chatId));
+            setPendingContacts(prev => prev.filter(c => c.id !== pendingContact.id));
             setLoadingAction("decline");
         }
         await delay(750);
@@ -88,7 +88,7 @@ const PendingContactPage: React.FC<PendingContactPage> = ({pendingContact, onClo
                             <h2 className="text-lg font-semibold">
                                 {pendingContact.displayName || pendingContact.username}
                             </h2>
-                            <p className="text-sm text-gray-400 mt-1">{pendingContact.chatId}</p>
+                            <p className="text-sm text-gray-400 mt-1">{pendingContact.id}</p>
                         </div>
 
                         {/* Divider */}

@@ -1,5 +1,4 @@
-﻿import {Friend} from "./Friend.js";
-import {Message} from "../Entities/Message.js";
+﻿import {Message} from "../Entities/Message.js";
 import {ChatMember} from "../Entities/ChatMember.js";
 
 export class Chat {
