@@ -8,7 +8,7 @@ export class ChatViewModel {
     muted: boolean = false;
     mutedTimer: Date | null = null;
 
-    constructor(id: string, contact: ChatMemberViewModel[], messages: MessageViewModel[]) {
+    constructor(id: string, contact: ChatMemberViewModel[], messages: MessageViewModel[] = []) {
         this.id = id;
         this.chatMembers = contact;
         this.messages = messages;

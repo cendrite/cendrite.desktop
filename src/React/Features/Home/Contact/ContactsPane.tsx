@@ -76,7 +76,7 @@ export const ContactsPane: React.FC<ContactsPaneProps> = ({isSidePanelVisible, t
                 ) : (
                     <ul className="mt-4 space-y-2">
                         {pendingContacts.map((contact) => (
-                            <li key={contact.id}>
+                            <li key={contact.chatId}>
                                 <PendingContactCard contact={contact}/>
                             </li>
                         ))}

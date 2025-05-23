@@ -62,7 +62,7 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({childr
     };
 
     const handleContactAddedEvent = useCallback(async (evt: ChangeEvent<FriendRequestAcceptedEvent>) => {
-        const existingContact = contacts.find(contact => contact.id === evt.data.tag);
+        const existingContact = contacts.find(contact => contact.chatId === evt.data.tag);
         if (existingContact) {
             return;
         }
@@ -88,18 +88,18 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({childr
         if (user?.userTag === evt.data.tag) {
             await window.electron.sendRequestAsync<Result>(new DeleteFriendCommand(evt.data.deletedBy));
             setContacts((prevContacts) => {
-                return prevContacts.filter(contact => contact.id !== evt.data.deletedBy);
+                return prevContacts.filter(contact => contact.chatId !== evt.data.deletedBy);
             });
         }
 
-        const isAlreadyDeleted = contacts.find(contact => contact.id === evt.data.tag);
+        const isAlreadyDeleted = contacts.find(contact => contact.chatId === evt.data.tag);
         if (isAlreadyDeleted) {
             return;
         }
 
         await window.electron.sendRequestAsync<Result>(new DeleteFriendCommand(evt.data.tag));
         setContacts((prevContacts) => {
-            return prevContacts.filter(contact => contact.id !== evt.data.tag);
+            return prevContacts.filter(contact => contact.chatId !== evt.data.tag);
         });
 
     }, [friendService, user]);

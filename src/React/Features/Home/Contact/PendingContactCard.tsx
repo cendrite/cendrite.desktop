@@ -12,7 +12,7 @@ interface PendingContactCardProps {
 const PendingContactCard: React.FC<PendingContactCardProps> = ({contact}) => {
     const name = contact.displayName ?? contact.username;
     const {selectedPendingContact, setSelectedPendingContact} = useHomePageContext();
-    const isSelected = selectedPendingContact && selectedPendingContact.id === contact.id;
+    const isSelected = selectedPendingContact && selectedPendingContact.id === contact.chatId;
     const {dispatch} = useNotifications();
     console.log("PendingContactCard", contact, selectedPendingContact);
 
@@ -24,13 +24,13 @@ const PendingContactCard: React.FC<PendingContactCardProps> = ({contact}) => {
             setSelectedPendingContact(null);
             return;
         }
-        dispatch({type: ActionType.RemoveFriendRequest, payload: {userTag: contact.id}});
+        dispatch({type: ActionType.RemoveFriendRequest, payload: {userTag: contact.chatId}});
         setSelectedPendingContact(contact);
     }
 
     return (
         <div className={cardClasses} onClick={onHandleClick}>
-            <NotificationBadge section="requests" itemId={contact.id}/>
+            <NotificationBadge section="requests" itemId={contact.chatId}/>
             <div
                 className="w-11 h-11 rounded-full flex items-center justify-center overflow-hidden bg-gray-100 relative">
                 <UserProfileImage

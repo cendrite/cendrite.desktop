@@ -66,12 +66,12 @@ export const PendingContactProvider: React.FC<{ children: React.ReactNode }> = (
     }, [dispatch]);
 
     const handleFriendRequestRejected = useCallback(async (evt: ChangeEvent<FriendRequestEvent>) => {
-        setPendingContacts((prev) => prev.filter((contact) => contact.id !== evt.data.tag));
+        setPendingContacts((prev) => prev.filter((contact) => contact.chatId !== evt.data.tag));
         dispatch({ type: ActionType.RemoveFriendRequest, payload: { userTag: evt.data.tag } });
     }, [dispatch]);
 
     const handleFriendRequestAcceptedEvent = useCallback(async (evt: ChangeEvent<FriendRequestAcceptedEvent>) => {
-        setPendingContacts((prev) => prev.filter((contact) => contact.id !== evt.data.tag));
+        setPendingContacts((prev) => prev.filter((contact) => contact.chatId !== evt.data.tag));
         dispatch({ type: ActionType.RemoveFriendRequest, payload: { userTag: evt.data.tag } });
     }, [dispatch]);
 

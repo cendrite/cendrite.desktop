@@ -9,7 +9,7 @@ interface ContactCardProps {
 
 const ContactCard: React.FC<ContactCardProps> = ({contact}) => {
     const { selectedContact, setSelectedContact } = useHomePageContext();
-    const isSelected = selectedContact && selectedContact.id === contact.id;
+    const isSelected = selectedContact && selectedContact.id === contact.chatId;
 
     const name = contact.displayName ?? contact.username;
 

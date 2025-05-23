@@ -14,6 +14,7 @@ import {GetFriendsQueryHandler} from "./Application/Features/Friends/Queries/Get
 import {GetRefreshTokenQueryHandler} from "./Application/Features/RefreshToken/Queries/GetRefreshTokenQueryHandler.js";
 import {CreateUserCommandHandler} from "./Application/Features/User/Commands/Create/CreateUserCommandHandler.js";
 import {DeleteFriendCommandHandler} from "./Application/Features/Friends/Commands/Delete/DeleteFriendCommandHandler.js";
+import {CreateChatCommandHandler} from "./Application/Features/Chat/Commands/CreateChatCommandHandler.js";
 export function registerIpcHandlers(mainWindow: BrowserWindow) {
     const mediator = new Mediator();
 
@@ -35,6 +36,8 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
     mediator.registerHandler("CreateFriendCommand", new CreateFriendCommandHandler());
     mediator.registerHandler("GetFriendsQuery", new GetFriendsQueryHandler());
     mediator.registerHandler("DeleteFriendCommand", new DeleteFriendCommandHandler());
+
+    mediator.registerHandler("CreateChatCommand", new CreateChatCommandHandler());
 
     ipcMain.handle("mediator:send", async (event, request) => {
         return await mediator.send(request);

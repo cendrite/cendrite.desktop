@@ -19,9 +19,9 @@ const DeleteFriendModal: React.FC<DeleteFriendModalProps> = ({isOpen, onClose, c
     console.log(contact);
 
     const handleDelete = () => {
-        friendService.DeleteFriend(user!.id,contact.id).then((result) => {
+        friendService.DeleteFriend(user!.id,contact.chatId).then((result) => {
             if (result.success) {
-                setContacts(prev => prev.filter(c => c.id !== contact.id));
+                setContacts(prev => prev.filter(c => c.chatId !== contact.chatId));
                 setSelectedContact(null);
                 console.log("Deleted friend successfully");
             } else {
