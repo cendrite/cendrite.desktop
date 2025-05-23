@@ -1,14 +1,18 @@
-import {ChatPrivileges} from "../Enums/ChatPrivileges.js";
 import {Friend} from "../Aggregates/Friend.js";
+import { ChatPrivileges } from "../Enums/ChatPrivileges.js";
 
 export class ChatMember {
     id!: string;
     privilege!: ChatPrivileges;
-    displayName!: string | null;
+    displayName!: string;
     friend!: Friend;
 
-    constructor(id: string, privilege: ChatPrivileges) {
-        this.id = id;
-        this.privilege = privilege;
+    static create(id: string, privilege: ChatPrivileges, friend: Friend): ChatMember {
+        const cm = new ChatMember();
+        cm.id = id;
+        cm.privilege = privilege;
+        cm.friend = friend;
+        cm.displayName = friend.displayName ?? friend.username;
+        return cm;
     }
 }

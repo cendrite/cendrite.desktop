@@ -5,7 +5,7 @@ import { Handler } from "../../../../Mediator/Handler.js";
 import { CreateRefreshTokenRequest } from "./CreateRefreshTokenRequest.js";
 import {RefreshToken} from "../../../../../Domain/Entities/RefreshToken.js";
 
-export class CreateRefreshTokenRequestHandler implements Handler<CreateRefreshTokenRequest, void> {
+export class CreateRefreshTokenRequestHandler implements Handler<CreateRefreshTokenRequest> {
 
     async handle(request: CreateRefreshTokenRequest): Promise<Result> {
         try {

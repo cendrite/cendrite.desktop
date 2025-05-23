@@ -13,6 +13,10 @@ import {
     VideoCameraIcon
 } from "@heroicons/react/24/outline";
 import DeleteFriendModal from "../Modals/DeleteFriendModal.tsx";
+import {useHomePageContext} from "../../../Context/HomePageContext.tsx";
+import {useChatContext} from "../../../Context/Chat/ChatContext.tsx";
+import {ChatService} from "../../../Common/Services/ChatService.ts";
+import {ChatContextActionType} from "../../../Context/Chat/ChatReducer.ts";
 
 interface ContactPageProps {
     contact: Contact;
@@ -22,6 +26,9 @@ interface ContactPageProps {
 const ContactPage: React.FC<ContactPageProps> = ({contact, onClose}) => {
     const [slideClass, setSlideClass] = useState("translate-x-full");
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const {setSelectedChat} = useHomePageContext();
+    const {getChatByMemberId, dispatch} = useChatContext();
+    const chatService = new ChatService();
 
     useEffect(() => {
         setSlideClass("translate-x-0");
@@ -36,7 +43,16 @@ const ContactPage: React.FC<ContactPageProps> = ({contact, onClose}) => {
     };
     const handleCall = () => {
     };
-    const handleMessage = () => {
+    const handleMessage = async  () => {
+        const chat = getChatByMemberId(contact.id);
+        if (chat) {
+            setSelectedChat(chat);
+            handleSlideOut();
+        } else {
+            const chat = await chatService.createChat(contact);
+            dispatch({type: ChatContextActionType.AddChat, payload: chat});
+            setSelectedChat(chat);
+        }
     };
     const handleMute = () => {
     };
@@ -170,14 +186,18 @@ const ContactPage: React.FC<ContactPageProps> = ({contact, onClose}) => {
 
                         {/* Block/Report Section */}
                         <button className="flex items-center mt-2 w-full  hover:bg-darkGray-800 rounded-md p-4"
-                                onClick={() => {handleDelete()}}>
+                                onClick={() => {
+                                    handleDelete()
+                                }}>
                             <NoSymbolIcon className="w-5 h-5 text-red-600 mr-2"/>
                             <h4 className="text-sm text-red-600 font-light">
                                 Delete
                             </h4>
                         </button>
                         <button className="flex items-center mt-2 w-full  hover:bg-darkGray-800 rounded-md p-4"
-                        onClick={() => {handleBlock()}}>
+                                onClick={() => {
+                                    handleBlock()
+                                }}>
                             <NoSymbolIcon className="w-5 h-5 text-red-600 mr-2"/>
                             <h4 className="text-sm text-red-600 font-light">
                                 Block
@@ -187,7 +207,9 @@ const ContactPage: React.FC<ContactPageProps> = ({contact, onClose}) => {
                     </div>
                 </div>
             </div>
-            <DeleteFriendModal contact={contact} isOpen={isDeleteModalOpen} onClose={() => {setIsDeleteModalOpen(false)}}/>
+            <DeleteFriendModal contact={contact} isOpen={isDeleteModalOpen} onClose={() => {
+                setIsDeleteModalOpen(false)
+            }}/>
         </>
     );
 };
