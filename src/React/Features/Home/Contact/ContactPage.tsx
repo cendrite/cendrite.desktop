@@ -4,19 +4,15 @@ import ChevronLeftIcon from "@heroicons/react/24/outline/ChevronLeftIcon";
 import {UserProfileImage} from "../../../Common/Components/UserProfileImage";
 import {
     BellSlashIcon,
-    ChatBubbleOvalLeftIcon,
     ClockIcon,
     NoSymbolIcon,
     PaintBrushIcon,
     PencilIcon,
-    PhoneIcon,
-    VideoCameraIcon
 } from "@heroicons/react/24/outline";
 import DeleteFriendModal from "../Modals/DeleteFriendModal.tsx";
-import {useHomePageContext} from "../../../Context/HomePageContext.tsx";
-import {useChatContext} from "../../../Context/Chat/ChatContext.tsx";
-import {ChatService} from "../../../Common/Services/ChatService.ts";
-import {ChatContextActionType} from "../../../Context/Chat/ChatReducer.ts";
+import VoiceCallButton from "../../../Common/Components/VoiceCallButton.tsx";
+import VideoCallButton from "../../../Common/Components/VideoCallButton.tsx";
+import MessageButton from "../../../Common/Components/MessageButton.tsx";
 
 interface ContactPageProps {
     contact: Contact;
@@ -26,9 +22,6 @@ interface ContactPageProps {
 const ContactPage: React.FC<ContactPageProps> = ({contact, onClose}) => {
     const [slideClass, setSlideClass] = useState("translate-x-full");
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-    const {setSelectedChat} = useHomePageContext();
-    const {getChatByMemberId, dispatch} = useChatContext();
-    const chatService = new ChatService();
 
     useEffect(() => {
         setSlideClass("translate-x-0");
@@ -39,21 +32,7 @@ const ContactPage: React.FC<ContactPageProps> = ({contact, onClose}) => {
         setTimeout(() => onClose(), 300);
     };
 
-    const handleVideoCall = () => {
-    };
-    const handleCall = () => {
-    };
-    const handleMessage = async  () => {
-        const chat = getChatByMemberId(contact.id);
-        if (chat) {
-            setSelectedChat(chat);
-            handleSlideOut();
-        } else {
-            const chat = await chatService.createChat(contact);
-            dispatch({type: ChatContextActionType.AddChat, payload: chat});
-            setSelectedChat(chat);
-        }
-    };
+
     const handleMute = () => {
     };
 
@@ -99,35 +78,16 @@ const ContactPage: React.FC<ContactPageProps> = ({contact, onClose}) => {
 
                         {/* Button section */}
                         <div className="flex justify-center items-center space-x-4 mt-4">
-                            <button
-                                className="flex flex-col items-center justify-center hover:bg-darkGray-300 px-1.5 py-1 rounded-lg"
-                                onClick={handleMessage}
-                            >
-                                <ChatBubbleOvalLeftIcon className="w-6 h-6 text-gray-200"/>
-                                <h3 className="font-extralight text-[0.6rem]">Message</h3>
-                            </button>
 
-                            <button
-                                className="flex flex-col items-center justify-center hover:bg-darkGray-300 px-4 py-1 rounded-lg"
-                                onClick={handleCall}
-                            >
-                                <PhoneIcon className="w-6 h-6 text-gray-200"/>
-                                <h3 className="font-extralight text-[0.6rem]">Call</h3>
-                            </button>
-
-                            <button
-                                className="flex flex-col items-center justify-center hover:bg-darkGray-300 px-1.5 py-1 rounded-lg"
-                                onClick={handleVideoCall}
-                            >
-                                <VideoCameraIcon className="w-6 h-6 text-gray-200"/>
-                                <h3 className="font-extralight text-[0.6rem]">Video Call</h3>
-                            </button>
+                            <MessageButton contact={contact} handleSlideOut={handleSlideOut}/>
+                            <VoiceCallButton contact={contact} withText={true}/>
+                            <VideoCallButton withText={true} contact={contact}/>
 
                             <button
                                 className="flex flex-col items-center justify-center hover:bg-darkGray-300 px-3 py-1 rounded-lg"
                                 onClick={handleMute}
                             >
-                                <BellSlashIcon className="w-6 h-6 mb-0.25 text-gray-200"/>
+                                <BellSlashIcon className="w-5 h-5 mb-0.25 text-gray-200"/>
                                 <h3 className="font-extralight text-[0.6rem]">Ignore</h3>
                             </button>
                         </div>
