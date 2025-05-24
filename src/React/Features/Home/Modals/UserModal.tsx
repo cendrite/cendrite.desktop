@@ -3,7 +3,7 @@ import Modal from "react-modal";
 import {useUser} from "../../../Context/UserContext.tsx";
 import LogoutModal from "./LogoutModal.tsx";
 import ProfilePictureModal from "./ProfilePictureModal.tsx";
-import ProfilePicture from "../../../Common/Components/ProfilePicture.tsx";
+import ProfilePicture from "../../../Common/Components/ProfilePicture/ProfilePicture.tsx";
 
 
 interface UserModalProps {

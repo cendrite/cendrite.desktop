@@ -1,10 +1,10 @@
 ﻿import React from "react";
 import ChevronLeftIcon from "@heroicons/react/24/outline/ChevronLeftIcon";
-import {UserProfileImage} from "../../../Common/Components/UserProfileImage.tsx";
-import VoiceCallButton from "../../../Common/Components/VoiceCallButton.tsx";
-import VideoCallButton from "../../../Common/Components/VideoCallButton.tsx";
 import ChatSettingsButton from "./ChatSettingsButton.tsx";
 import {ChatViewModel} from "../../../Models/ChatViewModel.ts";
+import { UserProfileImage } from "../../../Common/Components/ProfilePicture/UserProfileImage.tsx";
+import VoiceCallButton from "../../../Common/Components/CommunicationButtons/VoiceCallButton.tsx";
+import VideoCallButton from "../../../Common/Components/CommunicationButtons/VideoCallButton.tsx";
 
 
 interface ChatHeaderProps {

@@ -1,5 +1,5 @@
-﻿import {API_URLS} from "../Api/ApiUrls.ts";
-import React from "react";
+﻿import React from "react";
+import {API_URLS} from "../../Api/ApiUrls.ts";
 
 export interface UserProfileImageProps {
     base64ProfilePicture?: string | null;

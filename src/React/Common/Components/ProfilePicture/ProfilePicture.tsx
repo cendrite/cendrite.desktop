@@ -1,6 +1,6 @@
 ﻿import React from "react";
-import {useUser} from "../../Context/UserContext.tsx";
 import clsx from "clsx";
+import {useUser} from "../../../Context/UserContext.tsx";
 
 interface ProfilePictureProps {
     className?: string;

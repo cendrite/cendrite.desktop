@@ -2,13 +2,13 @@ import React from "react";
 import {useNavigate} from "react-router-dom";
 import {Formik, Form, FormikHelpers} from "formik";
 import {RegisterFieldName, RegisterFormValues} from "./Form/RegisterFormValues";
-import InputBox from "../../Common/Components/InputBox";
-import FormButton from "../../Common/Components/FormButton";
-import ErrorTooltip from "../../Common/Components/ErrorToolTip";
 import {initialRegisterValues} from "./Form/InitialRegisterFormValues";
 import {RegisterValidationSchema} from "./Validation/RegisterFormValidation";
 import {RegisterApi, RegisterRequest} from "../../Common/Api/Identity/User/RegisterApi.ts";
 import {useOnboarding} from "../../Context/OnboardingContext.tsx";
+import ErrorTooltip from "../../Common/Components/Utility/ErrorToolTip.tsx";
+import InputBox from "../../Common/Components/Form/InputBox.tsx";
+import FormButton from "../../Common/Components/Form/FormButton.tsx";
 
 const RegisterPage: React.FC = () => {
     const navigate = useNavigate();
