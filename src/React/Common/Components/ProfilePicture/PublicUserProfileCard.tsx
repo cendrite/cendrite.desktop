@@ -1,13 +1,13 @@
 ﻿import React, {useState} from "react";
 import {UserProfileImage} from "./UserProfileImage.tsx";
 import {CheckIcon, XMarkIcon, PlusIcon} from "@heroicons/react/24/outline";
-import {useUser} from "../../Context/UserContext.tsx";
-import ToolTip from "./ToolTip.tsx";
-import {FriendshipDirection} from "../../Enums/FriendshipDirection.ts";
-import {FriendshipStatus} from "../../Enums/FriendshipStatus.ts";
-import {delay} from "../../../Shared/HelperFunctions.ts";
-import {FriendService} from "../Services/FriendService.ts";
-import {useContacts} from "../../Context/ContactContext.tsx";
+import {useUser } from "../../../Context/UserContext.tsx";
+import { FriendService } from "../../Services/FriendService.ts";
+import { FriendshipStatus } from "../../../Enums/FriendshipStatus.ts";
+import { FriendshipDirection } from "../../../Enums/FriendshipDirection.ts";
+import { useContacts } from "../../../Context/ContactContext.tsx";
+import {delay} from "../../../../Shared/HelperFunctions.ts";
+import ToolTip from "../Utility/ToolTip.tsx";
 
 interface PublicUserProfileCardProps {
     username: string;

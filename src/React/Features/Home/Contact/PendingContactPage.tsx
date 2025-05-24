@@ -1,12 +1,12 @@
 ﻿import {PendingContact, usePendingContacts} from "../../../Context/PendingContactContext.tsx";
 import React, {useEffect, useMemo, useState} from "react";
 import ChevronLeftIcon from "@heroicons/react/24/outline/ChevronLeftIcon";
-import {UserProfileImage} from "../../../Common/Components/UserProfileImage.tsx";
 import {CheckIcon, ExclamationTriangleIcon, NoSymbolIcon, XMarkIcon} from "@heroicons/react/24/outline";
-import ToolTip from "../../../Common/Components/ToolTip.tsx";
 import {FriendService} from "../../../Common/Services/FriendService.ts";
 import {delay} from "../../../../Shared/HelperFunctions.ts";
 import {useUser} from "../../../Context/UserContext.tsx";
+import {UserProfileImage} from "../../../Common/Components/ProfilePicture/UserProfileImage.tsx";
+import ToolTip from "../../../Common/Components/Utility/ToolTip.tsx";
 
 interface PendingContactPage {
     pendingContact: PendingContact;

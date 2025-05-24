@@ -1,7 +1,6 @@
 ﻿import React, {useEffect, useState} from "react";
 import {Contact} from "../../../Context/ContactContext";
 import ChevronLeftIcon from "@heroicons/react/24/outline/ChevronLeftIcon";
-import {UserProfileImage} from "../../../Common/Components/UserProfileImage";
 import {
     BellSlashIcon,
     ClockIcon,
@@ -10,9 +9,10 @@ import {
     PencilIcon,
 } from "@heroicons/react/24/outline";
 import DeleteFriendModal from "../Modals/DeleteFriendModal.tsx";
-import VoiceCallButton from "../../../Common/Components/VoiceCallButton.tsx";
-import VideoCallButton from "../../../Common/Components/VideoCallButton.tsx";
-import MessageButton from "../../../Common/Components/MessageButton.tsx";
+import {UserProfileImage} from "../../../Common/Components/ProfilePicture/UserProfileImage.tsx";
+import MessageButton from "../../../Common/Components/CommunicationButtons/MessageButton.tsx";
+import VoiceCallButton from "../../../Common/Components/CommunicationButtons/VoiceCallButton.tsx";
+import VideoCallButton from "../../../Common/Components/CommunicationButtons/VideoCallButton.tsx";
 
 interface ContactPageProps {
     contact: Contact;

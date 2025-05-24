@@ -2,12 +2,12 @@ import { useNavigate } from "react-router-dom";
 import { Form, Formik, FormikHelpers } from "formik";
 import { LoginFormValidation } from "./Validation/LoginFormValidation";
 import { InitialFormValues, LoginFieldName, LoginFormValues } from "./FormValues/LoginFormValues";
-import InputBox from "../../Common/Components/InputBox";
-import ErrorTooltip from "../../Common/Components/ErrorToolTip";
-import FormButton from "../../Common/Components/FormButton";
 import React from "react";
 import {LoginApi} from "../../Common/Api/Identity/Auth/LoginApi.ts";
 import {useOnboarding} from "../../Context/OnboardingContext.tsx";
+import ErrorTooltip from "../../Common/Components/Utility/ErrorToolTip.tsx";
+import InputBox from "../../Common/Components/Form/InputBox.tsx";
+import FormButton from "../../Common/Components/Form/FormButton.tsx";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();

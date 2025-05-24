@@ -6,7 +6,7 @@ import {
     GetUserProfileByTagResponse
 } from "../../../Common/Api/Friends/GetUserProfileByTagApi.ts";
 import {useUser} from "../../../Context/UserContext.tsx";
-import PublicUserProfileCard from "../../../Common/Components/PublicUserProfileCard.tsx";
+import PublicUserProfileCard from "../../../Common/Components/ProfilePicture/PublicUserProfileCard.tsx";
 
 interface SearchForUserModalProps {
     isOpen: boolean;

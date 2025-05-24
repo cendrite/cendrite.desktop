@@ -1,10 +1,11 @@
-﻿import {Contact} from "../../Context/ContactContext.tsx";
-import {ChatBubbleOvalLeftIcon} from "@heroicons/react/24/outline";
-import React from "react";
-import {ChatContextActionType} from "../../Context/Chat/ChatReducer.ts";
-import {useHomePageContext} from "../../Context/HomePageContext.tsx";
-import {ChatService} from "../Services/ChatService.ts";
-import {useChatContext} from "../../Context/Chat/ChatContext.tsx";
+﻿import React from "react";
+import {useHomePageContext} from "../../../Context/HomePageContext.tsx";
+import { ChatService } from "../../Services/ChatService.ts";
+import {Contact} from "../../../Context/ContactContext.tsx";
+import {useChatContext} from "../../../Context/Chat/ChatContext.tsx";
+import { ChatContextActionType } from "../../../Context/Chat/ChatReducer.ts";
+import { ChatBubbleOvalLeftIcon } from "@heroicons/react/24/outline";
+
 
 interface MessageButtonProps{
     contact: Contact;

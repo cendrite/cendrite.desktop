@@ -1,5 +1,5 @@
-﻿import {CodeType, ResendCodeApi} from "../Api/Identity/User/ResendVerificationCodeApi.ts";
-import React, {useState} from "react";
+﻿import React, {useState} from "react";
+import {CodeType, ResendCodeApi} from "../../Api/Identity/User/ResendVerificationCodeApi.ts";
 
 interface ResendCodeButtonProps {
     userId: string;

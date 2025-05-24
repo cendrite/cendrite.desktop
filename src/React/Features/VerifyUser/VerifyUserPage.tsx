@@ -2,12 +2,12 @@ import { Formik, Form, FormikHelpers } from "formik";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { VerifyUserValidationSchema } from "./Validation/VerifyUserFormValidation";
-import ErrorTooltip from "../../Common/Components/ErrorToolTip";
-import FormButton from "../../Common/Components/FormButton";
 import {CodeType} from "../../Common/Api/Identity/User/ResendVerificationCodeApi.ts";
 import {VerifyUserApi} from "../../Common/Api/Identity/User/VerifyUserApi.ts";
-import ResendCodeButton from "../../Common/Components/ResendCodeButton.tsx";
 import {useOnboarding} from "../../Context/OnboardingContext.tsx";
+import ErrorTooltip from "../../Common/Components/Utility/ErrorToolTip.tsx";
+import FormButton from "../../Common/Components/Form/FormButton.tsx";
+import ResendCodeButton from "../../Common/Components/Form/ResendCodeButton.tsx";
 
 const VerifyUserPage: React.FC = () => {
   const navigate = useNavigate();
