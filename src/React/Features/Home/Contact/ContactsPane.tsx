@@ -7,7 +7,7 @@ import ContactCard from "./ContactCard.tsx";
 import {Contact, useContacts} from "../../../Context/ContactContext.tsx";
 import {usePendingContacts} from "../../../Context/PendingContactContext.tsx";
 import PendingContactCard from "./PendingContactCard.tsx";
-import NotificationBadge from "../../../Common/Components/NotificationBadge.tsx";
+import NotificationBadge from "../../../Context/Notification/NotificationBadge.tsx";
 
 interface ContactsPaneProps {
     isSidePanelVisible: boolean;

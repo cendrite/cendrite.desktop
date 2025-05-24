@@ -9,8 +9,8 @@ import {HomePageProvider} from "./Context/HomePageContext.tsx";
 import {StrictMode} from "react";
 import {SignalRProvider} from "./SignalR/SignalRProvider.tsx";
 import {PendingContactProvider} from "./Context/PendingContactContext.tsx";
-import {NotificationProvider} from "./Context/NotificationContext.tsx";
 import { ChatProvider } from "./Context/Chat/ChatProvider.tsx";
+import { NotificationProvider } from "./Context/Notification/NotitficationProvider.tsx";
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>

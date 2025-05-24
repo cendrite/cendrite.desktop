@@ -7,8 +7,8 @@ import {
 import SidePanelToggle from "./SidePanelToggle";
 import PanelButton from "./SidePanelButton";
 import UserModal from "../Modals/UserModal.tsx";
-import NotificationBadge from "../../../Common/Components/NotificationBadge.tsx";
 import ProfilePicture from "../../../Common/Components/ProfilePicture/ProfilePicture.tsx";
+import NotificationBadge from "../../../Context/Notification/NotificationBadge.tsx";
 
 export interface SidePanelProps {
     onHide: () => void;

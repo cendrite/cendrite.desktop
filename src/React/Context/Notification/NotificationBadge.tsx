@@ -1,6 +1,6 @@
 ﻿// src/components/NotificationBadge.tsx
 import React from 'react';
-import {useNotifications} from "../../Context/NotificationContext.tsx";
+import {useNotifications} from "./NotificationContext.tsx";
 
 export interface NotificationBadgeProps {
     section: 'sidebar' | 'contacts' | 'requests' | 'chats';
