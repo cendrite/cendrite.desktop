@@ -11,10 +11,10 @@ export enum HomePageContextActionType {
 }
 
 export type HomePageContextAction =
-    | { type: HomePageContextActionType.SetSelectedContact; payload: Contact | null }
-    | { type: HomePageContextActionType.SetSelectedPendingContact; payload: PendingContact | null }
-    | { type: HomePageContextActionType.SetSelectedChat; payload: ChatViewModel | null }
-    | { type: HomePageContextActionType.ClearSelection; payload: null  };
+    | { type: HomePageContextActionType.SetSelectedContact; payload: Contact }
+    | { type: HomePageContextActionType.SetSelectedPendingContact; payload: PendingContact }
+    | { type: HomePageContextActionType.SetSelectedChat; payload: ChatViewModel }
+    | { type: HomePageContextActionType.ClearSelection; payload: null };
 
 export const homePageReducer = (
     _state: SelectedItem,
@@ -22,13 +22,13 @@ export const homePageReducer = (
 ): SelectedItem => {
     switch (action.type) {
         case HomePageContextActionType.SetSelectedContact:
-            return { type: 'contact', value: action.payload };
+            return {type: 'contact', value: action.payload};
         case HomePageContextActionType.SetSelectedPendingContact:
-            return { type: 'pending', value: action.payload };
+            return {type: 'pending', value: action.payload};
         case HomePageContextActionType.SetSelectedChat:
-            return { type: 'chat', value: action.payload };
+            return {type: 'chat', value: action.payload};
         case HomePageContextActionType.ClearSelection:
-            return { type: 'none' };
+            return {type: 'none'};
         default:
             throw new Error(`Unhandled action type`);
     }
