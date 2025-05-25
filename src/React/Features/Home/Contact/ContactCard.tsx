@@ -1,24 +1,27 @@
 import React from "react";
 import { Contact } from "../../../Context/ContactContext.tsx";
-import {useHomePageContext} from "../../../Context/HomePageContext.tsx";
 import {UserProfileImage} from "../../../Common/Components/ProfilePicture/UserProfileImage.tsx";
+import {useHomePageContext} from "../../../Context/HomePage/HomePageContext.tsx";
+import {HomePageContextActionType} from "../../../Context/HomePage/HomePageReducer.ts";
 
 interface ContactCardProps {
     contact: Contact;
 }
 
 const ContactCard: React.FC<ContactCardProps> = ({contact}) => {
-    const { selectedContact, setSelectedContact } = useHomePageContext();
-    const isSelected = selectedContact && selectedContact.id === contact.id;
-
+    const { selectedItem, homeDispatch } = useHomePageContext();
+    const isSelected = selectedItem.type === 'contact' && selectedItem.value.id === contact.id;
     const name = contact.displayName ?? contact.username;
 
     const onHandleClick = () => {
         if (isSelected) {
-            setSelectedContact(null);
+            homeDispatch({type: HomePageContextActionType.ClearSelection, payload: null});
             return;
         }
-        setSelectedContact(contact);
+        homeDispatch({
+            type: HomePageContextActionType.SetSelectedContact,
+            payload: contact
+        });
     }
 
     const cardClasses = `flex items-center py-2 px-2 rounded-md cursor-pointer 

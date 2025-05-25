@@ -6,7 +6,7 @@ import {ChangeEventType} from "../SignalR/ChangeEvent/ChangeEventType.ts";
 import {FriendRequestAcceptedEvent, FriendRequestEvent} from "../SignalR/ChangeEvent/EventData.ts";
 import {useSignalEvent} from "../SignalR/Utility/Utilities.ts";
 import {useNotifications} from "./Notification/NotificationContext.tsx";
-import {ActionType} from "./Notification/NotificationReducer.tsx";
+import {ActionType} from "./Notification/NotificationReducer.ts";
 
 export class PendingContact {
     id: string;

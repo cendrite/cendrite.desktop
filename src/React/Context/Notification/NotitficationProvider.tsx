@@ -1,5 +1,5 @@
 ﻿import React from "react";
-import { reducer } from "./NotificationReducer.tsx";
+import { reducer } from "./NotificationReducer.ts";
 import {NotificationState} from "./NotificationState.ts";
 import { NotificationContext } from "./NotificationContext.tsx";
 
