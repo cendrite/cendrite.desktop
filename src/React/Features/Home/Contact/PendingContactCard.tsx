@@ -1,9 +1,11 @@
 ﻿import {PendingContact} from "../../../Context/PendingContactContext.tsx";
 import React from "react";
-import NotificationBadge from "../../../Common/Components/NotificationBadge.tsx";
-import {useHomePageContext} from "../../../Context/HomePageContext.tsx";
-import {ActionType, useNotifications} from "../../../Context/NotificationContext.tsx";
 import {UserProfileImage} from "../../../Common/Components/ProfilePicture/UserProfileImage.tsx";
+import { ActionType } from "../../../Context/Notification/NotificationReducer.ts";
+import NotificationBadge from "../../../Context/Notification/NotificationBadge.tsx";
+import {useNotifications} from "../../../Context/Notification/NotificationContext.tsx";
+import { useHomePageContext } from "../../../Context/HomePage/HomePageContext.tsx";
+import { HomePageContextActionType } from "../../../Context/HomePage/HomePageReducer.ts";
 
 interface PendingContactCardProps {
     contact: PendingContact;
@@ -11,21 +13,23 @@ interface PendingContactCardProps {
 
 const PendingContactCard: React.FC<PendingContactCardProps> = ({contact}) => {
     const name = contact.displayName ?? contact.username;
-    const {selectedPendingContact, setSelectedPendingContact} = useHomePageContext();
-    const isSelected = selectedPendingContact && selectedPendingContact.id === contact.id;
+    const {selectedItem, homeDispatch} = useHomePageContext();
+    const isSelected = selectedItem.type === 'pending' && selectedItem.value.id === contact.id;
     const {dispatch} = useNotifications();
-    console.log("PendingContactCard", contact, selectedPendingContact);
 
     const cardClasses = `flex items-center py-2 px-2 rounded-md cursor-pointer relative
     ${isSelected ? "bg-darkGray-300" : "hover:bg-darkGray-300"}`;
 
     const onHandleClick = () => {
         if (isSelected) {
-            setSelectedPendingContact(null);
+            homeDispatch({type: HomePageContextActionType.ClearSelection, payload: null});
             return;
         }
         dispatch({type: ActionType.RemoveFriendRequest, payload: {userTag: contact.id}});
-        setSelectedPendingContact(contact);
+        homeDispatch({
+            type: HomePageContextActionType.SetSelectedPendingContact,
+            payload: contact
+        });
     }
 
     return (

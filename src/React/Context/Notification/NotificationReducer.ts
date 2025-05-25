@@ -1,26 +1,4 @@
-﻿import React from "react";
-
-//export interface ChatNotification {}
-
-export interface FriendRequestNotification {
-    userTag: string;
-}
-
-export class NotificationState {
-    //chatNotifications: ChatNotification[];
-    friendRequestNotifications: FriendRequestNotification[];
-    count: {
-        chats: number;
-        friendRequests: number;
-        sidebar: number;
-    }
-
-    constructor() {
-  //      this.chatNotifications = [];
-        this.friendRequestNotifications = [];
-        this.count = {chats: 0, friendRequests: 0, sidebar: 0}
-    }
-}
+﻿import {FriendRequestNotification, NotificationState} from "./NotificationState";
 
 export enum ActionType {
     AddChat =0,
@@ -30,12 +8,12 @@ export enum ActionType {
 }
 
 export type NotificationAction =
- //   | { type: ActionType.AddChat; payload: ChatNotification }
- //   | { type: ActionType.RemoveChat; payload: ChatNotification }
+//   | { type: ActionType.AddChat; payload: ChatNotification }
+//   | { type: ActionType.RemoveChat; payload: ChatNotification }
     | { type: ActionType.AddFriendRequest; payload: FriendRequestNotification }
     | { type: ActionType.RemoveFriendRequest; payload: FriendRequestNotification }
 
-function reducer(state: NotificationState, action: NotificationAction): NotificationState {
+export function reducer(state: NotificationState, action: NotificationAction): NotificationState {
     let { friendRequestNotifications } = state;
     const { count } = state;
 
@@ -74,27 +52,3 @@ function reducer(state: NotificationState, action: NotificationAction): Notifica
             return state;
     }
 }
-export interface NotificationContextType {
-    state: NotificationState;
-    dispatch: React.Dispatch<NotificationAction>;
-}
-
-const NotificationContext = React.createContext<NotificationContextType | undefined>(undefined);
-
-export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [state, dispatch] = React.useReducer(reducer, new NotificationState());
-
-    return (
-        <NotificationContext.Provider value={{ state, dispatch }}>
-            {children}
-        </NotificationContext.Provider>
-    );
-};
-
-export const useNotifications = () => {
-    const context = React.useContext(NotificationContext);
-    if (context === undefined) {
-        throw new Error('useNotifications must be used within a NotificationProvider');
-    }
-    return context;
-};

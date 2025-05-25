@@ -1,10 +1,11 @@
 ﻿import React from "react";
-import {useHomePageContext} from "../../../Context/HomePageContext.tsx";
 import { ChatService } from "../../Services/ChatService.ts";
 import {Contact} from "../../../Context/ContactContext.tsx";
 import {useChatContext} from "../../../Context/Chat/ChatContext.tsx";
 import { ChatContextActionType } from "../../../Context/Chat/ChatReducer.ts";
 import { ChatBubbleOvalLeftIcon } from "@heroicons/react/24/outline";
+import {useHomePageContext} from "../../../Context/HomePage/HomePageContext.tsx";
+import {HomePageContextActionType} from "../../../Context/HomePage/HomePageReducer.ts";
 
 
 interface MessageButtonProps{
@@ -13,19 +14,19 @@ interface MessageButtonProps{
 }
 
 const MessageButton: React.FC<MessageButtonProps> = ({contact, handleSlideOut}) => {
-    const {setSelectedChat} = useHomePageContext();
+    const {homeDispatch} = useHomePageContext();
     const {getChatByMemberId, dispatch} = useChatContext();
     const chatService = new ChatService();
 
     const handleMessage = async () => {
         const chat = getChatByMemberId(contact.id);
         if (chat) {
-            setSelectedChat(chat);
+            homeDispatch({type: HomePageContextActionType.SetSelectedChat, payload: chat});
             handleSlideOut();
         } else {
             const chat = await chatService.createChat(contact);
             dispatch({type: ChatContextActionType.AddChat, payload: chat});
-            setSelectedChat(chat);
+            homeDispatch({type: HomePageContextActionType.SetSelectedChat, payload: chat});
         }
     };
 

@@ -1,39 +1,52 @@
 ﻿import ContactPage from "./Contact/ContactPage.tsx";
 import React from "react";
-import {useHomePageContext} from "../../Context/HomePageContext.tsx";
 import PendingContactPage from "./Contact/PendingContactPage.tsx";
 import ChatPage from "./Chat/ChatPage.tsx";
+import { useHomePageContext } from "../../Context/HomePage/HomePageContext.tsx";
+import {HomePageContextActionType} from "../../Context/HomePage/HomePageReducer.ts";
 
 const MainContent: React.FC = () => {
-    const {
-        selectedChat,
-        setSelectedChat,
-        selectedContact,
-        selectedPendingContact,
-        setSelectedPendingContact,
-        setSelectedContact
-    } = useHomePageContext();
+    const {selectedItem, homeDispatch} = useHomePageContext();
 
 
-    return (
-        <div className="flex-1 bg-zinc-950">
-            {selectedContact ? (
+    let content;
+
+    switch (selectedItem.type) {
+        case 'contact':
+            content = (
                 <ContactPage
-                    contact={selectedContact}
-                    onClose={() => setSelectedContact(null)}/>
-            ) : selectedPendingContact ? (
+                    contact={selectedItem.value}
+                    onClose={() =>
+                        homeDispatch({ type: HomePageContextActionType.ClearSelection, payload: null })
+                    }
+                />
+            );
+            break;
+        case 'pending':
+            content = (
                 <PendingContactPage
-                    pendingContact={selectedPendingContact}
-                    onClose={() => setSelectedPendingContact(null)}/>
-            ) : selectedChat ? (
+                    pendingContact={selectedItem.value}
+                    onClose={() =>
+                        homeDispatch({ type: HomePageContextActionType.ClearSelection, payload: null })
+                    }
+                />
+            );
+            break;
+        case 'chat':
+            content = (
                 <ChatPage
-                    chat={selectedChat}
-                    onClose={() => setSelectedChat(null)}/>
-            ) : (
-                <div className="p-4"/>
-            )}
-        </div>
-    );
+                    chat={selectedItem.value}
+                    onClose={() =>
+                        homeDispatch({ type: HomePageContextActionType.ClearSelection, payload: null })
+                    }
+                />
+            );
+            break;
+        default:
+            content = <div className="p-4" />;
+    }
+
+    return <div className="flex-1 bg-zinc-950">{content}</div>;
 }
 
 export default MainContent;
