@@ -1,6 +1,9 @@
 import React from "react";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import SidePanelToggle from "../SidePanel/SidePanelToggle";
+import {useChatContext} from "../../../Context/Chat/ChatContext.tsx";
+import {ChatCard} from "./ChatCard.tsx";
+import {ChatViewModel} from "../../../Models/ChatViewModel.ts";
 
 interface ChatsPaneProps {
   isSidePanelVisible: boolean;
@@ -8,7 +11,7 @@ interface ChatsPaneProps {
 }
 
 export const ChatsPane: React.FC<ChatsPaneProps> = ({ isSidePanelVisible, toggleSidePanel }) => {
-  const chatsList = ["Chat 1", "Chat 2", "Chat 3"];
+    const {chats} = useChatContext();
 
   return (
     <div className="text-white p-2 relative">
@@ -32,13 +35,13 @@ export const ChatsPane: React.FC<ChatsPaneProps> = ({ isSidePanelVisible, toggle
       {/*<SearchBar />*/}
 
       {/* Chat List */}
-      <ul>
-        {chatsList.map((chat, index) => (
-          <li key={index} className="py-2 border-b border-gray-500">
-            {chat}
-          </li>
-        ))}
-      </ul>
+        <ul className="mt-4 space-y-2">
+            {chats.map((chat: ChatViewModel) => (
+                <li key={chat.id}>
+                    <ChatCard chat={chat}/>
+                </li>
+            ))}
+        </ul>
     </div>
   );
 };

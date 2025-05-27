@@ -1,5 +1,6 @@
-﻿import { MessageViewModel } from "./MessageViewModel.ts";
-import { ChatMemberViewModel } from "./ChatMemberViewModel.ts";
+﻿import {MessageViewModel} from "./MessageViewModel.ts";
+import {ChatMemberViewModel} from "./ChatMemberViewModel.ts";
+import {DeliveryStatus} from "../../Electron/Domain/Enums/DeliveryStatus.ts";
 
 export class ChatViewModel {
     id: string;
@@ -26,7 +27,7 @@ export class ChatViewModel {
 
     get unreadMessages(): number {
         return this.messages.reduce(
-            (count, message) => (message.isRead ? count : count + 1),
+            (count, message) => (message.deliveryStatus === DeliveryStatus.Received ? count : count + 1),
             0
         );
     }
