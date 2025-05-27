@@ -3,9 +3,10 @@
 export class ConnectionId {
     id!: string;
     connectionId: string;
-    friend!: Friend;
+    friend: Friend;
 
-    constructor(connectionId: string) {
+    constructor(connectionId: string, friend: Friend) {
         this.connectionId = connectionId;
+        this.friend = friend;
     }
 }

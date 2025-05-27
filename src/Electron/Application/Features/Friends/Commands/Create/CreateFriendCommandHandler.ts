@@ -18,7 +18,7 @@ export class CreateFriendCommandHandler implements Handler<CreateFriendCommand> 
             friend.profilePicture = request.base64ProfilePicture ? await ImageConverter.base64ToBuffer(request.base64ProfilePicture) : null;
 
             if (request.connectionIds) {
-                friend.connectionIds = request.connectionIds.map(id => new ConnectionId(id));
+                friend.connectionIds = request.connectionIds.map(id => new ConnectionId(id, friend));
             } else {
                 friend.connectionIds = [];
             }

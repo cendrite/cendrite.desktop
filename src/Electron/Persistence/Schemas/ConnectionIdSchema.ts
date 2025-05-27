@@ -12,16 +12,17 @@ export const ConnectionIdSchema = new EntitySchema<ConnectionId>({
             generated: 'uuid'
         },
         connectionId: {
-            type: String
+            type: String,
+            nullable: false,
         }
     },
     relations: {
         friend: {
-            type: "many-to-one",
             target: () => Friend,
+            type: "many-to-one",
             joinColumn: true,
             inverseSide: "connectionIds",
-            onDelete: "CASCADE"
+            onDelete: "CASCADE",
         }
     }
 });
