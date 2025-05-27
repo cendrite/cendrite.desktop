@@ -7,11 +7,11 @@ export class FriendRepository {
     private readonly cryptoService = CryptographyService.getInstance();
 
     public async create(friend: Friend): Promise<void> {
-        if (friend.connectionIds) {
-            for (const conn of friend.connectionIds) {
-                conn.connectionId = await this.cryptoService.encrypt(conn.connectionId);
-            }
-        }
+        // if (friend.connectionIds) {
+        //     for (const conn of friend.connectionIds) {
+        //         conn.connectionId = await this.cryptoService.encrypt(conn.connectionId);
+        //     }
+        // }
 
         await this.friendRepository.save(friend);
     }

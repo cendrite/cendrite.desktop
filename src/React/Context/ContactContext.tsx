@@ -76,6 +76,8 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({childr
             evt.data.connectionIds
         );
 
+        console.log(newContact);
+
         await window.electron.sendRequestAsync<Result>(new CreateFriendCommand(newContact.username, newContact.displayName, newContact.connectionIds, newContact.id, profilePicture));
 
         setContacts((prevContacts) => {

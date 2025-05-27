@@ -3,6 +3,7 @@ import {EntitySchema} from "typeorm";
 import {BaseSchema} from "./BaseSchema.js";
 import {ChatPrivileges} from "../../Domain/Enums/ChatPrivileges.js";
 import {Friend} from "../../Domain/Aggregates/Friend.js";
+import { Chat } from "../../Domain/Aggregates/Chat.js";
 
 export const ChatMemberSchema = new EntitySchema<ChatMember>({
     name: "ChatMember",
@@ -27,7 +28,17 @@ export const ChatMemberSchema = new EntitySchema<ChatMember>({
             target: () => Friend,
             type: "many-to-one",
             joinColumn: true,
-            cascade: true
+            cascade: true,
+            onDelete: "CASCADE",
+            eager: true,
+        },
+        chat: {
+            target: () => Chat,
+            type: "many-to-one",
+            inverseSide: "members",
+            joinColumn: true,
+            onDelete: "CASCADE",
+            eager: false,
         }
     }
 })
