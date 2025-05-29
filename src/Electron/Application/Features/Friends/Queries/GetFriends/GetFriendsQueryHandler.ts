@@ -32,8 +32,8 @@ export class GetFriendsQueryHandler implements Handler<GetFriendsQuery, Array<Fr
         }
         catch (error: unknown) {
             const errorMessage = (error instanceof Error) ? error.message : 'An unknown error occurred';
-            console.error('Get Refresh Token Failed:', errorMessage);
-            return Result.fail<FriendDto[]>(new ErrorMessage(null, "Get Refresh Token Failed"));
+            console.error('GetFriendsQuery failed:', errorMessage);
+            return Result.fail<FriendDto[]>(new ErrorMessage(null, "GetFriendsQuery failed"));
         }
     }
 

@@ -23,6 +23,7 @@ export const ConnectionIdSchema = new EntitySchema<ConnectionId>({
             joinColumn: true,
             inverseSide: "connectionIds",
             onDelete: "CASCADE",
+            orphanedRowAction: "delete"
         }
     }
 });

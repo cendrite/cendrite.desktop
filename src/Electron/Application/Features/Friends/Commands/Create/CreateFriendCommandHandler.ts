@@ -23,6 +23,7 @@ export class CreateFriendCommandHandler implements Handler<CreateFriendCommand> 
                 friend.connectionIds = [];
             }
 
+            console.log("Creating new friend:", friend);
             await friendRepository.create(friend);
             return Result.success();
 
