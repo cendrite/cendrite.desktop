@@ -110,32 +110,13 @@ export class FriendService {
         }
     }
 
-    public async AcceptFriendship(userId: string, friendTag: string): Promise<Result<Contact>> {
+    public async AcceptFriendship(userId: string, friendTag: string): Promise<Result> {
         const acceptResult = await this.acceptFriendshipApi.acceptFriendship({Id: userId, friendTag: friendTag});
         if (!acceptResult.success) {
             console.error("Failed to accept friendship");
-            return Result.fail<Contact>(new ErrorMessage(null, "Failed to accept friendship"));
+            return Result.fail(new ErrorMessage(null, "Failed to accept friendship"));
         }
-
-        const friend = acceptResult.data;
-        if (!friend) {
-            console.error("Failed to accept friendship");
-            return Result.fail<Contact>(new ErrorMessage(null, "Failed to accept friendship"));
-        }
-        const base64ProfilePicture = friend.profilePictureUrl ? await this.FetchProfilePicture(friend.profilePictureUrl) : null;
-        const storeFriendResult = await window.electron.sendRequestAsync<Result>(new CreateFriendCommand(
-            friend.username,
-            friend.displayName,
-            friend.connectionIds,
-            friend.tag,
-            base64ProfilePicture
-        ));
-
-        if (!storeFriendResult.success) {
-            console.error("Failed to store friend");
-            return Result.fail<Contact>(new ErrorMessage(null, "Failed to store friend"));
-        }
-        return Result.success(new Contact(friend.tag, friend.username!, friend.displayName ?? null, base64ProfilePicture, friend.connectionIds));
+        return Result.success();
     }
 
     private async FetchProfilePicture(url: string): Promise<string | null> {
