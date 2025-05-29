@@ -79,7 +79,7 @@ const ContactPage: React.FC<ContactPageProps> = ({contact, onClose}) => {
                         {/* Button section */}
                         <div className="flex justify-center items-center space-x-4 mt-4">
 
-                            <MessageButton contact={contact} handleSlideOut={handleSlideOut}/>
+                            <MessageButton contact={contact}/>
                             <VoiceCallButton contact={contact} withText={true}/>
                             <VideoCallButton withText={true} contact={contact}/>
 

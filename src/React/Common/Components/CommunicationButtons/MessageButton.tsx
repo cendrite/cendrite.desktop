@@ -10,10 +10,9 @@ import {HomePageContextActionType} from "../../../Context/HomePage/HomePageReduc
 
 interface MessageButtonProps{
     contact: Contact;
-    handleSlideOut:()=> void;
 }
 
-const MessageButton: React.FC<MessageButtonProps> = ({contact, handleSlideOut}) => {
+const MessageButton: React.FC<MessageButtonProps> = ({contact}) => {
     const {homeDispatch} = useHomePageContext();
     const {getChatByMemberId, dispatch} = useChatContext();
     const chatService = new ChatService();
@@ -22,7 +21,6 @@ const MessageButton: React.FC<MessageButtonProps> = ({contact, handleSlideOut}) 
         const chat = getChatByMemberId(contact.id);
         if (chat) {
             homeDispatch({type: HomePageContextActionType.SetSelectedChat, payload: chat});
-            handleSlideOut();
         } else {
             const chat = await chatService.createChat(contact);
             dispatch({type: ChatContextActionType.AddChat, payload: chat});
