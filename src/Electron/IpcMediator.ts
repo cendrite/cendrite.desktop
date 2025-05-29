@@ -15,6 +15,13 @@ import {GetRefreshTokenQueryHandler} from "./Application/Features/RefreshToken/Q
 import {CreateUserCommandHandler} from "./Application/Features/User/Commands/Create/CreateUserCommandHandler.js";
 import {DeleteFriendCommandHandler} from "./Application/Features/Friends/Commands/Delete/DeleteFriendCommandHandler.js";
 import {CreateChatCommandHandler} from "./Application/Features/Chat/Commands/CreateChatCommandHandler.js";
+import {
+    AddConnectionIdCommandHandler
+} from "./Application/Features/Friends/Commands/AddConnectionId/AddConnectionIdCommandHandler.js";
+import {UpdateFriendCommandHandler} from "./Application/Features/Friends/Commands/Update/UpdateFriendCommandHandler.js";
+import {
+    RemoveConnectionIdCommandHandler
+} from "./Application/Features/Friends/Commands/RemoveConnectionId/RemoveConnectionIdCommandHandler.js";
 export function registerIpcHandlers(mainWindow: BrowserWindow) {
     const mediator = new Mediator();
 
@@ -36,6 +43,9 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
     mediator.registerHandler("CreateFriendCommand", new CreateFriendCommandHandler());
     mediator.registerHandler("GetFriendsQuery", new GetFriendsQueryHandler());
     mediator.registerHandler("DeleteFriendCommand", new DeleteFriendCommandHandler());
+    mediator.registerHandler("UpdateFriendCommand", new UpdateFriendCommandHandler());
+    mediator.registerHandler("RemoveConnectionIdCommand", new RemoveConnectionIdCommandHandler());
+    mediator.registerHandler("AddConnectionIdCommand", new AddConnectionIdCommandHandler());
 
     mediator.registerHandler("CreateChatCommand", new CreateChatCommandHandler());
 
