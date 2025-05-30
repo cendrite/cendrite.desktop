@@ -17,7 +17,7 @@ export class ChangeEventReceiver implements IHubReceiver {
             throw new Error("ChangeEventReceiver is already initialized");
         }
 
-        connection.on(HubMethods.OnChangeNotification, (event: ChangeEvent) => {
+        connection.on(HubMethods.ChangeNotification, (event: ChangeEvent) => {
             this.publish(event);
         })
 
@@ -51,7 +51,7 @@ export class ChangeEventReceiver implements IHubReceiver {
 
     public dispose(): void {
         if (this.connection) {
-            this.connection.off(HubMethods.OnChangeNotification);
+            this.connection.off(HubMethods.ChangeNotification);
             this.connection = undefined;
         }
 
