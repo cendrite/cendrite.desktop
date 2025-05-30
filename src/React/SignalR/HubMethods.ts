@@ -1,5 +1,5 @@
 ﻿export const enum HubMethods{
-    OnChangeNotification = "ChangeNotification",
-    OnSendMessage = "SendMessage",
-    OnReceiveMessage = "ReceiveMessage",
+    ChangeNotification = "ChangeNotification",
+    SendMessage = "SendMessage",
+    ReceiveMessage = "ReceiveMessage",
 }

@@ -34,22 +34,12 @@ export class FriendSyncService {
         const localMap = await this.LoadLocalContacts();
         const remoteMap = await this.LoadRemoteContacts(id);
 
-        console.log("remote:", remoteMap);
-
-        console.table({
-            localIds: Array.from(localMap.keys()),
-            remoteIds: Array.from(remoteMap.keys())
-        });
         const toDelete = Array.from(localMap.keys())
             .filter(localId => !remoteMap.has(localId));
-
-        console.log("toDelete", toDelete);
 
         const toCreate = Array.from(remoteMap.entries())
             .filter(([id]) => !localMap.has(id))
             .map(([, rc]) => rc);
-
-        console.log("toCreate", toCreate);
 
         const toUpdate = Array.from(remoteMap.entries())
             .filter(([id, rc]) => {
@@ -65,9 +55,7 @@ export class FriendSyncService {
                 return null;
             }
             const newConnectionIds = rc.connectionIds.filter(id => !lc.connectionIds.includes(id));
-            console.log("newConnectionIds", newConnectionIds);
             const staleConnectionIds = lc.connectionIds.filter(id => !rc.connectionIds.includes(id));
-            console.log("staleConnectionIds", staleConnectionIds);
 
             if (newConnectionIds.length === 0 && staleConnectionIds.length === 0) return null;
             return {
@@ -76,9 +64,6 @@ export class FriendSyncService {
                 staleConnectionIds
             };
         }).filter((diff): diff is ConnectionDiff => diff !== null);
-
-        console.log("toUpdate", toUpdate);
-        console.log("connDiffs", connDiffs);
 
         await Promise.all([
             ...toDelete.map(id =>
@@ -104,7 +89,6 @@ export class FriendSyncService {
     private async LoadLocalContacts(): Promise<Map<string, Contact>> {
         const contacts = new Map<string, Contact>();
         const result = await window.electron.sendRequestAsync<Result<Array<FriendDto>>>(new GetFriendsQuery());
-        console.log("Local contacts result:", result);
 
         if (result.success && result.data) {
             for (const friend of result.data) {
@@ -112,8 +96,6 @@ export class FriendSyncService {
                 contacts.set(friend.id, contact);
             }
         }
-
-        console.log("Local contacts loaded:", contacts);
         return contacts;
     }
 

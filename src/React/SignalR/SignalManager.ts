@@ -3,16 +3,19 @@ import {HubKey, HubPaths} from "./SignalRHubPath.ts";
 import {TokenManager} from "../Token/TokenManager.ts";
 import {IHubReceiver} from "./IHubReceiver.ts";
 import {ChangeEventReceiver} from "./ChangeEvent/ChangeEventReceiver.ts";
+import {MessageReceiver} from "./Messaging/MessageReceiver.ts";
 
 
 export class SignalManager {
     private static instance: SignalManager;
     private connections: Map<HubKey, HubConnection> = new Map();
     private readonly receivers: IHubReceiver[] = [
-        new ChangeEventReceiver()
+        new ChangeEventReceiver(),
+        new MessageReceiver()
     ];
 
-    private constructor() {}
+    private constructor() {
+    }
 
     public static getInstance(): SignalManager {
         if (!SignalManager.instance)
@@ -44,19 +47,20 @@ export class SignalManager {
             } catch (error) {
                 console.log(`Failed to connect to ${hubPath}`, error);
             }
-
-            this.receivers.forEach(r => {
-                const conn = this.connections.get(r.key);
-                if (!conn) {
-                    throw new Error(`No connection for receiver ${r.key}`);
-                }
-                r.initialize(conn);
-            })
         }
+
+        this.receivers.forEach(r => {
+            const conn = this.connections.get(r.key);
+            if (!conn) {
+                throw new Error(`No connection for receiver ${r.key}`);
+            }
+            console.log(`Initializing receiver for hub ${r.key}`);
+            r.initialize(conn);
+        })
     }
 
     public async disconnect() {
-        this.connections.forEach(c=> c.stop());
+        this.connections.forEach(c => c.stop());
         this.connections.clear();
         this.receivers.forEach(r => r.dispose());
     }
