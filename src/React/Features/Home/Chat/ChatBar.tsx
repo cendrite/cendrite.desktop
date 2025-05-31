@@ -2,15 +2,14 @@
 import React, {useState} from "react";
 import TextareaAutosize from "react-textarea-autosize";
 
+export interface ChatBarProps {
+    sendMessage: (message: string) => void;
+    message: string;
+    setMessage: (message: string) => void;
+}
 
-export const ChatBar: React.FC = () => {
-    const [message, setMessage] = useState("");
+export const ChatBar: React.FC<ChatBarProps> = ({sendMessage, message, setMessage}) => {
     const [placeholderText, setPlaceholderText] = useState("message");
-
-    const handleSendMessage = () => {
-        if (message.trim() === "") return;
-        console.log("Message sent");
-    }
 
     return (
         <div className="bg-zinc-950 p-3">
@@ -31,7 +30,8 @@ export const ChatBar: React.FC = () => {
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
-                            handleSendMessage();
+                            sendMessage(message);
+                            setMessage("");
                         }
                     }}
                 />
@@ -46,7 +46,7 @@ export const ChatBar: React.FC = () => {
 
             </div>
         </div>
-    );
-};
+    )
+}
 
 export default ChatBar;

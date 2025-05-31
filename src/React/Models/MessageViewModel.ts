@@ -4,18 +4,18 @@ export class MessageViewModel {
     id!: string;
     chatId!: string;
     senderId: string;
-    message: string;
-    contentUrl: string | null;
+    text: string;
+    media: string | null;
     date: Date;
     deliveryStatus!: DeliveryStatus;
 
-    constructor(id: string, chatId: string, senderId: string, message: string, date: Date, deliveryStatus: DeliveryStatus, contentUrl: string | null = null) {
+    constructor(id: string, chatId: string, senderId: string, message: string, date: Date, deliveryStatus: DeliveryStatus, mediaUrl: string | null = null) {
         this.id = id;
         this.chatId = chatId;
         this.senderId = senderId;
-        this.message = message;
+        this.text = message;
         this.date = date;
-        this.contentUrl = contentUrl;
+        this.media = mediaUrl;
         this.deliveryStatus = deliveryStatus;
     }
 }
