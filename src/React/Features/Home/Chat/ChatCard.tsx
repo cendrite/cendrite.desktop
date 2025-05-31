@@ -3,6 +3,7 @@ import {ChatViewModel} from "../../../Models/ChatViewModel.ts";
 import {UserProfileImage} from "../../../Common/Components/ProfilePicture/UserProfileImage.tsx";
 import {useHomePageContext} from "../../../Context/HomePage/HomePageContext.tsx";
 import {HomePageContextActionType} from "../../../Context/HomePage/HomePageReducer.ts";
+import { useUser } from "../../../Context/UserContext.tsx";
 
 interface ChatCardProps {
     chat: ChatViewModel;
@@ -10,6 +11,7 @@ interface ChatCardProps {
 
 export const ChatCard: React.FC<ChatCardProps> = ({chat}) => {
     const {selectedItem, homeDispatch} = useHomePageContext();
+    const {user} = useUser();
     const isSelected = selectedItem.type === 'chat' && selectedItem.value.id === chat.id;
     const name = chat.chatMembers[0].displayName ?? chat.chatMembers[0].contact.displayName;
     const lastMessage = chat.messages.length > 0 ? chat.messages[chat.messages.length - 1] : null;
@@ -40,16 +42,16 @@ export const ChatCard: React.FC<ChatCardProps> = ({chat}) => {
             <div className="ml-3 flex flex-col overflow-hidden">
                 <div className="flex items-center">
                     <span className="text-sm text-white font-medium truncate max-w-[180px]">{name}</span>
-                    {chat.unreadMessages > 0 && (
+                    {chat.getUnreadMessagesCount(user!.id) > 0 && (
                         <span className="ml-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-                            {chat.unreadMessages}
+                            {chat.getUnreadMessagesCount(user!.id)}
                         </span>
                     )}
                 </div>
                 <span className={`text-xs truncate max-w-[220px] mt-0.5 
-                ${chat.unreadMessages > 0 ? "text-white" : "text-gray-400"}
-                ${lastMessage?.message ? "font-normal" : "italic"}`}>
-                    {lastMessage?.message ?? "draft.."}
+                ${chat.getUnreadMessagesCount(user!.id) > 0 ? "text-white" : "text-gray-400"}
+                ${lastMessage?.text ? "font-normal" : "italic"}`}>
+                    {lastMessage?.text ?? "draft.."}
                 </span>
             </div>
         </div>

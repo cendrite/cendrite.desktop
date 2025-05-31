@@ -5,3 +5,11 @@ export function getChatByMemberId(chats: ChatViewModel[], memberId: string): Cha
     const chat = singleMemberChats.find(chat => chat.chatMembers[0].contact.id === memberId);
     return chat !== undefined ? chat : null;
 }
+
+export function getChatById(chats: ChatViewModel[], chatId: string): ChatViewModel {
+    const chat = chats.find(chat => chat.id === chatId);
+    if (!chat) {
+        throw new Error(`Chat with id ${chatId} not found`);
+    }
+    return chat;
+}

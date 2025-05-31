@@ -1,7 +1,7 @@
 ﻿import React from "react";
 import {ChatViewModel} from "../../Models/ChatViewModel.ts";
 import {ChatContextAction} from "./ChatReducer.ts";
-import {getChatByMemberId} from "./ChatSelectors.ts";
+import {getChatById, getChatByMemberId} from "./ChatSelectors.ts";
 
 export interface ChatContextType {
     chats: ChatViewModel[];
@@ -21,6 +21,7 @@ export const useChatContext = () => {
     return {
         chats,
         dispatch,
-        getChatByMemberId: (memberId: string) => getChatByMemberId(chats, memberId)
+        getChatByMemberId: (memberId: string) => getChatByMemberId(chats, memberId),
+        getChatById: (id: string) => getChatById(chats, id),
     }
 }
