@@ -6,7 +6,7 @@ export interface ChatBubbleProps {
     message: MessageViewModel;
 }
 
-export const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
+export const MessageBubble: React.FC<ChatBubbleProps> = ({ message }) => {
     const { user } = useUser();
     const isUserMessage: boolean = message.senderId === user?.id;
 
@@ -29,4 +29,4 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
     );
 };
 
-export default ChatBubble;
+export default MessageBubble;

@@ -1,6 +1,6 @@
 ﻿import React, {useLayoutEffect, useRef} from "react";
 import { MessageViewModel } from "../../../Models/MessageViewModel.ts";
-import ChatBubble from "./ChatBubble.tsx";
+import MessageBubble from "./MessageBubble.tsx";
 
 interface MessageListProps {
     messages: MessageViewModel[];
@@ -21,7 +21,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages }) => {
             className="flex-1 overflow-y-auto p-4 pb-8"
         >
             {messages.map((message) => (
-                <ChatBubble key={message.id} message={message} />
+                <MessageBubble key={message.id} message={message} />
             ))}
         </div>
     );
