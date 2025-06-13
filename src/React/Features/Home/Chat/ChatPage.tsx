@@ -9,6 +9,9 @@ import {v4 as uuidv4} from 'uuid';
 import {ChatContextActionType} from "../../../Context/Chat/ChatReducer.ts";
 import {DeliveryStatus} from "../../../../Electron/Domain/Enums/DeliveryStatus.ts";
 import MessageList from "./MessageList.tsx";
+import {SignalManager} from "../../../SignalR/SignalManager.ts";
+import {ServerChatMessage} from "../../../SignalR/Messaging/ServerChatMessage.ts";
+import {MessageHubHandler} from "../../../SignalR/Messaging/MessageHubHandler.ts";
 
 interface ChatPageProps {
     chat: ChatViewModel;
@@ -21,6 +24,7 @@ const ChatPage: React.FC<ChatPageProps> = ({chat, onClose}) => {
     const {user} = useUser();
     const {getChatById, dispatch} = useChatContext();
     const currentChat = getChatById(chat.id);
+    const messageSender = SignalManager.getInstance().getHandler<MessageHubHandler>("Messaging");
 
 
     useEffect(() => {
@@ -34,35 +38,58 @@ const ChatPage: React.FC<ChatPageProps> = ({chat, onClose}) => {
         }, 300);
     };
 
-    const onSendMessage = async (message: string): Promise<void> => {
-        if(!message.trim()) return;
+    const onSendMessage = async (text: string): Promise<void> => {
+        if (!text.trim()) return;
 
-        const newMessage: MessageViewModel = {
-            id: uuidv4(),
+        const message: MessageViewModel = {
+            id: uuidv4().toString(),
             chatId: chat.id,
-            senderId: user!.id,
-            text: message,
+            senderId: user!.deviceId,
+            text: text,
             date: new Date(),
             deliveryStatus: DeliveryStatus.Sent,
             media: null // Assuming no media for simplicity
         }
-        dispatch({type: ChatContextActionType.AddMessage, payload: newMessage});
+        dispatch({type: ChatContextActionType.AddMessage, payload: message});
+
+        const content = {
+            text: text,
+            media: message.media,
+        };
+
+        const serializedContent = JSON.stringify(content);
+
+        const messages: ServerChatMessage[] = [];
+
+        for(const connectionId of currentChat.connectionIds) {
+            messages.push(new ServerChatMessage(
+                message.id,
+                user!.deviceId,
+                connectionId,
+                serializedContent,
+                uuidv4().toString()));
+        }
+
+        const receipt = await messageSender.sendMessage(messages);
+
+        console.log(receipt);
     }
+
 
     return (
         <>
             <div className={`absolute inset-0  text-white shadow-lg transition-transform duration-300 ${slideClass}`}>
                 <div className="flex flex-col h-full">
-                    <ChatHeader chat={chat} onClose={()=> handleSlide()} />
+                    <ChatHeader chat={chat} onClose={() => handleSlide()}/>
 
 
-                    <MessageList messages={currentChat.messages} />
+                    <MessageList messages={currentChat.messages}/>
 
                     <div className="sticky bottom-0 bg-zinc-950">
                         <ChatBar
                             sendMessage={onSendMessage}
                             message={message}
-                            setMessage={setMessage} />
+                            setMessage={setMessage}/>
 
                     </div>
                 </div>

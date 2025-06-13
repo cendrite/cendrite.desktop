@@ -42,14 +42,14 @@ export const ChatCard: React.FC<ChatCardProps> = ({chat}) => {
             <div className="ml-3 flex flex-col overflow-hidden">
                 <div className="flex items-center">
                     <span className="text-sm text-white font-medium truncate max-w-[180px]">{name}</span>
-                    {chat.getUnreadMessagesCount(user!.id) > 0 && (
+                    {chat.getUnreadMessagesCount(user!.deviceId) > 0 && (
                         <span className="ml-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-                            {chat.getUnreadMessagesCount(user!.id)}
+                            {chat.getUnreadMessagesCount(user!.deviceId)}
                         </span>
                     )}
                 </div>
                 <span className={`text-xs truncate max-w-[220px] mt-0.5 
-                ${chat.getUnreadMessagesCount(user!.id) > 0 ? "text-white" : "text-gray-400"}
+                ${chat.getUnreadMessagesCount(user!.deviceId) > 0 ? "text-white" : "text-gray-400"}
                 ${lastMessage?.text ? "font-normal" : "italic"}`}>
                     {lastMessage?.text ?? "draft.."}
                 </span>
