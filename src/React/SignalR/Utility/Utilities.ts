@@ -35,7 +35,7 @@ export function useSignalEvent<T>(
 ) {
     const receiver = SignalManager
         .getInstance()
-        .getReceiver<ChangeEventReceiver>("ChangeEvents");
+        .getHandler<ChangeEventReceiver>("ChangeEvents");
 
     useEffect(() => {
         receiver.subscribe(type, handler as ChangeEventHandler);

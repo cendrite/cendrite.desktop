@@ -1,12 +1,12 @@
 ﻿import {HubConnection} from "@microsoft/signalr";
-import {IHubReceiver} from "../IHubReceiver";
+import {IHubHandler} from "../IHubHandler.ts";
 import {ChangeEventType} from "./ChangeEventType.ts";
 import {ChangeEvent, ChangeEventHandler} from "./ChangeEvent.ts";
 import {HubMethods} from "../HubMethods.ts";
 import {HubKey} from "../SignalRHubPath.ts";
 
 
-export class ChangeEventReceiver implements IHubReceiver {
+export class ChangeEventReceiver implements IHubHandler {
     public readonly key: HubKey = "ChangeEvents";
     private isInitialized: boolean = false;
     private connection?: HubConnection;
