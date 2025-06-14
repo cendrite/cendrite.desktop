@@ -19,6 +19,7 @@ export class MessageHubHandler implements IHubHandler {
         }
 
         connection.on(HubMethods.ReceiveMessage, (message: ServerChatMessage) => {
+            console.log("Server message", message);
             this.publish("chat", message);
         });
 

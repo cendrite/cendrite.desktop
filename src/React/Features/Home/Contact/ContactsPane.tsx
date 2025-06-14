@@ -16,6 +16,7 @@ interface ContactsPaneProps {
 
 export const ContactsPane: React.FC<ContactsPaneProps> = ({isSidePanelVisible, toggleSidePanel}) => {
     const {contacts} = useContacts();
+    console.log(contacts.length)
     const {pendingContacts} = usePendingContacts();
     const [isSearchUserModalOpen, setIsSearchUserModalOpen] = useState(false);
     const [isRequestListSelected, setIsRequestListSelected] = useState(false);

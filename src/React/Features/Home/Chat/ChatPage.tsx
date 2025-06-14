@@ -44,7 +44,7 @@ const ChatPage: React.FC<ChatPageProps> = ({chat, onClose}) => {
         const message: MessageViewModel = {
             id: uuidv4().toString(),
             chatId: chat.id,
-            senderId: user!.deviceId,
+            senderId: user!.connectionId,
             text: text,
             date: new Date(),
             deliveryStatus: DeliveryStatus.Sent,
@@ -65,7 +65,7 @@ const ChatPage: React.FC<ChatPageProps> = ({chat, onClose}) => {
             messages.push(new ServerChatMessage(
                 message.id,
                 chat.id,
-                user!.deviceId,
+                user!.connectionId,
                 connectionId,
                 serializedContent,
                 new Date(),
@@ -83,7 +83,6 @@ const ChatPage: React.FC<ChatPageProps> = ({chat, onClose}) => {
             <div className={`absolute inset-0  text-white shadow-lg transition-transform duration-300 ${slideClass}`}>
                 <div className="flex flex-col h-full">
                     <ChatHeader chat={chat} onClose={() => handleSlide()}/>
-
 
                     <MessageList messages={currentChat.messages}/>
 

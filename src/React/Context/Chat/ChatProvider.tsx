@@ -23,13 +23,14 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({children}
             // some chat loading
             return [];
         }
-        loadChats().then(loadedChats=> {
+        loadChats().then(loadedChats => {
             dispatch({type: ChatContextActionType.Init, payload: loadedChats});
         })
     }, []);
 
-    const receiveMessage = useCallback(async(msg: ServerChatMessage)=> {
+    const receiveMessage = useCallback(async (msg: ServerChatMessage) => {
         const decryptedMessage = encryptor.decrypt(msg.content);
+        console.log("received message: ", msg)
         const mappedMsg = new MessageViewModel(
             msg.id,
             msg.chatId,
@@ -39,31 +40,28 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({children}
             DeliveryStatus.Received,
             decryptedMessage.media || null
         );
-        const contact = contacts.find(c => c.connectionIds.includes(msg.senderId));
-        for(const c of contacts){
-            console.log("c", c);
-        }
-        if (!contact) {
-            console.warn(`Contact with ID ${msg.senderId} not found.`);
-            return;
-        }
-        const member = new ChatMemberViewModel(
-            uuid().toString(),
-            1,
-            contact.displayName,
-            contact,
-        )
-        const existingChat  = chats.find(chat => chat.id === msg.chatId);
-        if(!existingChat){
-            const newChat = new ChatViewModel(msg.chatId, [member], [mappedMsg])
-            dispatch({type: ChatContextActionType.AddChat, payload: newChat });
-        }
-        else{
-            dispatch({type: ChatContextActionType.AddMessage, payload: mappedMsg });
-        }
+        console.log("mapped message:", mappedMsg);
 
-        dispatch({type: ChatContextActionType.AddMessage, payload: mappedMsg});
-    },[encryptor])
+        const existingChat = chats.find(chat => chat.id === msg.chatId);
+        if (!existingChat) {
+            const contact = contacts.find(c => c.connectionIds.includes(msg.senderId));
+            console.log("contact count:" + contacts.length, "contact found:", contact);
+            if (!contact) {
+                console.warn(`Contact with ID ${msg.senderId} not found.`);
+                return;
+            }
+            const member = new ChatMemberViewModel(
+                uuid().toString(),
+                1,
+                contact.displayName,
+                contact,
+            )
+            const newChat = new ChatViewModel(msg.chatId, [member], [mappedMsg])
+            dispatch({type: ChatContextActionType.AddChat, payload: newChat});
+        } else {
+            dispatch({type: ChatContextActionType.AddMessage, payload: mappedMsg});
+        }
+    }, [encryptor, contacts, chats])
 
     useSignalMessage("chat", receiveMessage);
 
