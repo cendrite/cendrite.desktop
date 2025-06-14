@@ -52,7 +52,7 @@ const VerifyLoginPage: React.FC = () => {
 
         console.log("USER ONBOARDING DATA", onboardingContext.onboardingData);
         console.log("DEVICE REGISTRATION RESULT", deviceRegistrationResult);
-        await tokenManager.initialize(onboardingContext.onboardingData.UserId!, deviceRegistrationResult.data!);
+        await tokenManager.initialize(onboardingContext.onboardingData.UserId!, deviceRegistrationResult.data!.deviceId);
 
         const userProfileResult = await userProfileService.HandleUserProfile(onboardingContext.onboardingData.UserId!);
         console.log("USER PROFILE RESULT", userProfileResult);
@@ -60,9 +60,10 @@ const VerifyLoginPage: React.FC = () => {
             id: userProfileResult!.id,
             username: userProfileResult!.username,
             userTag: userProfileResult!.userTag,
+            connectionId: deviceRegistrationResult.data!.connectionId,
             base64ProfilePicture: userProfileResult!.base64ProfilePicture,
             displayName: userProfileResult!.displayName,
-            deviceId: deviceRegistrationResult.data!,
+            deviceId: deviceRegistrationResult.data!.deviceId,
         });
 
         await signalRContext.client.connect();

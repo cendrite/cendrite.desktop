@@ -36,7 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const tokenManager = TokenManager.getInstance();
             await tokenManager.initialize(userResult.data!.id, deviceResult.data!.id);
 
-            setUser({ ...userResult.data!, deviceId: deviceResult.data!.id });
+            setUser({ ...userResult.data!, deviceId: deviceResult.data!.id, connectionId: deviceResult.data!.connectionId });
             return true;
         } catch (error: unknown) {
             console.error("Error getting device", error);
