@@ -54,4 +54,4 @@ export class DeviceService {
 
         return Result.success({deviceId: remoteDeviceResult.data!.deviceId, connectionId: remoteDeviceResult.data!.deviceConnectionId});
     }
-}1
+}
