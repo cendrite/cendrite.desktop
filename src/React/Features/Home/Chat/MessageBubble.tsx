@@ -8,7 +8,7 @@ export interface ChatBubbleProps {
 
 export const MessageBubble: React.FC<ChatBubbleProps> = ({ message }) => {
     const { user } = useUser();
-    const isUserMessage: boolean = message.senderId === user?.deviceId;
+    const isUserMessage: boolean = message.senderId === user!.connectionId;
 
     return (
         <div className={`flex ${isUserMessage ? "justify-end" : "justify-start"} mb-2`}>

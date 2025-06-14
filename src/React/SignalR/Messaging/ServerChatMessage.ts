@@ -1,15 +1,26 @@
 ﻿export class ServerChatMessage {
     public id: string;
+    public chatId: string;
     public senderId: string;
     public recipientId: string;
     public messageToken: string | null;
     public content: string;
+    public timestamp: Date;
 
-    constructor(id: string, senderId: string, recipientId: string, content: string, messageToken: string | null = null) {
+    constructor(
+        id: string,
+        chatId: string,
+        senderId: string,
+        recipientId: string,
+        content: string,
+        timestamp: Date,
+        messageToken: string | null = null) {
         this.id = id;
+        this.chatId = chatId;
         this.senderId = senderId;
         this.recipientId = recipientId;
         this.messageToken = messageToken;
+        this.timestamp = timestamp;
         this.content = content;
     }
 }

@@ -4,19 +4,23 @@ import {HubKey} from "../SignalRHubPath.ts";
 import {HubMethods} from "../HubMethods.ts";
 import {ServerChatMessage} from "./ServerChatMessage.ts";
 import {MessageReceipt} from "./MessageReceipt.ts";
+import {Topic, TopicHandler, TopicKey} from "./Subscribers.ts";
 
 export class MessageHubHandler implements IHubHandler {
     public readonly key: HubKey = "Messaging";
     private isInitialized: boolean = false;
     private connection?: HubConnection;
+    private readonly subscribers = new Map<TopicKey, Set<unknown>>();
+
 
     public initialize(connection: HubConnection) {
         if (this.isInitialized) {
             throw new Error("ChangeEventReceiver is already initialized");
         }
 
-        connection.on(HubMethods.ReceiveMessage, (message: string) => {
-            console.log("Received message", message);
+        connection.on(HubMethods.ReceiveMessage, (message: ServerChatMessage) => {
+            console.log("Server message", message);
+            this.publish("chat", message);
         });
 
         console.log("MessageReceiver: initialized");
@@ -24,11 +28,28 @@ export class MessageHubHandler implements IHubHandler {
         this.isInitialized = true;
     }
 
-    public async sendMessage(messages: ServerChatMessage[]): Promise<MessageReceipt>{
-        if(!this.isInitialized || !this.connection) {
+    subscribe<K extends TopicKey>(topic: K, handler: TopicHandler<K>): void {
+        if (!this.subscribers.has(topic)) {
+            this.subscribers.set(topic, new Set());
+        }
+
+        (this.subscribers.get(topic)! as Set<TopicHandler<K>>).add(handler);
+    }
+
+    unsubscribe<K extends TopicKey>(topic: K, handler: TopicHandler<K>): void {
+        (this.subscribers.get(topic) as Set<TopicHandler<K>>)?.delete(handler);
+    }
+
+    publish<K extends TopicKey>(topic: K, payload: Topic[K]): void {
+        (this.subscribers.get(topic) as Set<TopicHandler<K>> | undefined)
+            ?.forEach(h => h(payload));
+    }
+
+    public async sendMessage(messages: ServerChatMessage[]): Promise<MessageReceipt> {
+        if (!this.isInitialized || !this.connection) {
             return Promise.reject(new Error("MessageReceiver is not initialized"));
         }
-        if(messages.some(m=> m.messageToken === null)) {
+        if (messages.some(m => m.messageToken === null)) {
             throw new Error("Cannot send message without a token");
         }
         try {

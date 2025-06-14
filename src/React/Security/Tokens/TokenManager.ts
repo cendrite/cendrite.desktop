@@ -1,13 +1,17 @@
-import { Result } from "../../Shared/Result/Result";
+import { RefreshTokenApi } from "../../Common/Api/Identity/Auth/RefreshTokenApi";
 import { Tokens } from "./Tokens"
-import { GetRefreshTokenDto } from './../../Electron/Application/Features/RefreshToken/Queries/GetRefreshTokenDto';
-import { GetRefreshTokenQuery } from './../../Electron/Application/Features/RefreshToken/Queries/GetRefreshTokenQuery';
-import { SignNonceRequest } from './../../Electron/Application/Features/Device/Commands/SignNonce/SignNonceRequest';
-import { SignNonceDto } from './../../Electron/Application/Features/Device/Commands/SignNonce/SignNonceDto';
-import { CreateRefreshTokenRequest } from './../../Electron/Application/Features/RefreshToken/Commands/Create/CreateRefreshTokenRequest';
-import {RefreshTokenApi} from "../Common/Api/Identity/Auth/RefreshTokenApi.ts";
-import {GetNonceApi} from "../Common/Api/Identity/Auth/GetNonceApi.ts";
-import {VerifyNonceApi} from "../Common/Api/Identity/Auth/VerifyNonceApi.ts";
+import {GetNonceApi} from "../../Common/Api/Identity/Auth/GetNonceApi.ts";
+import { VerifyNonceApi } from "../../Common/Api/Identity/Auth/VerifyNonceApi.ts";
+import {GetRefreshTokenDto} from "../../../Electron/Application/Features/RefreshToken/Queries/GetRefreshTokenDto.ts";
+import {
+    GetRefreshTokenQuery
+} from "../../../Electron/Application/Features/RefreshToken/Queries/GetRefreshTokenQuery.ts";
+import {
+    CreateRefreshTokenRequest
+} from "../../../Electron/Application/Features/RefreshToken/Commands/Create/CreateRefreshTokenRequest.ts";
+import {SignNonceDto} from "../../../Electron/Application/Features/Device/Commands/SignNonce/SignNonceDto.ts";
+import {SignNonceRequest} from "../../../Electron/Application/Features/Device/Commands/SignNonce/SignNonceRequest.ts";
+import {Result} from "../../../Shared/Result/Result.ts";
 
 export class TokenManager {
     private static instance: TokenManager;

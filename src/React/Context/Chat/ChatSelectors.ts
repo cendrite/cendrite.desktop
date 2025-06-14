@@ -13,3 +13,7 @@ export function getChatById(chats: ChatViewModel[], chatId: string): ChatViewMod
     }
     return chat;
 }
+
+export function getChat(context: ChatViewModel[], id: string): ChatViewModel | null {
+    return context.find(chat => chat.id === id) || null;
+}

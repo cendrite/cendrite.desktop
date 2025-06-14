@@ -32,7 +32,7 @@ export class ChatViewModel {
     getUnreadMessagesCount(currentUserId: string): number {
         return this.messages.reduce(
             (count, message) =>
-                message.senderId !== currentUserId && message.deliveryStatus !== DeliveryStatus.Received
+                message.senderId !== currentUserId && message.deliveryStatus === DeliveryStatus.Received
                     ? count + 1
                     : count,
             0
