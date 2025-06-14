@@ -64,9 +64,11 @@ const ChatPage: React.FC<ChatPageProps> = ({chat, onClose}) => {
         for(const connectionId of currentChat.connectionIds) {
             messages.push(new ServerChatMessage(
                 message.id,
+                chat.id,
                 user!.deviceId,
                 connectionId,
                 serializedContent,
+                new Date(),
                 uuidv4().toString()));
         }
 

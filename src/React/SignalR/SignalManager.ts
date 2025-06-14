@@ -1,9 +1,9 @@
 ﻿import {HubConnection, HubConnectionBuilder} from '@microsoft/signalr';
 import {HubKey, HubPaths} from "./SignalRHubPath.ts";
-import {TokenManager} from "../Token/TokenManager.ts";
 import {IHubHandler} from "./IHubHandler.ts";
 import {ChangeEventHubHandler} from "./ChangeEvent/ChangeEventHubHandler.ts";
 import {MessageHubHandler} from "./Messaging/MessageHubHandler.ts";
+import {TokenManager} from "../Security/Tokens/TokenManager.ts";
 
 
 export class SignalManager {

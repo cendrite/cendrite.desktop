@@ -1,8 +1,8 @@
 ﻿import axios, {AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig} from "axios";
-import {TokenManager} from "../../Token/TokenManager.ts";
 import {Result} from "../../../Shared/Result/Result.ts";
 import {Envelope} from "./Envelope.ts";
 import {ErrorMessage} from "../../../Shared/Result/ErrorMessage.ts";
+import {TokenManager} from "../../Security/Tokens/TokenManager.ts";
 
 export class ApiClient{
     protected api: AxiosInstance;

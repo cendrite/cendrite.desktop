@@ -48,6 +48,7 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({childr
         try {
             const loadedContacts = await friendSyncService.SyncFriends(user.id);
             setContacts(loadedContacts);
+            console.log("Contacts loaded:", loadedContacts);
         } catch (error) {
             console.error("Error loading contacts:", error);
         }

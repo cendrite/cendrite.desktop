@@ -2,8 +2,8 @@
 import { Result } from "../../../Shared/Result/Result";
 import {LogoutCommand} from "../../../Electron/Application/Features/User/Commands/Logout/LogoutCommand.ts";
 import {LogoutApi} from "../Api/Identity/Auth/LogoutApi.ts";
-import {TokenManager} from "../../Token/TokenManager.ts";
 import {SignalManager} from "../../SignalR/SignalManager.ts";
+import {TokenManager} from "../../Security/Tokens/TokenManager.ts";
 
 export class LogoutService{
     async logout(id: string, deviceId: string): Promise<Result> {

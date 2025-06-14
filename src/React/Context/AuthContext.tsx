@@ -4,8 +4,8 @@ import { GetDeviceDto } from "../../Electron/Application/Features/Device/Queries
 import { GetDeviceQuery } from "../../Electron/Application/Features/Device/Queries/GetDevice/GetDeviceQuery";
 import { GetUserDto } from "../../Electron/Application/Features/User/Queries/GetUserDto.ts";
 import { GetUserQuery } from "../../Electron/Application/Features/User/Queries/GetUserQuery.ts";
-import { TokenManager } from "../Token/TokenManager.ts";
 import { useUser } from "./UserContext.tsx";
+import {TokenManager} from "../Security/Tokens/TokenManager.ts";
 
 interface AuthContextType {
     isLoggedIn: boolean;
