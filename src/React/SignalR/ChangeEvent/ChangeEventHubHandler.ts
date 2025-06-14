@@ -6,7 +6,7 @@ import {HubMethods} from "../HubMethods.ts";
 import {HubKey} from "../SignalRHubPath.ts";
 
 
-export class ChangeEventReceiver implements IHubHandler {
+export class ChangeEventHubHandler implements IHubHandler {
     public readonly key: HubKey = "ChangeEvents";
     private isInitialized: boolean = false;
     private connection?: HubConnection;

@@ -2,7 +2,7 @@
 import {HubKey, HubPaths} from "./SignalRHubPath.ts";
 import {TokenManager} from "../Token/TokenManager.ts";
 import {IHubHandler} from "./IHubHandler.ts";
-import {ChangeEventReceiver} from "./ChangeEvent/ChangeEventReceiver.ts";
+import {ChangeEventHubHandler} from "./ChangeEvent/ChangeEventHubHandler.ts";
 import {MessageHubHandler} from "./Messaging/MessageHubHandler.ts";
 
 
@@ -10,7 +10,7 @@ export class SignalManager {
     private static _instance: SignalManager;
     private _connections: Map<HubKey, HubConnection> = new Map();
     private readonly _handlers: IHubHandler[] = [
-        new ChangeEventReceiver(),
+        new ChangeEventHubHandler(),
         new MessageHubHandler(),
     ];
 

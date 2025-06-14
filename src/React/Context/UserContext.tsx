@@ -3,7 +3,7 @@ import {ChangeEvent} from "../SignalR/ChangeEvent/ChangeEvent.ts";
 import {ChangeEventType} from "../SignalR/ChangeEvent/ChangeEventType.ts";
 import {ProfilePictureUpdatedEvent} from "../SignalR/ChangeEvent/EventData.ts";
 import {SignalManager} from "../SignalR/SignalManager.ts";
-import {ChangeEventReceiver} from "../SignalR/ChangeEvent/ChangeEventReceiver.ts";
+import {ChangeEventHubHandler} from "../SignalR/ChangeEvent/ChangeEventHubHandler.ts";
 import {GetUserProfilePictureApi} from "../Common/Api/UserProfile/GetUserProfilePicture.ts";
 
 interface User {
@@ -25,7 +25,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = React.useState<User | null>(null);
-    const eventReceiver = SignalManager.getInstance().getHandler<ChangeEventReceiver>("ChangeEvents");
+    const eventReceiver = SignalManager.getInstance().getHandler<ChangeEventHubHandler>("ChangeEvents");
     const pictureApi = React.useMemo(() => new GetUserProfilePictureApi(), []);
 
     useEffect(() => {
