@@ -12,6 +12,10 @@ export const DeviceSchema = new EntitySchema<Device>({
             primary: true,
             generated: 'uuid'
         },
+        connectionId: {
+            type: "uuid",
+            unique: true
+        },
         privateKey: {
             type: "text",
             unique: true

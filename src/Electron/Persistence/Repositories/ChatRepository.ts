@@ -12,4 +12,8 @@ export class ChatRepository {
     public async create(chat: Chat): Promise<Chat> {
         return await this.repository.save(chat);
     }
+
+    public async deleteAll(): Promise<void> {
+        await this.repository.clear();
+    }
 }

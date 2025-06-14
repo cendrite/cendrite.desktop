@@ -15,7 +15,6 @@ export class UserProfileService {
         if(!getUserProfileResult.success){
             console.error(getUserProfileResult.errorMessage);
             return null;
-            //this would be fatal error.
             // TODO: Handle fatal error here
         }
 

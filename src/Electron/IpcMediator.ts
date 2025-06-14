@@ -1,6 +1,6 @@
 import {BrowserWindow, ipcMain} from "electron";
 import { Mediator } from "./Application/Mediator/Mediator.js";
-import {CreateDeviceRequestHandler  } from "./Application/Features/Device/Commands/CreateDevice/CreateDeviceHandler.js";
+import {CreateDeviceCommandHandler  } from "./Application/Features/Device/Commands/CreateDevice/CreateDeviceHandler.js";
 import {GetDeviceQueryHandler } from "./Application/Features/Device/Queries/GetDevice/GetDeviceQueryHandler.js";
 import { GenerateKeysRequestHandler } from "./Application/Features/Device/Commands/GenerateKeys/GenerateKeysRequestHandler.js";
 import { SignNonceRequestHandler } from "./Application/Features/Device/Commands/SignNonce/SignNonceRequestHandler.js";
@@ -25,7 +25,7 @@ import {
 export function registerIpcHandlers(mainWindow: BrowserWindow) {
     const mediator = new Mediator();
 
-    mediator.registerHandler("CreateDeviceRequest", new CreateDeviceRequestHandler());
+    mediator.registerHandler("CreateDeviceRequest", new CreateDeviceCommandHandler());
     mediator.registerHandler("GenerateKeysRequest", new GenerateKeysRequestHandler());
     mediator.registerHandler("GetDeviceQuery", new GetDeviceQueryHandler());
     mediator.registerHandler("SignNonceRequest", new SignNonceRequestHandler());
