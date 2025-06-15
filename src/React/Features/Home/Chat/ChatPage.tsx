@@ -3,15 +3,8 @@ import {ChatViewModel} from "../../../Models/ChatViewModel.ts";
 import ChatHeader from "./ChatHeader.tsx";
 import ChatBar from "./ChatBar.tsx";
 import {useChatContext} from "../../../Context/Chat/ChatContext.tsx";
-import {useUser} from "../../../Context/UserContext.tsx";
-import {MessageViewModel} from "../../../Models/MessageViewModel.ts";
-import {v4 as uuidv4} from 'uuid';
-import {ChatContextActionType} from "../../../Context/Chat/ChatReducer.ts";
-import {DeliveryStatus} from "../../../../Electron/Domain/Enums/DeliveryStatus.ts";
 import MessageList from "./MessageList.tsx";
-import {SignalManager} from "../../../SignalR/SignalManager.ts";
-import {ServerChatMessage} from "../../../SignalR/Messaging/ServerChatMessage.ts";
-import {MessageHubHandler} from "../../../SignalR/Messaging/MessageHubHandler.ts";
+import {useMessageService} from "../../../Common/Services/MessageService.ts";
 
 interface ChatPageProps {
     chat: ChatViewModel;
@@ -21,11 +14,14 @@ interface ChatPageProps {
 const ChatPage: React.FC<ChatPageProps> = ({chat, onClose}) => {
     const [slideClass, setSlideClass] = useState("translate-x-full");
     const [message, setMessage] = useState<string>("");
-    const {user} = useUser();
-    const {getChatById, chatDispatch} = useChatContext();
+    const {getChatById} = useChatContext();
     const currentChat = getChatById(chat.id);
-    const messageSender = SignalManager.getInstance().getHandler<MessageHubHandler>("Messaging");
+    const {sendMessage, markMessagesAsRead} = useMessageService();
 
+
+    useEffect(()=> {
+        markMessagesAsRead(currentChat).then(_ => _);
+    }, [currentChat, markMessagesAsRead])
 
     useEffect(() => {
         setSlideClass("translate-x-0");
@@ -40,43 +36,8 @@ const ChatPage: React.FC<ChatPageProps> = ({chat, onClose}) => {
 
     const onSendMessage = async (text: string): Promise<void> => {
         if (!text.trim()) return;
-
-        const message: MessageViewModel = {
-            id: uuidv4().toString(),
-            chatId: chat.id,
-            senderId: user!.connectionId,
-            text: text,
-            date: new Date(),
-            deliveryStatus: DeliveryStatus.Sent,
-            media: null // Assuming no media for simplicity
-        }
-        chatDispatch({type: ChatContextActionType.AddMessage, payload: message});
-
-        const content = {
-            text: text,
-            media: message.media,
-        };
-
-        const serializedContent = JSON.stringify(content);
-
-        const messages: ServerChatMessage[] = [];
-
-        for(const connectionId of currentChat.connectionIds) {
-            messages.push(new ServerChatMessage(
-                message.id,
-                chat.id,
-                user!.connectionId,
-                connectionId,
-                serializedContent,
-                new Date(),
-                uuidv4().toString()));
-        }
-
-        const receipt = await messageSender.sendMessage(messages);
-
-        console.log(receipt);
+        await sendMessage(currentChat, text, null);
     }
-
 
     return (
         <>
