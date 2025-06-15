@@ -4,6 +4,7 @@ import {UserProfileImage} from "../../../Common/Components/ProfilePicture/UserPr
 import {useHomePageContext} from "../../../Context/HomePage/HomePageContext.tsx";
 import {HomePageContextActionType} from "../../../Context/HomePage/HomePageReducer.ts";
 import { useUser } from "../../../Context/UserContext.tsx";
+import {useMessageService} from "../../../Common/Services/MessageService.ts";
 
 interface ChatCardProps {
     chat: ChatViewModel;
@@ -11,12 +12,13 @@ interface ChatCardProps {
 
 export const ChatCard: React.FC<ChatCardProps> = ({chat}) => {
     const {selectedItem, homeDispatch} = useHomePageContext();
+    const {markMessagesAsRead} = useMessageService();
     const {user} = useUser();
     const isSelected = selectedItem.type === 'chat' && selectedItem.value.id === chat.id;
     const name = chat.chatMembers[0].displayName ?? chat.chatMembers[0].contact.displayName;
     const lastMessage = chat.messages.length > 0 ? chat.messages[chat.messages.length - 1] : null;
 
-    const onHandleClick = () => {
+    const onHandleClick = async () => {
         if (isSelected) {
             homeDispatch({type: HomePageContextActionType.ClearSelection, payload: null});
             return;
@@ -25,6 +27,7 @@ export const ChatCard: React.FC<ChatCardProps> = ({chat}) => {
             type: HomePageContextActionType.SetSelectedChat,
             payload: chat
         });
+        await markMessagesAsRead(chat);
     }
 
     const cardClasses = `flex items-center py-2 px-2 rounded-md cursor-pointer 

@@ -1,5 +1,6 @@
 ﻿import {ChatViewModel} from "../../Models/ChatViewModel.ts";
 import {MessageViewModel} from "../../Models/MessageViewModel.ts";
+import {DeliveryStatus} from "../../../Electron/Domain/Enums/DeliveryStatus.ts";
 
 export enum ChatContextActionType{
     Init = -1,
@@ -11,6 +12,7 @@ export enum ChatContextActionType{
     UpdateChat = 5,
     MuteChat = 6,
     UnmuteChat = 7,
+    MarkAsRead = 8,
 }
 
 export type ChatContextAction =
@@ -22,7 +24,8 @@ export type ChatContextAction =
     | {type: ChatContextActionType.UpdateMessage; payload: MessageViewModel}
     | {type: ChatContextActionType.UpdateChat; payload: ChatViewModel}
     | {type: ChatContextActionType.MuteChat; payload: ChatViewModel}
-    | {type: ChatContextActionType.UnmuteChat; payload: ChatViewModel};
+    | {type: ChatContextActionType.UnmuteChat; payload: ChatViewModel}
+    | {type: ChatContextActionType.MarkAsRead; payload: ChatViewModel};
 
 
 export const chatReducer = (state: ChatViewModel[], action: ChatContextAction): ChatViewModel[] => {
@@ -68,6 +71,29 @@ export const chatReducer = (state: ChatViewModel[], action: ChatContextAction): 
                     m.id === updatedMessage.id ? updatedMessage : m
                 );
 
+                return new ChatViewModel(chat.id, chat.chatMembers, updatedMessages);
+            });
+        }
+
+        case ChatContextActionType.MarkAsRead: {
+            const updateChat: ChatViewModel = action.payload;
+            return state.map(chat => {
+                if (chat.id !== updateChat.id) return chat;
+
+                const updatedMessages = chat.messages.map(msg => {
+                    if (msg.deliveryStatus === DeliveryStatus.Received) {
+                        return new MessageViewModel(
+                            msg.id,
+                            msg.chatId,
+                            msg.senderId,
+                            msg.text,
+                            msg.date,
+                            DeliveryStatus.Read,
+                            msg.media
+                        );
+                    }
+                    return msg;
+                });
                 return new ChatViewModel(chat.id, chat.chatMembers, updatedMessages);
             });
         }

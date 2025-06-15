@@ -6,7 +6,7 @@ import {ChangeEventType} from "../SignalR/ChangeEvent/ChangeEventType.ts";
 import {FriendRequestAcceptedEvent, FriendRequestEvent} from "../SignalR/ChangeEvent/EventData.ts";
 import {useSignalEvent} from "../SignalR/Utility/Utilities.ts";
 import {useNotifications} from "./Notification/NotificationContext.tsx";
-import {ActionType} from "./Notification/NotificationReducer.ts";
+import {NotificationActionType} from "./Notification/NotificationReducer.ts";
 
 export class PendingContact {
     id: string;
@@ -35,7 +35,7 @@ export const PendingContactProvider: React.FC<{ children: React.ReactNode }> = (
     const [pendingContacts, setPendingContacts] = React.useState<PendingContact[]>([]);
     const friendService = React.useMemo(() => new FriendService(), []);
     const {user} = useUser();
-    const {dispatch} = useNotifications();
+    const {notificationDispatch} = useNotifications();
 
     useEffect(() => {
         if (!user) {
@@ -47,14 +47,14 @@ export const PendingContactProvider: React.FC<{ children: React.ReactNode }> = (
                 const loadedRequests = await friendService.GetFriendRequests(user!.id);
                 setPendingContacts(loadedRequests);
                 loadedRequests.forEach(r =>
-                    dispatch({ type: ActionType.AddFriendRequest, payload: { userTag: r.id } })
+                    notificationDispatch({ type: NotificationActionType.AddFriendRequest, payload: { userTag: r.id } })
                 );
             } catch (error) {
                 console.error("Error loading pending contacts:", error);
             }
         }
         load().catch(err=> {console.log("Error loading pending contacts", err)});
-    }, [user, dispatch, friendService]);
+    }, [user, notificationDispatch, friendService]);
 
 
     const handleFriendRequestReceived = useCallback(async (evt: ChangeEvent<FriendRequestEvent>) => {
@@ -63,18 +63,18 @@ export const PendingContactProvider: React.FC<{ children: React.ReactNode }> = (
             ...prev,
             new PendingContact(evt.data.tag, evt.data.username, false, evt.data.displayName, evt.data.presignedProfilePictureUrl),
         ]);
-        dispatch({ type: ActionType.AddFriendRequest, payload: { userTag: evt.data.tag } });
-    }, [dispatch]);
+        notificationDispatch({ type: NotificationActionType.AddFriendRequest, payload: { userTag: evt.data.tag } });
+    }, [notificationDispatch]);
 
     const handleFriendRequestRejected = useCallback(async (evt: ChangeEvent<FriendRequestEvent>) => {
         setPendingContacts((prev) => prev.filter((contact) => contact.id !== evt.data.tag));
-        dispatch({ type: ActionType.RemoveFriendRequest, payload: { userTag: evt.data.tag } });
-    }, [dispatch]);
+        notificationDispatch({ type: NotificationActionType.RemoveFriendRequest, payload: { userTag: evt.data.tag } });
+    }, [notificationDispatch]);
 
     const handleFriendRequestAcceptedEvent = useCallback(async (evt: ChangeEvent<FriendRequestAcceptedEvent>) => {
         setPendingContacts((prev) => prev.filter((contact) => contact.id !== evt.data.tag));
-        dispatch({ type: ActionType.RemoveFriendRequest, payload: { userTag: evt.data.tag } });
-    }, [dispatch]);
+        notificationDispatch({ type: NotificationActionType.RemoveFriendRequest, payload: { userTag: evt.data.tag } });
+    }, [notificationDispatch]);
 
     useSignalEvent<FriendRequestEvent>(ChangeEventType.FriendRequest, handleFriendRequestReceived);
     useSignalEvent<FriendRequestEvent>(ChangeEventType.FriendRequestRejected, handleFriendRequestRejected);

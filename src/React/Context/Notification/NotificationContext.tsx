@@ -6,7 +6,7 @@ import {NotificationState} from "./NotificationState.ts";
 
 export interface NotificationContextType {
     state: NotificationState;
-    dispatch: React.Dispatch<NotificationAction>;
+    notificationDispatch: React.Dispatch<NotificationAction>;
 }
 
 export const NotificationContext = React.createContext<NotificationContextType | undefined>(undefined);

@@ -1,7 +1,7 @@
 ﻿import {PendingContact} from "../../../Context/PendingContactContext.tsx";
 import React from "react";
 import {UserProfileImage} from "../../../Common/Components/ProfilePicture/UserProfileImage.tsx";
-import { ActionType } from "../../../Context/Notification/NotificationReducer.ts";
+import { NotificationActionType } from "../../../Context/Notification/NotificationReducer.ts";
 import NotificationBadge from "../../../Context/Notification/NotificationBadge.tsx";
 import {useNotifications} from "../../../Context/Notification/NotificationContext.tsx";
 import { useHomePageContext } from "../../../Context/HomePage/HomePageContext.tsx";
@@ -15,7 +15,7 @@ const PendingContactCard: React.FC<PendingContactCardProps> = ({contact}) => {
     const name = contact.displayName ?? contact.username;
     const {selectedItem, homeDispatch} = useHomePageContext();
     const isSelected = selectedItem.type === 'pending' && selectedItem.value.id === contact.id;
-    const {dispatch} = useNotifications();
+    const {notificationDispatch} = useNotifications();
 
     const cardClasses = `flex items-center py-2 px-2 rounded-md cursor-pointer relative
     ${isSelected ? "bg-darkGray-300" : "hover:bg-darkGray-300"}`;
@@ -25,7 +25,7 @@ const PendingContactCard: React.FC<PendingContactCardProps> = ({contact}) => {
             homeDispatch({type: HomePageContextActionType.ClearSelection, payload: null});
             return;
         }
-        dispatch({type: ActionType.RemoveFriendRequest, payload: {userTag: contact.id}});
+        notificationDispatch({type: NotificationActionType.RemoveFriendRequest, payload: {userTag: contact.id}});
         homeDispatch({
             type: HomePageContextActionType.SetSelectedPendingContact,
             payload: contact
