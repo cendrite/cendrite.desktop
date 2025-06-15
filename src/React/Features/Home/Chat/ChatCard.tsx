@@ -4,6 +4,8 @@ import {UserProfileImage} from "../../../Common/Components/ProfilePicture/UserPr
 import {useHomePageContext} from "../../../Context/HomePage/HomePageContext.tsx";
 import {HomePageContextActionType} from "../../../Context/HomePage/HomePageReducer.ts";
 import { useUser } from "../../../Context/UserContext.tsx";
+import {useNotifications} from "../../../Context/Notification/NotificationContext.tsx";
+import {NotificationActionType} from "../../../Context/Notification/NotificationReducer.ts";
 
 interface ChatCardProps {
     chat: ChatViewModel;
@@ -11,6 +13,7 @@ interface ChatCardProps {
 
 export const ChatCard: React.FC<ChatCardProps> = ({chat}) => {
     const {selectedItem, homeDispatch} = useHomePageContext();
+    const {notificationDispatch} = useNotifications();
     const {user} = useUser();
     const isSelected = selectedItem.type === 'chat' && selectedItem.value.id === chat.id;
     const name = chat.chatMembers[0].displayName ?? chat.chatMembers[0].contact.displayName;
@@ -25,6 +28,7 @@ export const ChatCard: React.FC<ChatCardProps> = ({chat}) => {
             type: HomePageContextActionType.SetSelectedChat,
             payload: chat
         });
+        notificationDispatch({type: NotificationActionType.RemoveChat, payload: {chatId: chat.id}});
     }
 
     const cardClasses = `flex items-center py-2 px-2 rounded-md cursor-pointer 

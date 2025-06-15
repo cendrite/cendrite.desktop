@@ -1,6 +1,6 @@
 ﻿import {ChatViewModel} from "../../Models/ChatViewModel.ts";
 import React, {useCallback, useEffect} from "react";
-import {ChatContextActionType, chatReducer} from "./ChatReducer.ts";
+import {ChatContextActionType, chatReducer,} from "./ChatReducer.ts";
 import {ChatContext} from "./ChatContext.tsx";
 import {ServerChatMessage} from "../../SignalR/Messaging/ServerChatMessage.ts";
 import {useSignalMessage} from "../../SignalR/Utility/Utilities.ts";
@@ -10,11 +10,15 @@ import {DeliveryStatus} from "../../../Electron/Domain/Enums/DeliveryStatus.ts";
 import {useContacts} from "../ContactContext.tsx";
 import {ChatMemberViewModel} from "../../Models/ChatMemberViewModel.ts";
 import {v4 as uuid} from 'uuid';
+import {useNotifications} from "../Notification/NotificationContext.tsx";
+import {NotificationActionType} from "../Notification/NotificationReducer.ts";
 
 
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
-    const [chats, dispatch] = React.useReducer(chatReducer, []);
-    const {contacts} = useContacts()
+    const [chats, chatDispatch] = React.useReducer(chatReducer, []);
+    const {contacts} = useContacts();
+    const {notificationDispatch} = useNotifications();
+
     const encryptor = Encryptor.getInstance();
 
 
@@ -24,7 +28,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({children}
             return [];
         }
         loadChats().then(loadedChats => {
-            dispatch({type: ChatContextActionType.Init, payload: loadedChats});
+            chatDispatch({type: ChatContextActionType.Init, payload: loadedChats});
         })
     }, []);
 
@@ -42,8 +46,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({children}
         );
         console.log("mapped message:", mappedMsg);
 
-        const existingChat = chats.find(chat => chat.id === msg.chatId);
-        if (!existingChat) {
+        let chat = chats.find(chat => chat.id === msg.chatId);
+        if (!chat) {
             const contact = contacts.find(c => c.connectionIds.includes(msg.senderId));
             console.log("contact count:" + contacts.length, "contact found:", contact);
             if (!contact) {
@@ -56,17 +60,18 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({children}
                 contact.displayName,
                 contact,
             )
-            const newChat = new ChatViewModel(msg.chatId, [member], [mappedMsg])
-            dispatch({type: ChatContextActionType.AddChat, payload: newChat});
+            chat = new ChatViewModel(msg.chatId, [member], [mappedMsg])
+            chatDispatch({type: ChatContextActionType.AddChat, payload: chat});
         } else {
-            dispatch({type: ChatContextActionType.AddMessage, payload: mappedMsg});
+            chatDispatch({type: ChatContextActionType.AddMessage, payload: mappedMsg});
         }
+        notificationDispatch({type: NotificationActionType.AddChat, payload: {chatId: chat.id}})
     }, [encryptor, contacts, chats])
 
     useSignalMessage("chat", receiveMessage);
 
     return (
-        <ChatContext.Provider value={{chats, dispatch}}>
+        <ChatContext.Provider value={{chats, chatDispatch}}>
             {children}
         </ChatContext.Provider>
     );

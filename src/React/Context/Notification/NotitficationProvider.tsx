@@ -4,10 +4,10 @@ import {NotificationState} from "./NotificationState.ts";
 import { NotificationContext } from "./NotificationContext.tsx";
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [state, dispatch] = React.useReducer(reducer, new NotificationState());
+    const [state, notificationDispatch] = React.useReducer(reducer, new NotificationState());
 
     return (
-        <NotificationContext.Provider value={{ state, dispatch }}>
+        <NotificationContext.Provider value={{ state, notificationDispatch }}>
             {children}
         </NotificationContext.Provider>
     );

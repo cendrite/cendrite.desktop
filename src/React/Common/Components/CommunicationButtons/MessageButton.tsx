@@ -14,7 +14,7 @@ interface MessageButtonProps{
 
 const MessageButton: React.FC<MessageButtonProps> = ({contact}) => {
     const {homeDispatch} = useHomePageContext();
-    const {getChatByMemberId, dispatch} = useChatContext();
+    const {getChatByMemberId, chatDispatch} = useChatContext();
     const chatService = new ChatService();
 
     const handleMessage = async () => {
@@ -23,7 +23,7 @@ const MessageButton: React.FC<MessageButtonProps> = ({contact}) => {
             homeDispatch({type: HomePageContextActionType.SetSelectedChat, payload: chat});
         } else {
             const chat = await chatService.createChat(contact);
-            dispatch({type: ChatContextActionType.AddChat, payload: chat});
+            chatDispatch({type: ChatContextActionType.AddChat, payload: chat});
             homeDispatch({type: HomePageContextActionType.SetSelectedChat, payload: chat});
         }
     };

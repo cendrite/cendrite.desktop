@@ -1,11 +1,13 @@
-﻿//export interface ChatNotification {}
-
-export interface FriendRequestNotification {
+﻿export interface FriendRequestNotification {
     userTag: string;
 }
 
+export interface ChatNotification {
+    chatId: string;
+}
+
 export class NotificationState {
-    //chatNotifications: ChatNotification[];
+    chatNotifications: ChatNotification[];
     friendRequestNotifications: FriendRequestNotification[];
     count: {
         chats: number;
@@ -14,7 +16,7 @@ export class NotificationState {
     }
 
     constructor() {
-        //      this.chatNotifications = [];
+        this.chatNotifications = [];
         this.friendRequestNotifications = [];
         this.count = {chats: 0, friendRequests: 0, sidebar: 0}
     }

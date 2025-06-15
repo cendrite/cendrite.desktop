@@ -22,7 +22,7 @@ const ChatPage: React.FC<ChatPageProps> = ({chat, onClose}) => {
     const [slideClass, setSlideClass] = useState("translate-x-full");
     const [message, setMessage] = useState<string>("");
     const {user} = useUser();
-    const {getChatById, dispatch} = useChatContext();
+    const {getChatById, chatDispatch} = useChatContext();
     const currentChat = getChatById(chat.id);
     const messageSender = SignalManager.getInstance().getHandler<MessageHubHandler>("Messaging");
 
@@ -50,7 +50,7 @@ const ChatPage: React.FC<ChatPageProps> = ({chat, onClose}) => {
             deliveryStatus: DeliveryStatus.Sent,
             media: null // Assuming no media for simplicity
         }
-        dispatch({type: ChatContextActionType.AddMessage, payload: message});
+        chatDispatch({type: ChatContextActionType.AddMessage, payload: message});
 
         const content = {
             text: text,
