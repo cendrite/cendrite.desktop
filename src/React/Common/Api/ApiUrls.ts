@@ -1,15 +1,15 @@
 ﻿export const API_URLS = {
     USER_MANAGEMENT: {
-        GET_PROFILE: "https://usermanagement.xhykl49jkg.org/api/UserProfile",
-        GET_BY_TAG: "https://usermanagement.xhykl49jkg.org/api/UserProfile/tag",
-        UPDATE_PROFILE_PICTURE: "https://usermanagement.xhykl49jkg.org/api/UserProfile/profile-picture",
-        GET_PROFILE_PICTURE: "https://usermanagement.xhykl49jkg.org/api/UserProfile/profile-picture",
-        SEND_FRIEND_REQUEST: "https://usermanagement.xhykl49jkg.org/api/UserProfile/friendship/create",
-        DELETE_FRIENDSHIP: "https://usermanagement.xhykl49jkg.org/api/UserProfile/friendship/delete",
-        DECLINE_FRIEND_REQUEST: "https://usermanagement.xhykl49jkg.org/api/UserProfile/friendship/reject",
-        ACCEPT_FRIENDSHIP: "https://usermanagement.xhykl49jkg.org/api/UserProfile/friendship/accept",
-        GET_FRIENDS: "https://usermanagement.xhykl49jkg.org/api/UserProfile/friendships",
-        GET_FRIEND_REQUESTS: "https://usermanagement.xhykl49jkg.org/api/UserProfile/friendship/requests",
+        GET_PROFILE: "https://social.xhykl49jkg.org/api/UserProfile",
+        GET_BY_TAG: "https://social.xhykl49jkg.org/api/UserProfile/tag",
+        UPDATE_PROFILE_PICTURE: "https://social.xhykl49jkg.org/api/UserProfile/profile-picture",
+        GET_PROFILE_PICTURE: "https://social.xhykl49jkg.org/api/UserProfile/profile-picture",
+        SEND_FRIEND_REQUEST: "https://social.xhykl49jkg.org/api/UserProfile/friendship/create",
+        DELETE_FRIENDSHIP: "https://social.xhykl49jkg.org/api/UserProfile/friendship/delete",
+        DECLINE_FRIEND_REQUEST: "https://social.xhykl49jkg.org/api/UserProfile/friendship/reject",
+        ACCEPT_FRIENDSHIP: "https://social.xhykl49jkg.org/api/UserProfile/friendship/accept",
+        GET_FRIENDS: "https://social.xhykl49jkg.org/api/UserProfile/friendships",
+        GET_FRIEND_REQUESTS: "https://social.xhykl49jkg.org/api/UserProfile/friendship/requests",
     },
     IDENTITY: {
         AUTH: {
