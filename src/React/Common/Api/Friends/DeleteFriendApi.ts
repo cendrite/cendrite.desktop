@@ -3,7 +3,6 @@ import {API_URLS} from "../ApiUrls.ts";
 import {Result} from "../../../../Shared/Result/Result.ts";
 
 export interface DeleteFriendRequest{
-    Id: string;
     friendTag: string;
 }
 

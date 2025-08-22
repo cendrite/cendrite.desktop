@@ -30,7 +30,7 @@ const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClos
     const saveProfilePicture = async () => {
         try {
             setLoading(true);
-            const result = await profilePictureService.updateProfilePicture(user!.id!, selectedProfilePicture!, isStock);
+            const result = await profilePictureService.updateProfilePicture(selectedProfilePicture!, isStock);
             if (result.success) {
                 updateUser({base64ProfilePicture: selectedProfilePicture!});
                 onClose(true);

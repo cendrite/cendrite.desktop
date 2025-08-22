@@ -3,8 +3,7 @@ import {API_URLS} from "../ApiUrls.ts";
 import {Result} from "../../../../Shared/Result/Result.ts";
 
 export interface UpdateProfilePictureApiRequest {
-    Id: string;
-    NewProfilePicture: File;
+    ProfilePicture: File;
 }
 
 export interface UpdateProfilePictureApiResponse {
@@ -21,8 +20,7 @@ export class UpdateProfilePictureApi {
     public async updateProfilePicture(request: UpdateProfilePictureApiRequest): Promise<Result<UpdateProfilePictureApiResponse>> {
 
         const formData = new FormData();
-        formData.append("Id", request.Id);
-        formData.append("NewProfilePicture", request.NewProfilePicture);
+        formData.append("ProfilePicture", request.ProfilePicture);
 
         return this.client.handle<UpdateProfilePictureApiResponse>({
             method: "PUT",

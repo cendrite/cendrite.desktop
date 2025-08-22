@@ -6,7 +6,6 @@ import {FriendshipDirection} from "../../../Enums/FriendshipDirection.ts";
 
 
 export interface GetUserProfileByTagRequest {
-    id: string;
     tag: string;
 }
 

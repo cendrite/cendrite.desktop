@@ -44,7 +44,7 @@ export const PendingContactProvider: React.FC<{ children: React.ReactNode }> = (
         }
         async function load() {
             try {
-                const loadedRequests = await friendService.GetFriendRequests(user!.id);
+                const loadedRequests = await friendService.GetFriendRequests();
                 setPendingContacts(loadedRequests);
                 loadedRequests.forEach(r =>
                     notificationDispatch({ type: NotificationActionType.AddFriendRequest, payload: { userTag: r.id } })

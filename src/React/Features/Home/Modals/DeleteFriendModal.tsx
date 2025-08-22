@@ -1,7 +1,6 @@
 ﻿import Modal from "react-modal";
 import React from "react";
 import { FriendService } from "../../../Common/Services/FriendService";
-import {useUser} from "../../../Context/UserContext.tsx";
 import {Contact, useContacts} from "../../../Context/ContactContext.tsx";
 import {useHomePageContext} from "../../../Context/HomePage/HomePageContext.tsx";
 import {HomePageContextActionType} from "../../../Context/HomePage/HomePageReducer.ts";
@@ -13,14 +12,13 @@ interface DeleteFriendModalProps {
 }
 
 const DeleteFriendModal: React.FC<DeleteFriendModalProps> = ({isOpen, onClose, contact}) => {
-    const {user} = useUser();
     const {setContacts} = useContacts();
     const {homeDispatch} = useHomePageContext();
     const friendService = new FriendService();
     console.log(contact);
 
     const handleDelete = () => {
-        friendService.DeleteFriend(user!.id,contact.id).then((result) => {
+        friendService.DeleteFriend(contact.id).then((result) => {
             if (result.success) {
                 setContacts(prev => prev.filter(c => c.id !== contact.id));
                 homeDispatch({type: HomePageContextActionType.ClearSelection, payload: null}); // Clear selection after deletion

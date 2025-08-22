@@ -15,16 +15,16 @@ export class FriendService {
     private readonly getFriendRequestsApi = new GetFriendRequestsApi();
     private readonly deleteFriendApi = new DeleteFriendApi();
 
-    public async AddFriend(id: string, tag: string): Promise<Result> {
-        return this.addFriendAPi.sendFriendRequest({id: id, friendTag: tag});
+    public async AddFriend(tag: string): Promise<Result> {
+        return this.addFriendAPi.sendFriendRequest({friendTag: tag});
     }
 
-    public async DeclineFriendRequest(id: string, tag: string): Promise<Result> {
-        return this.declineFriendRequestApi.declineFriendRequest({Id: id, friendTag: tag});
+    public async DeclineFriendRequest(tag: string): Promise<Result> {
+        return this.declineFriendRequestApi.declineFriendRequest({friendTag: tag});
     }
 
-    public async GetFriendRequests(id: string): Promise<Array<PendingContact>> {
-        const r_result = await this.getFriendRequestsApi.getFriendRequests({userId: id});
+    public async GetFriendRequests(): Promise<Array<PendingContact>> {
+        const r_result = await this.getFriendRequestsApi.getFriendRequests();
 
         if (!r_result.success || !r_result.data) return [];
 
@@ -44,8 +44,8 @@ export class FriendService {
         return Array.from(contacts);
     }
 
-    public async AcceptFriendship(userId: string, friendTag: string): Promise<Result> {
-        const acceptResult = await this.acceptFriendshipApi.acceptFriendship({Id: userId, friendTag: friendTag});
+    public async AcceptFriendship(friendTag: string): Promise<Result> {
+        const acceptResult = await this.acceptFriendshipApi.acceptFriendship({friendTag: friendTag});
         if (!acceptResult.success) {
             console.error("Failed to accept friendship");
             return Result.fail(new ErrorMessage(null, "Failed to accept friendship"));
@@ -53,7 +53,7 @@ export class FriendService {
         return Result.success();
     }
 
-    public async DeleteFriend(id: string, tag: string): Promise<Result> {
+    public async DeleteFriend(tag: string): Promise<Result> {
         console.log("Deleting friend with tag", tag);
         const result = await window.electron.sendRequestAsync<Result>(new DeleteFriendCommand(tag));
         if (!result.success) {
@@ -61,7 +61,7 @@ export class FriendService {
             return Result.fail(new ErrorMessage(null, "Failed to delete friend"));
         }
 
-        const deleteResult = await this.deleteFriendApi.deleteFriend({Id: id, friendTag: tag});
+        const deleteResult = await this.deleteFriendApi.deleteFriend({ friendTag: tag});
 
         if (!deleteResult.success) {
             console.error("Failed to delete friend");

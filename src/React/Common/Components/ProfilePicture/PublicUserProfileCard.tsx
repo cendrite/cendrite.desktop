@@ -38,7 +38,7 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
     const onAddFriend = async () => {
         if (friendAdded) return;
 
-        const result = await friendService.AddFriend(userContext.user!.id, friendTag);
+        const result = await friendService.AddFriend(friendTag);
         if (result.success) {
             setFriendAdded(true);
             setIsLoading(true);
@@ -49,7 +49,7 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
     };
 
     const onAcceptFriendRequest = async () => {
-        const result = await friendService.AcceptFriendship(userContext.user!.id, friendTag);
+        const result = await friendService.AcceptFriendship(friendTag);
         if (result.success) {
             setCurrentFriendshipStatus(FriendshipStatus.Accepted);
             setCurrentFriendshipDirection(FriendshipDirection.None);
@@ -63,7 +63,7 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
 
     const onDeclineFriendRequest = async () => {
         console.log(friendTag);
-        const result = await friendService.DeclineFriendRequest(userContext.user!.id, friendTag);
+        const result = await friendService.DeclineFriendRequest(friendTag);
         if (result.success) {
             setFriendAdded(false);
             setCurrentFriendshipStatus(undefined);

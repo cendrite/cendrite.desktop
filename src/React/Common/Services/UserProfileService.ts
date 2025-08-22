@@ -9,8 +9,8 @@ export class UserProfileService {
     private readonly getProfilePictureApi = new GetUserProfilePictureApi();
     private profilePicture!: string | null;
 
-    public async HandleUserProfile(userId: string){
-        const getUserProfileResult  = await this.getUserProfileApi.getUserProfile({ userProfileId: userId });
+    public async HandleUserProfile(){
+        const getUserProfileResult  = await this.getUserProfileApi.getUserProfile();
 
         if(!getUserProfileResult.success){
             console.error(getUserProfileResult.errorMessage);
