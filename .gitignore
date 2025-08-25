@@ -32,3 +32,6 @@ msg.db
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+*.tsbuildinfo
+
