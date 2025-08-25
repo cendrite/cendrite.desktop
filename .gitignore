@@ -24,3 +24,14 @@ dist-electron
 *.njsproj
 *.sln
 *.sw?
+
+# db
+msg.db
+*.db
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+*.tsbuildinfo
+

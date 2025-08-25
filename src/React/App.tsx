@@ -1,24 +1,27 @@
-import { useState } from "react";
-import "./App.css";
+import React from "react";
+import {HashRouter as Router, Route, Routes} from "react-router-dom";
+import LoginPage from "./Features/Login/LoginPage";
+import RegisterPage from "./Features/Register/RegisterPage";
+import VerifyUserPage from "./Features/VerifyUser/VerifyUserPage";
+import HomePage from "./Features/Home/HomePage";
+import VerifyLoginPage from "./Features/VerifyLogin/VerifyLoginPage";
+import StartupPage from "./Features/Startup/StarupPage.tsx";
+import LogoutPage from "./Features/Logout/LogoutPage.tsx";
 
-function App() {
-  const [count, setCount] = useState(0);
-
+const App: React.FC = () => {
   return (
-    <>
-      <div>
-        <a href="https://react.dev" target="_blank"></a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount(count => count + 1)}>count is {count}</button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">Click on the Vite and React logos to learn more</p>
-    </>
+    <Router>
+      <Routes>
+        <Route path="/" element={<StartupPage/>} />
+        <Route path="/home" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/verifyUser" element={<VerifyUserPage />} />
+        <Route path="/verifyLogin" element={<VerifyLoginPage />} />
+        <Route path="/logout" element={<LogoutPage />} />
+      </Routes>
+    </Router>
   );
-}
+};
 
 export default App;

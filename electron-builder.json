@@ -1,15 +1,23 @@
 {
   "appId": "com.dev-cypherly",
-  "files": ["dist-electron", "dist-react"],
-  "icon": "./dsktop-icon.png",
+  "files": ["dist-electron", "dist-react", "node_modules/libsodium-wrappers"],
+  "extraResources": ["dist-electron/Electron/Preload.cjs"],
   "mac": {
+    "icon": "./icons/mac.icns",
     "target": "dmg"
   },
   "linux": {
+    "icon": "./icons/linux.png",
     "target": "AppImage",
     "category": "Utility"
   },
   "win": {
-    "target": ["portable", "msi"]
-  }
+    "icon": "./icons/win.ico",
+    "target": ["nsis"]
+  },
+  "nsis":{
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true
+  },
+  "publish": null
 }
