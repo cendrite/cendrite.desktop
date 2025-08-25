@@ -48,7 +48,7 @@ const SearchForUserModal: React.FC<SearchForUserModalProps> = ({isOpen, onClose}
         setError(null); // Reset previous errors
 
         const fetchUserProfile = async () => {
-            const result = await api.getUserProfileByTag({ id: userId!, tag: searchQuery });
+            const result = await api.getUserProfileByTag({ tag: searchQuery });
 
             if (!result.success) {
                 setError("An error occurred while searching for the user");

@@ -30,9 +30,9 @@ export class FriendSyncService {
     private readonly getFriendsApi = new GetFriendsApi();
     private readonly profilePictureService = new ProfilePictureService();
 
-    public async SyncFriends(id: string): Promise<Array<Contact>> {
+    public async SyncFriends(): Promise<Array<Contact>> {
         const localMap = await this.LoadLocalContacts();
-        const remoteMap = await this.LoadRemoteContacts(id);
+        const remoteMap = await this.LoadRemoteContacts();
 
         const toDelete = Array.from(localMap.keys())
             .filter(localId => !remoteMap.has(localId));
@@ -99,9 +99,9 @@ export class FriendSyncService {
         return contacts;
     }
 
-    private async LoadRemoteContacts(id: string): Promise<Map<string, Contact>> {
+    private async LoadRemoteContacts(): Promise<Map<string, Contact>> {
         const contacts = new Map<string, Contact>();
-        const result = await this.getFriendsApi.getFriends({UserProfileId: id});
+        const result = await this.getFriendsApi.getFriends();
         if (!result.success || !result.data) return contacts;
 
         const entries = await Promise.all(

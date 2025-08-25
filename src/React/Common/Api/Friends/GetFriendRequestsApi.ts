@@ -10,9 +10,6 @@ export interface GetFriendRequestResponse {
     isSeen: boolean;
 }
 
-export interface GetFriendRequestsRequest{
-    userId: string;
-}
 
 export class GetFriendRequestsApi {
     private readonly client: ApiClient;
@@ -21,10 +18,9 @@ export class GetFriendRequestsApi {
         this.client = new ApiClient(API_URLS.USER_MANAGEMENT.GET_FRIEND_REQUESTS, true);
     }
 
-    public async getFriendRequests(request: GetFriendRequestsRequest): Promise<Result<GetFriendRequestResponse[]>> {
+    public async getFriendRequests(): Promise<Result<GetFriendRequestResponse[]>> {
         return this.client.handle({
             method: "GET",
-            params: request
         });
     }
 }

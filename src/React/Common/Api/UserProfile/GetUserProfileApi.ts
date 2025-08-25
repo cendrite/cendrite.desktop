@@ -11,10 +11,6 @@ export interface GetUserProfileResponse{
     displayName: string | null;
 }
 
-export interface GetUserProfileRequest {
-    userProfileId: string;
-}
-
 export class GetUserProfileApi{
     private readonly client: ApiClient;
 
@@ -22,10 +18,9 @@ export class GetUserProfileApi{
         this.client = new ApiClient(API_URLS.USER_MANAGEMENT.GET_PROFILE, true);
     }
 
-    public async getUserProfile(request: GetUserProfileRequest): Promise<Result<GetUserProfileResponse | void>> {
+    public async getUserProfile(): Promise<Result<GetUserProfileResponse | void>> {
         return this.client.handle<GetUserProfileResponse>({
             method: "GET",
-            params: request
         })
     }
 }

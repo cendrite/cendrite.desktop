@@ -9,7 +9,7 @@ import {GetUserProfilePictureApi} from "../Api/UserProfile/GetUserProfilePicture
 export class ProfilePictureService {
     private readonly updateProfilePictureApi = new UpdateProfilePictureApi();
     private readonly pictureApi = new GetUserProfilePictureApi();
-    public async updateProfilePicture(id: string, profilePicture: string, isStock: boolean): Promise<Result> {
+    public async updateProfilePicture(profilePicture: string, isStock: boolean): Promise<Result> {
         let file: File | null
         let base64: string | null
 
@@ -21,8 +21,7 @@ export class ProfilePictureService {
             base64 = profilePicture
         }
 
-        const remoteUpdateResult = await this.updateProfilePictureApi.updateProfilePicture(
-            {Id: id, NewProfilePicture: file });
+        const remoteUpdateResult = await this.updateProfilePictureApi.updateProfilePicture({ ProfilePicture: file });
 
         if(!remoteUpdateResult.success){
             return Result.fail(remoteUpdateResult.errorMessage!);

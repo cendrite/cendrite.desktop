@@ -4,7 +4,6 @@ import ChevronLeftIcon from "@heroicons/react/24/outline/ChevronLeftIcon";
 import {CheckIcon, ExclamationTriangleIcon, NoSymbolIcon, XMarkIcon} from "@heroicons/react/24/outline";
 import {FriendService} from "../../../Common/Services/FriendService.ts";
 import {delay} from "../../../../Shared/HelperFunctions.ts";
-import {useUser} from "../../../Context/UserContext.tsx";
 import {UserProfileImage} from "../../../Common/Components/ProfilePicture/UserProfileImage.tsx";
 import ToolTip from "../../../Common/Components/Utility/ToolTip.tsx";
 
@@ -20,7 +19,6 @@ const PendingContactPage: React.FC<PendingContactPage> = ({pendingContact, onClo
     const friendService = useMemo(() => new FriendService(), []);
     const [loadingAction, setLoadingAction] = useState<LoadingAction>(null);
     const {setPendingContacts} = usePendingContacts();
-    const {user} = useUser();
 
     useEffect(() => {
         setSlideClass("translate-x-0");
@@ -32,7 +30,7 @@ const PendingContactPage: React.FC<PendingContactPage> = ({pendingContact, onClo
     };
 
     const handleAccept = async () => {
-        const result = await friendService.AcceptFriendship(user!.id, pendingContact.id);
+        const result = await friendService.AcceptFriendship(pendingContact.id);
         if(result.success)
         {
             setPendingContacts(prev => prev.filter(c => c.id !== pendingContact.id));
@@ -44,7 +42,7 @@ const PendingContactPage: React.FC<PendingContactPage> = ({pendingContact, onClo
     };
 
     const handleDecline = async () => {
-        const result = await friendService.DeclineFriendRequest(user!.id, pendingContact.id);
+        const result = await friendService.DeclineFriendRequest(pendingContact.id);
         if(result.success)
         {
             setPendingContacts(prev => prev.filter(c => c.id !== pendingContact.id));

@@ -3,7 +3,6 @@ import {ApiClient} from "../ApiClient";
 import {API_URLS} from "../ApiUrls";
 
 export interface AcceptFriendshipRequest {
-    Id: string;
     friendTag: string;
 }
 
