@@ -4,7 +4,7 @@
         GET_BY_TAG: "https://social.xhykl49jkg.org/api/UserProfile/tag",
         UPDATE_PROFILE_PICTURE: "https://social.xhykl49jkg.org/api/UserProfile/profile-picture",
         GET_PROFILE_PICTURE: "https://social.xhykl49jkg.org/api/UserProfile/profile-picture",
-        SEND_FRIEND_REQUEST: "https://social.xhykl49jkg.org/api/UserProfile/friendship/create",
+        SEND_FRIEND_REQUEST: "https://social.xhykl49jkg.org/api/UserProfile/friendship",
         DELETE_FRIENDSHIP: "https://social.xhykl49jkg.org/api/UserProfile/friendship/delete",
         DECLINE_FRIEND_REQUEST: "https://social.xhykl49jkg.org/api/UserProfile/friendship/reject",
         ACCEPT_FRIENDSHIP: "https://social.xhykl49jkg.org/api/UserProfile/friendship/accept",
