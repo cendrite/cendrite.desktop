@@ -11,21 +11,17 @@ export class Result<T = void> {
         this.errorMessage = errorMessage;
     }
 
-    // Overloaded signatures for success
     public static success(): Result;
     public static success<T>(data: T): Result<T>;
 
-    // Implementation for success
     public static success<T>(data?: T): Result<T | void> {
         return new Result<T | void>(true, data ?? null);
     }
 
-    // Overloaded signatures for fail
     public static fail(errorMessage: ErrorMessage): Result;
     public static fail<T>(errorMessage: ErrorMessage): Result<T>;
     public static fail(): Result;
 
-    // Implementation for fail
     public static fail<T>(errorMessage?: ErrorMessage): Result<T | void> {
         return new Result<T | void>(false, null, errorMessage);
     }

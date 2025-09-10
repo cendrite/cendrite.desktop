@@ -1,6 +1,6 @@
 ﻿import {Friend} from "../Aggregates/Friend.js";
 
-export class ConnectionId {
+export class FriendConnectionId {
     id!: string;
     connectionId: string;
     friend: Friend;

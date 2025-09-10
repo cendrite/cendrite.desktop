@@ -1,13 +1,14 @@
 import 'reflect-metadata';
 import { DataSource } from "typeorm";
 import { FriendSchema } from "../Schemas/FriendSchema.js";
-import { ConnectionIdSchema } from "../Schemas/ConnectionIdSchema.js";
+import { FriendConnectionIdSchema } from "../Schemas/FriendConnectionIdSchema.js";
 import { DeviceSchema } from "../Schemas/DeviceSchema.js";
 import { RefreshTokenSchema } from "../Schemas/RefreshTokenSchema.js";
 import { UserSchema } from "../Schemas/UserSchema.js";
 import {ChatSchema} from "../Schemas/ChatSchema.js";
 import {ChatMemberSchema} from "../Schemas/ChatMemberSchema.js";
 import {MessageSchema} from "../Schemas/MessageSchema.js";
+import {UserConnectionIdSchema} from "../Schemas/UserConnectionIdSchema.js";
 
 let dbContext: DataSource;
 
@@ -20,10 +21,11 @@ export async function initializeDatabase(dbPath: string | null = null): Promise<
         logging: false,
         entities: [
             UserSchema,
+            UserConnectionIdSchema,
             RefreshTokenSchema,
             DeviceSchema,
             FriendSchema,
-            ConnectionIdSchema,
+            FriendConnectionIdSchema,
             ChatSchema,
             ChatMemberSchema,
             MessageSchema

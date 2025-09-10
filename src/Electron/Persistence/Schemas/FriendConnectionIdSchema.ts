@@ -1,10 +1,10 @@
 ﻿import {EntitySchema} from "typeorm";
-import {ConnectionId} from "../../Domain/Entities/ConnectionId.js";
 import {Friend} from "../../Domain/Aggregates/Friend.js";
+import {FriendConnectionId} from "../../Domain/Entities/FriendConnectionId.js";
 
-export const ConnectionIdSchema = new EntitySchema<ConnectionId>({
-    name: "ConnectionId",
-    target: ConnectionId,
+export const FriendConnectionIdSchema = new EntitySchema<FriendConnectionId>({
+    name: "FriendConnectionId",
+    target: FriendConnectionId,
     columns: {
         id: {
             type: "uuid",

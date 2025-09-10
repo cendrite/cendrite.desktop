@@ -4,8 +4,8 @@ import {Handler} from "../../../../Mediator/Handler.js";
 import {ImageConverter} from "../../../../Services/Images/ImageConverter.js";
 import {CreateFriendCommand} from "./CreateFriendCommand.js";
 import {ErrorMessage} from "../../../../../../Shared/Result/ErrorMessage.js";
-import {ConnectionId} from "../../../../../Domain/Entities/ConnectionId.js";
 import {Friend} from "../../../../../Domain/Aggregates/Friend.js";
+import {FriendConnectionId} from "../../../../../Domain/Entities/FriendConnectionId.js";
 
 export class CreateFriendCommandHandler implements Handler<CreateFriendCommand> {
     public async handle(request: CreateFriendCommand): Promise<Result> {
@@ -18,7 +18,7 @@ export class CreateFriendCommandHandler implements Handler<CreateFriendCommand> 
             friend.profilePicture = request.base64ProfilePicture ? await ImageConverter.base64ToBuffer(request.base64ProfilePicture) : null;
 
             if (request.connectionIds) {
-                friend.connectionIds = request.connectionIds.map(id => new ConnectionId(id, friend));
+                friend.connectionIds = request.connectionIds.map(id => new FriendConnectionId(id, friend));
             } else {
                 friend.connectionIds = [];
             }

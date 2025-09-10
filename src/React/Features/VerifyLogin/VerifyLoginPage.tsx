@@ -49,13 +49,11 @@ const VerifyLoginPage: React.FC = () => {
             setFieldError("verificationCode", "Something went wrong. Please try again later.");
             return;
         }
-
-        console.log("USER ONBOARDING DATA", onboardingContext.onboardingData);
-        console.log("DEVICE REGISTRATION RESULT", deviceRegistrationResult);
+        
         await tokenManager.initialize(onboardingContext.onboardingData.UserId!, deviceRegistrationResult.data!.deviceId);
 
-        const userProfileResult = await userProfileService.HandleUserProfile();
-        console.log("USER PROFILE RESULT", userProfileResult);
+        const userProfileResult = await userProfileService.HandleUserProfile(deviceRegistrationResult.data!.connectionId);
+
         userContext.setUser({
             id: userProfileResult!.id,
             username: userProfileResult!.username,

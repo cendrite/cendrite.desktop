@@ -3,7 +3,7 @@ import { FriendRepository } from "../../../../../Persistence/Repositories/Friend
 import {Handler} from "../../../../Mediator/Handler.js";
 import {AddConnectionIdCommand} from "./AddConnectionIdCommand.js";
 import {ErrorMessage} from "../../../../../../Shared/Result/ErrorMessage.js";
-import {ConnectionId} from "../../../../../Domain/Entities/ConnectionId.js";
+import {FriendConnectionId} from "../../../../../Domain/Entities/FriendConnectionId.js";
 
 export class AddConnectionIdCommandHandler implements Handler<AddConnectionIdCommand> {
     public async handle(request: AddConnectionIdCommand): Promise<Result> {
@@ -22,7 +22,7 @@ export class AddConnectionIdCommandHandler implements Handler<AddConnectionIdCom
                     console.warn(`Connection ID ${connId} already exists for friend ${friend.id}`);
                     continue;
                 }
-                friend.connectionIds.push(new ConnectionId(connId, friend));
+                friend.connectionIds.push(new FriendConnectionId(connId, friend));
             }
 
             await friendRepository.update(friend);

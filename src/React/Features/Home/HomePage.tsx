@@ -28,7 +28,6 @@ const HomePage: React.FC = () => {
             setSavedContact(selectedItem.type === 'contact' ? selectedItem.value : null);
             homeDispatch({ type: HomePageContextActionType.ClearSelection, payload: null });
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [paneType]);
 
 

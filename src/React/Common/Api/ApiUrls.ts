@@ -1,6 +1,6 @@
 ﻿export const API_URLS = {
     USER_MANAGEMENT: {
-        GET_PROFILE: "https://social.xhykl49jkg.org/api/UserProfile",
+        GET_PROFILE: "https://conduit.xhykl49jkg.org/api/profile",
         GET_BY_TAG: "https://social.xhykl49jkg.org/api/UserProfile/tag",
         UPDATE_PROFILE_PICTURE: "https://social.xhykl49jkg.org/api/UserProfile/profile-picture",
         GET_PROFILE_PICTURE: "https://social.xhykl49jkg.org/api/UserProfile/profile-picture",
