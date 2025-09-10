@@ -6,6 +6,7 @@ import {CreateUserDto} from "./CreateUserDto.js";
 import { ErrorMessage } from "../../../../../../Shared/Result/ErrorMessage.js";
 import {ImageConverter} from "../../../../Services/Images/ImageConverter.js";
 import { User } from "../../../../../Domain/Aggregates/User.js";
+import {UserConnectionId} from "../../../../../Domain/Entities/UserConnectionId.js";
 
 
 export class CreateUserCommandHandler implements Handler<CreateUserCommand, CreateUserDto>
@@ -17,9 +18,8 @@ export class CreateUserCommandHandler implements Handler<CreateUserCommand, Crea
             const _userRepository = new UserRepository();
 
             const profilePicture = request.base64ProfilePicture ? await ImageConverter.base64ToBuffer(request.base64ProfilePicture) : null;
-            const user = new User(request.id, request.username, request.userTag, profilePicture, request.displayName);
-
-            console.log('Creating User:', user);
+            const connectionIds = request.connectionIds.map(x=> new UserConnectionId(x));
+            const user = new User(request.id, request.username, request.userTag, connectionIds, profilePicture, request.displayName);
 
             const savedUser = await _userRepository.create(user);
 

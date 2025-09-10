@@ -1,7 +1,7 @@
 ﻿import {EntitySchema} from "typeorm";
 import {Friend} from "../../Domain/Aggregates/Friend.js";
-import {ConnectionId} from "../../Domain/Entities/ConnectionId.js";
 import { BaseSchema } from "./BaseSchema.js";
+import {FriendConnectionId} from "../../Domain/Entities/FriendConnectionId.js";
 
 export const FriendSchema =new EntitySchema<Friend>({
     name: "Friend",
@@ -26,7 +26,7 @@ export const FriendSchema =new EntitySchema<Friend>({
     },
     relations: {
         connectionIds: {
-            target: () => ConnectionId,
+            target: () => FriendConnectionId,
             type: "one-to-many",
             inverseSide: "friend",
             cascade: true,

@@ -9,6 +9,11 @@ export interface GetUserProfileResponse{
     userTag: string,
     profilePictureUrl: string | null;
     displayName: string | null;
+    connectionIds: string[];
+}
+
+export interface GetUserProfileRequest{
+    exclusiveConnectionId: string;
 }
 
 export class GetUserProfileApi{
@@ -18,9 +23,10 @@ export class GetUserProfileApi{
         this.client = new ApiClient(API_URLS.USER_MANAGEMENT.GET_PROFILE, true);
     }
 
-    public async getUserProfile(): Promise<Result<GetUserProfileResponse | void>> {
-        return this.client.handle<GetUserProfileResponse>({
+    public async getUserProfile(req: GetUserProfileRequest): Promise<Result<GetUserProfileResponse | void>> {
+        return this.client.HandleConduit<GetUserProfileResponse>({
             method: "GET",
+            params: req
         })
     }
 }

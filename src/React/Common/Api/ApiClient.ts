@@ -34,8 +34,6 @@ export class ApiClient{
 
     private addAuthInterceptors(){
         const tokenManager = TokenManager.getInstance();
-
-        // Request interceptor -> add token to any request made by the api
         this.api.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
             const token = tokenManager.getJwt();
             if(token){
@@ -44,7 +42,6 @@ export class ApiClient{
             return config;
         });
 
-        // Response interceptor -> handle token expiration
         this.api.interceptors.response.use((response)=> response,
             async (error: AxiosError) => {
                 if(error.response?.status === 401) {
@@ -85,4 +82,32 @@ export class ApiClient{
             return Result.fail<T>(new ErrorMessage("ApiError", "An unexpected error occurred."));
         }
     }
+    
+    public async HandleConduit<T>(config: AxiosRequestConfig) : Promise<Result<T | void>> {
+        try{
+            const response: AxiosResponse<T | null> = await this.api.request<T>(config);
+            if(response.status === 204){
+                return Result.success();
+            }
+            
+            return Result.success(response.data!);
+        }catch(error){
+            if (error instanceof AxiosError && error.response) {
+                const data = error.response.data as ProblemDetails;
+                return Result.fail<T>(ErrorMessage.fromProblemDetails(data));
+            }
+            console.error("Unexpected error during api call:", error);
+            return Result.fail<T>(new ErrorMessage("ApiError", "An unexpected error occurred."));
+        }
+    }
 }
+
+
+interface ProblemDetails {
+    title: string;
+    detail: string;
+    status: number;
+    instance: string;
+    type: string;
+}
+
