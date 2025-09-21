@@ -11,20 +11,15 @@ export class SignNonceRequestHandler implements Handler<SignNonceRequest, SignNo
     async handle(request: SignNonceRequest): Promise<Result<SignNonceDto>> {
         try {
 
-            // Get the device from the repository
             const repo = new DeviceRepository();
             const device = await repo.get();
 
-            // Convert the nonce to a buffer
             const nonceBuffer = Buffer.from(request.nonce, 'base64');
 
-            // Convert the private key to a buffer
             const privateKeyBuffer = Buffer.from(device.privateKey, 'base64');
 
-            // Sign the nonce
             const signatureBuffer = nacl.sign.detached(nonceBuffer, privateKeyBuffer);
 
-            // Convert the signature to base64
             const signature = Buffer.from(signatureBuffer).toString('base64');
 
             const dto = SignNonceDto.MapFrom(signature);
