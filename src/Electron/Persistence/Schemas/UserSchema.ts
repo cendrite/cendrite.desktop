@@ -1,7 +1,6 @@
 ﻿import {User} from "../../Domain/Aggregates/User.js";
 import {EntitySchema} from "typeorm";
 import {BaseSchema} from "./BaseSchema.js";
-import {FriendConnectionId} from "../../Domain/Entities/FriendConnectionId.js";
 import {UserConnectionId} from "../../Domain/Entities/UserConnectionId.js";
 
 export const UserSchema = new EntitySchema<User>({
