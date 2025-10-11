@@ -1,7 +1,4 @@
 ﻿import {EntitySchema} from "typeorm";
-import {Friend} from "../../Domain/Aggregates/Friend.js";
-import { BaseSchema } from "./BaseSchema.js";
-import {FriendConnectionId} from "../../Domain/Entities/FriendConnectionId.js";
 import {UserConnectionId} from "../../Domain/Entities/UserConnectionId.js";
 import {User} from "../../Domain/Aggregates/User.js";
 

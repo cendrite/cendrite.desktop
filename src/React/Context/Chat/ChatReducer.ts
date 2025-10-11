@@ -30,10 +30,11 @@ export type ChatContextAction =
 
 export const chatReducer = (state: ChatViewModel[], action: ChatContextAction): ChatViewModel[] => {
     switch (action.type) {
+
         case ChatContextActionType.Init:
             return action.payload;
+
         case ChatContextActionType.AddChat:
-            console.log("add chat", action.payload);
             return [...state, action.payload];
 
         case ChatContextActionType.RemoveChat:

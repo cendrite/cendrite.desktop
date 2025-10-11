@@ -25,6 +25,7 @@
     "@fontsource/inter": "^5.1.1",
     "@heroicons/react": "^2.2.0",
     "@microsoft/signalr": "^8.0.7",
+    "@signalapp/libsignal-client": "^0.84.0",
     "autoprefixer": "^10.4.20",
     "axios": "^1.7.9",
     "clsx": "^2.1.1",
