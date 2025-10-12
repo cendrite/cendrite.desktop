@@ -82,6 +82,9 @@ export class ApiClient{
             return Result.fail<T>(new ErrorMessage("ApiError", "An unexpected error occurred."));
         }
     }
+ 
+    public async HandleConduit<T>(config: AxiosRequestConfig, allowEmpty: true) : Promise<Result<T | void>>;
+    public async HandleConduit<T>(config: AxiosRequestConfig, allowEmpty?: boolean) : Promise<Result<T>>;   
     
     public async HandleConduit<T>(config: AxiosRequestConfig) : Promise<Result<T | void>> {
         try{
@@ -100,6 +103,7 @@ export class ApiClient{
             return Result.fail<T>(new ErrorMessage("ApiError", "An unexpected error occurred."));
         }
     }
+
 }
 
 

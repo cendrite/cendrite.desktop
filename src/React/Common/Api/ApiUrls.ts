@@ -8,7 +8,7 @@
         DELETE_FRIENDSHIP: "https://social.xhykl49jkg.org/api/UserProfile/friendship/delete",
         DECLINE_FRIEND_REQUEST: "https://social.xhykl49jkg.org/api/UserProfile/friendship/reject",
         ACCEPT_FRIENDSHIP: "https://social.xhykl49jkg.org/api/UserProfile/friendship/accept",
-        GET_FRIENDS: "https://social.xhykl49jkg.org/api/UserProfile/friendships",
+        GET_FRIENDS: "https://conduit.xhykl49jkg.org/api/friend/list",
         GET_FRIEND_REQUESTS: "https://social.xhykl49jkg.org/api/UserProfile/friendship/requests",
     },
     IDENTITY: {
