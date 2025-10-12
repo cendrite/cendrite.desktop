@@ -89,6 +89,7 @@ export class FriendSyncService {
     private async LoadLocalContacts(): Promise<Map<string, Contact>> {
         const contacts = new Map<string, Contact>();
         const result = await window.electron.sendRequestAsync<Result<Array<FriendDto>>>(new GetFriendsQuery());
+        console.log("Local friends loaded:", result);
 
         if (result.success && result.data) {
             for (const friend of result.data) {
@@ -103,6 +104,7 @@ export class FriendSyncService {
         const contacts = new Map<string, Contact>();
         const result = await this.getFriendsApi.getFriends();
         if (!result.success || !result.data) return contacts;
+        console.log("Remote friends loaded:", result);
 
         const entries = await Promise.all(
             result.data.map(async rc => {

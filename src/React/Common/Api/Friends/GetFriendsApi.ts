@@ -18,6 +18,6 @@ export class GetFriendsApi {
     }
 
     public async getFriends(): Promise<Result<GetFriendsResponse[]>> {
-        return this.client.handle<GetFriendsResponse[]>({method: "GET"});
+        return this.client.HandleConduit<GetFriendsResponse[]>({method: "GET"});
     }
 }

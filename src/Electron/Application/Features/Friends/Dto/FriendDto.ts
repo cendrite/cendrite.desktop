@@ -2,13 +2,9 @@
 
 export class FriendDto {
     public id!: string;
-
     public username!: string;
-
     public displayName!: string | null;
-
     public profilePicture!: string | null;
-
     public connectionIds!: string[];
 
     public static MapFrom(friend: Friend, profilePictureBase64: string | null): FriendDto
