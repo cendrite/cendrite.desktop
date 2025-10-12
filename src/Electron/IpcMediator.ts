@@ -22,6 +22,8 @@ import {UpdateFriendCommandHandler} from "./Application/Features/Friends/Command
 import {
     RemoveConnectionIdCommandHandler
 } from "./Application/Features/Friends/Commands/RemoveConnectionId/RemoveConnectionIdCommandHandler.js";
+import { GenerateKeyBundleCommandHandler } from "./Application/Features/Encryption/Commands/Generate/GenerateKeyBundleCommandHandler.js";
+import { PersistsKeyBundleCommandHandler } from "./Application/Features/Encryption/Commands/Create/PersistKeyBundleCommandHandler.js";
 export function registerIpcHandlers(mainWindow: BrowserWindow) {
     const mediator = new Mediator();
 
@@ -46,6 +48,9 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
     mediator.registerHandler("UpdateFriendCommand", new UpdateFriendCommandHandler());
     mediator.registerHandler("RemoveConnectionIdCommand", new RemoveConnectionIdCommandHandler());
     mediator.registerHandler("AddConnectionIdCommand", new AddConnectionIdCommandHandler());
+
+    mediator.registerHandler("GenerateKeyBundleCommand", new GenerateKeyBundleCommandHandler());
+    mediator.registerHandler("PersistKeyBundleCommand", new PersistsKeyBundleCommandHandler())
 
     mediator.registerHandler("CreateChatCommand", new CreateChatCommandHandler());
 

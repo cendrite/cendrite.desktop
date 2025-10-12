@@ -31,5 +31,9 @@
     },
     BUCKET: {
         BUCKET_BASE: "https://bucket-console.xhykl49jkg.org",
+    },
+    KEYSTORE: {
+        CREATE_KEY_BUNDLE: "https://conduit.xhykl49jkg.org/api/keys",   
+        UPLOAD_OTPS: "https://conduit.xhykl49jkg.org/api/keys/otps",
     }
 }
