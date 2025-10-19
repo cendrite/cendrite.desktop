@@ -7,7 +7,12 @@ export class SignedPreKeysRepository {
     public constructor() {
         this.repository = getDbContext().getRepository(SignedPreKey);
     }
+
    public async create(signedPreKey: SignedPreKey): Promise<SignedPreKey> {
         return this.repository.save(signedPreKey);
+    }
+
+    public async deleteAll(): Promise<void> {
+        await this.repository.clear();
     }
 }
