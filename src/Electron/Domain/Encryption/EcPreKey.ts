@@ -1,18 +1,11 @@
 export class EcPreKey {
-  id: number;
-  publicKey: Buffer;
-  privateKey: Buffer;
-  consumed: boolean; // 0 = not consumed, 1 = consumed,
+    public readonly id!: number;
+    public readonly privateKey: Buffer;
+    public readonly publicKey: Buffer;
+    public readonly consumed!: boolean;
 
-  constructor(
-    id: number,
-    publicKey: Buffer,
-    privateKey: Buffer,
-    consumed: boolean,
-  ) {
-    this.id = id;
-    this.publicKey = publicKey;
-    this.privateKey = privateKey;
-    this.consumed = consumed;
-  }
+    constructor(privateKey: Buffer, publicKey: Buffer) {
+        this.privateKey = privateKey;
+        this.publicKey = publicKey;
+    }
 }
