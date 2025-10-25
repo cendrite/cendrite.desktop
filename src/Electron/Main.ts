@@ -7,7 +7,6 @@ import { initializeDatabase } from './Persistence/Context/DatabaseContext.js';
 import { LogoutManager } from './Application/Services/LogoutManager/LogoutManager.js';
 import { registerIpcHandlers } from './IpcMediator.js';
 import * as fs from 'node:fs';
-import * as lib from '@signalapp/libsignal-client';
 
 if (process.env.ELECTRON_INSTANCE_ID) {
     console.log(`ELECTRON_INSTANCE_ID: ${process.env.ELECTRON_INSTANCE_ID}`);
@@ -24,9 +23,6 @@ app.on('ready', async () => {
     const dbPath = process.env.ELECTRON_INSTANCE_ID ? path.join(app.getPath('userData'), 'msg.sqlite') : null;
     await initializeDatabase(dbPath);
 
-    console.log('lib signal methods:');
-    console.log(Object.keys(lib));
-    console.log('lib signal version: 1');
     const logoutManager = LogoutManager.getInstance();
     await logoutManager.recoverIfNeeded();
 
