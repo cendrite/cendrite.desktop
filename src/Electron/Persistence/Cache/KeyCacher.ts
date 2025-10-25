@@ -1,5 +1,4 @@
 import {
-    KyberPreKeyRecord,
     PreKeyRecord,
     PrivateKey,
     PublicKey,
