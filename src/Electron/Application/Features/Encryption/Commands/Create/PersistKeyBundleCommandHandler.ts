@@ -19,27 +19,27 @@ export class PersistsKeyBundleCommandHandler implements Handler<PersistKeyBundle
             const protocolStore = new ProtocolStore();
 
             console.log('Persisting Key Bundle for Registration ID:', keys.registrationId);
-            console.log("amount of ecPreKeys:", keys.ecPreKeys.length);
+            console.log('amount of ecPreKeys:', keys.ecPreKeys.length);
 
             await protocolStore.createKeyBundle(
                 new IdentityKeys(
                     1,
                     keys.registrationId,
-                    Buffer.from(keys.identityPriv.serialize()),
-                    Buffer.from(keys.identityPub.serialize()),
+                    Buffer.from(keys.identityKey.privKey),
+                    Buffer.from(keys.identityKey.pubKey),
                 ),
                 new SignedPreKey(
-                    keys.signedPreKey.id(),
-                    Buffer.from(keys.signedPreKey.publicKey().serialize()),
-                    Buffer.from(keys.signedPreKey.privateKey().serialize()),
-                    Buffer.from(keys.signedPreKey.signature()),
-                    new Date(keys.signedPreKey.timestamp()),
+                    keys.signedPreKey.keyId,
+                    Buffer.from(keys.signedPreKey.keyPair.pubKey),
+                    Buffer.from(keys.signedPreKey.keyPair.privKey),
+                    Buffer.from(keys.signedPreKey.signature),
+                    new Date(keys.signedPrekeyTimestamp)
                 ),
-                keys.ecPreKeys.map((preke)=> new EcPreKey(
-                   Buffer.from(preke.privateKey().serialize()), 
-                   Buffer.from(preke.publicKey().serialize()),
+                keys.ecPreKeys.map((preke) => new EcPreKey(
+                    Buffer.from(preke.keyPair.privKey), 
+                    Buffer.from(preke.keyPair.pubKey)),
                 ),
-            ));
+            );
 
             return Result.success();
         } catch (error: unknown) {

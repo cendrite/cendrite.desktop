@@ -14,10 +14,10 @@ const LogoutPage: React.FC = () => {
 
     useEffect(() => {
         if (user) {
-            logoutService.logout(user.id, user.deviceId).then(() => {
+            logoutService.logout().then(() => {
                 const timer = setTimeout(() => {
                     navigate("/login");
-                }, 3000); // 3-second delay for animation
+                }, 3000); 
 
                 return () => clearTimeout(timer);
             });

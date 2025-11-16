@@ -1,17 +1,12 @@
-import {
-    PreKeyRecord,
-    PrivateKey,
-    PublicKey,
-    SignedPreKeyRecord,
-} from '@signalapp/libsignal-client';
+import * as libsignal from '@privacyresearch/libsignal-protocol-typescript'
 
 type StashedSecrets = {
     createdAt: number;
     registrationId: number;
-    identityPriv: PrivateKey;
-    identityPub: PublicKey;
-    signedPreKey: SignedPreKeyRecord;
-    ecPreKeys: PreKeyRecord[];
+    identityKey: libsignal.KeyPairType;
+    signedPreKey: libsignal.SignedPreKeyPairType;
+    signedPrekeyTimestamp: Date;
+    ecPreKeys: libsignal.PreKeyPairType[];
 };
 
 export class KeyCacher {
