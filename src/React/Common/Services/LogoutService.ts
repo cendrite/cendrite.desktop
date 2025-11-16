@@ -6,10 +6,10 @@ import {SignalManager} from "../../SignalR/SignalManager.ts";
 import {TokenManager} from "../../Security/Tokens/TokenManager.ts";
 
 export class LogoutService{
-    async logout(id: string, deviceId: string): Promise<Result> {
+    async logout(): Promise<Result> {
 
         const logoutApi = new LogoutApi();
-        const result = await logoutApi.logout({id, deviceId});
+        const result = await logoutApi.logout();
 
         if(!result.success)
             console.warn("Backend logout failed", result.errorMessage);

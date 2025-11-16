@@ -1,45 +1,37 @@
-import { PreKeyRecord, PrivateKey, SignedPreKeyRecord } from "@signalapp/libsignal-client";
+import * as libsignal from '@privacyresearch/libsignal-protocol-typescript'
 import { Result } from "../../../../../../Shared/Result/Result.js";
 import { Handler } from "../../../../Mediator/Handler.js";
 import { GenerateKeyBundleCommand } from "./GenerateKeyBundleCommand.js";
 import { GenerateKeyBundleDto } from "./GenerateKeyBundleDto.js";
-import { randomBytes, randomUUID } from "crypto";
+import { randomUUID } from "crypto";
 import { KeyCacher } from "../../../../../Persistence/Cache/KeyCacher.js";
 import { ErrorMessage } from "../../../../../../Shared/Result/ErrorMessage.js";
 import { SignedPreKeyDto } from "../../Dtos/SignedPreKeyDto.js";
+import generateNumberId from '../../../../Utilities/IdHelpers.js';
 
 export class GenerateKeyBundleCommandHandler implements Handler<GenerateKeyBundleCommand, GenerateKeyBundleDto> {
     public async handle(_request: GenerateKeyBundleCommand): Promise<Result<GenerateKeyBundleDto>> {
         try {
-            const identityPrivateKey = PrivateKey.generate();
-            const identityPublicKey = identityPrivateKey.getPublicKey();
-            const registrationId = this.generateRegistrationId();
+            const registrationId = libsignal.KeyHelper.generateRegistrationId(); 
 
-            const signedPrekey = PrivateKey.generate();
-            const signedPrekeyPublic = signedPrekey.getPublicKey();
-            const signedPrekeySignature = identityPrivateKey.sign(signedPrekeyPublic.serialize());
-            const signedPreKeyRecord = SignedPreKeyRecord.new(
-                1,
-                Date.now(),
-                signedPrekeyPublic,
-                signedPrekey,
-                signedPrekeySignature,
-            );
+            const identityKeyPair = await libsignal.KeyHelper.generateIdentityKeyPair();
+    
+            const baseKeyId = generateNumberId();
+            const signedPrekey = await libsignal.KeyHelper.generateSignedPreKey(identityKeyPair, baseKeyId);
 
-            const ecPrekeys: PreKeyRecord[] = [];
+
+            const ecPrekeys: libsignal.PreKeyPairType[] = [];
             for (let i = 1; i <= 100; i++) {
-                const ecPrekeyPrivate = PrivateKey.generate();
-                const ecPrekeyPublic = ecPrekeyPrivate.getPublicKey();
-                const ecPreKeyRecord = PreKeyRecord.new(1, ecPrekeyPublic, ecPrekeyPrivate);
-                ecPrekeys.push(ecPreKeyRecord);
+                const preKey = await libsignal.KeyHelper.generatePreKey(baseKeyId + i);
+                ecPrekeys.push(preKey);
             }
 
             const cacheToken = randomUUID();
             KeyCacher.getInstance().stashSecrets(cacheToken, {
                 registrationId,
-                identityPriv: identityPrivateKey,
-                identityPub: identityPublicKey,
-                signedPreKey: signedPreKeyRecord,
+                identityKey: identityKeyPair,
+                signedPreKey: signedPrekey,
+                signedPrekeyTimestamp: new Date(), 
                 ecPreKeys: ecPrekeys,
             });
 
@@ -47,16 +39,16 @@ export class GenerateKeyBundleCommandHandler implements Handler<GenerateKeyBundl
                 new GenerateKeyBundleDto(
                     cacheToken,
                     registrationId,
-                    this.b64Encode(identityPublicKey.serialize()),
+                    this.b64Encode(identityKeyPair.pubKey),
                     new SignedPreKeyDto(
-                        signedPreKeyRecord.id(),
-                        this.b64Encode(signedPreKeyRecord.publicKey().serialize()),
-                        this.b64Encode(signedPreKeyRecord.signature()),
-                        new Date(signedPreKeyRecord.timestamp()),
+                        signedPrekey.keyId,
+                        this.b64Encode(signedPrekey.keyPair.pubKey),
+                        this.b64Encode(signedPrekey.signature),
+                        new Date(),
                     ),
                     ecPrekeys.map((preKey) => ({
-                        keyId: preKey.id(),
-                        publicKey: this.b64Encode(preKey.publicKey().serialize()),
+                        keyId: preKey.keyId,
+                        publicKey: this.b64Encode(preKey.keyPair.pubKey),
                     })),
                 ),
             );
@@ -67,12 +59,7 @@ export class GenerateKeyBundleCommandHandler implements Handler<GenerateKeyBundl
         }
     }
 
-    private generateRegistrationId(): number {
-        const n = randomBytes(2).readUInt16BE(0);
-        return n === 0 ? 1 : n;
-    }
-
-    private b64Encode(buffer: Uint8Array): string {
+    private b64Encode(buffer: ArrayBuffer): string {
         return Buffer.from(buffer).toString('base64');
     }
 }
