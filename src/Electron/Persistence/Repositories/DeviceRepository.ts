@@ -27,6 +27,6 @@ export class DeviceRepository {
     }
 
     public async delete(): Promise<void> {
-        await this.repository.delete({});
+        await this.repository.clear();
     }
 }

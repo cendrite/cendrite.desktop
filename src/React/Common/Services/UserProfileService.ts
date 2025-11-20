@@ -21,6 +21,7 @@ export class UserProfileService {
         if(getUserProfileResult.data?.profilePictureUrl !== null)
         {
             const getProfilePictureResult = await this.getProfilePictureApi.getUserProfilePicture({ profilePictureUrl: getUserProfileResult.data!.profilePictureUrl! });
+            console.log("Get user profile result:", getProfilePictureResult);
             if(getProfilePictureResult.success) {
                 this.profilePicture = getProfilePictureResult.data!.base64ProfilePicture;
             }

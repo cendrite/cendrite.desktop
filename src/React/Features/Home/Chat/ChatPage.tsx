@@ -21,7 +21,7 @@ const ChatPage: React.FC<ChatPageProps> = ({chat, onClose}) => {
 
     useEffect(()=> {
         markMessagesAsRead(currentChat).then(_ => _);
-    }, [currentChat, markMessagesAsRead])
+    }, [currentChat.id, markMessagesAsRead]);
 
     useEffect(() => {
         setSlideClass("translate-x-0");
