@@ -58,8 +58,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({children}
                 uuid().toString(),
                 1,
                 contact.displayName,
-                contact,
-            )
+                contact);
+
             chat = new ChatViewModel(msg.chatId, [member], [mappedMsg])
             chatDispatch({type: ChatContextActionType.AddChat, payload: chat});
         } else {

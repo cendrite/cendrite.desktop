@@ -6,6 +6,7 @@ export class CreateUserDto {
     public userTag!: string;
     public base64ProfilePicture!: string | null;
     public displayName!: string | null;
+    public connectionIds!: string[];
 
     private constructor() { }
 
@@ -16,6 +17,7 @@ export class CreateUserDto {
         dto.userTag = user.userTag;
         dto.base64ProfilePicture = base64ProfilePicture;
         dto.displayName = user.displayName;
+        dto.connectionIds = user.connectionIds.map(conn => conn.connectionId);
         return dto;
     }
 }

@@ -1,11 +1,11 @@
-import React, { createContext, useContext, useEffect, useRef, useState, useCallback } from "react";
-import { Result } from "../../Shared/Result/Result";
-import { GetDeviceDto } from "../../Electron/Application/Features/Device/Queries/GetDevice/GetDeviceDto";
-import { GetDeviceQuery } from "../../Electron/Application/Features/Device/Queries/GetDevice/GetDeviceQuery";
-import { GetUserDto } from "../../Electron/Application/Features/User/Queries/GetUserDto.ts";
-import { GetUserQuery } from "../../Electron/Application/Features/User/Queries/GetUserQuery.ts";
-import { useUser } from "./UserContext.tsx";
-import {TokenManager} from "../Security/Tokens/TokenManager.ts";
+import React, { createContext, useContext, useEffect, useRef, useState, useCallback } from 'react';
+import { Result } from '../../Shared/Result/Result';
+import { GetDeviceDto } from '../../Electron/Application/Features/Device/Queries/GetDevice/GetDeviceDto';
+import { GetDeviceQuery } from '../../Electron/Application/Features/Device/Queries/GetDevice/GetDeviceQuery';
+import { GetUserDto } from '../../Electron/Application/Features/User/Queries/GetUserDto.ts';
+import { GetUserQuery } from '../../Electron/Application/Features/User/Queries/GetUserQuery.ts';
+import { useUser } from './UserContext.tsx';
+import { TokenManager } from '../Security/Tokens/TokenManager.ts';
 
 interface AuthContextType {
     isLoggedIn: boolean;
@@ -24,7 +24,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
             const deviceResult = await window.electron.sendRequestAsync<Result<GetDeviceDto>>(new GetDeviceQuery());
             if (!deviceResult.success) {
-                console.log("Error getting device", deviceResult.errorMessage);
+                console.log('Error getting device', deviceResult.errorMessage);
                 return false;
             }
 
@@ -36,10 +36,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const tokenManager = TokenManager.getInstance();
             await tokenManager.initialize(userResult.data!.id, deviceResult.data!.id);
 
-            setUser({ ...userResult.data!, deviceId: deviceResult.data!.id, connectionId: deviceResult.data!.connectionId });
+            setUser({
+                ...userResult.data!,
+                deviceId: deviceResult.data!.id,
+                connectionId: deviceResult.data!.connectionId,
+            });
+
             return true;
         } catch (error: unknown) {
-            console.error("Error getting device", error);
+            console.error('Error getting device', error);
             return false;
         }
     }, [setUser]);
@@ -62,7 +67,7 @@ export const useAuth = () => {
     const context = useContext(AuthContext);
 
     if (context === undefined) {
-        throw new Error("useAuth must be used within an AuthProvider");
+        throw new Error('useAuth must be used within an AuthProvider');
     }
 
     return context;
