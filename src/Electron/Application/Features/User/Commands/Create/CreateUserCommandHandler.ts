@@ -18,9 +18,9 @@ export class CreateUserCommandHandler implements Handler<CreateUserCommand, Crea
             const _userRepository = new UserRepository();
 
             const profilePicture = request.base64ProfilePicture ? await ImageConverter.base64ToBuffer(request.base64ProfilePicture) : null;
-            const connectionIds = request.connectionIds.map(x=> new UserConnectionId(x));
-            console.log("Creating user with connection IDs:", connectionIds);
-            const user = new User(request.id, request.username, request.userTag, connectionIds, profilePicture, request.displayName);
+            const user = new User(request.id, request.username, request.userTag, profilePicture, request.displayName);
+
+             user.connectionIds = request.connectionIds.map(connectionId => new UserConnectionId(connectionId, user));
 
             const savedUser = await _userRepository.create(user);
 

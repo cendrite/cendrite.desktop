@@ -10,9 +10,6 @@ import {ChatMemberViewModel} from "../../Models/ChatMemberViewModel.ts";
 
 export class ChatService {
 
-    constructor() {
-    }
-
     public async createChat(contact: Contact): Promise<ChatViewModel>{
         const command = new CreateChatCommand(
             uuid().toString(),

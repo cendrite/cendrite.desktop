@@ -8,10 +8,13 @@ export interface ChatBubbleProps {
 
 export const MessageBubble: React.FC<ChatBubbleProps> = ({ message }) => {
     const { user } = useUser();
-    const isUserMessage: boolean = message.senderId === user!.connectionId;
+
+    function isUserMessage(): boolean{
+    return message.senderId === user!.connectionId || user!.externalConnectionIds.includes(message.senderId);
+    }
 
     return (
-        <div className={`flex ${isUserMessage ? "justify-end" : "justify-start"} mb-2`}>
+        <div className={`flex ${isUserMessage() ? "justify-end" : "justify-start"} mb-2`}>
             <div
                 className={`
                     break-words 
@@ -19,7 +22,7 @@ export const MessageBubble: React.FC<ChatBubbleProps> = ({ message }) => {
                     px-4 py-2 
                     rounded-2xl 
                     text-sm 
-                    ${isUserMessage ? "bg-blue-500 text-white" : "bg-gray-200 text-black"} 
+                    ${isUserMessage() ? "bg-blue-500 text-white" : "bg-gray-200 text-black"} 
                     max-w-[75%] sm:max-w-[60%] md:max-w-[50%]
                 `}
             >

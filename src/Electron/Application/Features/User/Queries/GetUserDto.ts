@@ -6,6 +6,7 @@ export class GetUserDto {
     public userTag!: string;
     public base64ProfilePicture!: string | null;
     public displayName!: string | null;
+    public externalConnectionIds!: string[];
 
     private constructor() { }
 
@@ -16,6 +17,7 @@ export class GetUserDto {
         dto.userTag = user.userTag;
         dto.base64ProfilePicture = base64Picture;
         dto.displayName = user.displayName;
+        dto.externalConnectionIds = user.connectionIds.map(conn => conn.connectionId);
         return dto;
     }
 }

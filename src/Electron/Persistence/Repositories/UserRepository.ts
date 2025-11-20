@@ -2,6 +2,7 @@ import { Repository } from "typeorm/repository/Repository.js";
 import { CryptographyService } from "../Encryption/CryptographyService.js";
 import { getDbContext } from "../Context/DatabaseContext.js";
 import { User } from "../../Domain/Aggregates/User.js";
+import cloneDeep from "lodash/cloneDeep.js";
 
 export class UserRepository {
     private repository: Repository<User>;
@@ -13,7 +14,7 @@ export class UserRepository {
 
     public async create(user: User): Promise<User> {
 
-        const originalUser = (JSON.parse(JSON.stringify(user))); // Deep copy, to avoid returning encrypted data
+        const originalUser = cloneDeep(user);
 
         user.id = await this.cryptoService.encrypt(user.id);
         user.userTag = await this.cryptoService.encrypt(user.userTag);

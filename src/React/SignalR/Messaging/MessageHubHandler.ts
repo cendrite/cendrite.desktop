@@ -53,6 +53,7 @@ export class MessageHubHandler implements IHubHandler {
             throw new Error("Cannot send message without a token");
         }
         try {
+            console.log("Sending messages", messages);
             const receipt = await this.connection.invoke<MessageReceipt>(HubMethods.SendMessage, messages);
             console.log("Message sent successfully", receipt);
             return receipt;

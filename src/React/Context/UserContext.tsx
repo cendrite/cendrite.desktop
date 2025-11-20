@@ -12,6 +12,7 @@ interface User {
     userTag: string;
     deviceId: string;
     connectionId: string;
+    externalConnectionIds: string[];
     base64ProfilePicture: string | null;
     displayName: string | null;
 }

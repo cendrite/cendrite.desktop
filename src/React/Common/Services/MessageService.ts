@@ -46,8 +46,9 @@ export function useMessageService() {
 
             const content = encryptor.encrypt({text: text, media: media});
             const messages: ServerChatMessage[] = [];
+            const connectionIds = [...chat.connectionIds, user!.externalConnectionIds].flat();
 
-            for (const connectionId of chat.connectionIds) {
+            for (const connectionId of connectionIds) {
                 messages.push(new ServerChatMessage(
                     message.id,
                     chat.id,
