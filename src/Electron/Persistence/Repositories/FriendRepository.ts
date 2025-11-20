@@ -43,6 +43,6 @@ export class FriendRepository {
     }
 
     public async deleteAll() : Promise<void>{
-        await this.friendRepository.delete({})
+        await this.friendRepository.clear();
     }
 }

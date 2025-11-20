@@ -31,11 +31,11 @@ export class ProtocolStore {
      * session records, identity keys, and identity cache.
      */
     public async deleteAll(): Promise<void> {
-        await this.signedPreKeysRepository.delete({});
-        await this.ecPreKeyRepository.delete({});
-        await this.senderKeyRepository.delete({});
-        await this.sessionRepository.delete({});
-        await this.identityKeysRepository.delete({});
-        await this.identityCacheRepository.delete({});
+        await this.signedPreKeysRepository.clear();
+        await this.ecPreKeyRepository.clear();
+        await this.senderKeyRepository.clear();
+        await this.sessionRepository.clear();
+        await this.identityKeysRepository.clear();
+        await this.identityCacheRepository.clear();
     }
 }
