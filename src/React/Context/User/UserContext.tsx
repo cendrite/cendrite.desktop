@@ -9,7 +9,7 @@ interface UserContextType {
 
 export const UserContext = React.createContext<UserContextType | undefined>(undefined);
 
-export const useUserContext = () => {
+export const useUser = () => {
     const context = React.useContext(UserContext);
 
     if (!context) {

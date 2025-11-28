@@ -1,7 +1,6 @@
 ﻿import React, {useState} from "react";
 import {UserProfileImage} from "./UserProfileImage.tsx";
 import {CheckIcon, XMarkIcon, PlusIcon} from "@heroicons/react/24/outline";
-import {useUser } from "../../../Context/UserContext.tsx";
 import { FriendService } from "../../Services/FriendService.ts";
 import { FriendshipStatus } from "../../../Enums/FriendshipStatus.ts";
 import { FriendshipDirection } from "../../../Enums/FriendshipDirection.ts";
@@ -9,6 +8,7 @@ import {delay} from "../../../../Shared/HelperFunctions.ts";
 import ToolTip from "../Utility/ToolTip.tsx";
 import { useContacts } from "../../../Context/Contacts/ContactContext.tsx";
 import { ContactContextActionType } from "../../../Context/Contacts/ContactReducer.ts";
+import { useUser } from "../../../Context/User/UserContext.tsx";
 
 interface PublicUserProfileCardProps {
     username: string;
@@ -27,7 +27,7 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
                                                                          friendshipStatus,
                                                                          friendshipDirection,
                                                                      }) => {
-    const userContext = useUser();
+    const {user}= useUser();
     const friendService = new FriendService();
     const [friendAdded, setFriendAdded] = useState<boolean>(false);
     const [currentFriendshipStatus, setCurrentFriendshipStatus] = useState<FriendshipStatus | undefined>(friendshipStatus);
@@ -86,7 +86,7 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
                 </ToolTip>
             );
         }
-        if (userContext.user?.userTag === friendTag) return null;
+        if (user?.userTag === friendTag) return null;
 
         if ((currentFriendshipStatus === FriendshipStatus.Accepted)) {
             return (

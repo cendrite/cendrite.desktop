@@ -1,6 +1,5 @@
 ﻿import React, {useState} from "react";
 import Modal from "react-modal";
-import {useUser} from "../../../Context/UserContext.tsx";
 import {PencilIcon, PhotoIcon} from "@heroicons/react/24/outline";
 import {GetMediaDto} from "../../../../Electron/Application/Features/Files/Queries/GetMedia/GetMediaDto.ts";
 import {Result} from "../../../../Shared/Result/Result.ts";
@@ -9,6 +8,8 @@ import {
     MediaType
 } from "../../../../Electron/Application/Features/Files/Queries/GetMedia/GetMediaQuery.ts";
 import {ProfilePictureService} from "../../../Common/Services/ProfilePictureService.ts";
+import { useUser } from "../../../Context/User/UserContext.tsx";
+import { UserContextActionType } from "../../../Context/User/UserReducer.ts";
 
 interface ProfilePictureModalProps {
     isOpen: boolean;
@@ -16,7 +17,7 @@ interface ProfilePictureModalProps {
 }
 
 const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClose}) => {
-    const {user, updateUser} = useUser();
+    const {user, userDispatch} = useUser();
     const [selectedProfilePicture, setSelectedProfilePicture] = useState<string | null>(null);
     const [isStock, setIsStock] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
@@ -32,7 +33,7 @@ const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClos
             setLoading(true);
             const result = await profilePictureService.updateProfilePicture(selectedProfilePicture!, isStock);
             if (result.success) {
-                updateUser({base64ProfilePicture: selectedProfilePicture!});
+                userDispatch({type: UserContextActionType.UpdateProfilePicture, payload: {base64ProfilePicture: selectedProfilePicture!}});
                 onClose(true);
             } else {
                 console.error(result.errorMessage);

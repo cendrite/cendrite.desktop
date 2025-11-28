@@ -1,9 +1,9 @@
 ﻿import React, {useState} from "react";
 import Modal from "react-modal";
-import {useUser} from "../../../Context/UserContext.tsx";
 import LogoutModal from "./LogoutModal.tsx";
 import ProfilePictureModal from "./ProfilePictureModal.tsx";
 import ProfilePicture from "../../../Common/Components/ProfilePicture/ProfilePicture.tsx";
+import { useUser } from "../../../Context/User/UserContext.tsx";
 
 
 interface UserModalProps {

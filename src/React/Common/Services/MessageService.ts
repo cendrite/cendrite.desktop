@@ -11,7 +11,7 @@ import {MessageHubHandler} from "../../SignalR/Messaging/MessageHubHandler.ts";
 import {SignalManager} from "../../SignalR/SignalManager.ts";
 import {Encryptor} from "../../Security/Encryption/Encryptor.ts";
 import {ServerChatMessage} from "../../SignalR/Messaging/ServerChatMessage.ts";
-import {useUser} from "../../Context/UserContext.tsx";
+import { useUser } from "../../Context/User/UserContext.tsx";
 
 export function useMessageService() {
     const {chatDispatch} = useChatContext();

@@ -4,8 +4,10 @@ import { GetDeviceDto } from '../../Electron/Application/Features/Device/Queries
 import { GetDeviceQuery } from '../../Electron/Application/Features/Device/Queries/GetDevice/GetDeviceQuery';
 import { GetUserDto } from '../../Electron/Application/Features/User/Queries/GetUserDto.ts';
 import { GetUserQuery } from '../../Electron/Application/Features/User/Queries/GetUserQuery.ts';
-import { useUser } from './UserContext.tsx';
 import { TokenManager } from '../Security/Tokens/TokenManager.ts';
+import { useUser } from './User/UserContext.tsx';
+import { UserContextActionType } from './User/UserReducer.ts';
+import { User } from '../Models/User.ts';
 
 interface AuthContextType {
     isLoggedIn: boolean;
@@ -18,7 +20,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
     const initializedRef = useRef(false);
-    const { setUser } = useUser();
+    const { userDispatch } = useUser();
 
     const initializeApp = useCallback(async (): Promise<boolean> => {
         try {
@@ -36,18 +38,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const tokenManager = TokenManager.getInstance();
             await tokenManager.initialize(userResult.data!.id, deviceResult.data!.id);
 
-            setUser({
-                ...userResult.data!,
-                deviceId: deviceResult.data!.id,
-                connectionId: deviceResult.data!.connectionId,
-            });
+            userDispatch({type: UserContextActionType.Initialize, payload: new User(
+                userResult.data!.id,
+                userResult.data!.username,
+                userResult.data!.userTag,
+                deviceResult.data!.id,
+                deviceResult.data!.connectionId,
+                userResult.data!.externalConnectionIds,
+                userResult.data!.base64ProfilePicture,
+                userResult.data!.displayName,
+            )});
 
             return true;
         } catch (error: unknown) {
             console.error('Error getting device', error);
             return false;
         }
-    }, [setUser]);
+    }, [userDispatch]);
 
     useEffect(() => {
         if (initializedRef.current) return;

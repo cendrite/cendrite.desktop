@@ -3,8 +3,8 @@ import {ChatViewModel} from "../../../Models/ChatViewModel.ts";
 import {UserProfileImage} from "../../../Common/Components/ProfilePicture/UserProfileImage.tsx";
 import {useHomePageContext} from "../../../Context/HomePage/HomePageContext.tsx";
 import {HomePageContextActionType} from "../../../Context/HomePage/HomePageReducer.ts";
-import { useUser } from "../../../Context/UserContext.tsx";
 import {useMessageService} from "../../../Common/Services/MessageService.ts";
+import { useUser } from "../../../Context/User/UserContext.tsx";
 
 interface ChatCardProps {
     chat: ChatViewModel;
