@@ -7,7 +7,9 @@ export interface ContactContextType {
     contacts: Contact[];
     contactDispatch: React.Dispatch<ContactContextAction>;
 }
+
 export const ContactContext = React.createContext<ContactContextType| undefined>(undefined);
+
 export const useContacts = () => {
     const context = React.useContext(ContactContext);
 
