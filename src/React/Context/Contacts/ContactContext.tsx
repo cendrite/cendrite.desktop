@@ -8,7 +8,6 @@ export interface ContactContextType {
     contactDispatch: React.Dispatch<ContactContextAction>;
 }
 export const ContactContext = React.createContext<ContactContextType| undefined>(undefined);
-
 export const useContacts = () => {
     const context = React.useContext(ContactContext);
 
@@ -16,10 +15,12 @@ export const useContacts = () => {
         throw new Error('useContacts must be used within a ContactProvider');
     }
 
+    const {contacts, contactDispatch} = context;
+
     return {
-        contacts: context.contacts,
-        contactDispatch: context.contactDispatch,
-        getById: (id: string) => getById(context.contacts, id),
-        getByConnectionId: (connectionId: string) => getByConnectionId(context.contacts, connectionId),
+        contacts: contacts,
+        contactDispatch: contactDispatch,
+        getContactById: (id: string) => getById(contacts, id),
+        getContactByConnectionId: (connectionId: string) => getByConnectionId(contacts, connectionId),
     }
 }

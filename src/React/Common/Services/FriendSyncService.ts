@@ -1,5 +1,4 @@
 ﻿import {GetFriendsApi} from "../Api/Friends/GetFriendsApi.ts";
-import {Contact} from "../../Context/ContactContext.tsx";
 import {Result} from "../../../Shared/Result/Result.ts";
 import {FriendDto} from "../../../Electron/Application/Features/Friends/Dto/FriendDto.ts";
 import {GetFriendsQuery} from "../../../Electron/Application/Features/Friends/Queries/GetFriends/GetFriendsQuery.ts";
@@ -19,6 +18,7 @@ import {
 import {
     AddConnectionIdCommand
 } from "../../../Electron/Application/Features/Friends/Commands/AddConnectionId/AddConnectionIdCommand.ts";
+import { Contact } from "../../Models/Contact.ts";
 
 interface ConnectionDiff {
     friendId: string;

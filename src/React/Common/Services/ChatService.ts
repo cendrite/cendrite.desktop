@@ -1,11 +1,11 @@
-﻿import {Contact} from "../../Context/ContactContext.tsx";
-import {ChatViewModel} from "../../Models/ChatViewModel.ts";
+﻿import {ChatViewModel} from "../../Models/ChatViewModel.ts";
 import {Result} from "../../../Shared/Result/Result.ts";
 import {CreateChatDto} from "../../../Electron/Application/Features/Chat/Commands/CreateChatDto.ts";
 import {CreateChatCommand} from "../../../Electron/Application/Features/Chat/Commands/CreateChatCommand.ts";
 import {v4 as uuid} from 'uuid';
 import {ChatPrivileges} from "../../../Electron/Domain/Enums/ChatPrivileges.ts";
 import {ChatMemberViewModel} from "../../Models/ChatMemberViewModel.ts";
+import { Contact } from "../../Models/Contact.ts";
 
 
 export class ChatService {

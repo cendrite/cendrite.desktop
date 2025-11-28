@@ -1,8 +1,8 @@
 import React from "react";
-import { Contact } from "../../../Context/ContactContext.tsx";
 import {UserProfileImage} from "../../../Common/Components/ProfilePicture/UserProfileImage.tsx";
 import {useHomePageContext} from "../../../Context/HomePage/HomePageContext.tsx";
 import {HomePageContextActionType} from "../../../Context/HomePage/HomePageReducer.ts";
+import { Contact } from "../../../Models/Contact.ts";
 
 interface ContactCardProps {
     contact: Contact;
