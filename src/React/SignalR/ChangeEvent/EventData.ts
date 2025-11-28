@@ -27,3 +27,13 @@ export interface FriendDeletedEvent {
     tag: string;
     deletedBy: string;
 }
+
+export interface UserLoggedInEvent { 
+    connectionId: string;
+    userTag: string;
+}
+
+export interface UserLoggedOutEvent {
+    connectionId: string;
+    userTag: string;
+}
