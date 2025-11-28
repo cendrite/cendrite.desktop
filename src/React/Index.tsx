@@ -4,13 +4,13 @@ import App from "./App.tsx";
 import {UserProvider} from "./Context/UserContext.tsx";
 import {AuthProvider} from "./Context/AuthContext.tsx";
 import {OnboardingProvider} from "./Context/OnboardingContext.tsx";
-import {ContactProvider} from "./Context/ContactContext.tsx";
 import {StrictMode} from "react";
 import {SignalRProvider} from "./SignalR/SignalRProvider.tsx";
 import {PendingContactProvider} from "./Context/PendingContactContext.tsx";
 import { ChatProvider } from "./Context/Chat/ChatProvider.tsx";
 import { NotificationProvider } from "./Context/Notification/NotitficationProvider.tsx";
 import { HomePageProvider } from "./Context/HomePage/HomePageProvider.tsx";
+import { ContactProvider } from "./Context/Contacts/ContactProvider.tsx";
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>

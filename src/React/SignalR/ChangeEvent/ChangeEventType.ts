@@ -8,4 +8,6 @@
     FriendRemoved = 6,
     UserBlocked = 7,
     UserUnblocked = 8,
+    UserLoggedIn = 9,
+    UserLoggedOut = 10
 }

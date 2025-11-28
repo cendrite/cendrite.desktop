@@ -1,5 +1,5 @@
 ﻿import {ChatPrivileges} from "../../Electron/Domain/Enums/ChatPrivileges.ts";
-import {Contact} from "../Context/ContactContext.tsx";
+import { Contact } from "./Contact.ts";
 
 export class ChatMemberViewModel {
     id: string;

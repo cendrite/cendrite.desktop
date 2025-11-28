@@ -1,6 +1,6 @@
 ﻿import React from "react";
 import {PhoneIcon} from "@heroicons/react/24/outline";
-import {Contact} from "../../../Context/ContactContext.tsx";
+import { Contact } from "../../../Models/Contact";
 
 interface VoiceCallButtonProps {
     contact: Contact;

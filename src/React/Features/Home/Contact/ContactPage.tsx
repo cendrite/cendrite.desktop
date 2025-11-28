@@ -1,5 +1,4 @@
 ﻿import React, {useEffect, useState} from "react";
-import {Contact} from "../../../Context/ContactContext";
 import ChevronLeftIcon from "@heroicons/react/24/outline/ChevronLeftIcon";
 import {
     BellSlashIcon,
@@ -13,6 +12,7 @@ import {UserProfileImage} from "../../../Common/Components/ProfilePicture/UserPr
 import MessageButton from "../../../Common/Components/CommunicationButtons/MessageButton.tsx";
 import VoiceCallButton from "../../../Common/Components/CommunicationButtons/VoiceCallButton.tsx";
 import VideoCallButton from "../../../Common/Components/CommunicationButtons/VideoCallButton.tsx";
+import { Contact } from "../../../Models/Contact.ts";
 
 interface ContactPageProps {
     contact: Contact;

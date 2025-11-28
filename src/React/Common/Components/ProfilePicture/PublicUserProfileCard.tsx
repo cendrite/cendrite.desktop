@@ -5,9 +5,10 @@ import {useUser } from "../../../Context/UserContext.tsx";
 import { FriendService } from "../../Services/FriendService.ts";
 import { FriendshipStatus } from "../../../Enums/FriendshipStatus.ts";
 import { FriendshipDirection } from "../../../Enums/FriendshipDirection.ts";
-import { useContacts } from "../../../Context/ContactContext.tsx";
 import {delay} from "../../../../Shared/HelperFunctions.ts";
 import ToolTip from "../Utility/ToolTip.tsx";
+import { useContacts } from "../../../Context/Contacts/ContactContext.tsx";
+import { ContactContextActionType } from "../../../Context/Contacts/ContactReducer.ts";
 
 interface PublicUserProfileCardProps {
     username: string;
@@ -32,7 +33,7 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
     const [currentFriendshipStatus, setCurrentFriendshipStatus] = useState<FriendshipStatus | undefined>(friendshipStatus);
     const [currentFriendshipDirection, setCurrentFriendshipDirection] = useState<FriendshipDirection>(friendshipDirection);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const {setContacts} = useContacts();
+    const {contactDispatch} = useContacts();
 
 
     const onAddFriend = async () => {
@@ -54,7 +55,7 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
             setCurrentFriendshipStatus(FriendshipStatus.Accepted);
             setCurrentFriendshipDirection(FriendshipDirection.None);
             setIsLoading(true);
-            setContacts((prevContacts) => [...prevContacts, result.data!]);
+            contactDispatch({type: ContactContextActionType.Add, payload: result.data!});
         }
 
         await delay(750);

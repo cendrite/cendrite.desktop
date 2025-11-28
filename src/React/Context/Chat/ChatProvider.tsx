@@ -7,16 +7,16 @@ import {useSignalMessage} from "../../SignalR/Utility/Utilities.ts";
 import {Encryptor} from "../../Security/Encryption/Encryptor.ts";
 import {MessageViewModel} from "../../Models/MessageViewModel.ts";
 import {DeliveryStatus} from "../../../Electron/Domain/Enums/DeliveryStatus.ts";
-import {useContacts} from "../ContactContext.tsx";
 import {ChatMemberViewModel} from "../../Models/ChatMemberViewModel.ts";
 import {v4 as uuid} from 'uuid';
 import {useNotifications} from "../Notification/NotificationContext.tsx";
 import {NotificationActionType} from "../Notification/NotificationReducer.ts";
+import { useContacts } from "../Contacts/ContactContext.tsx";
 
 
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
     const [chats, chatDispatch] = React.useReducer(chatReducer, []);
-    const {contacts} = useContacts();
+    const {getContactByConnectionId: getByConnectionId} = useContacts();
     const {notificationDispatch} = useNotifications();
 
     const encryptor = Encryptor.getInstance();
@@ -48,8 +48,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({children}
 
         let chat = chats.find(chat => chat.id === msg.chatId);
         if (!chat) {
-            const contact = contacts.find(c => c.connectionIds.includes(msg.senderId));
-            console.log("contact count:" + contacts.length, "contact found:", contact);
+            const contact = getByConnectionId(msg.senderId);
             if (!contact) {
                 console.warn(`Contact with ID ${msg.senderId} not found.`);
                 return;
@@ -66,7 +65,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({children}
             chatDispatch({type: ChatContextActionType.AddMessage, payload: mappedMsg});
         }
         notificationDispatch({type: NotificationActionType.AddChat, payload: {chatId: chat.id}})
-    }, [encryptor, contacts, chats])
+    }, [encryptor, getByConnectionId, chats])
 
     useSignalMessage("chat", receiveMessage);
 
