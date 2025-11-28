@@ -1,6 +1,6 @@
-﻿import { MessageViewModel } from "../../../Models/MessageViewModel.ts";
+﻿import { useUser } from "../../../Context/User/UserContext.tsx";
+import { MessageViewModel } from "../../../Models/MessageViewModel.ts";
 import React from "react";
-import { useUser } from "../../../Context/UserContext.tsx";
 
 export interface ChatBubbleProps {
     message: MessageViewModel;

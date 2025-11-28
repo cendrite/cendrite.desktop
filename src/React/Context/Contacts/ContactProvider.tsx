@@ -1,7 +1,6 @@
 import React, {useCallback, useEffect, useMemo} from "react";
 import { FriendSyncService } from '../../Common/Services/FriendSyncService';
 import { ProfilePictureService } from '../../Common/Services/ProfilePictureService';
-import { useUser } from '../UserContext';
 import { ContactContextActionType, contactReducer } from "./ContactReducer";
 import { FriendDeletedEvent, FriendRequestAcceptedEvent } from "../../SignalR/ChangeEvent/EventData";
 import { DeleteFriendCommand } from "../../../Electron/Application/Features/Friends/Commands/Delete/DeleteFriendCommand";
@@ -11,6 +10,7 @@ import { ChangeEventType } from "../../SignalR/ChangeEvent/ChangeEventType";
 import { CreateFriendCommand } from "../../../Electron/Application/Features/Friends/Commands/Create/CreateFriendCommand";
 import { getById } from "./ContactSelectors";
 import { ContactContext } from "./ContactContext";
+import { useUser } from "../User/UserContext";
 
 export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [contacts, contactDispatch] = React.useReducer(contactReducer, []);

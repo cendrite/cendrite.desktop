@@ -4,7 +4,6 @@ import { Form, Formik, FormikHelpers } from 'formik';
 import { VerifyLoginValidationSchema } from './Validation/VerifyLoginValidationSchema';
 import { VerifyLoginApi } from '../../Common/Api/Identity/Auth/VerifyLoginApi.ts';
 import { CodeType } from '../../Common/Api/Identity/User/ResendVerificationCodeApi.ts';
-import { useUser } from '../../Context/UserContext.tsx';
 import { useOnboarding } from '../../Context/OnboardingContext.tsx';
 import { UserProfileService } from '../../Common/Services/UserProfileService.ts';
 import { DeviceService } from '../../Common/Services/CreateDeviceService.ts';
@@ -14,6 +13,9 @@ import FormButton from '../../Common/Components/Form/FormButton.tsx';
 import ResendCodeButton from '../../Common/Components/Form/ResendCodeButton.tsx';
 import { TokenManager } from '../../Security/Tokens/TokenManager.ts';
 import { KeyService } from '../../Common/Services/KeyService.ts';
+import { useUser } from '../../Context/User/UserContext.tsx';
+import { UserContextActionType } from '../../Context/User/UserReducer.ts';
+import { User } from '../../Models/User.ts';
 
 const VerifyLoginPage: React.FC = () => {
     const navigate = useNavigate();
@@ -22,7 +24,7 @@ const VerifyLoginPage: React.FC = () => {
     const userProfileService = new UserProfileService();
     const deviceService = new DeviceService();
     const keyService = new KeyService();
-    const userContext = useUser();
+    const { userDispatch } = useUser();
     const onboardingContext = useOnboarding();
     const signalRContext = useSignal();
 
@@ -62,16 +64,16 @@ const VerifyLoginPage: React.FC = () => {
             deviceRegistrationResult.data!.connectionId,
         );
 
-        userContext.setUser({
-            id: userProfileResult!.id,
-            username: userProfileResult!.username,
-            userTag: userProfileResult!.userTag,
-            connectionId: deviceRegistrationResult.data!.connectionId,
-            externalConnectionIds: userProfileResult!.connectionIds,
-            base64ProfilePicture: userProfileResult!.base64ProfilePicture,
-            displayName: userProfileResult!.displayName,
-            deviceId: deviceRegistrationResult.data!.deviceId,
-        });
+        userDispatch({type: UserContextActionType.Initialize, payload: new User(
+            userProfileResult!.id,
+            userProfileResult!.username,
+            userProfileResult!.userTag,
+            deviceRegistrationResult.data!.deviceId,
+            deviceRegistrationResult.data!.connectionId,
+            userProfileResult!.connectionIds,
+            userProfileResult!.base64ProfilePicture,
+            userProfileResult!.displayName
+        )});
 
         await signalRContext.client.connect();
         await keyService.SaveKeys(deviceRegistrationResult.data!.connectionId);
