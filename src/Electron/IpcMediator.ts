@@ -15,15 +15,16 @@ import {GetRefreshTokenQueryHandler} from "./Application/Features/RefreshToken/Q
 import {CreateUserCommandHandler} from "./Application/Features/User/Commands/Create/CreateUserCommandHandler.js";
 import {DeleteFriendCommandHandler} from "./Application/Features/Friends/Commands/Delete/DeleteFriendCommandHandler.js";
 import {CreateChatCommandHandler} from "./Application/Features/Chat/Commands/CreateChatCommandHandler.js";
-import {
-    AddConnectionIdCommandHandler
-} from "./Application/Features/Friends/Commands/AddConnectionId/AddConnectionIdCommandHandler.js";
 import {UpdateFriendCommandHandler} from "./Application/Features/Friends/Commands/Update/UpdateFriendCommandHandler.js";
-import {
-    RemoveConnectionIdCommandHandler
-} from "./Application/Features/Friends/Commands/RemoveConnectionId/RemoveConnectionIdCommandHandler.js";
 import { GenerateKeyBundleCommandHandler } from "./Application/Features/Encryption/Commands/Generate/GenerateKeyBundleCommandHandler.js";
 import { PersistsKeyBundleCommandHandler } from "./Application/Features/Encryption/Commands/Create/PersistKeyBundleCommandHandler.js";
+import { RemoveFriendConnectionIdCommandHandler } from "./Application/Features/Friends/Commands/RemoveConnectionId/RemoveFriendConnectionIdCommandHandler.js";
+import { AddFriendConnectionIdCommandHandler } from "./Application/Features/Friends/Commands/AddConnectionId/AddFriendConnectionIdCommandHandler.js";
+import { AddUserConnectionIdCommand } from "./Application/Features/User/Commands/Update/AddConnectionId/AddUserConnectionIdCommand.js";
+import { AddUserConnectionIdCommandHandler } from "./Application/Features/User/Commands/Update/AddConnectionId/AddUserConnectionIdCommandHandler.js";
+import { RemoveUserConnectionIdCommand } from "./Application/Features/User/Commands/Update/RemoveConnectionId/RemoveUserConnectionIdCommand.js";
+import { RemoveUserConnectionIdCommandHandler } from "./Application/Features/User/Commands/Update/RemoveConnectionId/RemoveUserConnectionIdCommandHandler.js";
+
 export function registerIpcHandlers(mainWindow: BrowserWindow) {
     const mediator = new Mediator();
 
@@ -39,6 +40,8 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
     mediator.registerHandler("GetUserQuery", new GetUserQueryHandler());
     mediator.registerHandler("CreateUserCommand", new CreateUserCommandHandler());
     mediator.registerHandler("UpdateProfilePictureCommand", new UpdateProfilePictureCommandHandler());
+    mediator.registerHandler(AddUserConnectionIdCommand.name, new AddUserConnectionIdCommandHandler());
+    mediator.registerHandler(RemoveUserConnectionIdCommand.name, new RemoveUserConnectionIdCommandHandler());
 
     mediator.registerHandler("GetMediaQuery", new GetMediaQueryHandler(mainWindow));
 
@@ -46,15 +49,16 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
     mediator.registerHandler("GetFriendsQuery", new GetFriendsQueryHandler());
     mediator.registerHandler("DeleteFriendCommand", new DeleteFriendCommandHandler());
     mediator.registerHandler("UpdateFriendCommand", new UpdateFriendCommandHandler());
-    mediator.registerHandler("RemoveConnectionIdCommand", new RemoveConnectionIdCommandHandler());
-    mediator.registerHandler("AddConnectionIdCommand", new AddConnectionIdCommandHandler());
+    mediator.registerHandler("RemoveConnectionIdCommand", new RemoveFriendConnectionIdCommandHandler());
+    mediator.registerHandler("AddConnectionIdCommand", new AddFriendConnectionIdCommandHandler());
 
     mediator.registerHandler("GenerateKeyBundleCommand", new GenerateKeyBundleCommandHandler());
     mediator.registerHandler("PersistKeyBundleCommand", new PersistsKeyBundleCommandHandler())
 
     mediator.registerHandler("CreateChatCommand", new CreateChatCommandHandler());
 
-    ipcMain.handle("mediator:send", async (event, request) => {
+
+    ipcMain.handle("mediator:send", async (_event, request) => {
         return await mediator.send(request);
     });
 }

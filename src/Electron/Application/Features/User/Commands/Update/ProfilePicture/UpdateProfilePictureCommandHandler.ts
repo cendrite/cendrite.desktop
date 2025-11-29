@@ -10,10 +10,14 @@ export class UpdateProfilePictureCommandHandler implements Handler<UpdateProfile
         try{
             const repository = new UserRepository()
 
+            const user = await repository.get(false);
+
             const base64Data = request.base64ProfilePicture.replace(/^data:image\/\w+;base64,/, '');
             const profilePictureBuffer = Buffer.from(base64Data, 'base64');
 
-            await repository.update({profilePicture: profilePictureBuffer});
+            user.setProfilePicture(profilePictureBuffer);
+
+            await repository.update(user);
 
             return Result.success();
         }

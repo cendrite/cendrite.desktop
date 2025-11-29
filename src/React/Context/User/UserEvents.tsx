@@ -1,8 +1,10 @@
 import { useCallback } from 'react';
 import { User } from '../../Models/User';
+import { AddUserConnectionIdCommand } from '../../../Electron/Application/Features/User/Commands/Update/AddConnectionId/AddUserConnectionIdCommand';
+import { RemoveUserConnectionIdCommand } from '../../../Electron/Application/Features/User/Commands/Update/RemoveConnectionId/RemoveUserConnectionIdCommand';
 import { UserAction, UserActionType } from './UserReducer';
 import { ChangeEvent } from '../../SignalR/ChangeEvent/ChangeEvent';
-import { ProfilePictureUpdatedEvent } from '../../SignalR/ChangeEvent/EventData';
+import { ProfilePictureUpdatedEvent, UserLoggedInEvent } from '../../SignalR/ChangeEvent/EventData';
 import { GetUserProfilePictureApi } from '../../Common/Api/UserProfile/GetUserProfilePicture';
 import { useSignalEvent } from '../../SignalR/Utility/Utilities';
 import { ChangeEventType } from '../../SignalR/ChangeEvent/ChangeEventType';
@@ -15,17 +17,9 @@ export function useUserEvents(
     const handleProfilePictureUpdate = useCallback(
         async (evt: ChangeEvent<ProfilePictureUpdatedEvent>) => {
             try {
-                console.log('Received profile picture update event', evt);
-                //this is a guard clause cause server fanouts to all client connectionids and will change friend pics too. this should be fixed somehow
-                //TODO: improve this server side, so only the relevant client gets the update
-
-                if (user?.userTag !== evt.data.userTag) {
-                    console.log('Current userTag:', user?.userTag);
-                    console.log('Event userTag:', evt.data.userTag);
-                    console.log('Ignoring profile picture update for different userTag');
+                if (!isUserEvent(evt.data.userTag)) {
                     return;
                 }
-
                 const result = await profilePictureApi.getUserProfilePicture({
                     profilePictureUrl: evt.data.profilePictureUrl,
                 });
@@ -43,5 +37,40 @@ export function useUserEvents(
         [profilePictureApi, dispatch, user],
     );
 
+    const handleUserLoginEvent = useCallback(
+        async (evt: ChangeEvent<UserLoggedInEvent>) => {
+            try {
+                if (!isUserEvent(evt.data.userTag)) return;
+
+                dispatch({ type: UserActionType.AddConnectionId, payload: { connectionId: evt.data.connectionId } });
+                await window.electron.sendRequestAsync(new AddUserConnectionIdCommand(evt.data.connectionId));
+            } catch (err) {
+                console.error('Error handling user login event', err);
+            }
+        },
+        [dispatch, user],
+    );
+
+    const handleUserLogoutEvent = useCallback(async (evt: ChangeEvent<UserLoggedInEvent>) => {
+        try {
+            if (!isUserEvent(evt.data.userTag)) return;
+            dispatch({ type: UserActionType.RemoveConnectionId, payload: { connectionId: evt.data.connectionId } });
+            await window.electron.sendRequestAsync(new RemoveUserConnectionIdCommand(evt.data.connectionId));
+
+        } catch (err) {
+            console.error('Error handling user logout event', err);
+        }
+    }, [dispatch, user]);
+
     useSignalEvent(ChangeEventType.ProfilePictureChanged, handleProfilePictureUpdate);
+    useSignalEvent(ChangeEventType.UserLoggedIn, handleUserLoginEvent);
+    useSignalEvent(ChangeEventType.UserLoggedOut, handleUserLogoutEvent);
+
+    function isUserEvent(tag: string): boolean {
+        if (user?.userTag !== tag) {
+            console.log('User event for different userTag received, ignoring.');
+            return false;
+        }
+        return true;
+    }
 }
