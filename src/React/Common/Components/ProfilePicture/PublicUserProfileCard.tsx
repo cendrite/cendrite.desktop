@@ -7,7 +7,7 @@ import { FriendshipDirection } from "../../../Enums/FriendshipDirection.ts";
 import {delay} from "../../../../Shared/HelperFunctions.ts";
 import ToolTip from "../Utility/ToolTip.tsx";
 import { useContacts } from "../../../Context/Contacts/ContactContext.tsx";
-import { ContactContextActionType } from "../../../Context/Contacts/ContactReducer.ts";
+import { ContactActionType } from "../../../Context/Contacts/ContactReducer.ts";
 import { useUser } from "../../../Context/User/UserContext.tsx";
 
 interface PublicUserProfileCardProps {
@@ -55,7 +55,7 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
             setCurrentFriendshipStatus(FriendshipStatus.Accepted);
             setCurrentFriendshipDirection(FriendshipDirection.None);
             setIsLoading(true);
-            contactDispatch({type: ContactContextActionType.Add, payload: result.data!});
+            contactDispatch({type: ContactActionType.Add, payload: result.data!});
         }
 
         await delay(750);

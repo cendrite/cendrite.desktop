@@ -1,6 +1,6 @@
 ﻿import {ChatViewModel} from "../../Models/ChatViewModel.ts";
 import React, {useCallback, useEffect} from "react";
-import {ChatContextActionType, chatReducer,} from "./ChatReducer.ts";
+import {ChatActionType, chatReducer,} from "./ChatReducer.ts";
 import {ChatContext} from "./ChatContext.tsx";
 import {ServerChatMessage} from "../../SignalR/Messaging/ServerChatMessage.ts";
 import {useSignalMessage} from "../../SignalR/Utility/Utilities.ts";
@@ -28,7 +28,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({children}
             return [];
         }
         loadChats().then(loadedChats => {
-            chatDispatch({type: ChatContextActionType.Init, payload: loadedChats});
+            chatDispatch({type: ChatActionType.Init, payload: loadedChats});
         })
     }, []);
 
@@ -60,9 +60,9 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({children}
                 contact);
 
             chat = new ChatViewModel(msg.chatId, [member], [mappedMsg])
-            chatDispatch({type: ChatContextActionType.AddChat, payload: chat});
+            chatDispatch({type: ChatActionType.AddChat, payload: chat});
         } else {
-            chatDispatch({type: ChatContextActionType.AddMessage, payload: mappedMsg});
+            chatDispatch({type: ChatActionType.AddMessage, payload: mappedMsg});
         }
         notificationDispatch({type: NotificationActionType.AddChat, payload: {chatId: chat.id}})
     }, [encryptor, getByConnectionId, chats])

@@ -5,7 +5,7 @@ import { Contact } from '../../Models/Contact';
 import { User } from '../../Models/User';
 import { ChangeEvent } from '../../SignalR/ChangeEvent/ChangeEvent';
 import { FriendDeletedEvent, FriendRequestAcceptedEvent } from '../../SignalR/ChangeEvent/EventData';
-import { ContactContextAction, ContactContextActionType } from './ContactReducer';
+import { ContactAction, ContactActionType } from './ContactReducer';
 import { getById } from './ContactSelectors';
 import { DeleteFriendCommand } from '../../../Electron/Application/Features/Friends/Commands/Delete/DeleteFriendCommand';
 import { useSignalEvent } from '../../SignalR/Utility/Utilities';
@@ -14,7 +14,7 @@ import { ChangeEventType } from '../../SignalR/ChangeEvent/ChangeEventType';
 export function useContactEvents(
     user: User | null,
     contacts: Contact[],
-    dispatch: React.Dispatch<ContactContextAction>,
+    dispatch: React.Dispatch<ContactAction>,
     profilePictureService: ProfilePictureService,
 ) { 
     const handleContactAddedEvent = useCallback(async (evt: ChangeEvent<FriendRequestAcceptedEvent>) => {
@@ -40,18 +40,18 @@ export function useContactEvents(
             newContact.id, 
             newContact.profilePicture));
 
-        dispatch({type: ContactContextActionType.Add, payload: newContact});
+        dispatch({type: ContactActionType.Add, payload: newContact});
     }, [getById, profilePictureService, dispatch]);
 
     const handleContactDeletedEvent = useCallback(async (evt: ChangeEvent<FriendDeletedEvent>) => {
         if(user?.userTag === evt.data.tag) {
             await window.electron.sendRequestAsync(new DeleteFriendCommand(evt.data.deletedBy));
-            dispatch({type: ContactContextActionType.Remove, payload: {id: evt.data.deletedBy}});
+            dispatch({type: ContactActionType.Remove, payload: {id: evt.data.deletedBy}});
             return;
         }
 
         await window.electron.sendRequestAsync(new DeleteFriendCommand(evt.data.tag));
-        dispatch({type: ContactContextActionType.Remove, payload: {id: evt.data.tag}});
+        dispatch({type: ContactActionType.Remove, payload: {id: evt.data.tag}});
     }, [user, dispatch]);
 
     useSignalEvent<FriendDeletedEvent>(ChangeEventType.FriendRemoved, handleContactDeletedEvent);

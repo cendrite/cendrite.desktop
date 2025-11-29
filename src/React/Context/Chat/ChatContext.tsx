@@ -1,11 +1,11 @@
 ﻿import React from "react";
 import {ChatViewModel} from "../../Models/ChatViewModel.ts";
-import {ChatContextAction} from "./ChatReducer.ts";
+import {ChatAction} from "./ChatReducer.ts";
 import {getChatById, getChatByMemberId} from "./ChatSelectors.ts";
 
 export interface ChatContextType {
     chats: ChatViewModel[];
-    chatDispatch: React.Dispatch<ChatContextAction>;
+    chatDispatch: React.Dispatch<ChatAction>;
 }
 
 export const ChatContext = React.createContext<ChatContextType | undefined>(undefined);

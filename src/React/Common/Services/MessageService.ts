@@ -1,7 +1,7 @@
 ﻿import {useChatContext} from "../../Context/Chat/ChatContext.tsx";
 import {useNotifications} from "../../Context/Notification/NotificationContext.tsx";
 import {ChatViewModel} from "../../Models/ChatViewModel.ts";
-import {ChatContextActionType} from "../../Context/Chat/ChatReducer.ts";
+import {ChatActionType} from "../../Context/Chat/ChatReducer.ts";
 import {NotificationActionType} from "../../Context/Notification/NotificationReducer.ts";
 import {useCallback} from "react";
 import {v4 as uuidv4, v4 as uuid} from 'uuid';
@@ -22,7 +22,7 @@ export function useMessageService() {
 
     const markMessagesAsRead = useCallback(
         async (chat: ChatViewModel) => {
-            chatDispatch({type: ChatContextActionType.MarkAsRead, payload: chat})
+            chatDispatch({type: ChatActionType.MarkAsRead, payload: chat})
             notificationDispatch({type: NotificationActionType.RemoveChat, payload: {chatId: chat.id}})
             console.log(`Chat ${chat.id} marked as read for user ${user!.connectionId}`);
         },
@@ -42,7 +42,7 @@ export function useMessageService() {
                 deliveryStatus: DeliveryStatus.Sent,
                 media: media || null
             }
-            chatDispatch({type: ChatContextActionType.AddMessage, payload: message});
+            chatDispatch({type: ChatActionType.AddMessage, payload: message});
 
             const content = encryptor.encrypt({text: text, media: media});
             const messages: ServerChatMessage[] = [];

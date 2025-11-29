@@ -14,7 +14,7 @@ import ResendCodeButton from '../../Common/Components/Form/ResendCodeButton.tsx'
 import { TokenManager } from '../../Security/Tokens/TokenManager.ts';
 import { KeyService } from '../../Common/Services/KeyService.ts';
 import { useUser } from '../../Context/User/UserContext.tsx';
-import { UserContextActionType } from '../../Context/User/UserReducer.ts';
+import { UserActionType } from '../../Context/User/UserReducer.ts';
 import { User } from '../../Models/User.ts';
 
 const VerifyLoginPage: React.FC = () => {
@@ -64,7 +64,7 @@ const VerifyLoginPage: React.FC = () => {
             deviceRegistrationResult.data!.connectionId,
         );
 
-        userDispatch({type: UserContextActionType.Initialize, payload: new User(
+        userDispatch({type: UserActionType.Initialize, payload: new User(
             userProfileResult!.id,
             userProfileResult!.username,
             userProfileResult!.userTag,

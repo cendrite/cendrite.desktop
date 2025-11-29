@@ -1,7 +1,7 @@
 import React from "react";
 import {UserProfileImage} from "../../../Common/Components/ProfilePicture/UserProfileImage.tsx";
 import {useHomePageContext} from "../../../Context/HomePage/HomePageContext.tsx";
-import {HomePageContextActionType} from "../../../Context/HomePage/HomePageReducer.ts";
+import {HomePageActionType} from "../../../Context/HomePage/HomePageReducer.ts";
 import { Contact } from "../../../Models/Contact.ts";
 
 interface ContactCardProps {
@@ -15,11 +15,11 @@ const ContactCard: React.FC<ContactCardProps> = ({contact}) => {
 
     const onHandleClick = () => {
         if (isSelected) {
-            homeDispatch({type: HomePageContextActionType.ClearSelection, payload: null});
+            homeDispatch({type: HomePageActionType.ClearSelection, payload: null});
             return;
         }
         homeDispatch({
-            type: HomePageContextActionType.SetSelectedContact,
+            type: HomePageActionType.SetSelectedContact,
             payload: contact
         });
     }

@@ -1,10 +1,10 @@
 import React from "react";
 import { User } from "../../Models/User";
-import { UserContextAction } from "./UserReducer";
+import { UserAction } from "./UserReducer";
 
 interface UserContextType {
     user: User | null;
-    userDispatch: React.Dispatch<UserContextAction>;
+    userDispatch: React.Dispatch<UserAction>;
 }
 
 export const UserContext = React.createContext<UserContextType | undefined>(undefined);

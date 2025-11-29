@@ -1,11 +1,11 @@
 import React from "react";
 import { Contact } from "../../Models/Contact";
-import { ContactContextAction } from "./ContactReducer";
+import { ContactAction } from "./ContactReducer";
 import { getByConnectionId, getById } from "./ContactSelectors";
 
 export interface ContactContextType {
     contacts: Contact[];
-    contactDispatch: React.Dispatch<ContactContextAction>;
+    contactDispatch: React.Dispatch<ContactAction>;
 }
 
 export const ContactContext = React.createContext<ContactContextType| undefined>(undefined);

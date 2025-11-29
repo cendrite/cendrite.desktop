@@ -4,7 +4,7 @@ import { NotificationActionType } from "../../../Context/Notification/Notificati
 import NotificationBadge from "../../../Context/Notification/NotificationBadge.tsx";
 import {useNotifications} from "../../../Context/Notification/NotificationContext.tsx";
 import { useHomePageContext } from "../../../Context/HomePage/HomePageContext.tsx";
-import { HomePageContextActionType } from "../../../Context/HomePage/HomePageReducer.ts";
+import { HomePageActionType } from "../../../Context/HomePage/HomePageReducer.ts";
 import { PendingContact } from "../../../Models/PendingContact.ts";
 
 interface PendingContactCardProps {
@@ -22,12 +22,12 @@ const PendingContactCard: React.FC<PendingContactCardProps> = ({contact}) => {
 
     const onHandleClick = () => {
         if (isSelected) {
-            homeDispatch({type: HomePageContextActionType.ClearSelection, payload: null});
+            homeDispatch({type: HomePageActionType.ClearSelection, payload: null});
             return;
         }
         notificationDispatch({type: NotificationActionType.RemoveFriendRequest, payload: {userTag: contact.id}});
         homeDispatch({
-            type: HomePageContextActionType.SetSelectedPendingContact,
+            type: HomePageActionType.SetSelectedPendingContact,
             payload: contact
         });
     }
