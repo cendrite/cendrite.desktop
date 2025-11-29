@@ -1,24 +1,24 @@
-import React, {useState} from "react";
-import {BellAlertIcon, UserPlusIcon} from "@heroicons/react/24/outline";
-import {BellAlertIcon as BellAlertIconFilled} from "@heroicons/react/24/solid";
-import SidePanelToggle from "../SidePanel/SidePanelToggle";
-import SearchForUserModal from "../Modals/SearchForUserModal.tsx";
-import ContactCard from "./ContactCard.tsx";
-import {usePendingContacts} from "../../../Context/PendingContactContext.tsx";
-import PendingContactCard from "./PendingContactCard.tsx";
-import NotificationBadge from "../../../Context/Notification/NotificationBadge.tsx";
-import { useContacts } from "../../../Context/Contacts/ContactContext.tsx";
-import { Contact } from "../../../Models/Contact.ts";
+import React, { useState } from 'react';
+import { BellAlertIcon, UserPlusIcon } from '@heroicons/react/24/outline';
+import { BellAlertIcon as BellAlertIconFilled } from '@heroicons/react/24/solid';
+import SidePanelToggle from '../SidePanel/SidePanelToggle';
+import SearchForUserModal from '../Modals/SearchForUserModal.tsx';
+import ContactCard from './ContactCard.tsx';
+import PendingContactCard from './PendingContactCard.tsx';
+import NotificationBadge from '../../../Context/Notification/NotificationBadge.tsx';
+import { useContacts } from '../../../Context/Contacts/ContactContext.tsx';
+import { Contact } from '../../../Models/Contact.ts';
+import { usePendingContacts } from '../../../Context/PendingContact/PendingContactContext.tsx';
 
 interface ContactsPaneProps {
     isSidePanelVisible: boolean;
     toggleSidePanel: () => void;
 }
 
-export const ContactsPane: React.FC<ContactsPaneProps> = ({isSidePanelVisible, toggleSidePanel}) => {
-    const {contacts} = useContacts();
-    console.log(contacts.length)
-    const {pendingContacts} = usePendingContacts();
+export const ContactsPane: React.FC<ContactsPaneProps> = ({ isSidePanelVisible, toggleSidePanel }) => {
+    const { contacts } = useContacts();
+    console.log(contacts.length);
+    const { pendingContacts } = usePendingContacts();
     const [isSearchUserModalOpen, setIsSearchUserModalOpen] = useState(false);
     const [isRequestListSelected, setIsRequestListSelected] = useState(false);
 
@@ -29,30 +29,29 @@ export const ContactsPane: React.FC<ContactsPaneProps> = ({isSidePanelVisible, t
                 <div className="relative flex items-center justify-between mb-4">
                     {/* Left side (optional toggle) */}
                     <div className="flex items-center mr-6">
-                        {!isSidePanelVisible && <SidePanelToggle onClick={toggleSidePanel}/>}
+                        {!isSidePanelVisible && <SidePanelToggle onClick={toggleSidePanel} />}
                     </div>
 
                     {/* Center title */}
                     <h2 className="absolute left-1/2 transform -translate-x-12 text-lg font-bold">
-                        {isRequestListSelected ? "Requests" : "Contacts"}
+                        {isRequestListSelected ? 'Requests' : 'Contacts'}
                     </h2>
 
                     {/* Right side buttons */}
                     <div className="flex items-center">
                         <div className="relative">
                             <button
-                                className={`p-2 rounded-md text-white hover:bg-darkGray-300 ${
-                                    isRequestListSelected ? "bg-darkGray-300" : ""
-                                }`}
+                                className={`p-2 rounded-md text-white hover:bg-darkGray-300 ${isRequestListSelected ? 'bg-darkGray-300' : ''
+                                    }`}
                                 onClick={() => setIsRequestListSelected(!isRequestListSelected)}
                             >
                                 {!isRequestListSelected ? (
                                     <div>
-                                        <BellAlertIcon className="w-5 h-5"/>
-                                        <NotificationBadge section="contacts" itemId={null}/>
+                                        <BellAlertIcon className="w-5 h-5" />
+                                        <NotificationBadge section="contacts" itemId={null} />
                                     </div>
                                 ) : (
-                                    <BellAlertIconFilled className="w-5 h-5"/>
+                                    <BellAlertIconFilled className="w-5 h-5" />
                                 )}
                             </button>
                         </div>
@@ -61,7 +60,7 @@ export const ContactsPane: React.FC<ContactsPaneProps> = ({isSidePanelVisible, t
                             className="p-2 rounded-md text-white hover:bg-darkGray-300"
                             onClick={() => setIsSearchUserModalOpen(true)}
                         >
-                            <UserPlusIcon className="w-5 h-5"/>
+                            <UserPlusIcon className="w-5 h-5" />
                         </button>
                     </div>
                 </div>
@@ -71,7 +70,7 @@ export const ContactsPane: React.FC<ContactsPaneProps> = ({isSidePanelVisible, t
                     <ul className="mt-4 space-y-2">
                         {contacts.map((contact: Contact) => (
                             <li key={contact.id}>
-                                <ContactCard contact={contact}/>
+                                <ContactCard contact={contact} />
                             </li>
                         ))}
                     </ul>
@@ -79,14 +78,14 @@ export const ContactsPane: React.FC<ContactsPaneProps> = ({isSidePanelVisible, t
                     <ul className="mt-4 space-y-2">
                         {pendingContacts.map((contact) => (
                             <li key={contact.id}>
-                                <PendingContactCard contact={contact}/>
+                                <PendingContactCard contact={contact} />
                             </li>
                         ))}
                     </ul>
                 )}
             </div>
 
-            <SearchForUserModal isOpen={isSearchUserModalOpen} onClose={() => setIsSearchUserModalOpen(false)}/>
+            <SearchForUserModal isOpen={isSearchUserModalOpen} onClose={() => setIsSearchUserModalOpen(false)} />
         </>
     );
 };

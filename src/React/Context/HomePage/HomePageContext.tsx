@@ -1,8 +1,8 @@
 ﻿import React, {createContext} from "react";
-import {PendingContact} from "../PendingContactContext.tsx";
 import {ChatViewModel} from "../../Models/ChatViewModel.ts";
 import {HomePageContextAction} from "./HomePageReducer.ts";
 import { Contact } from "../../Models/Contact.ts";
+import { PendingContact } from "../../Models/PendingContact.ts";
 
 export type SelectedItem =
     | { type: 'contact'; value: Contact }
