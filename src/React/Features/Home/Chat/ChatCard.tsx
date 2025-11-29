@@ -2,7 +2,7 @@
 import {ChatViewModel} from "../../../Models/ChatViewModel.ts";
 import {UserProfileImage} from "../../../Common/Components/ProfilePicture/UserProfileImage.tsx";
 import {useHomePageContext} from "../../../Context/HomePage/HomePageContext.tsx";
-import {HomePageContextActionType} from "../../../Context/HomePage/HomePageReducer.ts";
+import {HomePageActionType} from "../../../Context/HomePage/HomePageReducer.ts";
 import {useMessageService} from "../../../Common/Services/MessageService.ts";
 import { useUser } from "../../../Context/User/UserContext.tsx";
 
@@ -20,11 +20,11 @@ export const ChatCard: React.FC<ChatCardProps> = ({chat}) => {
 
     const onHandleClick = async () => {
         if (isSelected) {
-            homeDispatch({type: HomePageContextActionType.ClearSelection, payload: null});
+            homeDispatch({type: HomePageActionType.ClearSelection, payload: null});
             return;
         }
         homeDispatch({
-            type: HomePageContextActionType.SetSelectedChat,
+            type: HomePageActionType.SetSelectedChat,
             payload: chat
         });
         await markMessagesAsRead(chat);

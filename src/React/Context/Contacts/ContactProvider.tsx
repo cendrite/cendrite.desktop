@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useMemo} from "react";
 import { FriendSyncService } from '../../Common/Services/FriendSyncService';
 import { ProfilePictureService } from '../../Common/Services/ProfilePictureService';
-import { ContactContextActionType, contactReducer } from "./ContactReducer";
+import { ContactActionType, contactReducer } from "./ContactReducer";
 import { ContactContext } from "./ContactContext";
 import { useUser } from "../User/UserContext";
 import { useContactEvents } from "./ContactEvents";
@@ -19,7 +19,7 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({ child
         }
         try {
             const loadedContacts = await friendSyncService.SyncFriends();
-            contactDispatch({type: ContactContextActionType.Initialize, payload: loadedContacts});
+            contactDispatch({type: ContactActionType.Initialize, payload: loadedContacts});
             console.log("Contacts loaded from new provider:", loadedContacts);
         } catch (error) {
             console.error("Error loading contacts:", error);

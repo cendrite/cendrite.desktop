@@ -1,6 +1,6 @@
 ﻿import React, {createContext} from "react";
 import {ChatViewModel} from "../../Models/ChatViewModel.ts";
-import {HomePageContextAction} from "./HomePageReducer.ts";
+import {HomePageAction} from "./HomePageReducer.ts";
 import { Contact } from "../../Models/Contact.ts";
 import { PendingContact } from "../../Models/PendingContact.ts";
 
@@ -13,7 +13,7 @@ export type SelectedItem =
 
 interface HomePageContextType {
     selectedItem: SelectedItem;
-    homeDispatch: React.Dispatch<HomePageContextAction>;
+    homeDispatch: React.Dispatch<HomePageAction>;
 }
 
 export const HomePageContext = createContext<HomePageContextType | undefined>(undefined);

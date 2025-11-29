@@ -1,6 +1,6 @@
 import { Contact } from '../../Models/Contact';
 
-export enum ContactContextActionType {
+export enum ContactActionType {
     Initialize = -1,
     Add = 0,
     Remove = 1,
@@ -8,25 +8,25 @@ export enum ContactContextActionType {
     RemoveConnectionId = 4,
 }
 
-export type ContactContextAction =
-    | { type: ContactContextActionType.Initialize; payload: Contact[] }
-    | { type: ContactContextActionType.Add; payload: Contact }
-    | { type: ContactContextActionType.Remove; payload: { id: string } }
-    | { type: ContactContextActionType.AddConnectionId; payload: { id: string; connectionId: string } }
-    | { type: ContactContextActionType.RemoveConnectionId; payload: { id: string; connectionId: string } };
+export type ContactAction =
+    | { type: ContactActionType.Initialize; payload: Contact[] }
+    | { type: ContactActionType.Add; payload: Contact }
+    | { type: ContactActionType.Remove; payload: { id: string } }
+    | { type: ContactActionType.AddConnectionId; payload: { id: string; connectionId: string } }
+    | { type: ContactActionType.RemoveConnectionId; payload: { id: string; connectionId: string } };
 
-export const contactReducer = (state: Contact[], action: ContactContextAction): Contact[] => {
+export const contactReducer = (state: Contact[], action: ContactAction): Contact[] => {
     switch (action.type) {
-        case ContactContextActionType.Initialize:
+        case ContactActionType.Initialize:
             return action.payload;
 
-        case ContactContextActionType.Add:
+        case ContactActionType.Add:
             return [...state, action.payload];
 
-        case ContactContextActionType.Remove:
+        case ContactActionType.Remove:
             return state.filter((contact) => contact.id !== action.payload.id);
 
-        case ContactContextActionType.AddConnectionId:
+        case ContactActionType.AddConnectionId:
             return state.map((contact) =>
                 contact.id === action.payload.id
                     ? new Contact(
@@ -38,7 +38,7 @@ export const contactReducer = (state: Contact[], action: ContactContextAction): 
                         action.payload.connectionId])
                     : contact);
 
-        case ContactContextActionType.RemoveConnectionId:
+        case ContactActionType.RemoveConnectionId:
             return state.map((contact) =>
                 contact.id === action.payload.id
                     ? new Contact(

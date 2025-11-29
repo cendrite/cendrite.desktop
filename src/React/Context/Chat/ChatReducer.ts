@@ -2,7 +2,7 @@
 import {MessageViewModel} from "../../Models/MessageViewModel.ts";
 import {DeliveryStatus} from "../../../Electron/Domain/Enums/DeliveryStatus.ts";
 
-export enum ChatContextActionType{
+export enum ChatActionType{
     Init = -1,
     AddChat = 0,
     RemoveChat = 1,
@@ -15,32 +15,32 @@ export enum ChatContextActionType{
     MarkAsRead = 8,
 }
 
-export type ChatContextAction =
-    | {type: ChatContextActionType.Init; payload: ChatViewModel[]}
-    | {type: ChatContextActionType.AddChat; payload: ChatViewModel}
-    | {type: ChatContextActionType.RemoveChat; payload: ChatViewModel}
-    | {type: ChatContextActionType.AddMessage; payload: MessageViewModel}
-    | {type: ChatContextActionType.RemoveMessage; payload: MessageViewModel}
-    | {type: ChatContextActionType.UpdateMessage; payload: MessageViewModel}
-    | {type: ChatContextActionType.UpdateChat; payload: ChatViewModel}
-    | {type: ChatContextActionType.MuteChat; payload: ChatViewModel}
-    | {type: ChatContextActionType.UnmuteChat; payload: ChatViewModel}
-    | {type: ChatContextActionType.MarkAsRead; payload: ChatViewModel};
+export type ChatAction =
+    | {type: ChatActionType.Init; payload: ChatViewModel[]}
+    | {type: ChatActionType.AddChat; payload: ChatViewModel}
+    | {type: ChatActionType.RemoveChat; payload: ChatViewModel}
+    | {type: ChatActionType.AddMessage; payload: MessageViewModel}
+    | {type: ChatActionType.RemoveMessage; payload: MessageViewModel}
+    | {type: ChatActionType.UpdateMessage; payload: MessageViewModel}
+    | {type: ChatActionType.UpdateChat; payload: ChatViewModel}
+    | {type: ChatActionType.MuteChat; payload: ChatViewModel}
+    | {type: ChatActionType.UnmuteChat; payload: ChatViewModel}
+    | {type: ChatActionType.MarkAsRead; payload: ChatViewModel};
 
 
-export const chatReducer = (state: ChatViewModel[], action: ChatContextAction): ChatViewModel[] => {
+export const chatReducer = (state: ChatViewModel[], action: ChatAction): ChatViewModel[] => {
     switch (action.type) {
 
-        case ChatContextActionType.Init:
+        case ChatActionType.Init:
             return action.payload;
 
-        case ChatContextActionType.AddChat:
+        case ChatActionType.AddChat:
             return [...state, action.payload];
 
-        case ChatContextActionType.RemoveChat:
+        case ChatActionType.RemoveChat:
             return state.filter(chat => chat.id !== action.payload.id);
 
-        case ChatContextActionType.AddMessage: {
+        case ChatActionType.AddMessage: {
             const message = action.payload;
 
             return state.map(chat => {
@@ -51,7 +51,7 @@ export const chatReducer = (state: ChatViewModel[], action: ChatContextAction): 
             });
         }
 
-        case ChatContextActionType.RemoveMessage: {
+        case ChatActionType.RemoveMessage: {
             const message = action.payload;
 
             return state.map(chat => {
@@ -62,7 +62,7 @@ export const chatReducer = (state: ChatViewModel[], action: ChatContextAction): 
             });
         }
 
-        case ChatContextActionType.UpdateMessage: {
+        case ChatActionType.UpdateMessage: {
             const updatedMessage = action.payload;
 
             return state.map(chat => {
@@ -76,7 +76,7 @@ export const chatReducer = (state: ChatViewModel[], action: ChatContextAction): 
             });
         }
 
-        case ChatContextActionType.MarkAsRead: {
+        case ChatActionType.MarkAsRead: {
             const updateChat: ChatViewModel = action.payload;
             return state.map(chat => {
                 if (chat.id !== updateChat.id) return chat;
@@ -99,12 +99,12 @@ export const chatReducer = (state: ChatViewModel[], action: ChatContextAction): 
             });
         }
 
-        case ChatContextActionType.UpdateChat:
+        case ChatActionType.UpdateChat:
             return state.map(chat =>
                 chat.id === action.payload.id ? action.payload : chat
             );
 
-        case ChatContextActionType.MuteChat:
+        case ChatActionType.MuteChat:
             return state.map(chat => {
                 if (chat.id !== action.payload.id) return chat;
                 const updated = new ChatViewModel(chat.id, chat.chatMembers, chat.messages);
@@ -113,7 +113,7 @@ export const chatReducer = (state: ChatViewModel[], action: ChatContextAction): 
                 return updated;
             });
 
-        case ChatContextActionType.UnmuteChat:
+        case ChatActionType.UnmuteChat:
             return state.map(chat => {
                 if (chat.id !== action.payload.id) return chat;
                 const updated = new ChatViewModel(chat.id, chat.chatMembers, chat.messages);
@@ -123,6 +123,6 @@ export const chatReducer = (state: ChatViewModel[], action: ChatContextAction): 
             });
 
         default:
-            throw new Error(`Unknown action type: ${(action as ChatContextAction).type}`);
+            throw new Error(`Unknown action type: ${(action as ChatAction).type}`);
     }
 };

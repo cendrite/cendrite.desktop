@@ -3,7 +3,7 @@ import ParentPane from "./ParentPane";
 import SidePanel from "./SidePanel/SidePanel";
 import MainContent from "./MainContent";
 import {useHomePageContext} from "../../Context/HomePage/HomePageContext.tsx";
-import {HomePageContextActionType} from "../../Context/HomePage/HomePageReducer.ts";
+import {HomePageActionType} from "../../Context/HomePage/HomePageReducer.ts";
 import { Contact } from "../../Models/Contact.ts";
 
 const HomePage: React.FC = () => {
@@ -20,13 +20,13 @@ const HomePage: React.FC = () => {
     useEffect(() => {
         if (paneType === "contacts") {
             if (savedContact !== null) {
-                homeDispatch({type: HomePageContextActionType.SetSelectedContact, payload: savedContact,});
+                homeDispatch({type: HomePageActionType.SetSelectedContact, payload: savedContact,});
             } else {
-                homeDispatch({type: HomePageContextActionType.ClearSelection, payload: null,});
+                homeDispatch({type: HomePageActionType.ClearSelection, payload: null,});
             }
         } else if (paneType === "chats") {
             setSavedContact(selectedItem.type === 'contact' ? selectedItem.value : null);
-            homeDispatch({ type: HomePageContextActionType.ClearSelection, payload: null });
+            homeDispatch({ type: HomePageActionType.ClearSelection, payload: null });
         }
     }, [paneType]);
 

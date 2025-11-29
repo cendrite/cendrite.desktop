@@ -3,7 +3,7 @@ import React from "react";
 import PendingContactPage from "./Contact/PendingContactPage.tsx";
 import ChatPage from "./Chat/ChatPage.tsx";
 import { useHomePageContext } from "../../Context/HomePage/HomePageContext.tsx";
-import {HomePageContextActionType} from "../../Context/HomePage/HomePageReducer.ts";
+import {HomePageActionType} from "../../Context/HomePage/HomePageReducer.ts";
 
 const MainContent: React.FC = () => {
     const {selectedItem, homeDispatch} = useHomePageContext();
@@ -17,7 +17,7 @@ const MainContent: React.FC = () => {
                 <ContactPage
                     contact={selectedItem.value}
                     onClose={() =>
-                        homeDispatch({ type: HomePageContextActionType.ClearSelection, payload: null })
+                        homeDispatch({ type: HomePageActionType.ClearSelection, payload: null })
                     }
                 />
             );
@@ -27,7 +27,7 @@ const MainContent: React.FC = () => {
                 <PendingContactPage
                     pendingContact={selectedItem.value}
                     onClose={() =>
-                        homeDispatch({ type: HomePageContextActionType.ClearSelection, payload: null })
+                        homeDispatch({ type: HomePageActionType.ClearSelection, payload: null })
                     }
                 />
             );
@@ -37,7 +37,7 @@ const MainContent: React.FC = () => {
                 <ChatPage
                     chat={selectedItem.value}
                     onClose={() =>
-                        homeDispatch({ type: HomePageContextActionType.ClearSelection, payload: null })
+                        homeDispatch({ type: HomePageActionType.ClearSelection, payload: null })
                     }
                 />
             );

@@ -2,10 +2,10 @@
 import React from "react";
 import { FriendService } from "../../../Common/Services/FriendService";
 import {useHomePageContext} from "../../../Context/HomePage/HomePageContext.tsx";
-import {HomePageContextActionType} from "../../../Context/HomePage/HomePageReducer.ts";
+import {HomePageActionType} from "../../../Context/HomePage/HomePageReducer.ts";
 import { Contact } from "../../../Models/Contact.ts";
 import { useContacts } from "../../../Context/Contacts/ContactContext.tsx";
-import { ContactContextActionType } from "../../../Context/Contacts/ContactReducer.ts";
+import { ContactActionType } from "../../../Context/Contacts/ContactReducer.ts";
 
 interface DeleteFriendModalProps {
     contact: Contact;
@@ -22,8 +22,8 @@ const DeleteFriendModal: React.FC<DeleteFriendModalProps> = ({isOpen, onClose, c
     const handleDelete = () => {
         friendService.DeleteFriend(contact.id).then((result) => {
             if (result.success) {
-                contactDispatch({type: ContactContextActionType.Remove, payload: {id: contact.id}});
-                homeDispatch({type: HomePageContextActionType.ClearSelection, payload: null}); // Clear selection after deletion
+                contactDispatch({type: ContactActionType.Remove, payload: {id: contact.id}});
+                homeDispatch({type: HomePageActionType.ClearSelection, payload: null}); // Clear selection after deletion
                 console.log("Deleted friend successfully");
             } else {
                 // Recreate the contact here

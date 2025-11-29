@@ -1,24 +1,24 @@
 import { User } from "../../Models/User";
 
-export enum UserContextActionType {
+export enum UserActionType {
     Initialize = -1,
     UpdateUsername = 0,
     UpdateDisplayName = 1,
     UpdateProfilePicture = 2
 }
 
-export type UserContextAction =
-    | { type: UserContextActionType.Initialize; payload: User  }
-    | { type: UserContextActionType.UpdateUsername; payload: { username: string } }
-    | { type: UserContextActionType.UpdateDisplayName; payload: { displayName: string | null } }
-    | { type: UserContextActionType.UpdateProfilePicture; payload: { base64ProfilePicture: string | null } };
+export type UserAction =
+    | { type: UserActionType.Initialize; payload: User  }
+    | { type: UserActionType.UpdateUsername; payload: { username: string } }
+    | { type: UserActionType.UpdateDisplayName; payload: { displayName: string | null } }
+    | { type: UserActionType.UpdateProfilePicture; payload: { base64ProfilePicture: string | null } };
 
-export const userReducer = (state: User | null, action: UserContextAction): User | null => {
+export const userReducer = (state: User | null, action: UserAction): User | null => {
     switch (action.type) {
-        case UserContextActionType.Initialize:
+        case UserActionType.Initialize:
             return action.payload;
 
-        case UserContextActionType.UpdateUsername:
+        case UserActionType.UpdateUsername:
             if (state) {
                 return new User(
                     state.id,
@@ -33,7 +33,7 @@ export const userReducer = (state: User | null, action: UserContextAction): User
             }
             return state;
 
-        case UserContextActionType.UpdateDisplayName:
+        case UserActionType.UpdateDisplayName:
             if (state) {
                 return new User(
                     state.id,
@@ -48,7 +48,7 @@ export const userReducer = (state: User | null, action: UserContextAction): User
             }
             return state;
 
-        case UserContextActionType.UpdateProfilePicture:
+        case UserActionType.UpdateProfilePicture:
             if (state) {
                 return new User(
                     state.id,

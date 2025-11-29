@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { User } from '../../Models/User';
-import { UserContextAction, UserContextActionType } from './UserReducer';
+import { UserAction, UserActionType } from './UserReducer';
 import { ChangeEvent } from '../../SignalR/ChangeEvent/ChangeEvent';
 import { ProfilePictureUpdatedEvent } from '../../SignalR/ChangeEvent/EventData';
 import { GetUserProfilePictureApi } from '../../Common/Api/UserProfile/GetUserProfilePicture';
@@ -9,7 +9,7 @@ import { ChangeEventType } from '../../SignalR/ChangeEvent/ChangeEventType';
 
 export function useUserEvents(
     user: User | null,
-    dispatch: React.Dispatch<UserContextAction>,
+    dispatch: React.Dispatch<UserAction>,
     profilePictureApi: GetUserProfilePictureApi,
 ) {
     const handleProfilePictureUpdate = useCallback(
@@ -32,7 +32,7 @@ export function useUserEvents(
 
                 if (result.success) {
                     dispatch({
-                        type: UserContextActionType.UpdateProfilePicture,
+                        type: UserActionType.UpdateProfilePicture,
                         payload: { base64ProfilePicture: result.data!.base64ProfilePicture },
                     });
                 }

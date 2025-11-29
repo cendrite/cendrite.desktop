@@ -9,7 +9,7 @@ import {
 } from "../../../../Electron/Application/Features/Files/Queries/GetMedia/GetMediaQuery.ts";
 import {ProfilePictureService} from "../../../Common/Services/ProfilePictureService.ts";
 import { useUser } from "../../../Context/User/UserContext.tsx";
-import { UserContextActionType } from "../../../Context/User/UserReducer.ts";
+import { UserActionType } from "../../../Context/User/UserReducer.ts";
 
 interface ProfilePictureModalProps {
     isOpen: boolean;
@@ -33,7 +33,7 @@ const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClos
             setLoading(true);
             const result = await profilePictureService.updateProfilePicture(selectedProfilePicture!, isStock);
             if (result.success) {
-                userDispatch({type: UserContextActionType.UpdateProfilePicture, payload: {base64ProfilePicture: selectedProfilePicture!}});
+                userDispatch({type: UserActionType.UpdateProfilePicture, payload: {base64ProfilePicture: selectedProfilePicture!}});
                 onClose(true);
             } else {
                 console.error(result.errorMessage);

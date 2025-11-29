@@ -6,7 +6,7 @@ import { GetUserDto } from '../../Electron/Application/Features/User/Queries/Get
 import { GetUserQuery } from '../../Electron/Application/Features/User/Queries/GetUserQuery.ts';
 import { TokenManager } from '../Security/Tokens/TokenManager.ts';
 import { useUser } from './User/UserContext.tsx';
-import { UserContextActionType } from './User/UserReducer.ts';
+import { UserActionType } from './User/UserReducer.ts';
 import { User } from '../Models/User.ts';
 
 interface AuthContextType {
@@ -38,7 +38,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const tokenManager = TokenManager.getInstance();
             await tokenManager.initialize(userResult.data!.id, deviceResult.data!.id);
 
-            userDispatch({type: UserContextActionType.Initialize, payload: new User(
+            userDispatch({type: UserActionType.Initialize, payload: new User(
                 userResult.data!.id,
                 userResult.data!.username,
                 userResult.data!.userTag,
