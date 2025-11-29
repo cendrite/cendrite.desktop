@@ -43,7 +43,6 @@ export function useUserEvents(
                 dispatch({ type: UserActionType.AddConnectionId, payload: { connectionId: evt.data.connectionId } });
 
                 await window.electron.sendRequestAsync(new AddUserConnectionIdCommand(evt.data.connectionId));
-
             } catch (err) {
                 console.error('Error handling user login event', err);
             }
@@ -59,7 +58,6 @@ export function useUserEvents(
                 dispatch({ type: UserActionType.RemoveConnectionId, payload: { connectionId: evt.data.connectionId } });
 
                 await window.electron.sendRequestAsync(new RemoveUserConnectionIdCommand(evt.data.connectionId));
-
             } catch (err) {
                 console.error('Error handling user logout event', err);
             }
