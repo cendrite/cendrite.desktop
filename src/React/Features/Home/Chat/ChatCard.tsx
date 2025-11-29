@@ -1,37 +1,38 @@
-﻿import React from "react";
-import {ChatViewModel} from "../../../Models/ChatViewModel.ts";
-import {UserProfileImage} from "../../../Common/Components/ProfilePicture/UserProfileImage.tsx";
-import {useHomePageContext} from "../../../Context/HomePage/HomePageContext.tsx";
-import {HomePageActionType} from "../../../Context/HomePage/HomePageReducer.ts";
-import {useMessageService} from "../../../Common/Services/MessageService.ts";
-import { useUser } from "../../../Context/User/UserContext.tsx";
+﻿import React from 'react';
+import { ChatViewModel } from '../../../Models/ChatViewModel.ts';
+import { UserProfileImage } from '../../../Common/Components/ProfilePicture/UserProfileImage.tsx';
+import { useHomePageContext } from '../../../Context/HomePage/HomePageContext.tsx';
+import { HomePageActionType } from '../../../Context/HomePage/HomePageReducer.ts';
+import { useMessageService } from '../../../Common/Services/MessageService.ts';
+import { useUser } from '../../../Context/User/UserContext.tsx';
 
 interface ChatCardProps {
     chat: ChatViewModel;
 }
 
-export const ChatCard: React.FC<ChatCardProps> = ({chat}) => {
-    const {selectedItem, homeDispatch} = useHomePageContext();
-    const {markMessagesAsRead} = useMessageService();
-    const {user} = useUser();
+export const ChatCard: React.FC<ChatCardProps> = ({ chat }) => {
+    const { selectedItem, homeDispatch } = useHomePageContext();
+    const { markMessagesAsRead } = useMessageService();
+    const { user } = useUser();
+    const unreadCount = chat.getUnreadMessagesCount(user!.connectionId);
     const isSelected = selectedItem.type === 'chat' && selectedItem.value.id === chat.id;
     const name = chat.chatMembers[0].displayName ?? chat.chatMembers[0].contact.displayName;
     const lastMessage = chat.messages.length > 0 ? chat.messages[chat.messages.length - 1] : null;
 
     const onHandleClick = async () => {
         if (isSelected) {
-            homeDispatch({type: HomePageActionType.ClearSelection, payload: null});
+            homeDispatch({ type: HomePageActionType.ClearSelection, payload: null });
             return;
         }
         homeDispatch({
             type: HomePageActionType.SetSelectedChat,
-            payload: chat
+            payload: chat,
         });
         await markMessagesAsRead(chat);
-    }
+    };
 
     const cardClasses = `flex items-center py-2 px-2 rounded-md cursor-pointer 
-    ${isSelected ? "bg-darkGray-300" : "hover:bg-darkGray-300"}`;
+    ${isSelected ? 'bg-darkGray-300' : 'hover:bg-darkGray-300'}`;
 
     return (
         <div className={cardClasses} onClick={onHandleClick}>
@@ -45,16 +46,18 @@ export const ChatCard: React.FC<ChatCardProps> = ({chat}) => {
             <div className="ml-3 flex flex-col overflow-hidden">
                 <div className="flex items-center">
                     <span className="text-sm text-white font-medium truncate max-w-[180px]">{name}</span>
-                    {chat.getUnreadMessagesCount(user!.connectionId) > 0 && (
+                    {unreadCount > 0 && !isSelected && (
                         <span className="ml-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-                            {chat.getUnreadMessagesCount(user!.connectionId)}
+                            {unreadCount}
                         </span>
                     )}
                 </div>
-                <span className={`text-xs truncate max-w-[220px] mt-0.5 
-                ${chat.getUnreadMessagesCount(user!.connectionId) > 0 ? "text-white" : "text-gray-400"}
-                ${lastMessage?.text ? "font-normal" : "italic"}`}>
-                    {lastMessage?.text ?? "draft.."}
+                <span
+                    className={`text-xs truncate max-w-[220px] mt-0.5 
+                ${chat.getUnreadMessagesCount(user!.connectionId) > 0 ? 'text-white' : 'text-gray-400'}
+                ${lastMessage?.text ? 'font-normal' : 'italic'}`}
+                >
+                    {lastMessage?.text ?? 'draft..'}
                 </span>
             </div>
         </div>
