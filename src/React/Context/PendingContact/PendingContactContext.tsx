@@ -1,10 +1,10 @@
 import React from 'react';
 import { PendingContact } from '../../Models/PendingContact';
-import { PendingContactContextAction } from './PendingContactReducer';
+import { PendingContactAction } from './PendingContactReducer';
 
 export interface PendingContactContextType {
     pendingContacts: PendingContact[];
-    pendingContactDispatch: React.Dispatch<PendingContactContextAction>;
+    pendingContactDispatch: React.Dispatch<PendingContactAction>;
 }
 
 export const PendingContactContext = React.createContext<PendingContactContextType | undefined>(undefined);

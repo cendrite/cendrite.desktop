@@ -1,33 +1,33 @@
 import { PendingContact } from "../../Models/PendingContact";
 
-export enum PendingContactContextActionType {
+export enum PendingContactActionType {
     Initialize = -1,
     Add = 0,
     Remove = 1,
     MarkAsSeen = 2,
 }
 
-export type PendingContactContextAction =
-    | { type: PendingContactContextActionType.Initialize; payload: PendingContact[] }
-    | { type: PendingContactContextActionType.Add; payload: PendingContact }
-    | { type: PendingContactContextActionType.Remove; payload: { id: string } }
-    | { type: PendingContactContextActionType.MarkAsSeen; payload: { id: string } };
+export type PendingContactAction =
+    | { type: PendingContactActionType.Initialize; payload: PendingContact[] }
+    | { type: PendingContactActionType.Add; payload: PendingContact }
+    | { type: PendingContactActionType.Remove; payload: { id: string } }
+    | { type: PendingContactActionType.MarkAsSeen; payload: { id: string } };
 
 export const pendingContactReducer = (
     state: PendingContact[],
-    action: PendingContactContextAction
+    action: PendingContactAction
 ): PendingContact[] => {
     switch (action.type) {
-        case PendingContactContextActionType.Initialize:
+        case PendingContactActionType.Initialize:
             return action.payload;
 
-        case PendingContactContextActionType.Add:
+        case PendingContactActionType.Add:
             return [...state, action.payload];
 
-        case PendingContactContextActionType.Remove:
+        case PendingContactActionType.Remove:
             return state.filter((pending) => pending.id !== action.payload.id);
 
-        case PendingContactContextActionType.MarkAsSeen:
+        case PendingContactActionType.MarkAsSeen:
             return state.map((pending) =>
                 pending.id === action.payload.id
                     ? new PendingContact(
