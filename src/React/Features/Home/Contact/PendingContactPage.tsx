@@ -7,7 +7,7 @@ import { UserProfileImage } from '../../../Common/Components/ProfilePicture/User
 import ToolTip from '../../../Common/Components/Utility/ToolTip.tsx';
 import { PendingContact } from '../../../Models/PendingContact.ts';
 import { usePendingContacts } from '../../../Context/PendingContact/PendingContactContext.tsx';
-import { PendingContactContextActionType } from '../../../Context/PendingContact/PendingContactReducer.ts';
+import { PendingContactActionType } from '../../../Context/PendingContact/PendingContactReducer.ts';
 
 interface PendingContactPage {
     pendingContact: PendingContact;
@@ -34,7 +34,7 @@ const PendingContactPage: React.FC<PendingContactPage> = ({ pendingContact, onCl
     const handleAccept = async () => {
         const result = await friendService.AcceptFriendship(pendingContact.id);
         if (result.success) {
-            pendingContactDispatch({ type: PendingContactContextActionType.Remove, payload: { id: pendingContact.id} });
+            pendingContactDispatch({ type: PendingContactActionType.Remove, payload: { id: pendingContact.id} });
             setLoadingAction('accept');
         }
         await delay(750);
@@ -45,7 +45,7 @@ const PendingContactPage: React.FC<PendingContactPage> = ({ pendingContact, onCl
     const handleDecline = async () => {
         const result = await friendService.DeclineFriendRequest(pendingContact.id);
         if (result.success) {
-            pendingContactDispatch({ type: PendingContactContextActionType.Remove, payload: { id: pendingContact.id } });
+            pendingContactDispatch({ type: PendingContactActionType.Remove, payload: { id: pendingContact.id } });
             setLoadingAction('decline');
         }
         await delay(750);
