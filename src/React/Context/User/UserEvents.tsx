@@ -17,9 +17,7 @@ export function useUserEvents(
     const handleProfilePictureUpdate = useCallback(
         async (evt: ChangeEvent<ProfilePictureUpdatedEvent>) => {
             try {
-                if (!isUserEvent(evt.data.userTag)) {
-                    return;
-                }
+                if (user?.userTag !== evt.data.userTag) return;
                 const result = await profilePictureApi.getUserProfilePicture({
                     profilePictureUrl: evt.data.profilePictureUrl,
                 });
@@ -40,10 +38,12 @@ export function useUserEvents(
     const handleUserLoginEvent = useCallback(
         async (evt: ChangeEvent<UserLoggedInEvent>) => {
             try {
-                if (!isUserEvent(evt.data.userTag)) return;
+                if (!isUserEvent(evt.data.userTag, evt.data.connectionId)) return;
 
                 dispatch({ type: UserActionType.AddConnectionId, payload: { connectionId: evt.data.connectionId } });
+
                 await window.electron.sendRequestAsync(new AddUserConnectionIdCommand(evt.data.connectionId));
+
             } catch (err) {
                 console.error('Error handling user login event', err);
             }
@@ -51,23 +51,28 @@ export function useUserEvents(
         [dispatch, user],
     );
 
-    const handleUserLogoutEvent = useCallback(async (evt: ChangeEvent<UserLoggedInEvent>) => {
-        try {
-            if (!isUserEvent(evt.data.userTag)) return;
-            dispatch({ type: UserActionType.RemoveConnectionId, payload: { connectionId: evt.data.connectionId } });
-            await window.electron.sendRequestAsync(new RemoveUserConnectionIdCommand(evt.data.connectionId));
+    const handleUserLogoutEvent = useCallback(
+        async (evt: ChangeEvent<UserLoggedInEvent>) => {
+            try {
+                if (!isUserEvent(evt.data.userTag, evt.data.connectionId)) return;
 
-        } catch (err) {
-            console.error('Error handling user logout event', err);
-        }
-    }, [dispatch, user]);
+                dispatch({ type: UserActionType.RemoveConnectionId, payload: { connectionId: evt.data.connectionId } });
+
+                await window.electron.sendRequestAsync(new RemoveUserConnectionIdCommand(evt.data.connectionId));
+
+            } catch (err) {
+                console.error('Error handling user logout event', err);
+            }
+        },
+        [dispatch, user],
+    );
 
     useSignalEvent(ChangeEventType.ProfilePictureChanged, handleProfilePictureUpdate);
     useSignalEvent(ChangeEventType.UserLoggedIn, handleUserLoginEvent);
     useSignalEvent(ChangeEventType.UserLoggedOut, handleUserLogoutEvent);
 
-    function isUserEvent(tag: string): boolean {
-        if (user?.userTag !== tag) {
+    function isUserEvent(tag: string, id: string): boolean {
+        if (user?.userTag !== tag || user.connectionId === id) {
             console.log('User event for different userTag received, ignoring.');
             return false;
         }

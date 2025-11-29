@@ -103,9 +103,7 @@ export class ApiClient{
             return Result.fail<T>(new ErrorMessage("ApiError", "An unexpected error occurred."));
         }
     }
-
 }
-
 
 interface ProblemDetails {
     title: string;
