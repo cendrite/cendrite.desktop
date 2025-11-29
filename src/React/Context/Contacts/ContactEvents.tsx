@@ -4,7 +4,7 @@ import { ProfilePictureService } from '../../Common/Services/ProfilePictureServi
 import { Contact } from '../../Models/Contact';
 import { User } from '../../Models/User';
 import { ChangeEvent } from '../../SignalR/ChangeEvent/ChangeEvent';
-import { FriendDeletedEvent, FriendRequestAcceptedEvent } from '../../SignalR/ChangeEvent/EventData';
+import { FriendDeletedEvent, FriendRequestAcceptedEvent, UserLoggedInEvent, UserLoggedOutEvent } from '../../SignalR/ChangeEvent/EventData';
 import { ContactAction, ContactActionType } from './ContactReducer';
 import { getById } from './ContactSelectors';
 import { DeleteFriendCommand } from '../../../Electron/Application/Features/Friends/Commands/Delete/DeleteFriendCommand';
@@ -54,6 +54,17 @@ export function useContactEvents(
         dispatch({type: ContactActionType.Remove, payload: {id: evt.data.tag}});
     }, [user, dispatch]);
 
+    const handleContactLoginEvent = useCallback(async (evt: ChangeEvent<UserLoggedInEvent>) => {
+        throw new Error('Function not implemented.');
+    }, []);
+
+    const handleContactLogoutEvent = useCallback(async (evt: ChangeEvent<UserLoggedOutEvent>) => {
+        throw new Error('Function not implemented.');
+    }, []);
+
     useSignalEvent<FriendDeletedEvent>(ChangeEventType.FriendRemoved, handleContactDeletedEvent);
     useSignalEvent<FriendRequestAcceptedEvent>(ChangeEventType.FriendRequestAccepted, handleContactAddedEvent);
+    useSignalEvent<UserLoggedInEvent>(ChangeEventType.UserLoggedIn, handleContactLoginEvent);
+    useSignalEvent<UserLoggedOutEvent>(ChangeEventType.UserLoggedOut, handleContactLogoutEvent);
+
 }

@@ -16,7 +16,6 @@ export class AddConnectionIdCommandHandler implements Handler<AddConnectionIdCom
                 return Result.fail(new ErrorMessage(null, "Friend not found"));
             }
 
-            // Add new connection IDs
             for (const connId of request.connectionId) {
                 if(friend.connectionIds.some((con) => con.connectionId === connId)) {
                     console.warn(`Connection ID ${connId} already exists for friend ${friend.id}`);

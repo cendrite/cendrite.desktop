@@ -1,8 +1,8 @@
-import { Repository } from "typeorm/repository/Repository.js";
-import { CryptographyService } from "../Encryption/CryptographyService.js";
-import { getDbContext } from "../Context/DatabaseContext.js";
-import { User } from "../../Domain/Aggregates/User.js";
-import cloneDeep from "lodash/cloneDeep.js";
+import { Repository } from 'typeorm/repository/Repository.js';
+import { CryptographyService } from '../Encryption/CryptographyService.js';
+import { getDbContext } from '../Context/DatabaseContext.js';
+import { User } from '../../Domain/Aggregates/User.js';
+import cloneDeep from 'lodash/cloneDeep.js';
 
 export class UserRepository {
     private repository: Repository<User>;
@@ -13,7 +13,6 @@ export class UserRepository {
     }
 
     public async create(user: User): Promise<User> {
-
         const originalUser = cloneDeep(user);
 
         user.id = await this.cryptoService.encrypt(user.id);
@@ -23,34 +22,21 @@ export class UserRepository {
         return originalUser;
     }
 
-    public async get(): Promise<User> {
+    public async get(decrypt: boolean = true): Promise<User> {
         const user = await this.repository.find({ take: 1 });
         if (user.length === 0) {
-            throw new Error("No user found");
+            throw new Error('No user found');
         }
 
-        user[0].id = await this.cryptoService.decrypt(user[0].id);
-        user[0].userTag = await this.cryptoService.decrypt(user[0].userTag);
-
+        if (decrypt) {
+            user[0].id = await this.cryptoService.decrypt(user[0].id);
+            user[0].userTag = await this.cryptoService.decrypt(user[0].userTag);
+        }
         return user[0];
     }
 
     public async update(userUpdate: Partial<User>) {
-        const result = await this.repository.find({ take: 1 });
-        if (result.length === 0) {
-            throw new Error("No user found");
-        }
-        const user = result[0];
-
-        if(userUpdate.profilePicture) {
-            user.setProfilePicture(userUpdate.profilePicture);
-        }
-
-        if(userUpdate.displayName) {
-            user.setDisplayName(userUpdate.displayName);
-        }
-
-        await this.repository.save(user);
+        await this.repository.update({}, userUpdate);
     }
 
     public async delete(): Promise<void> {

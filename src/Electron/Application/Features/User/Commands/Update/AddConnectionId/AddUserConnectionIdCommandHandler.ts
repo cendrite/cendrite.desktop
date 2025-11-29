@@ -1,0 +1,27 @@
+import { ErrorMessage } from '../../../../../../../Shared/Result/ErrorMessage.js';
+import { Result } from '../../../../../../../Shared/Result/Result.js';
+import { UserConnectionId } from '../../../../../../Domain/Entities/UserConnectionId.js';
+import { UserRepository } from '../../../../../../Persistence/Repositories/UserRepository.js';
+import { Handler } from '../../../../../Mediator/Handler.js';
+import { AddUserConnectionIdCommand } from './AddUserConnectionIdCommand.js';
+
+export class AddUserConnectionIdCommandHandler implements Handler<AddUserConnectionIdCommand, void> {
+    public async handle(request: AddUserConnectionIdCommand): Promise<Result> {
+        try {
+            const repository = new UserRepository();
+
+            const user = await repository.get(false);
+
+            const newConId = new UserConnectionId(request.connectionId, user);
+
+            await repository.update({ connectionIds:  [...user.connectionIds, newConId] });
+            
+            return Result.success();
+
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+            console.error('AddConnectionId Failed:', errorMessage);
+            return Result.fail(new ErrorMessage(null, 'AddConnectionId Failed'));
+        }
+    }
+}

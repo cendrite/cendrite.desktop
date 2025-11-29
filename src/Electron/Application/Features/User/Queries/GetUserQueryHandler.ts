@@ -6,10 +6,10 @@ import {ErrorMessage} from "../../../../../Shared/Result/ErrorMessage.js";
 import { UserRepository } from "../../../../Persistence/Repositories/UserRepository.js";
 
 export class GetUserQueryHandler implements Handler<GetUserQuery, GetUserDto> {
-    public async handle(request: GetUserQuery): Promise<Result<GetUserDto>> {
+    public async handle(_request: GetUserQuery): Promise<Result<GetUserDto>> {
         try {
             const _userRepository = new UserRepository();
-            const user = await _userRepository.get();
+            const user = await _userRepository.get(true);
 
             if(user == null){
                 return Result.fail<GetUserDto>(new ErrorMessage(null, "User not found"));
