@@ -1,8 +1,7 @@
-﻿
-export class RemoveConnectionIdCommand {
-    type = "RemoveConnectionIdCommand";
+﻿export class AddFriendConnectionIdCommand implements MediatorRequest {
+    type = "AddConnectionIdCommand";
     id: string;
-    connectionId: string[];
+    connectionId: string [];
 
     constructor(friendId: string, ...connectionId: string[]) {
         this.id = friendId;

@@ -11,9 +11,9 @@ export class RemoveUserConnectionIdCommandHandler implements Handler<RemoveUserC
 
             const user = await repo.get(false);
 
-            const updatedConnectionIds = user.connectionIds.filter(uc => uc.connectionId !== request.connectionId);
+            user.removeConnectionId(request.connectionId);
 
-            await repo.update({ connectionIds: updatedConnectionIds });
+            await repo.update(user);
 
             return Result.success();
 

@@ -13,11 +13,11 @@ import {
     UpdateFriendCommand
 } from "../../../Electron/Application/Features/Friends/Commands/Update/UpdateFriendCommand.ts";
 import {
-    RemoveConnectionIdCommand
-} from "../../../Electron/Application/Features/Friends/Commands/RemoveConnectionId/RemoveConnectionIdCommand.ts";
+    RemoveFriendConnectionIdCommand
+} from "../../../Electron/Application/Features/Friends/Commands/RemoveConnectionId/RemoveFriendConnectionIdCommand.ts";
 import {
-    AddConnectionIdCommand
-} from "../../../Electron/Application/Features/Friends/Commands/AddConnectionId/AddConnectionIdCommand.ts";
+    AddFriendConnectionIdCommand
+} from "../../../Electron/Application/Features/Friends/Commands/AddConnectionId/AddFriendConnectionIdCommand.ts";
 import { Contact } from "../../Models/Contact.ts";
 
 interface ConnectionDiff {
@@ -76,10 +76,10 @@ export class FriendSyncService {
                 window.electron.sendRequestAsync(new UpdateFriendCommand(rc.id, rc.username, rc.displayName, rc.profilePicture))
             ),
             ...connDiffs.map(diff =>
-                window.electron.sendRequestAsync(new RemoveConnectionIdCommand(diff.friendId, ...diff.staleConnectionIds))
+                window.electron.sendRequestAsync(new RemoveFriendConnectionIdCommand(diff.friendId, ...diff.staleConnectionIds))
             ),
             ...connDiffs.map(diff =>
-                window.electron.sendRequestAsync(new AddConnectionIdCommand(diff.friendId, ...diff.newConnectionIds))
+                window.electron.sendRequestAsync(new AddFriendConnectionIdCommand(diff.friendId, ...diff.newConnectionIds))
             ),
         ]);
 

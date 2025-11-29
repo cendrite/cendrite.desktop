@@ -35,8 +35,8 @@ export class UserRepository {
         return user[0];
     }
 
-    public async update(userUpdate: Partial<User>) {
-        await this.repository.update({}, userUpdate);
+    public async update(user: User) {
+        await this.repository.save(user);
     }
 
     public async delete(): Promise<void> {

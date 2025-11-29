@@ -1,12 +1,12 @@
 ﻿import { Result } from "../../../../../../Shared/Result/Result.js";
 import { FriendRepository } from "../../../../../Persistence/Repositories/FriendRepository.js";
 import {Handler} from "../../../../Mediator/Handler.js";
-import {AddConnectionIdCommand} from "./AddConnectionIdCommand.js";
 import {ErrorMessage} from "../../../../../../Shared/Result/ErrorMessage.js";
 import {FriendConnectionId} from "../../../../../Domain/Entities/FriendConnectionId.js";
+import { AddFriendConnectionIdCommand } from "./AddFriendConnectionIdCommand.js";
 
-export class AddConnectionIdCommandHandler implements Handler<AddConnectionIdCommand> {
-    public async handle(request: AddConnectionIdCommand): Promise<Result> {
+export class AddFriendConnectionIdCommandHandler implements Handler<AddFriendConnectionIdCommand> {
+    public async handle(request: AddFriendConnectionIdCommand): Promise<Result> {
         try {
 
             const friendRepository = new FriendRepository();
@@ -29,7 +29,7 @@ export class AddConnectionIdCommandHandler implements Handler<AddConnectionIdCom
 
         } catch (error) {
             const errorMessage = (error instanceof Error) ? error.message : 'An unknown error occurred';
-            console.error('Adding connection ID failed:', errorMessage);
+            console.error('Adding friend connection ID failed:', errorMessage);
             return Result.fail(new ErrorMessage(null, "Add Connection ID Failed"));
         }
     }

@@ -1,6 +1,5 @@
 import { ErrorMessage } from '../../../../../../../Shared/Result/ErrorMessage.js';
 import { Result } from '../../../../../../../Shared/Result/Result.js';
-import { UserConnectionId } from '../../../../../../Domain/Entities/UserConnectionId.js';
 import { UserRepository } from '../../../../../../Persistence/Repositories/UserRepository.js';
 import { Handler } from '../../../../../Mediator/Handler.js';
 import { AddUserConnectionIdCommand } from './AddUserConnectionIdCommand.js';
@@ -12,9 +11,9 @@ export class AddUserConnectionIdCommandHandler implements Handler<AddUserConnect
 
             const user = await repository.get(false);
 
-            const newConId = new UserConnectionId(request.connectionId, user);
+            user.addConnectionId(request.connectionId);
 
-            await repository.update({ connectionIds:  [...user.connectionIds, newConId] });
+            await repository.update(user);
             
             return Result.success();
 

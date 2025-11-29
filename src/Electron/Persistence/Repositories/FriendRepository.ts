@@ -31,11 +31,18 @@ export class FriendRepository {
     }
 
     public async update(friend: Friend): Promise<void> {
+        for (const conn of friend.connectionIds) {
+            conn.connectionId = await this.cryptoService.encrypt(conn.connectionId);
+        }
         await this.friendRepository.save(friend);
     }
 
     public async getById(id: string): Promise<Friend | null> {
-        return this.friendRepository.findOneBy({id: id});
+        const friend = await this.friendRepository.findOneBy({id: id});
+        for (const conn of friend?.connectionIds ?? []) {
+            conn.connectionId = await this.cryptoService.decrypt(conn.connectionId);
+        }
+        return friend;
     }
 
     public async delete(id: string): Promise<void> {

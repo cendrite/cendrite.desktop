@@ -1,4 +1,4 @@
-import {UserConnectionId} from "../Entities/UserConnectionId.js";
+import { UserConnectionId } from '../Entities/UserConnectionId.js';
 
 export class User {
     id: string;
@@ -6,9 +6,15 @@ export class User {
     userTag: string;
     profilePicture: Buffer | null;
     displayName: string | null;
-    connectionIds!: UserConnectionId[]
+    connectionIds!: UserConnectionId[];
 
-    constructor(id: string, username: string, userTag: string, profilePicture: Buffer | null, displayName: string | null) {
+    constructor(
+        id: string,
+        username: string,
+        userTag: string,
+        profilePicture: Buffer | null,
+        displayName: string | null,
+    ) {
         this.id = id;
         this.username = username;
         this.userTag = userTag;
@@ -22,5 +28,16 @@ export class User {
 
     public setDisplayName(displayName: string) {
         this.displayName = displayName;
+    }
+
+    public addConnectionId(connectionId: string) {
+        if (this.connectionIds.find((ucid) => ucid.connectionId === connectionId)) return;
+
+        const userConnectionId = new UserConnectionId(connectionId, this);
+        this.connectionIds.push(userConnectionId);
+    }
+
+    public removeConnectionId(connectionId: string) {
+        this.connectionIds = this.connectionIds.filter((ucid) => ucid.connectionId !== connectionId);
     }
 }

@@ -1,12 +1,13 @@
-﻿import {RemoveConnectionIdCommand} from "./RemoveConnectionIdCommand.js";
-import {Handler} from "../../../../Mediator/Handler.js";
+﻿import {Handler} from "../../../../Mediator/Handler.js";
 import { Result } from "../../../../../../Shared/Result/Result.js";
 import {ErrorMessage} from "../../../../../../Shared/Result/ErrorMessage.js";
 import {FriendRepository} from "../../../../../Persistence/Repositories/FriendRepository.js";
+import { RemoveFriendConnectionIdCommand } from "./RemoveFriendConnectionIdCommand.js";
 
-export class RemoveConnectionIdCommandHandler implements Handler<RemoveConnectionIdCommand> {
-    public async handle(request: RemoveConnectionIdCommand): Promise<Result> {
+export class RemoveFriendConnectionIdCommandHandler implements Handler<RemoveFriendConnectionIdCommand> {
+    public async handle(request: RemoveFriendConnectionIdCommand): Promise<Result> {
         try {
+
             const friendRepository = new FriendRepository();
             const friend = await friendRepository.getById(request.id);
 
@@ -25,5 +26,4 @@ export class RemoveConnectionIdCommandHandler implements Handler<RemoveConnectio
             return Result.fail(new ErrorMessage(null, "Remove Connection ID Failed"));
         }
     }
-
 }
