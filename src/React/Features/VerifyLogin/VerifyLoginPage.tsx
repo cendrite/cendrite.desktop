@@ -64,6 +64,8 @@ const VerifyLoginPage: React.FC = () => {
             deviceRegistrationResult.data!.connectionId,
         );
 
+        console.log('User profile result:', userProfileResult);
+
         userDispatch({type: UserActionType.Initialize, payload: new User(
             userProfileResult!.id,
             userProfileResult!.username,
