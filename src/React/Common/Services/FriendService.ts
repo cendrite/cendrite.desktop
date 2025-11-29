@@ -3,10 +3,10 @@ import {Result} from "../../../Shared/Result/Result";
 import {AcceptFriendshipApi} from "../Api/Friends/AcceptFriendRequestApi";
 import {DeclineFriendRequestApi} from "../Api/Friends/DeclineFriendRequestApi";
 import {SendFriendRequestApi} from "../Api/Friends/SendFriendRequestApi";
-import {PendingContact} from "../../Context/PendingContactContext.tsx";
 import {GetFriendRequestsApi} from "../Api/Friends/GetFriendRequestsApi.ts";
 import {DeleteFriendCommand} from "../../../Electron/Application/Features/Friends/Commands/Delete/DeleteFriendCommand.ts";
 import {DeleteFriendApi} from "../Api/Friends/DeleteFriendApi.ts";
+import { PendingContact } from "../../Models/PendingContact.ts";
 
 export class FriendService {
     private readonly addFriendAPi = new SendFriendRequestApi();

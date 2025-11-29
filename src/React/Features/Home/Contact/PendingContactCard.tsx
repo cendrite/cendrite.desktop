@@ -1,11 +1,11 @@
-﻿import {PendingContact} from "../../../Context/PendingContactContext.tsx";
-import React from "react";
+﻿import React from "react";
 import {UserProfileImage} from "../../../Common/Components/ProfilePicture/UserProfileImage.tsx";
 import { NotificationActionType } from "../../../Context/Notification/NotificationReducer.ts";
 import NotificationBadge from "../../../Context/Notification/NotificationBadge.tsx";
 import {useNotifications} from "../../../Context/Notification/NotificationContext.tsx";
 import { useHomePageContext } from "../../../Context/HomePage/HomePageContext.tsx";
 import { HomePageContextActionType } from "../../../Context/HomePage/HomePageReducer.ts";
+import { PendingContact } from "../../../Models/PendingContact.ts";
 
 interface PendingContactCardProps {
     contact: PendingContact;
