@@ -83,10 +83,10 @@ export class ApiClient{
         }
     }
  
-    public async HandleConduit<T>(config: AxiosRequestConfig, allowEmpty: true) : Promise<Result<T | void>>;
-    public async HandleConduit<T>(config: AxiosRequestConfig, allowEmpty?: boolean) : Promise<Result<T>>;   
+    public async handleConduit<T>(config: AxiosRequestConfig, allowEmpty: true) : Promise<Result<T | void>>;
+    public async handleConduit<T>(config: AxiosRequestConfig, allowEmpty?: boolean) : Promise<Result<T>>;   
     
-    public async HandleConduit<T>(config: AxiosRequestConfig) : Promise<Result<T | void>> {
+    public async handleConduit<T>(config: AxiosRequestConfig) : Promise<Result<T | void>> {
         try{
             const response: AxiosResponse<T | null> = await this.api.request<T>(config);
             if(response.status === 204){
@@ -111,5 +111,6 @@ interface ProblemDetails {
     status: number;
     instance: string;
     type: string;
+    errors: {code: string; description: string; type: number}[];
 }
 

@@ -20,7 +20,7 @@ export class LoginApi {
     }
 
     public async login(request: LoginRequest): Promise<Result<LoginResponse>> {
-        return this.client.handle<LoginResponse>({
+        return this.client.handleConduit<LoginResponse>({
             method: "POST",
             data: request
         });

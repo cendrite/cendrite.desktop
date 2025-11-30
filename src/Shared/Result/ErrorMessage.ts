@@ -21,9 +21,16 @@ export class ErrorMessage {
     public static fromApiResponse(code: string, message: string): ErrorMessage {
         return new ErrorMessage(code, ErrorMessage.TrimErrorMessageHelper(message));
     }
-    
-    public static fromProblemDetails(problemDetails: { title: string; detail: string; status: number; instance: string; type: string; }): ErrorMessage {
-        return new ErrorMessage(problemDetails.title, ErrorMessage.TrimErrorMessageHelper(problemDetails.detail));
+
+    public static fromProblemDetails(problemDetails: {
+        title: string;
+        detail: string;
+        status: number;
+        instance: string;
+        type: string;
+        errors: {code: string; description: string; type: number}[];
+    }): ErrorMessage {
+        return new ErrorMessage(problemDetails.title, ErrorMessage.TrimErrorMessageHelper(problemDetails.errors[0].description));
     }
 
     // Removes backend error code defined in parentheses and double quotes from the error message

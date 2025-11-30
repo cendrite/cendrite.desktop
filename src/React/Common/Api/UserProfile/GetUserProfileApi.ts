@@ -24,7 +24,7 @@ export class GetUserProfileApi{
     }
 
     public async getUserProfile(req: GetUserProfileRequest): Promise<Result<GetUserProfileResponse | void>> {
-        return this.client.HandleConduit<GetUserProfileResponse>({
+        return this.client.handleConduit<GetUserProfileResponse>({
             method: "GET",
             params: req
         })

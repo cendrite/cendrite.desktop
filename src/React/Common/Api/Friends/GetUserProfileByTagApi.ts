@@ -30,7 +30,7 @@ export class GetUserProfileByTagApi {
     }
 
     public async getUserProfileByTag(request: GetUserProfileByTagRequest): Promise<Result<GetUserProfileByTagResponse | void>> {
-        return this.client.handle<GetUserProfileByTagResponse>({
+        return this.client.handleConduit<GetUserProfileByTagResponse>({
             method: "GET",
             params: request
         }, true);

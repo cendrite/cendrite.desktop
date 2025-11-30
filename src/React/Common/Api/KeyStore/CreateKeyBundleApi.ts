@@ -21,7 +21,7 @@ export class CreateKeyBundleApi {
     }
 
     public async createKeyBundle(req: CreateKeyBundleRequest): Promise<Result<void>>{
-        return this.client.HandleConduit<void>({
+        return this.client.handleConduit<void>({
             method: 'POST',
             data: req,
         });
