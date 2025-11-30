@@ -10,8 +10,8 @@ export class SignalManager {
     private static _instance: SignalManager;
     private _connections: Map<HubKey, HubConnection> = new Map();
     private readonly _handlers: IHubHandler[] = [
-        new ChangeEventHubHandler(),
-        new MessageHubHandler(),
+    new ChangeEventHubHandler(),
+    new MessageHubHandler(),
     ];
 
     private constructor() {

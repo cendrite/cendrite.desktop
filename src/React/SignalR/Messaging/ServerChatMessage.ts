@@ -14,7 +14,8 @@
         recipientId: string,
         content: string,
         timestamp: Date,
-        messageToken: string | null = null) {
+        messageToken: string | null = null,
+    ) {
         this.id = id;
         this.chatId = chatId;
         this.senderId = senderId;
