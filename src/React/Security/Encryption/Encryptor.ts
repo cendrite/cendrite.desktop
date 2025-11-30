@@ -10,11 +10,11 @@
         return Encryptor.instance;
     }
 
-    public decrypt(payload: string): {text: string, media: string | null} {
+    public decrypt(payload: string): {text: string, media: string | null, participants: string[]} {
         return JSON.parse(payload);
     }
 
-    public encrypt(payload: {text: string | null, media: string | null}): string {
+    public encrypt(payload: {text: string | null, media: string | null, participants: string[]}): string {
         return JSON.stringify(payload);
     }
 }

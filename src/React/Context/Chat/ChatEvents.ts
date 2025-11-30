@@ -1,28 +1,28 @@
-import { useCallback } from "react";
-import {v4 as uuid} from 'uuid';
-import { ServerChatMessage } from "../../SignalR/Messaging/ServerChatMessage";
-import { Encryptor } from "../../Security/Encryption/Encryptor";
-import { DeliveryStatus } from "../../../Electron/Domain/Enums/DeliveryStatus";
-import { MessageViewModel } from "../../Models/MessageViewModel";
-import { ChatViewModel } from "../../Models/ChatViewModel";
-import { ChatAction, ChatActionType } from "./ChatReducer";
-import { ChatMemberViewModel } from "../../Models/ChatMemberViewModel";
-import { NotificationActionType } from "../Notification/NotificationReducer";
-import { useContacts } from "../Contacts/ContactContext";
-import { useNotifications } from "../Notification/NotificationContext";
+import { useCallback } from 'react';
+import { v4 as uuid } from 'uuid';
+import { ServerChatMessage } from '../../SignalR/Messaging/ServerChatMessage';
+import { Encryptor } from '../../Security/Encryption/Encryptor';
+import { DeliveryStatus } from '../../../Electron/Domain/Enums/DeliveryStatus';
+import { MessageViewModel } from '../../Models/MessageViewModel';
+import { ChatViewModel } from '../../Models/ChatViewModel';
+import { ChatAction, ChatActionType } from './ChatReducer';
+import { ChatMemberViewModel } from '../../Models/ChatMemberViewModel';
+import { NotificationActionType } from '../Notification/NotificationReducer';
+import { useContacts } from '../Contacts/ContactContext';
+import { useNotifications } from '../Notification/NotificationContext';
+import { getChat } from './ChatSelectors';
+import { useUser } from '../User/UserContext';
 
-export function useChatEvents(
-    chats: ChatViewModel[],
-    chatDispatch: React.Dispatch<ChatAction>
-) {
-    const {getContactByConnectionId} = useContacts();
-    const {notificationDispatch} = useNotifications();
+export function useChatEvents(chats: ChatViewModel[], chatDispatch: React.Dispatch<ChatAction>) {
+    const { getContactById } = useContacts();
+    const { notificationDispatch } = useNotifications();
+    const { user } = useUser();
     const encryptor = Encryptor.getInstance();
 
     const receiveMessage = useCallback(
         async (msg: ServerChatMessage) => {
             const decryptedMessage = encryptor.decrypt(msg.content);
-            console.log('received message: ', msg);
+
             const mappedMsg = new MessageViewModel(
                 msg.id,
                 msg.chatId,
@@ -32,11 +32,12 @@ export function useChatEvents(
                 DeliveryStatus.Received,
                 decryptedMessage.media || null,
             );
-            console.log('mapped message:', mappedMsg);
 
-            let chat = chats.find((chat) => chat.id === msg.chatId);
+            let chat = getChat(chats, msg.chatId);
+
             if (!chat) {
-                const contact = getContactByConnectionId(msg.senderId);
+                const contactId = decryptedMessage.participants.find((p) => p !== user!.userTag);
+                const contact = getContactById(contactId!);
                 if (!contact) {
                     console.warn(`Contact with ID ${msg.senderId} not found.`);
                     return;
@@ -50,7 +51,7 @@ export function useChatEvents(
             }
             notificationDispatch({ type: NotificationActionType.AddChat, payload: { chatId: chat.id } });
         },
-        [encryptor, getContactByConnectionId, chats],
+        [encryptor, getContactById, chats],
     );
 
     return { receiveMessage };

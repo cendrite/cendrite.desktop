@@ -6,6 +6,7 @@ import { ChatBubbleOvalLeftIcon } from "@heroicons/react/24/outline";
 import {useHomePageContext} from "../../../Context/HomePage/HomePageContext.tsx";
 import {HomePageActionType} from "../../../Context/HomePage/HomePageReducer.ts";
 import { Contact } from "../../../Models/Contact.ts";
+import { useUser } from "../../../Context/User/UserContext.tsx";
 
 
 interface MessageButtonProps{
@@ -15,6 +16,7 @@ interface MessageButtonProps{
 const MessageButton: React.FC<MessageButtonProps> = ({contact}) => {
     const {homeDispatch} = useHomePageContext();
     const {getChatByMemberId, chatDispatch} = useChatContext();
+    const {user} = useUser();
     const chatService = new ChatService();
 
     const handleMessage = async () => {
@@ -22,7 +24,7 @@ const MessageButton: React.FC<MessageButtonProps> = ({contact}) => {
         if (chat) {
             homeDispatch({type: HomePageActionType.SetSelectedChat, payload: chat});
         } else {
-            const chat = await chatService.createChat(contact);
+            const chat = await chatService.createChat(user!, contact);
             chatDispatch({type: ChatActionType.AddChat, payload: chat});
             homeDispatch({type: HomePageActionType.SetSelectedChat, payload: chat});
         }

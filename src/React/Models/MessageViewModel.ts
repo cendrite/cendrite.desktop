@@ -1,15 +1,23 @@
-﻿import {DeliveryStatus} from "../../Electron/Domain/Enums/DeliveryStatus.ts";
+﻿import { DeliveryStatus } from '../../Electron/Domain/Enums/DeliveryStatus.ts';
 
 export class MessageViewModel {
-    id!: string;
-    chatId!: string;
+    id: string;
+    chatId: string;
     senderId: string;
     text: string;
     media: string | null;
     date: Date;
-    deliveryStatus!: DeliveryStatus;
+    deliveryStatus: DeliveryStatus;
 
-    constructor(id: string, chatId: string, senderId: string, message: string, date: Date, deliveryStatus: DeliveryStatus, mediaUrl: string | null = null) {
+    constructor(
+        id: string,
+        chatId: string,
+        senderId: string,
+        message: string,
+        date: Date,
+        deliveryStatus: DeliveryStatus,
+        mediaUrl: string | null = null,
+    ) {
         this.id = id;
         this.chatId = chatId;
         this.senderId = senderId;
@@ -19,4 +27,3 @@ export class MessageViewModel {
         this.deliveryStatus = deliveryStatus;
     }
 }
-
