@@ -10,7 +10,7 @@ import { ChatMemberViewModel } from '../../Models/ChatMemberViewModel';
 import { NotificationActionType } from '../Notification/NotificationReducer';
 import { useContacts } from '../Contacts/ContactContext';
 import { useNotifications } from '../Notification/NotificationContext';
-import { getChat, getChatById } from './ChatSelectors';
+import { getChat } from './ChatSelectors';
 import { useUser } from '../User/UserContext';
 
 export function useChatEvents(chats: ChatViewModel[], chatDispatch: React.Dispatch<ChatAction>) {
