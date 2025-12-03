@@ -4,9 +4,12 @@ import { GenerateKeyBundleDto } from '../../../Electron/Application/Features/Enc
 import { GenerateKeyBundleCommand } from '../../../Electron/Application/Features/Encryption/Commands/Generate/GenerateKeyBundleCommand';
 import { ErrorMessage } from '../../../Shared/Result/ErrorMessage.ts';
 import { PersistKeyBundleCommand } from '../../../Electron/Application/Features/Encryption/Commands/Create/PersistKeyBundleCommand.ts';
+import { PreKeyBundle } from '../Api/KeyStore/GetPreKeyBundleApi.ts';
+import { GetPreKeyBundleApi } from '../Api/KeyStore/GetPreKeyBundleApi.ts';
 
 export class KeyService {
     private readonly createKeyBundleApi = new CreateKeyBundleApi();
+    private readonly getPreKeyBundleApi = new GetPreKeyBundleApi();
 
     public async SaveKeys(connectionId: string): Promise<Result<void>> {
         const generationResult = await window.electron.sendRequestAsync<Result<GenerateKeyBundleDto>>(
@@ -42,5 +45,9 @@ export class KeyService {
         }
 
         return Result.success();
+    }
+
+    public async GetPreKeyBundle(connectionId: string): Promise<Result<PreKeyBundle>> {
+        return await this.getPreKeyBundleApi.getPreKeyBundle(connectionId);
     }
 }
