@@ -1,6 +1,5 @@
 ﻿export class Encryptor {
     private static instance: Encryptor;
-
     private constructor() {}
 
     public static getInstance(): Encryptor {
