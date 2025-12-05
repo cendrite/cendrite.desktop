@@ -2,8 +2,9 @@ import { KeyService } from '../../Common/Services/KeyService';
 import { LocalKeyStore } from './LocalKeyStore';
 import * as libsignal from '@privacyresearch/libsignal-protocol-typescript';
 import { convertToBuffer, generateAddressId } from './Utilities';
+import { mapBundleToDevice } from './KeyMapper';
 
-class SessionManager {
+export class SessionManager {
     constructor(
         private keyStore: LocalKeyStore,
         private keyService: KeyService,
@@ -28,8 +29,10 @@ class SessionManager {
         const preKeyBundle = preKeyBundleResult.data!;
 
         const builder = new libsignal.SessionBuilder(this.keyStore, this.address);
-        //TODO: map the preKeyBundle to a libsignal DeviceType 
-        await builder.processPreKey(preKeyBundle);
+
+        const mappedBundle = mapBundleToDevice(preKeyBundle);
+
+        await builder.processPreKey(mappedBundle);
     }
 
     public async encrypt(plaintext: string): Promise<string> {

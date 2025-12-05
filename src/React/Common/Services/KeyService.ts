@@ -6,7 +6,6 @@ import { ErrorMessage } from '../../../Shared/Result/ErrorMessage.ts';
 import { PersistKeyBundleCommand } from '../../../Electron/Application/Features/Encryption/Commands/Create/PersistKeyBundleCommand.ts';
 import { PreKeyBundle } from '../Api/KeyStore/GetPreKeyBundleApi.ts';
 import { GetPreKeyBundleApi } from '../Api/KeyStore/GetPreKeyBundleApi.ts';
-import * as libsignal from '@privacyresearch/libsignal-protocol-typescript';
 
 export class KeyService {
     private readonly createKeyBundleApi = new CreateKeyBundleApi();

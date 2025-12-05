@@ -1,4 +1,6 @@
 import * as libsignal from '@privacyresearch/libsignal-protocol-typescript';
+import { Result } from '../../../Shared/Result/Result';
+import { GetRegistrationIdQuery } from  '../../../Electron/Application/Features/Encryption/Queries/GetRegistrationId/GetRegistrationIdQuery';
 
 export class LocalKeyStore implements libsignal.StorageType {
     saveIdentity(encodedAddress: string, publicKey: ArrayBuffer, nonblockingApproval?: boolean): Promise<boolean> {
@@ -41,8 +43,12 @@ export class LocalKeyStore implements libsignal.StorageType {
         throw new Error('Method not implemented.');
     }
 
-    async getLocalRegistrationId(): Promise<number> {
-        throw new Error('Method not implemented.');
+    public async getLocalRegistrationId(): Promise<number> {
+        const result = await window.electron.sendRequestAsync<Result<number>>(new GetRegistrationIdQuery());
+        if (!result.success || result.data === undefined) {
+            throw new Error('Failed to get local registration ID: ' + result.errorMessage);
+        }
+        return result.data!;
     }
 
     async isTrustedIdentity(
