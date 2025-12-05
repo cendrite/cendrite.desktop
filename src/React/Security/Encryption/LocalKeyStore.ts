@@ -4,39 +4,39 @@ import { GetRegistrationIdQuery } from  '../../../Electron/Application/Features/
 import { GetIdentityKeyPairQuery } from  '../../../Electron/Application/Features/Encryption/Queries/GetIdentityKeyPair/GetIdentityKeyPairQuery';
 
 export class LocalKeyStore implements libsignal.StorageType {
-    saveIdentity(encodedAddress: string, publicKey: ArrayBuffer, nonblockingApproval?: boolean): Promise<boolean> {
+    saveIdentity(_encodedAddress: string, _publicKey: ArrayBuffer, _nonblockingApproval?: boolean): Promise<boolean> {
         throw new Error('Method not implemented.');
     }
 
-    loadPreKey(encodedAddress: string | number): Promise<libsignal.KeyPairType | undefined> {
+    loadPreKey(_encodedAddress: string | number): Promise<libsignal.KeyPairType | undefined> {
         throw new Error('Method not implemented.');
     }
 
-    storePreKey(keyId: number | string, keyPair: libsignal.KeyPairType): Promise<void> {
+    storePreKey(_keyId: number | string, _keyPair: libsignal.KeyPairType): Promise<void> {
         throw new Error('Method not implemented.');
     }
 
-    removePreKey(keyId: number | string): Promise<void> {
+    removePreKey(_keyId: number | string): Promise<void> {
         throw new Error('Method not implemented.');
     }
 
-    storeSession(encodedAddress: string, record: libsignal.SessionRecordType): Promise<void> {
+    storeSession(_encodedAddress: string, _record: libsignal.SessionRecordType): Promise<void> {
         throw new Error('Method not implemented.');
     }
 
-    loadSession(encodedAddress: string): Promise<libsignal.SessionRecordType | undefined> {
+    loadSession(_encodedAddress: string): Promise<libsignal.SessionRecordType | undefined> {
         throw new Error('Method not implemented.');
     }
 
-    loadSignedPreKey(keyId: number | string): Promise<libsignal.KeyPairType | undefined> {
+    loadSignedPreKey(_keyId: number | string): Promise<libsignal.KeyPairType | undefined> {
         throw new Error('Method not implemented.');
     }
 
-    storeSignedPreKey(keyId: number | string, keyPair: libsignal.KeyPairType): Promise<void> {
+    public storeSignedPreKey(_keyId: number | string, _keyPair: libsignal.KeyPairType): Promise<void> {
         throw new Error('Method not implemented.');
     }
 
-    public async removeSignedPreKey(keyId: number | string): Promise<void> {
+    public async removeSignedPreKey(_keyId: number | string): Promise<void> {
         throw new Error('Method not implemented.');
     }
 
@@ -57,9 +57,9 @@ export class LocalKeyStore implements libsignal.StorageType {
     }
 
     async isTrustedIdentity(
-        identifier: string,
-        identityKey: ArrayBuffer,
-        direction: libsignal.Direction,
+        _identifier: string,
+        _identityKey: ArrayBuffer,
+        _direction: libsignal.Direction,
     ): Promise<boolean> {
         throw new Error('Method not implemented.');
     }
