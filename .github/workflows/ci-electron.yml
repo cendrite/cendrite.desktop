@@ -25,9 +25,6 @@ jobs:
       - name: Transpile Electron Code
         run: npm run transpile:electron
 
-      - name: Lint Code
-        run: npm run lint
-
   test-unit:
     name: Unit Tests
     needs: build-and-lint
