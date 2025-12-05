@@ -15,7 +15,6 @@ export class GetIdentityKeyPairQueryHandler implements Handler<GetIdentityKeyPai
             publicKey: identityKeyPair.identityKeyPublic,
         };
 
-
         return Result.success<KeyPairDto>(keyPairDto);
     }
 }

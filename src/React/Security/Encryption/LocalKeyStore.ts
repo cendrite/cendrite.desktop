@@ -1,6 +1,7 @@
 import * as libsignal from '@privacyresearch/libsignal-protocol-typescript';
 import { Result } from '../../../Shared/Result/Result';
 import { GetRegistrationIdQuery } from  '../../../Electron/Application/Features/Encryption/Queries/GetRegistrationId/GetRegistrationIdQuery';
+import { GetIdentityKeyPairQuery } from  '../../../Electron/Application/Features/Encryption/Queries/GetIdentityKeyPair/GetIdentityKeyPairQuery';
 
 export class LocalKeyStore implements libsignal.StorageType {
     saveIdentity(encodedAddress: string, publicKey: ArrayBuffer, nonblockingApproval?: boolean): Promise<boolean> {
@@ -35,12 +36,16 @@ export class LocalKeyStore implements libsignal.StorageType {
         throw new Error('Method not implemented.');
     }
 
-    removeSignedPreKey(keyId: number | string): Promise<void> {
+    public async removeSignedPreKey(keyId: number | string): Promise<void> {
         throw new Error('Method not implemented.');
     }
 
-    async getIdentityKeyPair(): Promise<libsignal.KeyPairType> {
-        throw new Error('Method not implemented.');
+    public async getIdentityKeyPair(): Promise<libsignal.KeyPairType> {
+        const keyResult = await window.electron.sendRequestAsync<Result<libsignal.KeyPairType>>(new GetIdentityKeyPairQuery());
+        if (!keyResult.success || keyResult.data === undefined) {
+            throw new Error('Failed to get identity key pair: ' + keyResult.errorMessage);
+        }
+        return keyResult.data!;
     }
 
     public async getLocalRegistrationId(): Promise<number> {
