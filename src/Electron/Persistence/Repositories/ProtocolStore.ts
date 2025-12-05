@@ -20,16 +20,37 @@ export class ProtocolStore {
      * @param signedPrekey Signed prekey to store.
      * @param ecPreKeys Array of EC prekeys to store.
      */
-    public async createKeyBundle(identityKeys: IdentityKeys, signedPrekey: SignedPreKey, ecPreKeys: EcPreKey[]): Promise<void> {
+    public async createKeyBundle(
+        identityKeys: IdentityKeys,
+        signedPrekey: SignedPreKey,
+        ecPreKeys: EcPreKey[],
+    ): Promise<void> {
         await this.identityKeysRepository.save(identityKeys);
         await this.signedPreKeysRepository.save(signedPrekey);
         await this.ecPreKeyRepository.save(ecPreKeys);
     }
 
-    /**
-     * Clear all stored cryptographic data: signed prekeys, EC prekeys, sender keys,
-     * session records, identity keys, and identity cache.
-     */
+    public async getRegistrationId(): Promise<number> {
+        const result = await this.identityKeysRepository.find({ take: 1 });
+        if (result.length === 0) {
+            throw new Error('No identity keys found');
+        }
+        return result[0].registrationId;
+    }
+
+    public async getIdentityKeyPair(): Promise<IdentityKeys> {
+        const result = await this.identityKeysRepository.find({ take: 1 });
+        if (result.length === 0) {
+            throw new Error('No identity keys found');
+        }
+        return result[0];
+    }
+
+    /** 
+     * Clear all stored cryptographic data: signed prekeys, 
+     * EC prekeys, sender keys, session records, 
+     * identity keys, and identity cache. 
+     * */
     public async deleteAll(): Promise<void> {
         await this.signedPreKeysRepository.clear();
         await this.ecPreKeyRepository.clear();

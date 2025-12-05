@@ -47,7 +47,8 @@ export class KeyService {
         return Result.success();
     }
 
-    public async GetPreKeyBundle(connectionId: string): Promise<Result<PreKeyBundle>> {
+    public async GetKeyBundle(connectionId: string): Promise<Result<PreKeyBundle>> {
         return await this.getPreKeyBundleApi.getPreKeyBundle(connectionId);
     }
+
 }
