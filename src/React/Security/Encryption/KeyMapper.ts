@@ -21,10 +21,7 @@ export function mapBundleToDevice(keyBundle: PreKeyBundle): DeviceType<ArrayBuff
 }
 
 export function mapFromSignalKeyPair(keyPair: KeyPairType<ArrayBuffer>): KeyPairDto {
-    return new KeyPairDto(
-        Buffer.from(new Uint8Array(keyPair.pubKey)),
-        Buffer.from(new Uint8Array(keyPair.privKey)),
-    );
+    return new KeyPairDto(Buffer.from(new Uint8Array(keyPair.pubKey)), Buffer.from(new Uint8Array(keyPair.privKey)));
 }
 
 export function mapToSignalKeyPair(keyPair: KeyPairDto): KeyPairType<ArrayBuffer> {
@@ -37,9 +34,7 @@ export function mapToSignalKeyPair(keyPair: KeyPairDto): KeyPairType<ArrayBuffer
     };
 }
 
-function toArrayBuffer(
-    src: Buffer | Uint8Array | ArrayBuffer | { type: string; data: number[] }
-): ArrayBuffer {
+function toArrayBuffer(src: Buffer | Uint8Array | ArrayBuffer | { type: string; data: number[] }): ArrayBuffer {
     if (src instanceof ArrayBuffer) {
         return src;
     }
@@ -56,5 +51,3 @@ function toArrayBuffer(
 
     throw new Error('Unsupported key buffer format in mapToSignalKeyPair');
 }
-
-
