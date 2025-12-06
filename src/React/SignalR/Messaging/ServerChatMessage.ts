@@ -25,3 +25,19 @@
         this.content = content;
     }
 }
+
+export class MessagePayload {
+    public text: string;
+    public media: string | null;
+    public participants: string[];
+
+    constructor(
+        text: string,
+        media: string | null,
+        participants: string[],
+    ) {
+        this.text = text;
+        this.media = media;
+        this.participants = participants;
+    }
+}

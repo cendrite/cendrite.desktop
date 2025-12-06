@@ -9,16 +9,15 @@ import { MessageViewModel } from '../../Models/MessageViewModel.ts';
 import { DeliveryStatus } from '../../../Electron/Domain/Enums/DeliveryStatus.ts';
 import { MessageHubHandler } from '../../SignalR/Messaging/MessageHubHandler.ts';
 import { SignalManager } from '../../SignalR/SignalManager.ts';
-import { Encryptor } from '../../Security/Encryption/Encryptor.ts';
-import { ServerChatMessage } from '../../SignalR/Messaging/ServerChatMessage.ts';
+import { MessagePayload, ServerChatMessage } from '../../SignalR/Messaging/ServerChatMessage.ts';
 import { useUser } from '../../Context/User/UserContext.tsx';
+import { SessionManager } from '../../Security/Encryption/SessionManager.ts';
 
 export function useMessageService() {
     const { chatDispatch } = useChatContext();
     const { user } = useUser();
     const { notificationDispatch } = useNotifications();
     const msgSender = SignalManager.getInstance().getHandler<MessageHubHandler>('Messaging');
-    const encryptor = Encryptor.getInstance();
 
     const markMessagesAsRead = useCallback(
         async (chat: ChatViewModel) => {
@@ -47,18 +46,24 @@ export function useMessageService() {
 
             chatDispatch({ type: ChatActionType.AddMessage, payload: message });
 
-            const content = encryptor.encrypt({ text: text, media: media, participants: participants });
             const messages: ServerChatMessage[] = [];
             const connectionIds = [...chat.connectionIds, user!.externalConnectionIds].flat();
 
             for (const connectionId of connectionIds) {
+
+                const manager = new SessionManager(connectionId);
+
+                const encryptedContent = await manager.encrypt(
+                    new MessagePayload(message.text, message.media, participants),
+                );
+
                 messages.push(
                     new ServerChatMessage(
                         message.id,
                         chat.id,
                         user!.connectionId,
                         connectionId,
-                        content,
+                        encryptedContent,
                         new Date(),
                         uuidv4().toString(),
                     ),
@@ -77,7 +82,7 @@ export function useMessageService() {
             participantIds.add(member.contact.id);
         });
 
-        participantIds.add(user!.userTag); 
+        participantIds.add(user!.userTag);
         return Array.from(participantIds);
     };
 

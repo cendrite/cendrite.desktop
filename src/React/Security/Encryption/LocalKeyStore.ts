@@ -7,16 +7,24 @@ import { CreateSessionCommand } from '../../../Electron/Application/Features/Enc
 import { SessionRecordDto } from '../../../Electron/Application/Features/Encryption/Dtos/SessionRecordDto';
 import { CreateIdentityCommand } from '../../../Electron/Application/Features/Encryption/Commands/Create/IdentityCache/CreateIdentityCommand';
 import { IdentityCacheDto } from '../../../Electron/Application/Features/Encryption/Dtos/IdentityCacheDto';
+import { GetPreKeyQuery } from '../../../Electron/Application/Features/Encryption/Queries/GetPreKey/GetPreKeyQuery';
+import { GetPreKeyDto } from '../../../Electron/Application/Features/Encryption/Queries/GetPreKey/GetPreKeyDto';
+import { KeyPairDto } from '../../../Electron/Application/Features/Encryption/Dtos/KeyPairDto';
+import { mapFromSignalKeyPair, mapToSignalKeyPair } from './KeyMapper';
+import { GetSignedPreKeyQuery } from '../../../Electron/Application/Features/Encryption/Queries/GetSignedPreKey/GetSignedPreKeyQuery';
+import { GetSignedPreKeyDto } from '../../../Electron/Application/Features/Encryption/Queries/GetSignedPreKey/GetSignedPreKeyDto';
+import { DeletePreKeyCommand } from '../../../Electron/Application/Features/Encryption/Commands/Delete/PreKey/DeletePreKeyCommand';
+import { CreatePreKeyCommand } from '../../../Electron/Application/Features/Encryption/Commands/Create/PreKey/CreatePreKeyCommand';
 
 export class LocalKeyStore implements libsignal.StorageType {
     public async saveIdentity(
-        _encodedAddress: string,
-        _publicKey: ArrayBuffer,
-        _nonblockingApproval?: boolean,
+        encodedAddress: string,
+        publicKey: ArrayBuffer,
+        nonblockingApproval?: boolean,
     ): Promise<boolean> {
-        const approval = _nonblockingApproval ?? false;
+        const approval = nonblockingApproval ?? false;
         const saveResult = await window.electron.sendRequestAsync<Result<IdentityCacheDto>>(
-            new CreateIdentityCommand(_encodedAddress, Buffer.from(_publicKey), approval),
+            new CreateIdentityCommand(encodedAddress, Buffer.from(publicKey), approval),
         );
 
         if (!saveResult.success || saveResult.data === undefined) {
@@ -26,16 +34,32 @@ export class LocalKeyStore implements libsignal.StorageType {
         return saveResult.data!.isTrusted;
     }
 
-    loadPreKey(_encodedAddress: string | number): Promise<libsignal.KeyPairType | undefined> {
-        throw new Error('Method not implemented.');
+    public async loadPreKey(_encodedAddress: string | number): Promise<libsignal.KeyPairType | undefined> {
+        const preKeyId = typeof _encodedAddress === 'string' ? Number(_encodedAddress) : _encodedAddress;
+
+        const preKeyResult = await window.electron.sendRequestAsync<Result<GetPreKeyDto>>(new GetPreKeyQuery(preKeyId));
+        if (!preKeyResult.success) {
+            throw new Error('Failed to load pre-key: ' + preKeyResult.errorMessage);
+        }
+
+        if (preKeyResult.data?.keyPair === null) {
+            return undefined;
+        }
+
+        const keyPair = mapToSignalKeyPair(preKeyResult.data!.keyPair!);
+        return keyPair;
     }
 
-    storePreKey(_keyId: number | string, _keyPair: libsignal.KeyPairType): Promise<void> {
-        throw new Error('Method not implemented.');
+    public async storePreKey(_keyId: number | string, _keyPair: libsignal.KeyPairType): Promise<void> {
+        const preKeyId = typeof _keyId === 'string' ? Number(_keyId) : _keyId;
+        const keyPairDto = mapFromSignalKeyPair(_keyPair);
+        await window.electron.sendRequestAsync(new CreatePreKeyCommand(preKeyId, keyPairDto));
+
     }
 
-    removePreKey(_keyId: number | string): Promise<void> {
-        throw new Error('Method not implemented.');
+    public async removePreKey(_keyId: number | string): Promise<void> {
+        const preKeyId = typeof _keyId === 'string' ? Number(_keyId) : _keyId;
+        await window.electron.sendRequestAsync<Result>(new DeletePreKeyCommand(preKeyId));
     }
 
     public async storeSession(_encodedAddress: string, _record: libsignal.SessionRecordType): Promise<void> {
@@ -57,8 +81,22 @@ export class LocalKeyStore implements libsignal.StorageType {
         return sessionResult.data?.record;
     }
 
-    loadSignedPreKey(_keyId: number | string): Promise<libsignal.KeyPairType | undefined> {
-        throw new Error('Method not implemented.');
+    public async loadSignedPreKey(_keyId: number | string): Promise<libsignal.KeyPairType | undefined> {
+        const signedPreKeyId = typeof _keyId === 'string' ? Number(_keyId) : _keyId;
+
+        const preKeyResult = await window.electron.sendRequestAsync<Result<GetSignedPreKeyDto>>(
+            new GetSignedPreKeyQuery(signedPreKeyId),
+        );
+        if (!preKeyResult.success) {
+            throw new Error('Failed to load signed pre-key: ' + preKeyResult.errorMessage);
+        }
+
+        if (preKeyResult.data?.keyPair === null) {
+            return undefined;
+        }
+
+        const keyPair = mapToSignalKeyPair(preKeyResult.data!.keyPair!);
+        return keyPair;
     }
 
     public storeSignedPreKey(_keyId: number | string, _keyPair: libsignal.KeyPairType): Promise<void> {
@@ -70,13 +108,13 @@ export class LocalKeyStore implements libsignal.StorageType {
     }
 
     public async getIdentityKeyPair(): Promise<libsignal.KeyPairType> {
-        const keyResult = await window.electron.sendRequestAsync<Result<libsignal.KeyPairType>>(
-            new GetIdentityKeyPairQuery(),
-        );
+        const keyResult = await window.electron.sendRequestAsync<Result<KeyPairDto>>(new GetIdentityKeyPairQuery());
         if (!keyResult.success || keyResult.data === undefined) {
             throw new Error('Failed to get identity key pair: ' + keyResult.errorMessage);
         }
-        return keyResult.data!;
+
+        const keyPair = mapToSignalKeyPair(keyResult.data!);
+        return keyPair;
     }
 
     public async getLocalRegistrationId(): Promise<number> {

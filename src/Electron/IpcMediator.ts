@@ -25,6 +25,20 @@ import { RemoveUserConnectionIdCommand } from "./Application/Features/User/Comma
 import { RemoveUserConnectionIdCommandHandler } from "./Application/Features/User/Commands/Update/RemoveConnectionId/RemoveUserConnectionIdCommandHandler.js";
 import { PersistsKeyBundleCommandHandler } from "./Application/Features/Encryption/Commands/Create/Bundle/PersistKeyBundleCommandHandler.js";
 import { PersistKeyBundleCommand } from "./Application/Features/Encryption/Commands/Create/Bundle/PersistKeyBundleCommand.js";
+import { CreatePreKeyCommand } from "./Application/Features/Encryption/Commands/Create/PreKey/CreatePreKeyCommand.js";
+import { CreatePreKeyCommandHandler } from "./Application/Features/Encryption/Commands/Create/PreKey/CreatePreKeyCommandHandler.js";
+import { DeletePreKeyCommand } from "./Application/Features/Encryption/Commands/Delete/PreKey/DeletePreKeyCommand.js";
+import { DeletePreKeyCommandHandler } from "./Application/Features/Encryption/Commands/Delete/PreKey/DeletePreKeyCommandHandler.js";
+import { CreateSessionCommand } from "./Application/Features/Encryption/Commands/Create/Session/CreateSessionCommand.js";
+import { CreateIdentityCommand } from "./Application/Features/Encryption/Commands/Create/IdentityCache/CreateIdentityCommand.js";
+import { GetIdentityKeyPairQuery } from "./Application/Features/Encryption/Queries/GetIdentityKeyPair/GetIdentityKeyPairQuery.js";
+import { GetPreKeyQuery } from "./Application/Features/Encryption/Queries/GetPreKey/GetPreKeyQuery.js";
+import { GetRegistrationIdQuery } from "./Application/Features/Encryption/Queries/GetRegistrationId/GetRegistrationIdQuery.js";
+import { CreateSessionCommandHandler } from "./Application/Features/Encryption/Commands/Create/Session/CreateSessionCommandHandler.js";
+import { GetIdentityKeyPairQueryHandler } from "./Application/Features/Encryption/Queries/GetIdentityKeyPair/GetIdentityKeyPairQueryHandler.js";
+import { GetRegistrationIdQueryHandler } from "./Application/Features/Encryption/Queries/GetRegistrationId/GetRegistrationIdQueryHandler.js";
+import { GetSessionQuery } from "./Application/Features/Encryption/Queries/GetSession/GetSessionQuery.js";
+import { GetSignedPreKeyQuery } from "./Application/Features/Encryption/Queries/GetSignedPreKey/GetSignedPreKeyQuery.js";
 
 export function registerIpcHandlers(mainWindow: BrowserWindow) {
     const mediator = new Mediator();
@@ -55,6 +69,17 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
 
     mediator.registerHandler("GenerateKeyBundleCommand", new GenerateKeyBundleCommandHandler());
     mediator.registerHandler(PersistKeyBundleCommand.name, new PersistsKeyBundleCommandHandler())
+    mediator.registerHandler(DeletePreKeyCommand.name, new DeletePreKeyCommandHandler());
+    mediator.registerHandler(CreateSessionCommand.name, new CreateSessionCommandHandler());
+    mediator.registerHandler(CreateIdentityCommand.name, new CreateDeviceCommandHandler());
+    mediator.registerHandler(CreatePreKeyCommand.name, new CreatePreKeyCommandHandler());
+    mediator.registerHandler(GetIdentityKeyPairQuery.name, new GetIdentityKeyPairQueryHandler());
+    mediator.registerHandler(GetPreKeyQuery.name, new GetDeviceQueryHandler());
+    mediator.registerHandler(GetRegistrationIdQuery.name, new GetRegistrationIdQueryHandler());
+    mediator.registerHandler(GetSessionQuery.name, new GetDeviceQueryHandler());
+    mediator.registerHandler(GetSignedPreKeyQuery.name, new GetDeviceQueryHandler());
+
+
 
     mediator.registerHandler("CreateChatCommand", new CreateChatCommandHandler());
 

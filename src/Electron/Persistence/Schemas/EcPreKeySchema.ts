@@ -10,7 +10,6 @@ export const EcPreKeySchema = new EntitySchema<EcPreKey>({
     id: {
       type: 'integer',
       primary: true,
-      generated: true,
     },
     publicKey: {
       type: 'blob',
