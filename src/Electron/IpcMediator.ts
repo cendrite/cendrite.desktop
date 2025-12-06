@@ -17,13 +17,14 @@ import {DeleteFriendCommandHandler} from "./Application/Features/Friends/Command
 import {CreateChatCommandHandler} from "./Application/Features/Chat/Commands/CreateChatCommandHandler.js";
 import {UpdateFriendCommandHandler} from "./Application/Features/Friends/Commands/Update/UpdateFriendCommandHandler.js";
 import { GenerateKeyBundleCommandHandler } from "./Application/Features/Encryption/Commands/Generate/GenerateKeyBundleCommandHandler.js";
-import { PersistsKeyBundleCommandHandler } from "./Application/Features/Encryption/Commands/Create/PersistKeyBundleCommandHandler.js";
 import { RemoveFriendConnectionIdCommandHandler } from "./Application/Features/Friends/Commands/RemoveConnectionId/RemoveFriendConnectionIdCommandHandler.js";
 import { AddFriendConnectionIdCommandHandler } from "./Application/Features/Friends/Commands/AddConnectionId/AddFriendConnectionIdCommandHandler.js";
 import { AddUserConnectionIdCommand } from "./Application/Features/User/Commands/Update/AddConnectionId/AddUserConnectionIdCommand.js";
 import { AddUserConnectionIdCommandHandler } from "./Application/Features/User/Commands/Update/AddConnectionId/AddUserConnectionIdCommandHandler.js";
 import { RemoveUserConnectionIdCommand } from "./Application/Features/User/Commands/Update/RemoveConnectionId/RemoveUserConnectionIdCommand.js";
 import { RemoveUserConnectionIdCommandHandler } from "./Application/Features/User/Commands/Update/RemoveConnectionId/RemoveUserConnectionIdCommandHandler.js";
+import { PersistsKeyBundleCommandHandler } from "./Application/Features/Encryption/Commands/Create/Bundle/PersistKeyBundleCommandHandler.js";
+import { PersistKeyBundleCommand } from "./Application/Features/Encryption/Commands/Create/Bundle/PersistKeyBundleCommand.js";
 
 export function registerIpcHandlers(mainWindow: BrowserWindow) {
     const mediator = new Mediator();
@@ -53,7 +54,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
     mediator.registerHandler("AddConnectionIdCommand", new AddFriendConnectionIdCommandHandler());
 
     mediator.registerHandler("GenerateKeyBundleCommand", new GenerateKeyBundleCommandHandler());
-    mediator.registerHandler("PersistKeyBundleCommand", new PersistsKeyBundleCommandHandler())
+    mediator.registerHandler(PersistKeyBundleCommand.name, new PersistsKeyBundleCommandHandler())
 
     mediator.registerHandler("CreateChatCommand", new CreateChatCommandHandler());
 

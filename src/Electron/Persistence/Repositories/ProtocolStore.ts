@@ -48,6 +48,10 @@ export class ProtocolStore {
         return await this.sessionRepository.findOne({ where: { encodedAddress: address } });
     }
 
+    public async storeSession(record: SessionRecord): Promise<void> {
+        await this.sessionRepository.save(record);
+    }
+
     /** 
      * Clear all stored cryptographic data: signed prekeys, 
      * EC prekeys, sender keys, session records, 

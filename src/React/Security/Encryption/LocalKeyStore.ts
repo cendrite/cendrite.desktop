@@ -3,6 +3,7 @@ import { Result } from '../../../Shared/Result/Result';
 import { GetRegistrationIdQuery } from  '../../../Electron/Application/Features/Encryption/Queries/GetRegistrationId/GetRegistrationIdQuery';
 import { GetIdentityKeyPairQuery } from  '../../../Electron/Application/Features/Encryption/Queries/GetIdentityKeyPair/GetIdentityKeyPairQuery';
 import { GetSessionQuery } from '../../../Electron/Application/Features/Encryption/Queries/GetSession/GetSessionQuery';
+import { CreateSessionCommand } from '../../../Electron/Application/Features/Encryption/Commands/Create/Session/CreateSessionCommand';
 import { SessionRecordDto } from '../../../Electron/Application/Features/Encryption/Dtos/SessionRecordDto';
 
 export class LocalKeyStore implements libsignal.StorageType {
@@ -22,8 +23,11 @@ export class LocalKeyStore implements libsignal.StorageType {
         throw new Error('Method not implemented.');
     }
 
-    storeSession(_encodedAddress: string, _record: libsignal.SessionRecordType): Promise<void> {
-        throw new Error('Method not implemented.');
+    public async storeSession(_encodedAddress: string, _record: libsignal.SessionRecordType): Promise<void> {
+        const result = await window.electron.sendRequestAsync<Result>(new CreateSessionCommand(_encodedAddress, _record));
+        if (!result.success) {
+            throw new Error('Failed to store session: ' + result.errorMessage);
+        }
     }
 
     public async loadSession(_encodedAddress: string): Promise<libsignal.SessionRecordType | undefined> {
