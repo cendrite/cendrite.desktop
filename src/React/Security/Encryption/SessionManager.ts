@@ -35,6 +35,8 @@ export class SessionManager {
 
         const mappedBundle = mapBundleToDevice(preKeyBundle);
 
+        console.log("prekey bundle:", preKeyBundle);
+        console.log(mappedBundle);
         await builder.processPreKey(mappedBundle);
     }
 

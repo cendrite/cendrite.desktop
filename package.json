@@ -29,6 +29,7 @@
     "@types/lodash": "^4.17.20",
     "autoprefixer": "^10.4.20",
     "axios": "^1.7.9",
+    "buffer": "^6.0.3",
     "clsx": "^2.1.1",
     "formik": "^2.4.6",
     "keytar": "^7.9.0",

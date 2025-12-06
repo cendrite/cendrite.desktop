@@ -17,15 +17,12 @@ export class PersistsKeyBundleCommandHandler implements Handler<PersistKeyBundle
 
         const protocolStore = new ProtocolStore();
 
-        console.log('Persisting Key Bundle for Registration ID:', keys.registrationId);
-        console.log('amount of ecPreKeys:', keys.ecPreKeys.length);
-
         await protocolStore.createKeyBundle(
             new IdentityKeys(
                 1,
                 keys.registrationId,
-                Buffer.from(keys.identityKey.privKey),
                 Buffer.from(keys.identityKey.pubKey),
+                Buffer.from(keys.identityKey.privKey),
             ),
             new SignedPreKey(
                 keys.signedPreKey.keyId,
@@ -35,7 +32,11 @@ export class PersistsKeyBundleCommandHandler implements Handler<PersistKeyBundle
                 new Date(keys.signedPrekeyTimestamp),
             ),
             keys.ecPreKeys.map(
-                (preke) => new EcPreKey(preke.keyId, Buffer.from(preke.keyPair.privKey), Buffer.from(preke.keyPair.pubKey)),
+                (preke) =>
+                    new EcPreKey(
+                        preke.keyId, 
+                        Buffer.from(preke.keyPair.privKey), 
+                        Buffer.from(preke.keyPair.pubKey)),
             ),
         );
 

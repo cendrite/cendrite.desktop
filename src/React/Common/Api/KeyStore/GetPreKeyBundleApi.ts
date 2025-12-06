@@ -5,7 +5,7 @@ import { API_URLS } from "../ApiUrls";
 export interface PreKeyBundle {
     identityKey: string;
     registrationId: number;
-    signedPreKeyId: number;
+    signedPrekeyId: number;
     signedPreKeyPublic: string;
     signedPreKeySignature: string;
     preKey: { keyId: number; publicKey: string } | null;
