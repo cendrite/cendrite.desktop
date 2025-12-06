@@ -2,6 +2,8 @@ import * as libsignal from '@privacyresearch/libsignal-protocol-typescript';
 import { Result } from '../../../Shared/Result/Result';
 import { GetRegistrationIdQuery } from  '../../../Electron/Application/Features/Encryption/Queries/GetRegistrationId/GetRegistrationIdQuery';
 import { GetIdentityKeyPairQuery } from  '../../../Electron/Application/Features/Encryption/Queries/GetIdentityKeyPair/GetIdentityKeyPairQuery';
+import { GetSessionQuery } from '../../../Electron/Application/Features/Encryption/Queries/GetSession/GetSessionQuery';
+import { SessionRecordDto } from '../../../Electron/Application/Features/Encryption/Dtos/SessionRecordDto';
 
 export class LocalKeyStore implements libsignal.StorageType {
     saveIdentity(_encodedAddress: string, _publicKey: ArrayBuffer, _nonblockingApproval?: boolean): Promise<boolean> {
@@ -24,8 +26,12 @@ export class LocalKeyStore implements libsignal.StorageType {
         throw new Error('Method not implemented.');
     }
 
-    loadSession(_encodedAddress: string): Promise<libsignal.SessionRecordType | undefined> {
-        throw new Error('Method not implemented.');
+    public async loadSession(_encodedAddress: string): Promise<libsignal.SessionRecordType | undefined> {
+        const sessionResult = await window.electron.sendRequestAsync<Result<SessionRecordDto | null>>(new GetSessionQuery(_encodedAddress));
+        if (!sessionResult.success) {
+            throw new Error('Failed to load session: ' + sessionResult.errorMessage);
+        }
+        return sessionResult.data?.record;
     }
 
     loadSignedPreKey(_keyId: number | string): Promise<libsignal.KeyPairType | undefined> {
