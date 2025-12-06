@@ -44,6 +44,10 @@ export class ProtocolStore {
         return result[0];
     }
 
+    public async getSession(address: string): Promise<SessionRecord | null> {
+        return await this.sessionRepository.findOne({ where: { encodedAddress: address } });
+    }
+
     /** 
      * Clear all stored cryptographic data: signed prekeys, 
      * EC prekeys, sender keys, session records, 
