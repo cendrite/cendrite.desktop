@@ -52,6 +52,14 @@ export class ProtocolStore {
         await this.sessionRepository.save(record);
     }
 
+    public async getIdentity(encodedAddress: string): Promise<IdentityCache | null> {
+        return await this.identityCacheRepository.findOne({ where: { encodedAddress } });
+    }
+
+    public async saveIdentity(identity: IdentityCache): Promise<void> {
+        await this.identityCacheRepository.save(identity);
+    }
+
     /** 
      * Clear all stored cryptographic data: signed prekeys, 
      * EC prekeys, sender keys, session records, 
