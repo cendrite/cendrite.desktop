@@ -56,7 +56,7 @@ export class ProtocolStore {
         await this.sessionRepository.save(record);
     }
 
-    public async getIdentity(encodedAddress: string): Promise<IdentityCache | null> {
+    public async getIdentityCache(encodedAddress: string): Promise<IdentityCache | null> {
         return await this.identityCacheRepository.findOne({ where: { encodedAddress } });
     }
 
