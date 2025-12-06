@@ -1,6 +1,5 @@
 import { SignedPreKey } from '../../Domain/Encryption/SignedPreKey.js';
 import { EcPreKey } from '../../Domain/Encryption/EcPreKey.js';
-import { SenderKey } from '../../Domain/Encryption/SenderKey.js';
 import { IdentityKeys } from '../../Domain/Encryption/IdentityKeys.js';
 import { IdentityCache } from '../../Domain/Encryption/IdentityCache.js';
 import { getDbContext } from '../Context/DatabaseContext.js';
@@ -9,7 +8,6 @@ import { SessionRecord } from '../../Domain/Encryption/SessionRecord.js';
 export class ProtocolStore {
     private readonly signedPreKeysRepository = getDbContext().getRepository(SignedPreKey);
     private readonly ecPreKeyRepository = getDbContext().getRepository(EcPreKey);
-    private readonly senderKeyRepository = getDbContext().getRepository(SenderKey);
     private readonly sessionRepository = getDbContext().getRepository(SessionRecord);
     private readonly identityKeysRepository = getDbContext().getRepository(IdentityKeys);
     private readonly identityCacheRepository = getDbContext().getRepository(IdentityCache);
@@ -54,7 +52,6 @@ export class ProtocolStore {
     public async deleteAll(): Promise<void> {
         await this.signedPreKeysRepository.clear();
         await this.ecPreKeyRepository.clear();
-        await this.senderKeyRepository.clear();
         await this.sessionRepository.clear();
         await this.identityKeysRepository.clear();
         await this.identityCacheRepository.clear();

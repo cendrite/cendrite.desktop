@@ -7,13 +7,12 @@ export const SessionRecordSchema = new EntitySchema<SessionRecord>({
   target: SessionRecord,
   columns: {
     ...BaseSchema.columns,
-    connectionId: {
+    encodedAddress: {
       type: String,
       primary: true,
-      length: 255,
     },
     record: {
-      type: "blob",
+      type: String, 
     },
   },
 });

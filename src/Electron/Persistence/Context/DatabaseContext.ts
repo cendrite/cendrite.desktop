@@ -14,7 +14,6 @@ import { IdentityKeysSchema } from '../Schemas/IdentityKeysSchema.js';
 import { IdentityCacheSchema } from '../Schemas/IdentityCacheSchema.js';
 import { SignedPreKeySchema } from '../Schemas/SignedPreKeySchema.js';
 import { SessionRecordSchema } from '../Schemas/SessionRecordSchema.js';
-import { SenderKeySchema } from '../Schemas/SenderKeySchema.js';
 
 let dbContext: DataSource;
 
@@ -40,7 +39,6 @@ export async function initializeDatabase(dbPath: string | null = null): Promise<
             IdentityKeysSchema,
             IdentityCacheSchema,
             SignedPreKeySchema,
-            SenderKeySchema,
         ],
         migrations: [],
         synchronize: true,
