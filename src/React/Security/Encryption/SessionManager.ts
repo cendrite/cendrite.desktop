@@ -3,13 +3,16 @@ import { LocalKeyStore } from './LocalKeyStore';
 import * as libsignal from '@privacyresearch/libsignal-protocol-typescript';
 import { convertToBuffer, generateAddressId } from './Utilities';
 import { mapBundleToDevice } from './KeyMapper';
+import { MessagePayload } from '../../SignalR/Messaging/ServerChatMessage';
 
 export class SessionManager {
+    private keyStore: libsignal.StorageType = new LocalKeyStore();
+    private keyService: KeyService = new KeyService();
+
     constructor(
-        private keyStore: LocalKeyStore,
-        private keyService: KeyService,
         private connectionId: string,
     ) { }
+
 
     private get address(): libsignal.SignalProtocolAddress {
         return new libsignal.SignalProtocolAddress(this.connectionId, generateAddressId(this.connectionId));
@@ -35,12 +38,14 @@ export class SessionManager {
         await builder.processPreKey(mappedBundle);
     }
 
-    public async encrypt(plaintext: string): Promise<string> {
+    public async encrypt(plainMessage: MessagePayload): Promise<string> {
         await this.ensureSession();
 
         const sessionCipher = new libsignal.SessionCipher(this.keyStore, this.address);
 
-        const messageBuffer = convertToBuffer(plaintext);
+        const plainTextStr = JSON.stringify(plainMessage);
+
+        const messageBuffer = convertToBuffer(plainTextStr);
 
         const ciphertext = await sessionCipher.encrypt(messageBuffer);
 
@@ -50,7 +55,7 @@ export class SessionManager {
         });
     }
 
-    public async decrypt(ciphertext: string): Promise<string> {
+    public async decrypt(ciphertext: string): Promise<MessagePayload> {
         const { type, body } = JSON.parse(ciphertext);
 
         const cipher = new libsignal.SessionCipher(this.keyStore, this.address);
@@ -65,6 +70,7 @@ export class SessionManager {
             plaintextBuffer = await cipher.decryptWhisperMessage(bodyBuffer, "binary");
         }
 
-        return new TextDecoder().decode(plaintextBuffer);
+        const decryptedMsg = new TextDecoder().decode(plaintextBuffer);
+        return JSON.parse(decryptedMsg);
     }
 }

@@ -35,7 +35,7 @@ export class PersistsKeyBundleCommandHandler implements Handler<PersistKeyBundle
                 new Date(keys.signedPrekeyTimestamp),
             ),
             keys.ecPreKeys.map(
-                (preke) => new EcPreKey(Buffer.from(preke.keyPair.privKey), Buffer.from(preke.keyPair.pubKey)),
+                (preke) => new EcPreKey(preke.keyId, Buffer.from(preke.keyPair.privKey), Buffer.from(preke.keyPair.pubKey)),
             ),
         );
 

@@ -36,6 +36,10 @@ export class ProtocolStore {
         return result[0].registrationId;
     }
 
+    public async getSignedPreKey(keyId: number): Promise<SignedPreKey | null> {
+        return await this.signedPreKeysRepository.findOne({ where: { keyId} });
+    }
+
     public async getIdentityKeyPair(): Promise<IdentityKeys> {
         const result = await this.identityKeysRepository.find({ take: 1 });
         if (result.length === 0) {
@@ -60,10 +64,26 @@ export class ProtocolStore {
         await this.identityCacheRepository.save(identity);
     }
 
-    /** 
-     * Clear all stored cryptographic data: signed prekeys, 
-     * EC prekeys, sender keys, session records, 
-     * identity keys, and identity cache. 
+    public async storeSignedPreKey(signedPreKey: SignedPreKey): Promise<void> {
+        await this.signedPreKeysRepository.save(signedPreKey);
+    }
+
+    public async storePreKey(preKey: EcPreKey): Promise<void> {
+        await this.ecPreKeyRepository.save(preKey);
+    }
+
+    public async getPreKey(id: number): Promise<EcPreKey | null> {
+        return await this.ecPreKeyRepository.findOne({ where: { id } });
+    }
+
+    public async deletePreKey(id: number): Promise<void> {
+        await this.ecPreKeyRepository.delete({ id });
+    }
+
+    /**
+     * Clear all stored cryptographic data: signed prekeys,
+     * EC prekeys, sender keys, session records,
+     * identity keys, and identity cache.
      * */
     public async deleteAll(): Promise<void> {
         await this.signedPreKeysRepository.clear();

@@ -12,6 +12,7 @@ import { useContacts } from '../Contacts/ContactContext';
 import { useNotifications } from '../Notification/NotificationContext';
 import { getChat } from './ChatSelectors';
 import { useUser } from '../User/UserContext';
+import { SessionManager } from '../../Security/Encryption/SessionManager';
 
 export function useChatEvents(chats: ChatViewModel[], chatDispatch: React.Dispatch<ChatAction>) {
     const { getContactById } = useContacts();
@@ -21,7 +22,8 @@ export function useChatEvents(chats: ChatViewModel[], chatDispatch: React.Dispat
 
     const receiveMessage = useCallback(
         async (msg: ServerChatMessage) => {
-            const decryptedMessage = encryptor.decrypt(msg.content);
+            const sessionManager = new SessionManager(msg.senderId);
+            const decryptedMessage = await sessionManager.decrypt(msg.content);
 
             const mappedMsg = new MessageViewModel(
                 msg.id,
