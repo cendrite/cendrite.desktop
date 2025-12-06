@@ -3,7 +3,7 @@ import { CreateKeyBundleApi } from '../Api/KeyStore/CreateKeyBundleApi';
 import { GenerateKeyBundleDto } from '../../../Electron/Application/Features/Encryption/Commands/Generate/GenerateKeyBundleDto.ts';
 import { GenerateKeyBundleCommand } from '../../../Electron/Application/Features/Encryption/Commands/Generate/GenerateKeyBundleCommand';
 import { ErrorMessage } from '../../../Shared/Result/ErrorMessage.ts';
-import { PersistKeyBundleCommand } from '../../../Electron/Application/Features/Encryption/Commands/Create/PersistKeyBundleCommand.ts';
+import { PersistKeyBundleCommand } from '../../../Electron/Application/Features/Encryption/Commands/Create/Bundle/PersistKeyBundleCommand.ts';
 import { PreKeyBundle } from '../Api/KeyStore/GetPreKeyBundleApi.ts';
 import { GetPreKeyBundleApi } from '../Api/KeyStore/GetPreKeyBundleApi.ts';
 
