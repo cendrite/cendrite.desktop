@@ -7,7 +7,7 @@ export const IdentityCacheSchema = new EntitySchema<IdentityCache>({
   target: IdentityCache,
   columns: {
     ...BaseSchema.columns,
-    connectionId: {
+    encodedAddress: {
       type: String,
       primary: true,
       length: 255,
