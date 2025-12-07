@@ -6,6 +6,7 @@ export enum ContactActionType {
     Remove = 1,
     AddConnectionId = 3,
     RemoveConnectionId = 4,
+    Clear = 5,
 }
 
 export type ContactAction =
@@ -13,7 +14,8 @@ export type ContactAction =
     | { type: ContactActionType.Add; payload: Contact }
     | { type: ContactActionType.Remove; payload: { id: string } }
     | { type: ContactActionType.AddConnectionId; payload: { id: string; connectionId: string } }
-    | { type: ContactActionType.RemoveConnectionId; payload: { id: string; connectionId: string } };
+    | { type: ContactActionType.RemoveConnectionId; payload: { id: string; connectionId: string } }
+    | { type: ContactActionType.Clear };
 
 export const contactReducer = (state: Contact[], action: ContactAction): Contact[] => {
     switch (action.type) {
@@ -48,6 +50,9 @@ export const contactReducer = (state: Contact[], action: ContactAction): Contact
                         contact.profilePicture, 
                         contact.connectionIds.filter((cid) => cid !== action.payload.connectionId))
                     : contact);
+
+        case ContactActionType.Clear:
+            return [];
 
         default:
             return state;
