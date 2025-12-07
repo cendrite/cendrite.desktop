@@ -48,9 +48,6 @@ export function useMessageService() {
 
             const messages: ServerChatMessage[] = [];
             const connectionIds = [...chat.connectionIds, user!.externalConnectionIds].flat();
-            console.log('Sending message to connection IDs:', connectionIds);
-            console.log("user connection ID:", user!.connectionId);
-            console.log("user external connection IDs:", user!.externalConnectionIds);
 
             for (const connectionId of connectionIds) {
 
