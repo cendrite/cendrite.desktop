@@ -38,6 +38,10 @@ export class ChatService {
         }
     }
 
+   public async getChats(): Promise<ChatViewModel[]> {
+        return [];
+    }
+
     public async deriveChatId(a: string, b: string): Promise<string> {
         const [sh, lo] = [a, b].sort();
         const input = `cypherly:dm:${sh}:${lo}`;

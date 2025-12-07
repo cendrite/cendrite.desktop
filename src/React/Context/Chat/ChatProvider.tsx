@@ -13,9 +13,9 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({children}
 
     useEffect(() => {
         const loadChats = async (): Promise<ChatViewModel[]> => {
-            // some chat loading
             return [];
         }
+
         loadChats().then(loadedChats => {
             chatDispatch({type: ChatActionType.Init, payload: loadedChats});
         })
