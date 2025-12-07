@@ -12,7 +12,7 @@ import { sha256 } from '../../../Shared/HelperFunctions.ts';
 export class ChatService {
     public async createChat(user: User, contact: Contact): Promise<ChatViewModel> {
 
-        const chatId = await this.deriveChatId(user.id, contact.id);
+        const chatId = await this.deriveChatId(user.userTag, contact.id);
 
         const command = new CreateChatCommand(
             chatId, 
