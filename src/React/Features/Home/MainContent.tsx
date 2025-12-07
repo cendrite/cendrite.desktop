@@ -17,7 +17,7 @@ const MainContent: React.FC = () => {
                 <ContactPage
                     contact={selectedItem.value}
                     onClose={() =>
-                        homeDispatch({ type: HomePageActionType.Clear, payload: null })
+                        homeDispatch({ type: HomePageActionType.Clear }) 
                     }
                 />
             );
@@ -27,7 +27,7 @@ const MainContent: React.FC = () => {
                 <PendingContactPage
                     pendingContact={selectedItem.value}
                     onClose={() =>
-                        homeDispatch({ type: HomePageActionType.Clear, payload: null })
+                        homeDispatch({ type: HomePageActionType.Clear }) 
                     }
                 />
             );
@@ -37,7 +37,7 @@ const MainContent: React.FC = () => {
                 <ChatPage
                     chat={selectedItem.value}
                     onClose={() =>
-                        homeDispatch({ type: HomePageActionType.Clear, payload: null })
+                        homeDispatch({ type: HomePageActionType.Clear }) 
                     }
                 />
             );

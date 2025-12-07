@@ -21,7 +21,7 @@ export const ChatCard: React.FC<ChatCardProps> = ({ chat }) => {
 
     const onHandleClick = async () => {
         if (isSelected) {
-            homeDispatch({ type: HomePageActionType.Clear, payload: null });
+            homeDispatch({ type: HomePageActionType.Clear }); 
             return;
         }
         homeDispatch({

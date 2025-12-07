@@ -22,7 +22,7 @@ const PendingContactCard: React.FC<PendingContactCardProps> = ({contact}) => {
 
     const onHandleClick = () => {
         if (isSelected) {
-            homeDispatch({type: HomePageActionType.Clear, payload: null});
+            homeDispatch({type: HomePageActionType.Clear}); 
             return;
         }
         notificationDispatch({type: NotificationActionType.RemoveFriendRequest, payload: {userTag: contact.id}});

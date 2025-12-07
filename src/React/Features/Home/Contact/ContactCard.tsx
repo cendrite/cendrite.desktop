@@ -15,7 +15,7 @@ const ContactCard: React.FC<ContactCardProps> = ({contact}) => {
 
     const onHandleClick = () => {
         if (isSelected) {
-            homeDispatch({type: HomePageActionType.Clear, payload: null});
+            homeDispatch({type: HomePageActionType.Clear}); 
             return;
         }
         homeDispatch({

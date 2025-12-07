@@ -23,7 +23,7 @@ const DeleteFriendModal: React.FC<DeleteFriendModalProps> = ({isOpen, onClose, c
         friendService.DeleteFriend(contact.id).then((result) => {
             if (result.success) {
                 contactDispatch({type: ContactActionType.Remove, payload: {id: contact.id}});
-                homeDispatch({type: HomePageActionType.Clear, payload: null}); // Clear selection after deletion
+                homeDispatch({type: HomePageActionType.Clear });
                 console.log("Deleted friend successfully");
             } else {
                 // Recreate the contact here
