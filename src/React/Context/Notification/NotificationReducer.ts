@@ -5,6 +5,7 @@ export enum NotificationActionType {
     RemoveChat = 1,
     AddFriendRequest = 2,
     RemoveFriendRequest = 3,
+    Clear = 4,
 }
 
 export type NotificationAction =
@@ -12,6 +13,7 @@ export type NotificationAction =
     | { type: NotificationActionType.RemoveChat; payload: ChatNotification }
     | { type: NotificationActionType.AddFriendRequest; payload: FriendRequestNotification }
     | { type: NotificationActionType.RemoveFriendRequest; payload: FriendRequestNotification }
+    | { type: NotificationActionType.Clear };
 
 export function reducer(
     state: NotificationState,
@@ -93,6 +95,17 @@ export function reducer(
                 },
             };
         }
+
+        case NotificationActionType.Clear:
+            return {
+                chatNotifications: [],
+                friendRequestNotifications: [],
+                count: {
+                    chats: 0,
+                    friendRequests: 0,
+                    sidebar: 0,
+                },
+            };
 
         default:
             throw new Error(

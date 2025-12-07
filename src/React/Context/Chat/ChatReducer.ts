@@ -13,6 +13,7 @@ export enum ChatActionType{
     MuteChat = 6,
     UnmuteChat = 7,
     MarkAsRead = 8,
+    Clear = 9,
 }
 
 export type ChatAction =
@@ -25,7 +26,8 @@ export type ChatAction =
     | {type: ChatActionType.UpdateChat; payload: ChatViewModel}
     | {type: ChatActionType.MuteChat; payload: ChatViewModel}
     | {type: ChatActionType.UnmuteChat; payload: ChatViewModel}
-    | {type: ChatActionType.MarkAsRead; payload: ChatViewModel};
+    | {type: ChatActionType.MarkAsRead; payload: ChatViewModel}
+    | {type: ChatActionType.Clear};
 
 
 export const chatReducer = (state: ChatViewModel[], action: ChatAction): ChatViewModel[] => {
@@ -121,6 +123,9 @@ export const chatReducer = (state: ChatViewModel[], action: ChatAction): ChatVie
                 updated.mutedTimer = null;
                 return updated;
             });
+
+        case ChatActionType.Clear:
+            return [];
 
         default:
             throw new Error(`Unknown action type: ${(action as ChatAction).type}`);

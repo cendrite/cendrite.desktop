@@ -5,13 +5,15 @@ export enum PendingContactActionType {
     Add = 0,
     Remove = 1,
     MarkAsSeen = 2,
+    Clear = 3,
 }
 
 export type PendingContactAction =
     | { type: PendingContactActionType.Initialize; payload: PendingContact[] }
     | { type: PendingContactActionType.Add; payload: PendingContact }
     | { type: PendingContactActionType.Remove; payload: { id: string } }
-    | { type: PendingContactActionType.MarkAsSeen; payload: { id: string } };
+    | { type: PendingContactActionType.MarkAsSeen; payload: { id: string } }
+    | { type: PendingContactActionType.Clear };
 
 export const pendingContactReducer = (
     state: PendingContact[],
@@ -37,6 +39,9 @@ export const pendingContactReducer = (
                         pending.displayName,
                         pending.profilePicture)
                     : pending);
+
+        case PendingContactActionType.Clear:
+            return [];
 
         default:
             return state;

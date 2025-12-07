@@ -7,6 +7,7 @@ export enum UserActionType {
     UpdateProfilePicture = 2,
     AddConnectionId = 3,
     RemoveConnectionId = 4,
+    Clear = 5,
 }
 
 export type UserAction =
@@ -15,7 +16,8 @@ export type UserAction =
     | { type: UserActionType.UpdateDisplayName; payload: { displayName: string | null } }
     | { type: UserActionType.UpdateProfilePicture; payload: { base64ProfilePicture: string | null } }
     | { type: UserActionType.AddConnectionId; payload: { connectionId: string } }
-    | { type: UserActionType.RemoveConnectionId; payload: { connectionId: string } };
+    | { type: UserActionType.RemoveConnectionId; payload: { connectionId: string } }
+    | { type: UserActionType.Clear };
 
 export const userReducer = (state: User | null, action: UserAction): User | null => {
     switch (action.type) {
@@ -95,6 +97,10 @@ export const userReducer = (state: User | null, action: UserAction): User | null
                 );
             }
             return state;   
+
+        case UserActionType.Clear:
+            return null;
+
 
         default:
             return state;

@@ -39,7 +39,7 @@ export function useUserEvents(
         async (evt: ChangeEvent<UserLoggedInEvent>) => {
             try {
                 if (!isUserEvent(evt.data.userTag, evt.data.connectionId)) return;
-
+                console.log('Handling user login event for connection ID:', evt.data.connectionId);
                 dispatch({ type: UserActionType.AddConnectionId, payload: { connectionId: evt.data.connectionId } });
 
                 await window.electron.sendRequestAsync(new AddUserConnectionIdCommand(evt.data.connectionId));
