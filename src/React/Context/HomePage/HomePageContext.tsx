@@ -18,7 +18,7 @@ interface HomePageContextType {
 
 export const HomePageContext = createContext<HomePageContextType | undefined>(undefined);
 
-export const useHomePageContext = () => {
+export const useHomePage = () => {
     const context = React.useContext(HomePageContext);
     if (!context) {
         throw new Error("useHomePageContext must be used within a HomePageProvider");

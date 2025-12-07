@@ -1,6 +1,6 @@
 import React from "react";
 import {UserProfileImage} from "../../../Common/Components/ProfilePicture/UserProfileImage.tsx";
-import {useHomePageContext} from "../../../Context/HomePage/HomePageContext.tsx";
+import {useHomePage} from "../../../Context/HomePage/HomePageContext.tsx";
 import {HomePageActionType} from "../../../Context/HomePage/HomePageReducer.ts";
 import { Contact } from "../../../Models/Contact.ts";
 
@@ -9,13 +9,13 @@ interface ContactCardProps {
 }
 
 const ContactCard: React.FC<ContactCardProps> = ({contact}) => {
-    const { selectedItem, homeDispatch } = useHomePageContext();
+    const { selectedItem, homeDispatch } = useHomePage();
     const isSelected = selectedItem.type === 'contact' && selectedItem.value.id === contact.id;
     const name = contact.displayName ?? contact.username;
 
     const onHandleClick = () => {
         if (isSelected) {
-            homeDispatch({type: HomePageActionType.ClearSelection, payload: null});
+            homeDispatch({type: HomePageActionType.Clear}); 
             return;
         }
         homeDispatch({

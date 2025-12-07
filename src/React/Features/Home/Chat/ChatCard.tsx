@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import { ChatViewModel } from '../../../Models/ChatViewModel.ts';
 import { UserProfileImage } from '../../../Common/Components/ProfilePicture/UserProfileImage.tsx';
-import { useHomePageContext } from '../../../Context/HomePage/HomePageContext.tsx';
+import { useHomePage } from '../../../Context/HomePage/HomePageContext.tsx';
 import { HomePageActionType } from '../../../Context/HomePage/HomePageReducer.ts';
 import { useMessageService } from '../../../Common/Services/MessageService.ts';
 import { useUser } from '../../../Context/User/UserContext.tsx';
@@ -11,7 +11,7 @@ interface ChatCardProps {
 }
 
 export const ChatCard: React.FC<ChatCardProps> = ({ chat }) => {
-    const { selectedItem, homeDispatch } = useHomePageContext();
+    const { selectedItem, homeDispatch } = useHomePage();
     const { markMessagesAsRead } = useMessageService();
     const { user } = useUser();
     const unreadCount = chat.getUnreadMessagesCount(user!.connectionId);
@@ -21,7 +21,7 @@ export const ChatCard: React.FC<ChatCardProps> = ({ chat }) => {
 
     const onHandleClick = async () => {
         if (isSelected) {
-            homeDispatch({ type: HomePageActionType.ClearSelection, payload: null });
+            homeDispatch({ type: HomePageActionType.Clear }); 
             return;
         }
         homeDispatch({
