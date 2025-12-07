@@ -3,7 +3,7 @@ import {UserProfileImage} from "../../../Common/Components/ProfilePicture/UserPr
 import { NotificationActionType } from "../../../Context/Notification/NotificationReducer.ts";
 import NotificationBadge from "../../../Context/Notification/NotificationBadge.tsx";
 import {useNotifications} from "../../../Context/Notification/NotificationContext.tsx";
-import { useHomePageContext } from "../../../Context/HomePage/HomePageContext.tsx";
+import { useHomePage } from "../../../Context/HomePage/HomePageContext.tsx";
 import { HomePageActionType } from "../../../Context/HomePage/HomePageReducer.ts";
 import { PendingContact } from "../../../Models/PendingContact.ts";
 
@@ -13,7 +13,7 @@ interface PendingContactCardProps {
 
 const PendingContactCard: React.FC<PendingContactCardProps> = ({contact}) => {
     const name = contact.displayName ?? contact.username;
-    const {selectedItem, homeDispatch} = useHomePageContext();
+    const {selectedItem, homeDispatch} = useHomePage();
     const isSelected = selectedItem.type === 'pending' && selectedItem.value.id === contact.id;
     const {notificationDispatch} = useNotifications();
 
@@ -22,7 +22,7 @@ const PendingContactCard: React.FC<PendingContactCardProps> = ({contact}) => {
 
     const onHandleClick = () => {
         if (isSelected) {
-            homeDispatch({type: HomePageActionType.ClearSelection, payload: null});
+            homeDispatch({type: HomePageActionType.Clear, payload: null});
             return;
         }
         notificationDispatch({type: NotificationActionType.RemoveFriendRequest, payload: {userTag: contact.id}});

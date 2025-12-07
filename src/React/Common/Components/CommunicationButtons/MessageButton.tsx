@@ -3,7 +3,7 @@ import { ChatService } from "../../Services/ChatService.ts";
 import {useChatContext} from "../../../Context/Chat/ChatContext.tsx";
 import { ChatActionType } from "../../../Context/Chat/ChatReducer.ts";
 import { ChatBubbleOvalLeftIcon } from "@heroicons/react/24/outline";
-import {useHomePageContext} from "../../../Context/HomePage/HomePageContext.tsx";
+import {useHomePage} from "../../../Context/HomePage/HomePageContext.tsx";
 import {HomePageActionType} from "../../../Context/HomePage/HomePageReducer.ts";
 import { Contact } from "../../../Models/Contact.ts";
 import { useUser } from "../../../Context/User/UserContext.tsx";
@@ -14,7 +14,7 @@ interface MessageButtonProps{
 }
 
 const MessageButton: React.FC<MessageButtonProps> = ({contact}) => {
-    const {homeDispatch} = useHomePageContext();
+    const {homeDispatch} = useHomePage();
     const {getChatByMemberId, chatDispatch} = useChatContext();
     const {user} = useUser();
     const chatService = new ChatService();
