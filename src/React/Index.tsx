@@ -1,7 +1,6 @@
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App.tsx';
-import { AuthProvider } from './Context/AuthContext.tsx';
 import { OnboardingProvider } from './Context/OnboardingContext.tsx';
 import { StrictMode } from 'react';
 import { SignalRProvider } from './SignalR/SignalRProvider.tsx';
@@ -11,12 +10,13 @@ import { HomePageProvider } from './Context/HomePage/HomePageProvider.tsx';
 import { ContactProvider } from './Context/Contacts/ContactProvider.tsx';
 import { UserProvider } from './Context/User/UserProvider.tsx';
 import { PendingContactProvider } from './Context/PendingContact/PendingContactProvider.tsx';
+import { AuthSessionProvider } from './Context/AuthSession/AuthSessionProvider.tsx';
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
         <OnboardingProvider>
             <UserProvider>
-                <AuthProvider>
+                <AuthSessionProvider>
                     <SignalRProvider>
                         <NotificationProvider>
                             <ContactProvider>
@@ -30,7 +30,7 @@ createRoot(document.getElementById('root')!).render(
                             </ContactProvider>
                         </NotificationProvider>
                     </SignalRProvider>
-                </AuthProvider>
+                </AuthSessionProvider>
             </UserProvider>
         </OnboardingProvider>
     </StrictMode>,
