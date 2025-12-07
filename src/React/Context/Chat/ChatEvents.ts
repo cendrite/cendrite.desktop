@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 import { v4 as uuid } from 'uuid';
 import { ServerChatMessage } from '../../SignalR/Messaging/ServerChatMessage';
-import { Encryptor } from '../../Security/Encryption/Encryptor';
 import { DeliveryStatus } from '../../../Electron/Domain/Enums/DeliveryStatus';
 import { MessageViewModel } from '../../Models/MessageViewModel';
 import { ChatViewModel } from '../../Models/ChatViewModel';
@@ -18,7 +17,6 @@ export function useChatEvents(chats: ChatViewModel[], chatDispatch: React.Dispat
     const { getContactById } = useContacts();
     const { notificationDispatch } = useNotifications();
     const { user } = useUser();
-    const encryptor = Encryptor.getInstance();
 
     const receiveMessage = useCallback(
         async (msg: ServerChatMessage) => {
@@ -53,7 +51,7 @@ export function useChatEvents(chats: ChatViewModel[], chatDispatch: React.Dispat
             }
             notificationDispatch({ type: NotificationActionType.AddChat, payload: { chatId: chat.id } });
         },
-        [encryptor, getContactById, chats],
+        [getContactById, chats],
     );
 
     return { receiveMessage };
