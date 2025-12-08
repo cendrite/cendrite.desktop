@@ -3,6 +3,7 @@
 export class MessageViewModel {
     id: string;
     chatId: string;
+    messageToken: string | null = null;
     senderId: string;
     text: string;
     media: string | null;
@@ -17,6 +18,7 @@ export class MessageViewModel {
         date: Date,
         deliveryStatus: DeliveryStatus,
         mediaUrl: string | null = null,
+        messageToken: string | null = null,
     ) {
         this.id = id;
         this.chatId = chatId;
@@ -25,5 +27,6 @@ export class MessageViewModel {
         this.date = date;
         this.media = mediaUrl;
         this.deliveryStatus = deliveryStatus;
+        this.messageToken = messageToken;
     }
 }

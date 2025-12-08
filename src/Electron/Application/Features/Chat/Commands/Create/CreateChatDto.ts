@@ -1,6 +1,6 @@
-﻿import {ChatMemberDto} from "../Dtos/ChatMemberDto.js";
-import {Chat} from "../../../../Domain/Aggregates/Chat.js";
-import {ChatMember} from "../../../../Domain/Entities/ChatMember.js";
+﻿import { Chat } from "../../../../../Domain/Aggregates/Chat.js";
+import { ChatMember } from "../../../../../Domain/Entities/ChatMember.js";
+import { ChatMemberDto } from "../../Dtos/ChatMemberDto.js";
 
 export class CreateChatDto{
     id: string;
@@ -10,6 +10,7 @@ export class CreateChatDto{
         this.id = chat.id;
         this.member = new ChatMemberDto(
             member.id,
+            member.friend.id,
             member.privilege,
             member.displayName ?? member.friend.displayName ?? member.friend.username,
             member.friend.connectionIds.map((connectionId) => connectionId.connectionId));

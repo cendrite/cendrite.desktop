@@ -4,7 +4,7 @@ import { ChatViewModel } from '../../Models/ChatViewModel.ts';
 import { ChatActionType } from '../../Context/Chat/ChatReducer.ts';
 import { NotificationActionType } from '../../Context/Notification/NotificationReducer.ts';
 import { useCallback } from 'react';
-import { v4 as uuidv4, v4 as uuid } from 'uuid';
+import { v4 as uuid } from 'uuid';
 import { MessageViewModel } from '../../Models/MessageViewModel.ts';
 import { DeliveryStatus } from '../../../Electron/Domain/Enums/DeliveryStatus.ts';
 import { MessageHubHandler } from '../../SignalR/Messaging/MessageHubHandler.ts';
@@ -12,6 +12,7 @@ import { SignalManager } from '../../SignalR/SignalManager.ts';
 import { MessagePayload, ServerChatMessage } from '../../SignalR/Messaging/ServerChatMessage.ts';
 import { useUser } from '../../Context/User/UserContext.tsx';
 import { SessionManager } from '../../Security/Encryption/SessionManager.ts';
+import { AddMessageCommand } from '../../../Electron/Application/Features/Chat/Commands/AddMessage/AddMessageCommand.ts';
 
 export function useMessageService() {
     const { chatDispatch } = useChatContext();
@@ -40,17 +41,17 @@ export function useMessageService() {
                 date: new Date(),
                 deliveryStatus: DeliveryStatus.Sent,
                 media: media || null,
+                messageToken: uuid().toString(),
             };
 
             const participants = generateParticipantList(chat);
 
-            chatDispatch({ type: ChatActionType.AddMessage, payload: message });
+            await addMessage(message, chat.id);
 
             const messages: ServerChatMessage[] = [];
             const connectionIds = [...chat.connectionIds, user!.externalConnectionIds].flat();
 
             for (const connectionId of connectionIds) {
-
                 const manager = new SessionManager(connectionId);
 
                 const encryptedContent = await manager.encrypt(
@@ -65,7 +66,7 @@ export function useMessageService() {
                         connectionId,
                         encryptedContent,
                         new Date(),
-                        uuidv4().toString(),
+                        uuid().toString(),
                     ),
                 );
             }
@@ -85,6 +86,22 @@ export function useMessageService() {
         participantIds.add(user!.userTag);
         return Array.from(participantIds);
     };
+
+    async function addMessage(msg: MessageViewModel, chatId: string): Promise<void> {
+        chatDispatch({ type: ChatActionType.AddMessage, payload: msg });
+        await window.electron.sendRequestAsync(
+            new AddMessageCommand(
+                chatId,
+                msg.id,
+                msg.senderId,
+                msg.text,
+                msg.date,
+                msg.deliveryStatus,
+                msg.media,
+                msg.messageToken,
+            ),
+        );
+    }
 
     return { markMessagesAsRead, sendMessage };
 }

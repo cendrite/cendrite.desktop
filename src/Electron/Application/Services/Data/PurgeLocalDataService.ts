@@ -2,8 +2,8 @@
 import { DeviceRepository } from '../../../Persistence/Repositories/DeviceRepository.js';
 import { UserRepository } from '../../../Persistence/Repositories/UserRepository.js';
 import { FriendRepository } from '../../../Persistence/Repositories/FriendRepository.js';
-import { ChatRepository } from '../../../Persistence/Repositories/ChatRepository.js';
 import { ProtocolStore } from '../../../Persistence/Repositories/ProtocolStore.js';
+import { ChatStore } from '../../../Persistence/Repositories/ChatStore.js';
 
 export class PurgeLocalDataService {
 
@@ -14,14 +14,14 @@ export class PurgeLocalDataService {
         const deviceRepo = new DeviceRepository();
         const refreshTokenRepo = new RefreshTokenRepository();
         const friendRepo = new FriendRepository();
-        const chatRepo = new ChatRepository();
+        const chatStore = new ChatStore();
         const protocolStore = new ProtocolStore();
 
         await userRepo.delete();
         await deviceRepo.delete();
         await refreshTokenRepo.delete();
         await friendRepo.deleteAll();
-        await chatRepo.deleteAll();
+        await chatStore.clearStore();
         await protocolStore.deleteAll();
 
         console.log('Local data purged.');

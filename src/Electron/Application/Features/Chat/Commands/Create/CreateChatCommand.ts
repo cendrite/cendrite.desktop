@@ -1,7 +1,7 @@
-﻿import {ChatPrivileges} from "../../../../Domain/Enums/ChatPrivileges.js";
+﻿import { ChatPrivileges } from "../../../../../Domain/Enums/ChatPrivileges.js";
 
 export class CreateChatCommand implements MediatorRequest {
-    type = "CreateChatCommand";
+    type = CreateChatCommand.name;
     chatId: string;
     friendId: string;
     chatMemberId: string;

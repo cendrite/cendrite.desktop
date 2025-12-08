@@ -1,0 +1,62 @@
+﻿import { Repository } from 'typeorm';
+import { Chat } from '../../Domain/Aggregates/Chat.js';
+import { getDbContext } from '../Context/DatabaseContext.js';
+import { ChatMember } from '../../Domain/Entities/ChatMember.js';
+import { Message } from '../../Domain/Entities/Message.js';
+
+export class ChatStore {
+    private readonly chatRepository: Repository<Chat>;
+    private readonly memberRepository: Repository<ChatMember>;
+    private readonly messageRepository: Repository<Message>;
+
+    public constructor() {
+        const dbContext = getDbContext();
+        this.chatRepository = dbContext.getRepository(Chat);
+        this.memberRepository = dbContext.getRepository(ChatMember);
+        this.messageRepository = dbContext.getRepository(Message);
+    }
+
+    public async storeMessage(message: Message) {
+        await this.messageRepository.save(message);
+    }
+
+    public async getChatById(chatId: string): Promise<Chat | null> {
+        return this.chatRepository.findOne({
+            where: { id: chatId },
+        });
+    }
+
+    public async getChats(chatLoadCount: number): Promise<Chat[]> {
+        return this.chatRepository
+            .createQueryBuilder('chat')
+            .leftJoinAndSelect('chat.members', 'members')
+            .leftJoinAndSelect('members.friend', 'friend')
+            .leftJoinAndSelect('friend.connectionIds', 'connectionIds') 
+            .leftJoin('chat.messages', 'messages')
+            .groupBy('chat.id')
+            .addGroupBy('members.id')
+            .addGroupBy('friend.id')
+            .addGroupBy('connectionIds.id')
+            .orderBy('MAX(messages.timestamp)', 'DESC')
+            .limit(chatLoadCount)
+            .getMany();
+    }
+
+    public async getMessages(chatId: string, messageLoadCount: number): Promise<Message[]> {
+        return this.messageRepository.find({
+            where: { chat: { id: chatId } },
+            order: { timestamp: 'DESC' },
+            take: messageLoadCount,
+        });
+    }
+
+    public async create(chat: Chat): Promise<Chat> {
+        return await this.chatRepository.save(chat);
+    }
+
+    public async clearStore(): Promise<void> {
+        await this.chatRepository.clear();
+        await this.memberRepository.clear();
+        await this.messageRepository.clear();
+    }
+}
