@@ -1,52 +1,58 @@
-﻿import {Message} from "../../Domain/Entities/Message.js";
-import {EntitySchema} from "typeorm";
-import {Chat} from "../../Domain/Aggregates/Chat.js";
+﻿import { EntitySchema } from "typeorm/entity-schema/EntitySchema.js";
+import { Message } from "../../Domain/Entities/Message.js";
+import { Chat } from "../../Domain/Aggregates/Chat.js";
 
 export const MessageSchema = new EntitySchema<Message>({
-    name: "Message",
+    name: 'Message',
     target: Message,
     columns: {
         id: {
-            type: "uuid",
+            type: 'uuid',
             primary: true,
-            generated: 'uuid'
         },
         messageToken: {
-            type: "uuid",
-            nullable: true
+            type: 'uuid',
+            nullable: true,
         },
         senderId: {
-            type: "uuid",
-            nullable: false
+            type: 'uuid',
+            nullable: false,
         },
         content: {
-            type: "text",
-            nullable: false
+            type: 'text',
+            nullable: false,
         },
         contentUrl: {
-            type: "text",
-            nullable: true
+            type: 'text',
+            nullable: true,
         },
         deliveryStatus: {
-            type: "integer",
+            type: 'integer',
             nullable: false,
         },
         timestamp: {
-            type: "datetime",
+            type: 'datetime',
             default: () => "datetime('now')",
             transformer: {
                 to: (value: Date) => value,
-                from: (value: string) => new Date(value)
-            }
+                from: (value: string) => new Date(value),
+            },
+        },
+        chatId: {
+            type: 'uuid',
+            nullable: false,
         },
     },
     relations: {
         chat: {
-            type: "many-to-one",
+            type: 'many-to-one',
             target: () => Chat,
-            joinColumn: true,
-            inverseSide: "messages",
-            onDelete: "CASCADE"
-        }
-    }
-})
+            joinColumn: {
+                name: 'chatId',
+                referencedColumnName: 'id',
+            },
+            inverseSide: 'messages',
+            onDelete: 'CASCADE',
+        },
+    },
+});

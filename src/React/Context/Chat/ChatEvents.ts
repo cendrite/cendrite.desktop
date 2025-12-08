@@ -12,6 +12,8 @@ import { useNotifications } from '../Notification/NotificationContext';
 import { getChat } from './ChatSelectors';
 import { useUser } from '../User/UserContext';
 import { SessionManager } from '../../Security/Encryption/SessionManager';
+import { CreateChatCommand } from '../../../Electron/Application/Features/Chat/Commands/Create/CreateChatCommand';
+import { AddMessageCommand } from '../../../Electron/Application/Features/Chat/Commands/AddMessage/AddMessageCommand';
 
 export function useChatEvents(chats: ChatViewModel[], chatDispatch: React.Dispatch<ChatAction>) {
     const { getContactById } = useContacts();
@@ -45,9 +47,10 @@ export function useChatEvents(chats: ChatViewModel[], chatDispatch: React.Dispat
                 const member = new ChatMemberViewModel(uuid().toString(), 1, contact.displayName, contact);
 
                 chat = new ChatViewModel(msg.chatId, [member], [mappedMsg]);
-                chatDispatch({ type: ChatActionType.AddChat, payload: chat });
+                await addSingleChat(chat);
+                await addMessageToChat(chat.id, mappedMsg);
             } else {
-                chatDispatch({ type: ChatActionType.AddMessage, payload: mappedMsg });
+                await addMessageToChat(chat.id, mappedMsg);
             }
             notificationDispatch({ type: NotificationActionType.AddChat, payload: { chatId: chat.id } });
         },
@@ -55,4 +58,32 @@ export function useChatEvents(chats: ChatViewModel[], chatDispatch: React.Dispat
     );
 
     return { receiveMessage };
+
+    async function addSingleChat(chat: ChatViewModel): Promise<void> {
+        chatDispatch({ type: ChatActionType.AddChat, payload: chat });
+        await window.electron.sendRequestAsync(
+            new CreateChatCommand(
+                chat.id,
+                chat.chatMembers[0].contact.id,
+                uuid().toString(),
+                chat.chatMembers[0].privilege,
+            ),
+        );
+    }
+
+    async function addMessageToChat(chatId: string, message: MessageViewModel): Promise<void> {
+        console.log('Adding message to chat:', chatId, message);
+        chatDispatch({ type: ChatActionType.AddMessage, payload: message });
+        await window.electron.sendRequestAsync(
+            new AddMessageCommand(
+                chatId,
+                message.id,
+                message.senderId,
+                message.text,
+                message.date,
+                message.deliveryStatus,
+                message.media,
+            ),
+        );
+    }
 }

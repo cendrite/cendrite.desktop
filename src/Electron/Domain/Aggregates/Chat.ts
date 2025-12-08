@@ -1,5 +1,5 @@
-﻿import {Message} from "../Entities/Message.js";
-import {ChatMember} from "../Entities/ChatMember.js";
+﻿import { Message } from '../Entities/Message.js';
+import { ChatMember } from '../Entities/ChatMember.js';
 
 export class Chat {
     id!: string;
@@ -12,7 +12,7 @@ export class Chat {
     muted!: boolean;
     muteTimer!: number | null;
 
-    constructor(id: string, members: ChatMember[], groupId: string |null = null) {
+    constructor(id: string, members: ChatMember[], groupId: string | null = null) {
         this.id = id;
         this.groupId = groupId;
         this.members = members;

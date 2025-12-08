@@ -14,7 +14,7 @@ import { GetFriendsQueryHandler } from './Application/Features/Friends/Queries/G
 import { GetRefreshTokenQueryHandler } from './Application/Features/RefreshToken/Queries/GetRefreshTokenQueryHandler.js';
 import { CreateUserCommandHandler } from './Application/Features/User/Commands/Create/CreateUserCommandHandler.js';
 import { DeleteFriendCommandHandler } from './Application/Features/Friends/Commands/Delete/DeleteFriendCommandHandler.js';
-import { CreateChatCommandHandler } from './Application/Features/Chat/Commands/CreateChatCommandHandler.js';
+import { CreateChatCommandHandler } from './Application/Features/Chat/Commands/Create/CreateChatCommandHandler.js';
 import { UpdateFriendCommandHandler } from './Application/Features/Friends/Commands/Update/UpdateFriendCommandHandler.js';
 import { GenerateKeyBundleCommandHandler } from './Application/Features/Encryption/Commands/Generate/GenerateKeyBundleCommandHandler.js';
 import { RemoveFriendConnectionIdCommandHandler } from './Application/Features/Friends/Commands/RemoveConnectionId/RemoveFriendConnectionIdCommandHandler.js';
@@ -45,6 +45,11 @@ import { CreateIdentityCommandHandler } from './Application/Features/Encryption/
 import { GetSessionQueryHandler } from './Application/Features/Encryption/Queries/GetSession/GetSessionQueryHandler.js';
 import { GetSignedPreKeyQueryHandler } from './Application/Features/Encryption/Queries/GetSignedPreKey/GetSignedPreKeyQueryHandler.js';
 import { GetPreKeyQueryHandler } from './Application/Features/Encryption/Queries/GetPreKey/GetPreKeyQueryHandler.js';
+import { GetChatsQuery } from './Application/Features/Chat/Queries/GetChats/GetChatsQuery.js';
+import { GetChatsQueryHandler } from './Application/Features/Chat/Queries/GetChats/GetChatsQueryhandler.js';
+import { CreateChatCommand } from './Application/Features/Chat/Commands/Create/CreateChatCommand.js';
+import { AddMessageCommand } from './Application/Features/Chat/Commands/AddMessage/AddMessageCommand.js';
+import { AddMessageCommandHandler } from './Application/Features/Chat/Commands/AddMessage/AddMessageCommandHandler.js';
 
 export function registerIpcHandlers(mainWindow: BrowserWindow) {
     const mediator = new Mediator();
@@ -86,7 +91,9 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
     mediator.registerHandler(GetSignedPreKeyQuery.name, new GetSignedPreKeyQueryHandler());
     mediator.registerHandler(GetIdentityCacheQuery.name, new GetIdentityCacheQueryHandler());
 
-    mediator.registerHandler('CreateChatCommand', new CreateChatCommandHandler());
+    mediator.registerHandler(CreateChatCommand.name, new CreateChatCommandHandler());
+    mediator.registerHandler(GetChatsQuery.name, new GetChatsQueryHandler());
+    mediator.registerHandler(AddMessageCommand.name, new AddMessageCommandHandler());
 
     ipcMain.handle('mediator:send', async (_event, request) => {
         return await mediator.send(request);
