@@ -1,4 +1,6 @@
-﻿export class ServerChatMessage {
+﻿import { MessageViewModel } from "../../Models/MessageViewModel";
+
+export class ServerChatMessage {
     public id: string;
     public chatId: string;
     public senderId: string;
@@ -23,6 +25,18 @@
         this.messageToken = messageToken;
         this.timestamp = timestamp;
         this.content = content;
+    }
+
+    public static create(message: MessageViewModel, recipientId: string, content: string): ServerChatMessage {
+        return new ServerChatMessage(
+            message.id,
+            message.chatId,
+            message.senderId,
+            recipientId,
+            content,
+            message.date,
+            message.messageToken,
+        );
     }
 }
 

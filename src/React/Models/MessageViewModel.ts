@@ -1,4 +1,5 @@
 ﻿import { DeliveryStatus } from '../../Electron/Domain/Enums/DeliveryStatus.ts';
+import { v4 as uuid } from 'uuid';
 
 export class MessageViewModel {
     id: string;
@@ -28,5 +29,23 @@ export class MessageViewModel {
         this.media = mediaUrl;
         this.deliveryStatus = deliveryStatus;
         this.messageToken = messageToken;
+    }
+
+    public static create(
+        chatId: string,
+        senderId: string,
+        text: string | null,
+        media: string | null,
+    ): MessageViewModel {
+        return new MessageViewModel(
+            uuid().toString(),
+            chatId,
+            senderId,
+            text || '',
+            new Date(),
+            DeliveryStatus.Sent,
+            media || null,
+            uuid().toString(),
+        );
     }
 }
