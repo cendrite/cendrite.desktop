@@ -3,8 +3,18 @@ import {ChatViewModel} from "../../Models/ChatViewModel.ts";
 import {ChatAction} from "./ChatReducer.ts";
 import {getChatById, getChatByMemberId} from "./ChatSelectors.ts";
 
-export interface ChatContextType {
+export type ChatState = {
+    activeChatId: string | null;
     chats: ChatViewModel[];
+}
+
+export const initialChatState: ChatState = {
+    activeChatId: null,
+    chats: [],
+};
+
+export interface ChatContextType {
+    chatState: ChatState;
     chatDispatch: React.Dispatch<ChatAction>;
 }
 
@@ -16,12 +26,12 @@ export const useChatContext = () => {
         throw new Error("useChatContext must be used within a ChatProvider");
     }
 
-    const {chats, chatDispatch} = context;
+    const {chatState, chatDispatch} = context;
 
     return {
-        chats,
+        chatState,
         chatDispatch,
-        getChatByMemberId: (memberId: string) => getChatByMemberId(chats, memberId),
-        getChatById: (id: string) => getChatById(chats, id),
+        getChatByMemberId: (memberId: string) => getChatByMemberId(chatState.chats, memberId),
+        getChatById: (id: string) => getChatById(chatState.chats, id),
     }
 }

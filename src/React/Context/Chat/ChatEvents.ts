@@ -15,7 +15,11 @@ import { SessionManager } from '../../Security/Encryption/SessionManager';
 import { CreateChatCommand } from '../../../Electron/Application/Features/Chat/Commands/Create/CreateChatCommand';
 import { AddMessageCommand } from '../../../Electron/Application/Features/Chat/Commands/AddMessage/AddMessageCommand';
 
-export function useChatEvents(chats: ChatViewModel[], chatDispatch: React.Dispatch<ChatAction>) {
+export function useChatEvents(
+    chats: ChatViewModel[],
+    activeChatId: string | null,
+    chatDispatch: React.Dispatch<ChatAction>,
+) {
     const { getContactById } = useContacts();
     const { notificationDispatch } = useNotifications();
     const { user } = useUser();
@@ -52,9 +56,12 @@ export function useChatEvents(chats: ChatViewModel[], chatDispatch: React.Dispat
             } else {
                 await addMessageToChat(chat.id, mappedMsg);
             }
-            notificationDispatch({ type: NotificationActionType.AddChat, payload: { chatId: chat.id } });
+
+            if (activeChatId !== chat.id) {
+                notificationDispatch({ type: NotificationActionType.AddChat, payload: { chatId: chat.id } });
+            }
         },
-        [getContactById, chats],
+        [activeChatId, chats, chatDispatch, getContactById, notificationDispatch, user],
     );
 
     return { receiveMessage };
