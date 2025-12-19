@@ -1,4 +1,4 @@
-﻿import {ChatNotification, FriendRequestNotification, NotificationState} from "./NotificationState";
+﻿import { ChatNotification, FriendRequestNotification, NotificationState } from './NotificationState';
 
 export enum NotificationActionType {
     AddChat = 0,
@@ -15,85 +15,56 @@ export type NotificationAction =
     | { type: NotificationActionType.RemoveFriendRequest; payload: FriendRequestNotification }
     | { type: NotificationActionType.Clear };
 
-export function reducer(
-    state: NotificationState,
-    action: NotificationAction
-): NotificationState {
+export function reducer(state: NotificationState, action: NotificationAction): NotificationState {
+    function withCounts(state: NotificationState): NotificationState {
+        return {
+            ...state,
+            count: {
+                chats: state.chatNotifications.length,
+                friendRequests: state.friendRequestNotifications.length,
+                sidebar: state.chatNotifications.length + state.friendRequestNotifications.length,
+            },
+        };
+    }
+
     switch (action.type) {
-        case NotificationActionType.AddChat: {
-            const exists = state.chatNotifications.some(
-                n => n.chatId === action.payload.chatId
-            );
-            if (exists) {
-                console.warn(
-                    `Chat with ID ${action.payload.chatId} already exists in notifications.`
-                );
-                return state;
-            }
-
-            const chatNotifications = [...state.chatNotifications, action.payload];
-            const friendRequests = state.friendRequestNotifications;
-
-            return {
-                ...state,
-                chatNotifications,
-                count: {
-                    chats: chatNotifications.length,
-                    friendRequests: friendRequests.length,
-                    sidebar: chatNotifications.length + friendRequests.length,
-                },
-            };
-        }
-
         case NotificationActionType.RemoveChat: {
-            const chatNotifications = state.chatNotifications.filter(
-                n => n.chatId !== action.payload.chatId
-            );
+            const chat = state.chatNotifications.find((n) => n.chatId === action.payload.chatId);
+            if(!chat) console.log('Chat notification not found for removal:', action.payload.chatId);
+            const chatNotifications = state.chatNotifications.filter((n) => n.chatId !== action.payload.chatId);
 
-            return {
-                ...state,
-                chatNotifications,
-                count: {
-                    ...state.count,
-                    chats: Math.max(0, state.count.chats - 1),
-                    sidebar: Math.max(0, state.count.sidebar - 1),
-                },
-            };
-        }
+            if (chatNotifications.length === state.chatNotifications.length) return state;
 
-        case NotificationActionType.AddFriendRequest: {
-            const friendRequestNotifications = [
-                ...state.friendRequestNotifications,
-                action.payload,
-            ];
-
-            return {
-                ...state,
-                friendRequestNotifications,
-                count: {
-                    ...state.count,
-                    friendRequests: state.count.friendRequests + 1,
-                    sidebar:
-                        state.chatNotifications.length +
-                        friendRequestNotifications.length,
-                },
-            };
+            return withCounts({ ...state, chatNotifications });
         }
 
         case NotificationActionType.RemoveFriendRequest: {
             const friendRequestNotifications = state.friendRequestNotifications.filter(
-                n => n.userTag !== action.payload.userTag
+                (n) => n.userTag !== action.payload.userTag,
             );
+            if (friendRequestNotifications.length === state.friendRequestNotifications.length) return state;
 
-            return {
+            return withCounts({ ...state, friendRequestNotifications });
+        }
+
+        case NotificationActionType.AddChat: {
+            const exists = state.chatNotifications.some((n) => n.chatId === action.payload.chatId);
+            if (exists) return state;
+
+            return withCounts({
                 ...state,
-                friendRequestNotifications,
-                count: {
-                    ...state.count,
-                    friendRequests: Math.max(0, state.count.friendRequests - 1),
-                    sidebar: Math.max(0, state.count.sidebar - 1),
-                },
-            };
+                chatNotifications: [...state.chatNotifications, action.payload],
+            });
+        }
+
+        case NotificationActionType.AddFriendRequest: {
+            const exists = state.friendRequestNotifications.some((n) => n.userTag === action.payload.userTag);
+            if (exists) return state;
+
+            return withCounts({
+                ...state,
+                friendRequestNotifications: [...state.friendRequestNotifications, action.payload],
+            });
         }
 
         case NotificationActionType.Clear:
@@ -108,8 +79,6 @@ export function reducer(
             };
 
         default:
-            throw new Error(
-                `Unknown action type in NotificationReducer.ts: ${(action as NotificationAction).type}`
-            );
+            throw new Error(`Unknown action type in NotificationReducer.ts: ${(action as NotificationAction).type}`);
     }
 }
