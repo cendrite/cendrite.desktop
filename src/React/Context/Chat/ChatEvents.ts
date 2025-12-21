@@ -29,15 +29,7 @@ export function useChatEvents(
             const sessionManager = new SessionManager(msg.senderId);
             const decryptedMessage = await sessionManager.decrypt(msg.content);
 
-            const mappedMsg = new MessageViewModel(
-                msg.id,
-                msg.chatId,
-                msg.senderId,
-                decryptedMessage.text,
-                msg.timestamp,
-                DeliveryStatus.Received,
-                decryptedMessage.media || null,
-            );
+            const mappedMsg = MessageViewModel.mapFromDecrypted(msg, decryptedMessage);
 
             let chat = getChat(chats, msg.chatId);
 
