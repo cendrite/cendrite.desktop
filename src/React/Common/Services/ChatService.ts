@@ -14,9 +14,11 @@ import { MessageViewModel } from '../../Models/MessageViewModel.ts';
 import { MessageHubHandler } from '../../SignalR/Messaging/MessageHubHandler.ts';
 import { SignalManager } from '../../SignalR/SignalManager.ts';
 import { AddMessageCommand } from '../../../Electron/Application/Features/Chat/Commands/AddMessage/AddMessageCommand.ts';
+import { UpdateDeliveryStatusCommand } from '../../../Electron/Application/Features/Chat/Commands/UpdateDeliveryStatus/UpdateDeliveryStatusCommand.ts';
 import { MessagePayload, ServerChatMessage } from '../../SignalR/Messaging/ServerChatMessage.ts';
 import { SessionManager } from '../../Security/Encryption/SessionManager.ts';
 import { MessageDto } from '../../../Electron/Application/Features/Chat/Dtos/MessageDto.ts';
+import { DeliveryStatus } from '../../../Electron/Domain/Enums/DeliveryStatus.ts';
 
 export class ChatService {
     private readonly messageSender = SignalManager.getInstance().getHandler<MessageHubHandler>('Messaging');
@@ -47,12 +49,17 @@ export class ChatService {
             const manager = new SessionManager(connectionId);
             const cipher = await manager.encrypt(new MessagePayload(message.text, message.media, participants));
             const msg = ServerChatMessage.create(message, connectionId, cipher);
-            console.log(msg);
             messages.push(msg);
         }
         const receipt = await this.messageSender.sendMessage(messages);
         console.log('Message receipt:', receipt);
         return message;
+    }
+
+    public async markRead(chatId: string, MessageIds: string[]): Promise<void> {
+        await window.electron.sendRequestAsync(
+            new UpdateDeliveryStatusCommand(chatId, MessageIds, DeliveryStatus.Read),
+        );
     }
 
     public async initializeChat(user: User, contact: Contact): Promise<ChatViewModel> {
@@ -69,11 +76,7 @@ export class ChatService {
         return new ChatViewModel(result.data!.id, [chatMember]);
     }
 
-    public async startChat(
-        user: User,
-        contacts: Contact[],
-        msg: ServerChatMessage,
-    ): Promise<ChatViewModel | null> {
+    public async startChat(user: User, contacts: Contact[], msg: ServerChatMessage): Promise<ChatViewModel | null> {
         const sessionManager = new SessionManager(msg.senderId);
         const decryptedMessage = await sessionManager.decrypt(msg.content);
 

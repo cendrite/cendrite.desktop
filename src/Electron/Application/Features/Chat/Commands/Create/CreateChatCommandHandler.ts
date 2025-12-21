@@ -17,9 +17,6 @@ export class CreateChatCommandHandler implements Handler<CreateChatCommand, Crea
 
         const chatStore = new ChatStore();
 
-        console.log('Creating new chat with ID:', request.chatId);
-        const newChat = new Chat(request.chatId, [chatMember]);
-
         const msg = request.message
             ? new Message(
                 request.message.id,
@@ -32,9 +29,12 @@ export class CreateChatCommandHandler implements Handler<CreateChatCommand, Crea
             )
             : null;
 
-        if (msg) {
-            newChat.addMessage(msg);
-        }
+        console.log('Creating new chat with:', request);
+        const newChat = new Chat(
+            request.chatId,
+            [chatMember],
+            [msg].filter((m): m is Message => m !== null),
+        );
 
         const chat = await chatStore.create(newChat);
 
