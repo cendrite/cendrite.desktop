@@ -24,7 +24,7 @@ const MessageButton: React.FC<MessageButtonProps> = ({contact}) => {
         if (chat) {
             homeDispatch({type: HomePageActionType.SetSelectedChat, payload: chat});
         } else {
-            const chat = await chatService.createNewChat(user!, contact);
+            const chat = await chatService.initializeChat(user!, contact);
             chatDispatch({type: ChatActionType.AddChat, payload: chat});
             homeDispatch({type: HomePageActionType.SetSelectedChat, payload: chat});
         }
