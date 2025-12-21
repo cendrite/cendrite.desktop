@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 import { v4 as uuid } from 'uuid';
 import { ServerChatMessage } from '../../SignalR/Messaging/ServerChatMessage';
-import { DeliveryStatus } from '../../../Electron/Domain/Enums/DeliveryStatus';
 import { MessageViewModel } from '../../Models/MessageViewModel';
 import { ChatViewModel } from '../../Models/ChatViewModel';
 import { ChatAction, ChatActionType } from './ChatReducer';
