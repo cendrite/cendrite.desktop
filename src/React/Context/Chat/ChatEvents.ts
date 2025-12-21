@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 import { v4 as uuid } from 'uuid';
 import { ServerChatMessage } from '../../SignalR/Messaging/ServerChatMessage';
-import { DeliveryStatus } from '../../../Electron/Domain/Enums/DeliveryStatus';
 import { MessageViewModel } from '../../Models/MessageViewModel';
 import { ChatViewModel } from '../../Models/ChatViewModel';
 import { ChatAction, ChatActionType } from './ChatReducer';
@@ -29,15 +28,7 @@ export function useChatEvents(
             const sessionManager = new SessionManager(msg.senderId);
             const decryptedMessage = await sessionManager.decrypt(msg.content);
 
-            const mappedMsg = new MessageViewModel(
-                msg.id,
-                msg.chatId,
-                msg.senderId,
-                decryptedMessage.text,
-                msg.timestamp,
-                DeliveryStatus.Received,
-                decryptedMessage.media || null,
-            );
+            const mappedMsg = MessageViewModel.mapFromDecrypted(msg, decryptedMessage);
 
             let chat = getChat(chats, msg.chatId);
 

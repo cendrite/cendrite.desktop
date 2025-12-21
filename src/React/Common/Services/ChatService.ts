@@ -54,7 +54,7 @@ export class ChatService {
         return message;
     }
 
-    public async createChat(user: User, contact: Contact): Promise<ChatViewModel> {
+    public async createNewChat(user: User, contact: Contact): Promise<ChatViewModel> {
         const chatId = await this.deriveChatId(user.userTag, contact.id);
         const result = await window.electron.sendRequestAsync<Result<CreateChatDto>>(
             new CreateChatCommand(chatId, contact.id, uuid().toString(), ChatPrivileges.Admin),

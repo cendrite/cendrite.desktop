@@ -6,17 +6,17 @@ import { NotificationActionType } from '../../Context/Notification/NotificationR
 import { useCallback } from 'react';
 import { useUser } from '../../Context/User/UserContext.tsx';
 import { ChatService } from './ChatService.ts';
+import React from 'react';
 
 export function useMessageService() {
     const { chatDispatch } = useChatContext();
     const { user } = useUser();
     const { notificationDispatch } = useNotifications();
-    const chatService = new ChatService();
+    const chatService = React.useMemo(() => new ChatService(), []);
 
     const markMessagesAsRead = useCallback(
         async (chat: ChatViewModel) => {
             chatDispatch({ type: ChatActionType.MarkAsRead, payload: chat });
-            console.log('removing notification for chat:', chat.id);
             notificationDispatch({ type: NotificationActionType.RemoveChat, payload: { chatId: chat.id } });
         },
         [chatDispatch, notificationDispatch],
