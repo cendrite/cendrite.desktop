@@ -20,4 +20,8 @@ export class Chat {
         this.muteTimer = null;
         this.groupName = null;
     }
+
+    public addMessage(message: Message): void {
+        this.messages.push(message);
+    }
 }
