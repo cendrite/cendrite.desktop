@@ -29,65 +29,71 @@ export type ChatAction =
     | { type: ChatActionType.UpdateChat; payload: ChatViewModel }
     | { type: ChatActionType.MuteChat; payload: ChatViewModel }
     | { type: ChatActionType.UnmuteChat; payload: ChatViewModel }
-    | { type: ChatActionType.MarkAsRead; payload: ChatViewModel }
+    | { type: ChatActionType.MarkAsRead; payload: { chatId: string; messages: MessageViewModel[] } }
     | { type: ChatActionType.SetActiveChat; payload: { chatId: string } }
     | { type: ChatActionType.ClearActiveChat }
     | { type: ChatActionType.Clear };
 
 export const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
-  switch (action.type) {
-    case ChatActionType.Init:
-      return { ...state, chats: action.payload };
+    switch (action.type) {
+        case ChatActionType.Init:
+            return { ...state, chats: action.payload };
 
-    case ChatActionType.SetActiveChat:
-      return { ...state, activeChatId: action.payload.chatId };
+        case ChatActionType.SetActiveChat:
+            return { ...state, activeChatId: action.payload.chatId };
 
-    case ChatActionType.ClearActiveChat:
-      return { ...state, activeChatId: null };
+        case ChatActionType.ClearActiveChat:
+            return { ...state, activeChatId: null };
 
-    case ChatActionType.AddChat:
-      return { ...state, chats: [...state.chats, action.payload] };
+        case ChatActionType.AddChat:
+            return { ...state, chats: [...state.chats, action.payload] };
 
-    case ChatActionType.RemoveChat: {
-      const chats = state.chats.filter(c => c.id !== action.payload.id);
-      const activeChatId =
-        state.activeChatId === action.payload.id? null : state.activeChatId;
-      return { ...state, chats, activeChatId };
+        case ChatActionType.RemoveChat: {
+            const chats = state.chats.filter((c) => c.id !== action.payload.id);
+            const activeChatId = state.activeChatId === action.payload.id ? null : state.activeChatId;
+            return { ...state, chats, activeChatId };
+        }
+
+        case ChatActionType.AddMessage: {
+            const m = action.payload;
+            const chats = state.chats.map((chat) => {
+                if (chat.id !== m.chatId) return chat;
+                return new ChatViewModel(chat.id, chat.chatMembers, [...chat.messages, m]);
+            });
+            return { ...state, chats };
+        }
+
+        case ChatActionType.MarkAsRead: {
+            const chatId = action.payload.chatId;
+            const chats = state.chats.map((chat) => {
+                if (chat.id !== chatId) return chat;
+
+                const updatedMessages = chat.messages
+                    .filter((msg) => action.payload.messages.some((m) => m.id === msg.id))
+                    .map((msg) =>
+                        msg.deliveryStatus === DeliveryStatus.Received
+                            ? new MessageViewModel(
+                                msg.id,
+                                msg.chatId,
+                                msg.senderId,
+                                msg.text,
+                                msg.date,
+                                DeliveryStatus.Read,
+                                msg.media,
+                            )
+                            : msg,
+                    );
+
+                return new ChatViewModel(chat.id, chat.chatMembers, updatedMessages);
+            });
+
+            return { ...state, chats };
+        }
+
+        case ChatActionType.Clear:
+            return { chats: [], activeChatId: null };
+
+        default:
+            return state;
     }
-
-    case ChatActionType.AddMessage: {
-      const m = action.payload;
-      const chats = state.chats.map(chat => {
-        if (chat.id !== m.chatId) return chat;
-        return new ChatViewModel(chat.id, chat.chatMembers, [...chat.messages, m]);
-      });
-      return { ...state, chats };
-    }
-
-    case ChatActionType.MarkAsRead: {
-      const chatId = action.payload.id;
-      const chats = state.chats.map(chat => {
-        if (chat.id !== chatId) return chat;
-
-        const updatedMessages = chat.messages.map(msg =>
-          msg.deliveryStatus === DeliveryStatus.Received
-            ? new MessageViewModel(
-                msg.id, msg.chatId, msg.senderId, msg.text, msg.date,
-                DeliveryStatus.Read, msg.media
-              )
-            : msg
-        );
-
-        return new ChatViewModel(chat.id, chat.chatMembers, updatedMessages);
-      });
-
-      return { ...state, chats };
-    }
-
-    case ChatActionType.Clear:
-      return { chats: [], activeChatId: null };
-
-    default:
-      return state;
-  }
 };

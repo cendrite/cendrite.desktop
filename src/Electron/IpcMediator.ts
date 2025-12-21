@@ -50,6 +50,8 @@ import { GetChatsQueryHandler } from './Application/Features/Chat/Queries/GetCha
 import { CreateChatCommand } from './Application/Features/Chat/Commands/Create/CreateChatCommand.js';
 import { AddMessageCommand } from './Application/Features/Chat/Commands/AddMessage/AddMessageCommand.js';
 import { AddMessageCommandHandler } from './Application/Features/Chat/Commands/AddMessage/AddMessageCommandHandler.js';
+import { UpdateDeliveryStatusCommand } from './Application/Features/Chat/Commands/UpdateDeliveryStatus/UpdateDeliveryStatusCommand.js';
+import { UpdateDeliveryStatusCommandHandler } from './Application/Features/Chat/Commands/UpdateDeliveryStatus/UpdateDeliveryStatusCommandHandler.js';
 
 export function registerIpcHandlers(mainWindow: BrowserWindow) {
     const mediator = new Mediator();
@@ -94,6 +96,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
     mediator.registerHandler(CreateChatCommand.name, new CreateChatCommandHandler());
     mediator.registerHandler(GetChatsQuery.name, new GetChatsQueryHandler());
     mediator.registerHandler(AddMessageCommand.name, new AddMessageCommandHandler());
+    mediator.registerHandler(UpdateDeliveryStatusCommand.name, new UpdateDeliveryStatusCommandHandler());
 
     ipcMain.handle('mediator:send', async (_event, request) => {
         return await mediator.send(request);

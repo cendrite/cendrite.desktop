@@ -28,7 +28,7 @@ export function useChatEvents(
                 chat = await chatService.startChat(user!, contacts, msg);
                 if (chat === null) return;
                 notificationDispatch({ type: NotificationActionType.AddChat, payload: { chatId: chat.id } });
-                chatDispatch({ type: ChatActionType.AddChat, payload: chat});
+                chatDispatch({ type: ChatActionType.AddChat, payload: chat });
             } else {
                 const message = await chatService.addMessage(msg, chat.id);
                 chatDispatch({ type: ChatActionType.AddMessage, payload: message });

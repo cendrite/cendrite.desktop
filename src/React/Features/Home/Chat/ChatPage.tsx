@@ -31,7 +31,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ chat, onClose }) => {
         const lastMessage = currentChat.messages.at(-1);
         if (!lastMessage) return;
         if (lastMessage.deliveryStatus === DeliveryStatus.Read) return;
-        markMessagesAsRead(currentChat).then((_) => _);
+        markMessagesAsRead(currentChat.id, currentChat.messages).then((_) => _);
     }, [currentChat.id, currentChat.messages.at(-1)?.id, markMessagesAsRead]);
 
     useEffect(() => {

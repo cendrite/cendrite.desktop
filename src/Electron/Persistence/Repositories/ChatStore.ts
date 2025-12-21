@@ -3,6 +3,7 @@ import { Chat } from '../../Domain/Aggregates/Chat.js';
 import { getDbContext } from '../Context/DatabaseContext.js';
 import { ChatMember } from '../../Domain/Entities/ChatMember.js';
 import { Message } from '../../Domain/Entities/Message.js';
+import { DeliveryStatus } from '../../Domain/Enums/DeliveryStatus.js';
 
 export class ChatStore {
     private readonly chatRepository: Repository<Chat>;
@@ -48,6 +49,16 @@ export class ChatStore {
             order: { timestamp: 'DESC' },
             take: messageLoadCount,
         });
+    }
+
+    public async updateDeliveryStatus(chatId: string, messageIds: string[], status: DeliveryStatus): Promise<void> {
+        await this.messageRepository
+            .createQueryBuilder()
+            .update(Message)
+            .set({ deliveryStatus: status })
+            .where('chatId = :chatId', { chatId })
+            .andWhere('id IN (:...messageIds)', { messageIds })
+            .execute();
     }
 
     public async create(chat: Chat): Promise<Chat> {

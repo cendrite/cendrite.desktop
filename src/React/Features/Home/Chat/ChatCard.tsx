@@ -3,7 +3,6 @@ import { ChatViewModel } from '../../../Models/ChatViewModel.ts';
 import { UserProfileImage } from '../../../Common/Components/ProfilePicture/UserProfileImage.tsx';
 import { useHomePage } from '../../../Context/HomePage/HomePageContext.tsx';
 import { HomePageActionType } from '../../../Context/HomePage/HomePageReducer.ts';
-import { useMessageService } from '../../../Common/Services/MessageService.ts';
 import { useUser } from '../../../Context/User/UserContext.tsx';
 
 interface ChatCardProps {
@@ -12,9 +11,8 @@ interface ChatCardProps {
 
 export const ChatCard: React.FC<ChatCardProps> = ({ chat }) => {
     const { selectedItem, homeDispatch } = useHomePage();
-    const { markMessagesAsRead } = useMessageService();
     const { user } = useUser();
-    const unreadCount = chat.getUnreadMessagesCount(user!.connectionId);
+    const unreadMessages = chat.getUnreadMessages(user!.connectionId);
     const isSelected = selectedItem.type === 'chat' && selectedItem.value.id === chat.id;
     const name = chat.chatMembers[0].displayName ?? chat.chatMembers[0].contact.displayName;
     const lastMessage = chat.messages.length > 0 ? chat.messages[chat.messages.length - 1] : null;
@@ -28,7 +26,6 @@ export const ChatCard: React.FC<ChatCardProps> = ({ chat }) => {
             type: HomePageActionType.SetSelectedChat,
             payload: chat,
         });
-        await markMessagesAsRead(chat);
     };
 
     const cardClasses = `flex items-center py-2 px-2 rounded-md cursor-pointer 
@@ -46,9 +43,9 @@ export const ChatCard: React.FC<ChatCardProps> = ({ chat }) => {
             <div className="ml-3 flex flex-col overflow-hidden">
                 <div className="flex items-center">
                     <span className="text-sm text-white font-medium truncate max-w-[180px]">{name}</span>
-                    {unreadCount > 0 && !isSelected && (
+                    {unreadMessages.length> 0 && !isSelected && (
                         <span className="ml-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-                            {unreadCount}
+                            {unreadMessages.length}
                         </span>
                     )}
                 </div>

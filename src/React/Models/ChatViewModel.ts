@@ -44,4 +44,10 @@ export class ChatViewModel {
             0,
         );
     }
+
+    getUnreadMessages(userId: string): MessageViewModel[] {
+        return this.messages.filter(
+            (message) => message.senderId !== userId && message.deliveryStatus === DeliveryStatus.Received,
+        );
+    }
 }

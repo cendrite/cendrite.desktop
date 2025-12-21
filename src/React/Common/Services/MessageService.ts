@@ -7,6 +7,7 @@ import { useCallback } from 'react';
 import { useUser } from '../../Context/User/UserContext.tsx';
 import { ChatService } from './ChatService.ts';
 import React from 'react';
+import { MessageViewModel } from '../../Models/MessageViewModel.ts';
 
 export function useMessageService() {
     const { chatDispatch } = useChatContext();
@@ -15,9 +16,11 @@ export function useMessageService() {
     const chatService = React.useMemo(() => new ChatService(), []);
 
     const markMessagesAsRead = useCallback(
-        async (chat: ChatViewModel) => {
-            chatDispatch({ type: ChatActionType.MarkAsRead, payload: chat });
-            notificationDispatch({ type: NotificationActionType.RemoveChat, payload: { chatId: chat.id } });
+        async (chatId: string, messages: MessageViewModel[]) => {
+            console.log('Marking messages as read:', messages);
+            await chatService.markRead(chatId, messages.map((m) => m.id));
+            chatDispatch({ type: ChatActionType.MarkAsRead, payload: { chatId, messages } });
+            notificationDispatch({ type: NotificationActionType.RemoveChat, payload: { chatId: chatId } });
         },
         [chatDispatch, notificationDispatch],
     );
