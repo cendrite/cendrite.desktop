@@ -3,8 +3,8 @@ import { IHubHandler } from '../IHubHandler.ts';
 import { HubKey } from '../SignalRHubPath.ts';
 import { HubMethods } from '../HubMethods.ts';
 import { ServerChatMessage } from './ServerChatMessage.ts';
-import { MessageReceipt } from './MessageReceipt.ts';
 import { Topic, TopicHandler, TopicKey } from './Subscribers.ts';
+import { DeliveryStatus } from '../../../Electron/Domain/Enums/DeliveryStatus.ts';
 
 export class MessageHubHandler implements IHubHandler {
     public readonly key: HubKey = 'Messaging';
@@ -43,7 +43,7 @@ export class MessageHubHandler implements IHubHandler {
         (this.subscribers.get(topic) as Set<TopicHandler<K>> | undefined)?.forEach((h) => h(payload));
     }
 
-    public async sendMessage(messages: ServerChatMessage[]): Promise<MessageReceipt> {
+    public async sendMessage(messages: ServerChatMessage[]): Promise<DeliveryStatus> {
         if (!this.isInitialized || !this.connection) {
             return Promise.reject(new Error('MessageReceiver is not initialized'));
         }
@@ -52,7 +52,7 @@ export class MessageHubHandler implements IHubHandler {
         }
         try {
             console.log('Sending messages', messages);
-            const receipt = await this.connection.invoke<MessageReceipt>(HubMethods.SendMessage, messages);
+            const receipt = await this.connection.invoke<DeliveryStatus>(HubMethods.SendMessage, messages);
             console.log('Message sent successfully', receipt);
             return receipt;
         } catch (error) {

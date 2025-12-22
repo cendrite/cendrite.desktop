@@ -29,7 +29,7 @@ export type ChatAction =
     | { type: ChatActionType.UpdateChat; payload: ChatViewModel }
     | { type: ChatActionType.MuteChat; payload: ChatViewModel }
     | { type: ChatActionType.UnmuteChat; payload: ChatViewModel }
-    | { type: ChatActionType.MarkAsRead; payload: { chatId: string; messages: MessageViewModel[] } }
+    | { type: ChatActionType.MarkAsRead; payload: { chatId: string; messagesIds: string[] } }
     | { type: ChatActionType.SetActiveChat; payload: { chatId: string } }
     | { type: ChatActionType.ClearActiveChat }
     | { type: ChatActionType.Clear };
@@ -68,21 +68,22 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
             const chats = state.chats.map((chat) => {
                 if (chat.id !== chatId) return chat;
 
-                const updatedMessages = chat.messages
-                    .filter((msg) => action.payload.messages.some((m) => m.id === msg.id))
-                    .map((msg) =>
-                        msg.deliveryStatus === DeliveryStatus.Received
-                            ? new MessageViewModel(
-                                msg.id,
-                                msg.chatId,
-                                msg.senderId,
-                                msg.text,
-                                msg.date,
-                                DeliveryStatus.Read,
-                                msg.media,
-                            )
-                            : msg,
-                    );
+                const updatedMessages = chat.messages.map((msg) => {
+                    const shouldMark =
+                        action.payload.messagesIds.includes(msg.id) && msg.deliveryStatus === DeliveryStatus.Delivered;
+
+                    return shouldMark
+                        ? new MessageViewModel(
+                            msg.id,
+                            msg.chatId,
+                            msg.senderId,
+                            msg.text,
+                            msg.date,
+                            DeliveryStatus.Read,
+                            msg.media,
+                        )
+                        : msg;
+                });
 
                 return new ChatViewModel(chat.id, chat.chatMembers, updatedMessages);
             });

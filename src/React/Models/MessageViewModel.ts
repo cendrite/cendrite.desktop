@@ -37,6 +37,7 @@ export class MessageViewModel {
         senderId: string,
         text: string | null,
         media: string | null,
+        deliveryStatus: DeliveryStatus,
     ): MessageViewModel {
         return new MessageViewModel(
             uuid().toString(),
@@ -44,7 +45,7 @@ export class MessageViewModel {
             senderId,
             text || '',
             new Date(),
-            DeliveryStatus.Sent,
+            deliveryStatus,
             media || null,
             uuid().toString(),
         );
@@ -57,7 +58,7 @@ export class MessageViewModel {
             msg.senderId,
             decryptedContent.text,
             msg.timestamp,
-            DeliveryStatus.Received,
+            decryptedContent.deliveryStatus,
             decryptedContent.media || null,
         );
     }

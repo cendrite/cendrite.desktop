@@ -26,6 +26,7 @@
     "@heroicons/react": "^2.2.0",
     "@microsoft/signalr": "^8.0.7",
     "@privacyresearch/libsignal-protocol-typescript": "^0.0.16",
+    "@tabler/icons-react": "^3.36.0",
     "@types/lodash": "^4.17.20",
     "autoprefixer": "^10.4.20",
     "axios": "^1.7.9",
