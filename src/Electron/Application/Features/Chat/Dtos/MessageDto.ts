@@ -1,3 +1,5 @@
+import { DeliveryStatus } from "../../../../Domain/Enums/DeliveryStatus.js";
+
 export class MessageDto {
     id: string;
     messageToken: string | null;
@@ -5,7 +7,7 @@ export class MessageDto {
     content: string;
     contentUrl: string | null;
     timestamp: Date;
-    deliveryStatus: number;
+    deliveryStatus: DeliveryStatus;
 
     constructor(
         id: string,
@@ -14,7 +16,7 @@ export class MessageDto {
         content: string,
         contentUrl: string | null,
         timestamp: Date,
-        deliveryStatus: number
+        deliveryStatus: DeliveryStatus, 
     ) {
         this.id = id;
         this.messageToken = messageToken;

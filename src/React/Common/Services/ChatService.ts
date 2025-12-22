@@ -24,9 +24,7 @@ export class ChatService {
     private readonly messageSender = SignalManager.getInstance().getHandler<MessageHubHandler>('Messaging');
 
     public async sendMessage(
-        userTag: string,
-        userConnectionId: string,
-        userExternalConnectionIds: string[],
+        user: User,
         connectionIds: string[],
         recipientTags: string[],
         chatId: string,
@@ -35,31 +33,62 @@ export class ChatService {
     ): Promise<MessageViewModel | null> {
         if (!text && !media) return null;
 
-        const message = MessageViewModel.create(chatId, userConnectionId, text, media);
+        const message = MessageViewModel.create(chatId, user.connectionId, text, media, DeliveryStatus.Pending);
 
-        const participants = this.generateParticipantList(userTag, recipientTags);
+        const participants = this.generateParticipantList(user.userTag, recipientTags);
 
         await this.persistMessage(message, chatId);
 
         const messages: ServerChatMessage[] = [];
 
-        const recieverIds = [...connectionIds, userExternalConnectionIds].flat();
+        const recieverIds = [...connectionIds, user.externalConnectionIds].flat();
 
         for (const connectionId of recieverIds) {
             const manager = new SessionManager(connectionId);
-            const cipher = await manager.encrypt(new MessagePayload(message.text, message.media, participants));
+            const cipher = await manager.encrypt(
+                new MessagePayload(message.text, message.media, participants, DeliveryStatus.Pending),
+            );
             const msg = ServerChatMessage.create(message, connectionId, cipher);
             messages.push(msg);
         }
+
         const receipt = await this.messageSender.sendMessage(messages);
-        console.log('Message receipt:', receipt);
-        return message;
+        console.log('Message send receipt:', receipt);
+        const msg = this.setDeliveryStatusOnReceipt(message, receipt);
+        return msg;
     }
 
-    public async markRead(chatId: string, MessageIds: string[]): Promise<void> {
+    private async setDeliveryStatusOnReceipt(
+        msg: MessageViewModel,
+        receipt: DeliveryStatus | null | undefined,
+    ): Promise<MessageViewModel> {
+        console.log('Message delivery receipt:', receipt);
+        msg.deliveryStatus = receipt ?? DeliveryStatus.Failed;
         await window.electron.sendRequestAsync(
-            new UpdateDeliveryStatusCommand(chatId, MessageIds, DeliveryStatus.Read),
+            new UpdateDeliveryStatusCommand(msg.chatId, [msg.id], msg.deliveryStatus),
         );
+        return msg;
+    }
+
+    public async updateDeliveryStatus(
+        user: User,
+        chat: ChatViewModel,
+        deliveryStatus: DeliveryStatus,
+    ): Promise<string[]> {
+        const messageIds = chat.messages
+            .filter(
+                (m) =>
+                    m.deliveryStatus !== DeliveryStatus.Read &&
+                    m.senderId !== user.connectionId &&
+                    !user.externalConnectionIds.includes(m.senderId),
+            )
+            .map((m) => m.id);
+
+        if (messageIds.length === 0) return [];
+
+        await window.electron.sendRequestAsync(new UpdateDeliveryStatusCommand(chat.id, messageIds, deliveryStatus));
+
+        return messageIds;
     }
 
     public async initializeChat(user: User, contact: Contact): Promise<ChatViewModel> {

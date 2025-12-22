@@ -29,7 +29,6 @@ export class LocalKeyStore implements libsignal.StorageType {
         const saveResult = await window.electron.sendRequestAsync<Result<CreateIdentityCacheDto>>(
             new CreateIdentityCommand(encodedAddress, Buffer.from(publicKey), approval),
         );
-        console.log('Save identity result:', saveResult);
 
         if (!saveResult.success || saveResult.data === undefined) {
             throw new Error('Failed to save identity: ' + saveResult.errorMessage);
@@ -40,8 +39,6 @@ export class LocalKeyStore implements libsignal.StorageType {
 
     public async loadPreKey(encodedAddress: string | number): Promise<libsignal.KeyPairType | undefined> {
         const preKeyId = typeof encodedAddress === 'string' ? Number(encodedAddress) : encodedAddress;
-
-        console.log('Loading pre-key with ID:', preKeyId);
         const preKeyResult = await window.electron.sendRequestAsync<Result<GetPreKeyDto>>(new GetPreKeyQuery(preKeyId));
         if (!preKeyResult.success) {
             throw new Error('Failed to load pre-key: ' + preKeyResult.errorMessage);
@@ -57,21 +54,17 @@ export class LocalKeyStore implements libsignal.StorageType {
 
     public async storePreKey(keyId: number | string, _keyPair: libsignal.KeyPairType): Promise<void> {
         const preKeyId = typeof keyId === 'string' ? Number(keyId) : keyId;
-        console.log('Storing pre-key with ID:', preKeyId);
         const keyPairDto = mapFromSignalKeyPair(_keyPair);
         await window.electron.sendRequestAsync(new CreatePreKeyCommand(preKeyId, keyPairDto));
     }
 
     public async removePreKey(keyId: number | string): Promise<void> {
         const preKeyId = typeof keyId === 'string' ? Number(keyId) : keyId;
-        console.log('Removing pre-key with ID:', preKeyId);
         await window.electron.sendRequestAsync<Result>(new DeletePreKeyCommand(preKeyId));
     }
 
     public async storeSession(encodedAddress: string, record: libsignal.SessionRecordType): Promise<void> {
-        const result = await window.electron.sendRequestAsync<Result>(
-            new CreateSessionCommand(encodedAddress, record),
-        );
+        const result = await window.electron.sendRequestAsync<Result>(new CreateSessionCommand(encodedAddress, record));
         console.log('Store session result:', result);
         if (!result.success) {
             throw new Error('Failed to store session: ' + result.errorMessage);
@@ -89,14 +82,12 @@ export class LocalKeyStore implements libsignal.StorageType {
     }
 
     public async loadSignedPreKey(keyId: number | string): Promise<libsignal.KeyPairType | undefined> {
-        console.log('Loading signed pre-key with keyId:', keyId);
         const signedPreKeyId = typeof keyId === 'string' ? Number(keyId) : keyId;
-        console.log('Loading signed pre-key with ID:', signedPreKeyId);
 
         const preKeyResult = await window.electron.sendRequestAsync<Result<GetSignedPreKeyDto>>(
             new GetSignedPreKeyQuery(signedPreKeyId),
         );
-        console.log('Signed pre-key result:', preKeyResult);
+
         if (!preKeyResult.success) {
             throw new Error('Failed to load signed pre-key: ' + preKeyResult.errorMessage);
         }
@@ -106,7 +97,6 @@ export class LocalKeyStore implements libsignal.StorageType {
         }
 
         const keyPair = mapToSignalKeyPair(preKeyResult.data!.keyPair!);
-        console.log('Loaded signed pre-key:', keyPair);
         return keyPair;
     }
 

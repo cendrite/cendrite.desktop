@@ -1,4 +1,5 @@
-﻿import { MessageViewModel } from "../../Models/MessageViewModel";
+﻿import { DeliveryStatus } from "../../../Electron/Domain/Enums/DeliveryStatus";
+import { MessageViewModel } from "../../Models/MessageViewModel";
 
 export class ServerChatMessage {
     public id: string;
@@ -44,14 +45,17 @@ export class MessagePayload {
     public text: string;
     public media: string | null;
     public participants: string[];
+    public deliveryStatus: DeliveryStatus;
 
     constructor(
         text: string,
         media: string | null,
         participants: string[],
+        deliveryStatus: DeliveryStatus,
     ) {
         this.text = text;
         this.media = media;
         this.participants = participants;
+        this.deliveryStatus = deliveryStatus;
     }
 }

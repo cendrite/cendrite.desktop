@@ -7,7 +7,7 @@ import { useCallback } from 'react';
 import { useUser } from '../../Context/User/UserContext.tsx';
 import { ChatService } from './ChatService.ts';
 import React from 'react';
-import { MessageViewModel } from '../../Models/MessageViewModel.ts';
+import { DeliveryStatus } from '../../../Electron/Domain/Enums/DeliveryStatus.ts';
 
 export function useMessageService() {
     const { chatDispatch } = useChatContext();
@@ -16,11 +16,12 @@ export function useMessageService() {
     const chatService = React.useMemo(() => new ChatService(), []);
 
     const markMessagesAsRead = useCallback(
-        async (chatId: string, messages: MessageViewModel[]) => {
-            console.log('Marking messages as read:', messages);
-            await chatService.markRead(chatId, messages.map((m) => m.id));
-            chatDispatch({ type: ChatActionType.MarkAsRead, payload: { chatId, messages } });
-            notificationDispatch({ type: NotificationActionType.RemoveChat, payload: { chatId: chatId } });
+        async (chat: ChatViewModel) => {
+            const msgIds = await chatService.updateDeliveryStatus(user!, chat, DeliveryStatus.Read);
+            console.log('Marked as read message Ids:', msgIds);
+            if (msgIds.length === 0) return;
+            chatDispatch({ type: ChatActionType.MarkAsRead, payload: {chatId: chat.id, messagesIds: msgIds } });
+            notificationDispatch({ type: NotificationActionType.RemoveChat, payload: { chatId: chat.id} });
         },
         [chatDispatch, notificationDispatch],
     );
@@ -28,9 +29,7 @@ export function useMessageService() {
     const sendMessage = useCallback(
         async (chat: ChatViewModel, text: string | null, media: string | null) => {
             const msg = await chatService.sendMessage(
-                user!.userTag,
-                user!.connectionId,
-                user!.externalConnectionIds,
+                user!,
                 chat.chatMembers.map((member) => member.contact.connectionIds).flat(),
                 chat.chatMembers.map((member) => member.contact.id),
                 chat.id,
@@ -39,6 +38,7 @@ export function useMessageService() {
             );
 
             if (msg) {
+                console.log('Sent message:', msg);
                 chatDispatch({ type: ChatActionType.AddMessage, payload: msg });
             }
         },

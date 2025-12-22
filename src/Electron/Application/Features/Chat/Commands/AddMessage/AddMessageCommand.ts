@@ -1,3 +1,5 @@
+import { DeliveryStatus } from "../../../../../Domain/Enums/DeliveryStatus.js";
+
 export class AddMessageCommand implements MediatorRequest {
     type: string = AddMessageCommand.name;
     chatId: string;
@@ -7,7 +9,7 @@ export class AddMessageCommand implements MediatorRequest {
     content: string;
     contentUrl: string | null;
     timestamp: Date;
-    deliveryStatus: number;
+    deliveryStatus: DeliveryStatus;
 
     constructor(
         chatId: string,
@@ -15,7 +17,7 @@ export class AddMessageCommand implements MediatorRequest {
         senderId: string,
         content: string,
         timestamp: Date,
-        deliveryStatus: number,
+        deliveryStatus: DeliveryStatus,
         contentUrl: string | null = null,
         messageToken: string | null = null,
     ) {

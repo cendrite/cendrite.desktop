@@ -9,10 +9,7 @@ export class SessionManager {
     private keyStore: libsignal.StorageType = new LocalKeyStore();
     private keyService: KeyService = new KeyService();
 
-    constructor(
-        private connectionId: string,
-    ) { }
-
+    constructor(private connectionId: string) { }
 
     private get address(): libsignal.SignalProtocolAddress {
         return new libsignal.SignalProtocolAddress(this.connectionId, generateAddressId(this.connectionId));
@@ -35,7 +32,7 @@ export class SessionManager {
 
         const mappedBundle = mapBundleToDevice(preKeyBundle);
 
-        console.log("prekey bundle:", preKeyBundle);
+        console.log('prekey bundle:', preKeyBundle);
         console.log(mappedBundle);
         await builder.processPreKey(mappedBundle);
     }
@@ -67,9 +64,9 @@ export class SessionManager {
         let plaintextBuffer: ArrayBuffer;
 
         if (type === 3) {
-            plaintextBuffer = await cipher.decryptPreKeyWhisperMessage(bodyBuffer, "binary"); 
+            plaintextBuffer = await cipher.decryptPreKeyWhisperMessage(bodyBuffer, 'binary');
         } else {
-            plaintextBuffer = await cipher.decryptWhisperMessage(bodyBuffer, "binary");
+            plaintextBuffer = await cipher.decryptWhisperMessage(bodyBuffer, 'binary');
         }
 
         const decryptedMsg = new TextDecoder().decode(plaintextBuffer);
