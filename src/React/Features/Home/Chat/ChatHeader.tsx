@@ -14,6 +14,7 @@ interface ChatHeaderProps {
 
 const ChatHeader: React.FC<ChatHeaderProps> = ({chat, onClose}) => {
     const chatMember = chat.chatMembers[0];
+
     return (
         <div className="flex items-center justify-between p-3 w-full">
             <div className="flex items-center">
@@ -35,7 +36,6 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({chat, onClose}) => {
                     className="text-white text-sm ml-3">{chatMember.displayName || chatMember.contact.displayName}</span>
             </div>
 
-            {/* RIGHT group */}
             <div className="flex items-center space-x-2">
                 <VoiceCallButton contact={chatMember.contact}/>
                 <VideoCallButton contact={chatMember.contact}/>

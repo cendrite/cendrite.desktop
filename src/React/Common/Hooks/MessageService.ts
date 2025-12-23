@@ -5,9 +5,9 @@ import { ChatActionType } from '../../Context/Chat/ChatReducer.ts';
 import { NotificationActionType } from '../../Context/Notification/NotificationReducer.ts';
 import { useCallback } from 'react';
 import { useUser } from '../../Context/User/UserContext.tsx';
-import { ChatService } from './ChatService.ts';
 import React from 'react';
 import { DeliveryStatus } from '../../../Electron/Domain/Enums/DeliveryStatus.ts';
+import { ChatService } from '../Services/ChatService.ts';
 
 export function useMessageService() {
     const { chatDispatch } = useChatContext();
@@ -20,10 +20,10 @@ export function useMessageService() {
             const msgIds = await chatService.updateDeliveryStatus(user!, chat, DeliveryStatus.Read);
             console.log('Marked as read message Ids:', msgIds);
             if (msgIds.length === 0) return;
-            chatDispatch({ type: ChatActionType.MarkAsRead, payload: {chatId: chat.id, messagesIds: msgIds } });
-            notificationDispatch({ type: NotificationActionType.RemoveChat, payload: { chatId: chat.id} });
+            chatDispatch({ type: ChatActionType.MarkAsRead, payload: { chatId: chat.id, messagesIds: msgIds } });
+            notificationDispatch({ type: NotificationActionType.RemoveChat, payload: { chatId: chat.id } });
         },
-        [chatDispatch, notificationDispatch],
+        [chatService, user, chatDispatch, notificationDispatch],
     );
 
     const sendMessage = useCallback(
