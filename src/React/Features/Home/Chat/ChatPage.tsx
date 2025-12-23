@@ -4,9 +4,9 @@ import ChatHeader from './ChatHeader.tsx';
 import ChatBar from './ChatBar.tsx';
 import { useChatContext } from '../../../Context/Chat/ChatContext.tsx';
 import MessageList from './MessageList.tsx';
-import { useMessageService } from '../../../Common/Services/MessageService.ts';
 import { DeliveryStatus } from '../../../../Electron/Domain/Enums/DeliveryStatus.ts';
 import { ChatActionType } from '../../../Context/Chat/ChatReducer.ts';
+import { useMessageService } from '../../../Common/Hooks/MessageService.ts';
 
 interface ChatPageProps {
     chat: ChatViewModel;
