@@ -3,7 +3,7 @@ import { LocalKeyStore } from './LocalKeyStore';
 import * as libsignal from '@privacyresearch/libsignal-protocol-typescript';
 import { convertToBuffer, generateAddressId } from './Utilities';
 import { mapBundleToDevice } from './KeyMapper';
-import { MessagePayload } from '../../SignalR/Messaging/ServerChatMessage';
+import { Payload } from '../../SignalR/Messaging/ServerMessage';
 
 export class SessionManager {
     private keyStore: libsignal.StorageType = new LocalKeyStore();
@@ -32,17 +32,16 @@ export class SessionManager {
 
         const mappedBundle = mapBundleToDevice(preKeyBundle);
 
-        console.log('prekey bundle:', preKeyBundle);
         console.log(mappedBundle);
         await builder.processPreKey(mappedBundle);
     }
 
-    public async encrypt(plainMessage: MessagePayload): Promise<string> {
+    public async encrypt(payload: Payload): Promise<string> {
         await this.ensureSession();
 
         const sessionCipher = new libsignal.SessionCipher(this.keyStore, this.address);
 
-        const plainTextStr = JSON.stringify(plainMessage);
+        const plainTextStr = JSON.stringify(payload);
 
         const messageBuffer = convertToBuffer(plainTextStr);
 
@@ -54,7 +53,7 @@ export class SessionManager {
         });
     }
 
-    public async decrypt(ciphertext: string): Promise<MessagePayload> {
+    public async decrypt<T extends Payload>(ciphertext: string): Promise<T> {
         const { type, body } = JSON.parse(ciphertext);
 
         const cipher = new libsignal.SessionCipher(this.keyStore, this.address);

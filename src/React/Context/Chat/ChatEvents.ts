@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-import { ServerChatMessage } from '../../SignalR/Messaging/ServerChatMessage';
 import { ChatViewModel } from '../../Models/ChatViewModel';
 import { ChatAction, ChatActionType } from './ChatReducer';
 import { NotificationActionType } from '../Notification/NotificationReducer';
@@ -9,6 +8,7 @@ import { getChat } from './ChatSelectors';
 import { useUser } from '../User/UserContext';
 import { ChatService } from '../../Common/Services/ChatService';
 import React from 'react';
+import { ServerMessage } from '../../SignalR/Messaging/ServerMessage';
 
 export function useChatEvents(
     chats: ChatViewModel[],
@@ -21,8 +21,8 @@ export function useChatEvents(
     const chatService = React.useMemo(() => new ChatService(), []);
 
     const receiveMessage = useCallback(
-        async (msg: ServerChatMessage) => {
-            let chat = getChat(chats, msg.chatId);
+        async (msg: ServerMessage) => {
+            let chat = getChat(chats, msg.ChatId);
 
             if (!chat) {
                 chat = await chatService.startChat(user!, contacts, msg);

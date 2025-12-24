@@ -16,10 +16,10 @@ import { MessageHubHandler } from '../../SignalR/Messaging/MessageHubHandler.ts'
 import { SignalManager } from '../../SignalR/SignalManager.ts';
 import { AddMessageCommand } from '../../../Electron/Application/Features/Chat/Commands/AddMessage/AddMessageCommand.ts';
 import { UpdateDeliveryStatusCommand } from '../../../Electron/Application/Features/Chat/Commands/UpdateDeliveryStatus/UpdateDeliveryStatusCommand.ts';
-import { MessagePayload, ServerChatMessage } from '../../SignalR/Messaging/ServerChatMessage.ts';
 import { SessionManager } from '../../Security/Encryption/SessionManager.ts';
 import { MessageDto } from '../../../Electron/Application/Features/Chat/Dtos/MessageDto.ts';
 import { DeliveryStatus } from '../../../Electron/Domain/Enums/DeliveryStatus.ts';
+import { MessagePayload, ServerMessage } from '../../SignalR/Messaging/ServerMessage.ts';
 
 export class ChatService {
     private readonly messageSender = SignalManager.getInstance().getHandler<MessageHubHandler>('Messaging');
@@ -40,7 +40,7 @@ export class ChatService {
 
         await this.persistMessage(message, chatId);
 
-        const messages: ServerChatMessage[] = [];
+        const messages: ServerMessage[] = [];
 
         const recieverIds = [...connectionIds, user.externalConnectionIds].flat();
 
@@ -49,7 +49,7 @@ export class ChatService {
             const cipher = await manager.encrypt(
                 new MessagePayload(message.text, message.media, participants, DeliveryStatus.Pending),
             );
-            const msg = ServerChatMessage.create(message, connectionId, cipher);
+            const msg = ServerMessage.create(message, connectionId, cipher);
             messages.push(msg);
         }
 
@@ -110,9 +110,10 @@ export class ChatService {
         return new ChatViewModel(result.data!.id, [chatMember]);
     }
 
-    public async startChat(user: User, contacts: Contact[], msg: ServerChatMessage): Promise<ChatViewModel | null> {
+    public async startChat(user: User, contacts: Contact[], msg: ServerMessage): Promise<ChatViewModel | null> {
         const sessionManager = new SessionManager(msg.senderId);
-        const decryptedMessage = await sessionManager.decrypt(msg.content);
+        const decryptedMessage = await sessionManager.decrypt<MessagePayload>(msg.payload);
+        console.log('server message', msg);
 
         return decryptedMessage.participants.length > 2
             ? this.startGroupChat(contacts, msg, decryptedMessage)
@@ -123,9 +124,9 @@ export class ChatService {
             );
     }
 
-    public async addMessage(msg: ServerChatMessage, chatId: string): Promise<MessageViewModel> {
+    public async addMessage(msg: ServerMessage, chatId: string): Promise<MessageViewModel> {
         const sessionManager = new SessionManager(msg.senderId);
-        const decryptedMessage = await sessionManager.decrypt(msg.content);
+        const decryptedMessage = await sessionManager.decrypt<MessagePayload>(msg.payload);
         const mappedMsg = MessageViewModel.mapFromDecrypted(msg, decryptedMessage);
         await this.persistMessage(mappedMsg, chatId);
         return mappedMsg;
@@ -177,7 +178,7 @@ export class ChatService {
 
     private async startGroupChat(
         _contacts: Contact[],
-        _msg: ServerChatMessage,
+        _msg: ServerMessage,
         _content: MessagePayload,
     ): Promise<ChatViewModel> {
         throw new Error('Not implemented');
@@ -185,16 +186,19 @@ export class ChatService {
 
     private async startDirectChat(
         contact: Contact | undefined,
-        msg: ServerChatMessage,
+        msg: ServerMessage,
         content: MessagePayload,
     ): Promise<ChatViewModel | null> {
         if (!contact) {
             console.warn(`Contact with ID ${msg.senderId} not found.`);
             return null;
         }
+        console.log('msg direct chat method', msg);
+
         const member = new ChatMemberViewModel(uuid().toString(), ChatPrivileges.Member, contact.displayName, contact);
         const mappedMsg = MessageViewModel.mapFromDecrypted(msg, content);
-        const chat = new ChatViewModel(msg.chatId, [member], [mappedMsg]);
+        const chat = new ChatViewModel(msg.ChatId, [member], [mappedMsg]);
+        console.log('created chat', chat);
 
         await window.electron.sendRequestAsync(
             new CreateChatCommand(

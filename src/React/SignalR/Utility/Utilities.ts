@@ -5,7 +5,8 @@ import {ChangeEvent, ChangeEventHandler} from "../ChangeEvent/ChangeEvent.ts";
 import {useEffect} from "react";
 import {ChangeEventHubHandler} from "../ChangeEvent/ChangeEventHubHandler.ts";
 import {MessageHubHandler} from "../Messaging/MessageHubHandler.ts";
-import {TopicHandler, TopicKey} from "../Messaging/Subscribers.ts";
+import { PayloadType } from "../Messaging/ServerMessage.ts";
+import { MessageHandler } from "../Messaging/Subscribers.ts";
 
 export function waitForConnection(connection: HubConnection): Promise<void> {
     if (connection.state === HubConnectionState.Connected) {
@@ -47,18 +48,18 @@ export function useSignalEvent<T>(
     }, [receiver, type, handler]);
 }
 
-export function useSignalMessage<T extends TopicKey>(
-    topic: T,
-    handler: TopicHandler<T>): void {
+export function useSignalMessage(
+    type: PayloadType,
+    handler: MessageHandler): void {
     const receiver = SignalManager
         .getInstance()
         .getHandler<MessageHubHandler>("Messaging");
 
     useEffect(() => {
-        receiver.subscribe(topic, handler);
+        receiver.subscribe(type, handler);
         return () => {
-            receiver.unsubscribe(topic, handler);
+            receiver.unsubscribe(type, handler);
         };
-    }, [receiver, topic, handler]);
+    }, [receiver, type, handler]);
 }
 

@@ -2,24 +2,25 @@
 import { IHubHandler } from '../IHubHandler.ts';
 import { HubKey } from '../SignalRHubPath.ts';
 import { HubMethods } from '../HubMethods.ts';
-import { ServerChatMessage } from './ServerChatMessage.ts';
-import { Topic, TopicHandler, TopicKey } from './Subscribers.ts';
 import { DeliveryStatus } from '../../../Electron/Domain/Enums/DeliveryStatus.ts';
+import { MessageHandler } from './Subscribers.ts';
+import { PayloadType, ServerMessage, ServerMessageDto } from './ServerMessage.ts';
 
 export class MessageHubHandler implements IHubHandler {
     public readonly key: HubKey = 'Messaging';
     private isInitialized: boolean = false;
     private connection?: HubConnection;
-    private readonly subscribers = new Map<TopicKey, Set<unknown>>();
+    private readonly subscribers = new Map<PayloadType, Set<MessageHandler>>();
 
     public initialize(connection: HubConnection) {
         if (this.isInitialized) {
             throw new Error('ChangeEventReceiver is already initialized');
         }
 
-        connection.on(HubMethods.ReceiveMessage, (message: ServerChatMessage) => {
+        connection.on(HubMethods.ReceiveMessage, (message: ServerMessageDto) => {
+            const concreteMessage = ServerMessage.fromDto(message);
             console.log('Server message', message);
-            this.publish('chat', message);
+            this.publish(concreteMessage);
         });
 
         console.log('MessageReceiver: initialized');
@@ -27,23 +28,25 @@ export class MessageHubHandler implements IHubHandler {
         this.isInitialized = true;
     }
 
-    subscribe<K extends TopicKey>(topic: K, handler: TopicHandler<K>): void {
-        if (!this.subscribers.has(topic)) {
-            this.subscribers.set(topic, new Set());
+    subscribe(payloadType: PayloadType, handler: MessageHandler): void {
+        if (!this.subscribers.has(payloadType)) {
+            this.subscribers.set(payloadType, new Set<MessageHandler>());
         }
-
-        (this.subscribers.get(topic)! as Set<TopicHandler<K>>).add(handler);
+        this.subscribers.get(payloadType)!.add(handler);
     }
 
-    unsubscribe<K extends TopicKey>(topic: K, handler: TopicHandler<K>): void {
-        (this.subscribers.get(topic) as Set<TopicHandler<K>>)?.delete(handler);
+    unsubscribe(payloadType: PayloadType, handler: MessageHandler): void {
+        (this.subscribers.get(payloadType) as Set<MessageHandler>)?.delete(handler);
     }
 
-    publish<K extends TopicKey>(topic: K, payload: Topic[K]): void {
-        (this.subscribers.get(topic) as Set<TopicHandler<K>> | undefined)?.forEach((h) => h(payload));
+    publish(message: ServerMessage): void {
+        console.log('MessageReceiver: publish', message.payloadType, message);
+        if (this.subscribers.has(message.payloadType)) {
+            this.subscribers.get(message.payloadType)!.forEach((handler) => handler(message));
+        }
     }
 
-    public async sendMessage(messages: ServerChatMessage[]): Promise<DeliveryStatus> {
+    public async sendMessage(messages: ServerMessage[]): Promise<DeliveryStatus> {
         if (!this.isInitialized || !this.connection) {
             return Promise.reject(new Error('MessageReceiver is not initialized'));
         }
