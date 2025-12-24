@@ -1,6 +1,6 @@
 ﻿import { DeliveryStatus } from '../../Electron/Domain/Enums/DeliveryStatus.ts';
 import { v4 as uuid } from 'uuid';
-import { MessagePayload, ServerChatMessage } from '../SignalR/Messaging/ServerChatMessage.ts';
+import { MessagePayload, ServerMessage } from '../SignalR/Messaging/ServerMessage.ts';
 
 export class MessageViewModel {
     id: string;
@@ -51,10 +51,10 @@ export class MessageViewModel {
         );
     }
 
-    public static mapFromDecrypted(msg: ServerChatMessage, decryptedContent: MessagePayload): MessageViewModel {
+    public static mapFromDecrypted(msg: ServerMessage, decryptedContent: MessagePayload): MessageViewModel {
         return new MessageViewModel(
             msg.id,
-            msg.chatId,
+            msg.ChatId,
             msg.senderId,
             decryptedContent.text,
             msg.timestamp,

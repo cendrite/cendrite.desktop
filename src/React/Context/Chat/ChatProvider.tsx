@@ -5,6 +5,7 @@ import { useSignalMessage } from '../../SignalR/Utility/Utilities.ts';
 import { useChatEvents } from './ChatEvents.ts';
 import { ChatService } from '../../Common/Services/ChatService.ts';
 import { useContacts } from '../Contacts/ContactContext.tsx';
+import { PayloadType } from '../../SignalR/Messaging/ServerMessage.ts';
 
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [chatState, chatDispatch] = React.useReducer(chatReducer, initialChatState);
@@ -18,7 +19,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
     }, [chatService, contacts]);
 
-    useSignalMessage('chat', receiveMessage);
+    useSignalMessage(PayloadType.ChatMessage, receiveMessage);
 
     return <ChatContext.Provider value={{ chatState, chatDispatch }}>{children}</ChatContext.Provider>;
 };
