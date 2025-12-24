@@ -27,12 +27,21 @@ export class ChatStore {
         });
     }
 
+    public async deleteChat(chatId: string): Promise<void> {
+        return this.chatRepository.createQueryBuilder()
+            .delete()
+            .from(Chat)
+            .where('id = :chatId', { chatId })
+            .execute()
+            .then(() => { });
+    }
+
     public async getChats(chatLoadCount: number): Promise<Chat[]> {
         return this.chatRepository
             .createQueryBuilder('chat')
             .leftJoinAndSelect('chat.members', 'members')
             .leftJoinAndSelect('members.friend', 'friend')
-            .leftJoinAndSelect('friend.connectionIds', 'connectionIds') 
+            .leftJoinAndSelect('friend.connectionIds', 'connectionIds')
             .leftJoin('chat.messages', 'messages')
             .groupBy('chat.id')
             .addGroupBy('members.id')
