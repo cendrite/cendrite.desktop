@@ -1,47 +1,24 @@
-import { getDbContext} from "../Context/DatabaseContext.js";
-import {CryptographyService} from "../Encryption/CryptographyService.js";
-import {Friend} from "../../Domain/Aggregates/Friend.js";
+import { getDbContext } from '../Context/DatabaseContext.js';
+import { Friend } from '../../Domain/Aggregates/Friend.js';
 
 export class FriendRepository {
     private readonly friendRepository = getDbContext().getRepository(Friend);
-    private readonly cryptoService = CryptographyService.getInstance();
 
     public async create(friend: Friend): Promise<void> {
-        if (friend.connectionIds) {
-            for (const conn of friend.connectionIds) {
-                conn.connectionId = await this.cryptoService.encrypt(conn.connectionId);
-            }
-        }
-
         await this.friendRepository.save(friend);
     }
 
     public async getAll(): Promise<Friend[]> {
         const friends = await this.friendRepository.find();
-
-        for (const friend of friends) {
-            if (friend.connectionIds) {
-                for (const conn of friend.connectionIds) {
-                    conn.connectionId = await this.cryptoService.decrypt(conn.connectionId);
-                }
-            }
-        }
-
         return friends;
     }
 
     public async update(friend: Friend): Promise<void> {
-        for (const conn of friend.connectionIds) {
-            conn.connectionId = await this.cryptoService.encrypt(conn.connectionId);
-        }
         await this.friendRepository.save(friend);
     }
 
     public async getById(id: string): Promise<Friend | null> {
-        const friend = await this.friendRepository.findOneBy({id: id});
-        for (const conn of friend?.connectionIds ?? []) {
-            conn.connectionId = await this.cryptoService.decrypt(conn.connectionId);
-        }
+        const friend = await this.friendRepository.findOneBy({ id: id });
         return friend;
     }
 
@@ -49,7 +26,7 @@ export class FriendRepository {
         await this.friendRepository.delete(id);
     }
 
-    public async deleteAll() : Promise<void>{
+    public async deleteAll(): Promise<void> {
         await this.friendRepository.clear();
     }
 }

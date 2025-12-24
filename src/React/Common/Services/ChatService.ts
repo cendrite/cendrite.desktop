@@ -2,6 +2,7 @@
 import { Result } from '../../../Shared/Result/Result.ts';
 import { CreateChatDto } from '../../../Electron/Application/Features/Chat/Commands/Create/CreateChatDto.ts';
 import { CreateChatCommand } from '../../../Electron/Application/Features/Chat/Commands/Create/CreateChatCommand.ts';
+import { DeleteChatCommand } from '../../../Electron/Application/Features/Chat/Commands/Delete/DeleteChatCommand.ts';
 import { v4 as uuid } from 'uuid';
 import { ChatPrivileges } from '../../../Electron/Domain/Enums/ChatPrivileges.ts';
 import { ChatMemberViewModel } from '../../Models/ChatMemberViewModel.ts';
@@ -89,6 +90,10 @@ export class ChatService {
         await window.electron.sendRequestAsync(new UpdateDeliveryStatusCommand(chat.id, messageIds, deliveryStatus));
 
         return messageIds;
+    }
+
+    public async deleteChat(chatId: string): Promise<void> {
+        await window.electron.sendRequestAsync(new DeleteChatCommand(chatId));
     }
 
     public async initializeChat(user: User, contact: Contact): Promise<ChatViewModel> {

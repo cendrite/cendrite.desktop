@@ -18,7 +18,6 @@ export function useMessageService() {
     const markMessagesAsRead = useCallback(
         async (chat: ChatViewModel) => {
             const msgIds = await chatService.updateDeliveryStatus(user!, chat, DeliveryStatus.Read);
-            console.log('Marked as read message Ids:', msgIds);
             if (msgIds.length === 0) return;
             chatDispatch({ type: ChatActionType.MarkAsRead, payload: { chatId: chat.id, messagesIds: msgIds } });
             notificationDispatch({ type: NotificationActionType.RemoveChat, payload: { chatId: chat.id } });
