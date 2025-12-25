@@ -1,4 +1,5 @@
-﻿import { DeliveryStatus } from '../../../../Electron/Domain/Enums/DeliveryStatus.ts';
+﻿
+import { DeliveryStatus } from '../../../../Electron/Domain/Enums/DeliveryStatus.ts';
 import { useUser } from '../../../Context/User/UserContext.tsx';
 import { MessageViewModel } from '../../../Models/MessageViewModel.ts';
 import {
@@ -8,13 +9,14 @@ import {
     IconCircleChevronsRightFilled,
     IconCircleX
 } from '@tabler/icons-react';
-import React from 'react';
+import React, { type ReactNode } from 'react';
 
 export interface ChatBubbleProps {
     message: MessageViewModel;
+    showStatus: boolean;
 }
 
-function statusIcon(status: DeliveryStatus): React.ReactElement {
+function statusIcon(status: DeliveryStatus): ReactNode {
     switch (status) {
         case DeliveryStatus.Pending:
             return <IconCircleDashed className="w-3.5 h-3.5 text-gray-300" />;
@@ -27,16 +29,21 @@ function statusIcon(status: DeliveryStatus): React.ReactElement {
         case DeliveryStatus.Failed:
             return <IconCircleX className="w-3.5 h-3.5 text-red-500" />;
         case DeliveryStatus.Received:
-            return <></>;
+            return null;
         default:
-            throw new Error('Invalid delivery status for icon');
+            const _exhaustiveCheck: never = status;
+            return _exhaustiveCheck;
     }
 }
 
-export const MessageBubble: React.FC<ChatBubbleProps> = ({ message }) => {
+export const MessageBubble: React.FC<ChatBubbleProps> = ({ message, showStatus }) => {
     const { user } = useUser();
-    const isMine = message.senderId === user!.connectionId || user!.externalConnectionIds.includes(message.senderId);
-    const icon = isMine ? statusIcon(message.deliveryStatus) : null;
+
+    const isMine =
+        message.senderId === user!.connectionId ||
+        user!.externalConnectionIds.includes(message.senderId);
+
+    const icon = isMine && showStatus ? statusIcon(message.deliveryStatus) : null;
 
     return (
         <>
@@ -52,9 +59,10 @@ export const MessageBubble: React.FC<ChatBubbleProps> = ({ message }) => {
                 </div>
             </div>
 
-            {isMine && icon && <div className="flex justify-end mb-1.5 mr-1.5">{icon}</div>}
+            {icon && <div className="flex justify-end mb-1.5 mr-1.5">{icon}</div>}
         </>
     );
 };
 
 export default MessageBubble;
+

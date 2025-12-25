@@ -1,13 +1,12 @@
-﻿import ContactPage from "./Contact/ContactPage.tsx";
-import React from "react";
-import PendingContactPage from "./Contact/PendingContactPage.tsx";
-import ChatPage from "./Chat/ChatPage.tsx";
-import { useHomePage } from "../../Context/HomePage/HomePageContext.tsx";
-import {HomePageActionType} from "../../Context/HomePage/HomePageReducer.ts";
+﻿import ContactPage from './Contact/ContactPage.tsx';
+import React from 'react';
+import PendingContactPage from './Contact/PendingContactPage.tsx';
+import ChatPage from './Chat/ChatPage.tsx';
+import { useHomePage } from '../../Context/HomePage/HomePageContext.tsx';
+import { HomePageActionType } from '../../Context/HomePage/HomePageReducer.ts';
 
 const MainContent: React.FC = () => {
-    const {selectedItem, homeDispatch} = useHomePage();
-
+    const { selectedItem, homeDispatch } = useHomePage();
 
     let content;
 
@@ -16,9 +15,7 @@ const MainContent: React.FC = () => {
             content = (
                 <ContactPage
                     contact={selectedItem.value}
-                    onClose={() =>
-                        homeDispatch({ type: HomePageActionType.Clear }) 
-                    }
+                    onClose={() => homeDispatch({ type: HomePageActionType.Clear })}
                 />
             );
             break;
@@ -26,9 +23,7 @@ const MainContent: React.FC = () => {
             content = (
                 <PendingContactPage
                     pendingContact={selectedItem.value}
-                    onClose={() =>
-                        homeDispatch({ type: HomePageActionType.Clear }) 
-                    }
+                    onClose={() => homeDispatch({ type: HomePageActionType.Clear })}
                 />
             );
             break;
@@ -36,9 +31,7 @@ const MainContent: React.FC = () => {
             content = (
                 <ChatPage
                     chatId={selectedItem.value.id}
-                    onClose={() =>
-                        homeDispatch({ type: HomePageActionType.Clear }) 
-                    }
+                    onClose={() => homeDispatch({ type: HomePageActionType.Clear })}
                 />
             );
             break;
@@ -47,6 +40,6 @@ const MainContent: React.FC = () => {
     }
 
     return <div className="flex-1 bg-zinc-950">{content}</div>;
-}
+};
 
 export default MainContent;
