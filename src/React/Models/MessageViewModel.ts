@@ -51,14 +51,18 @@ export class MessageViewModel {
         );
     }
 
-    public static mapFromDecrypted(msg: ServerMessage, decryptedContent: MessagePayload): MessageViewModel {
+    public static mapFromDecrypted(
+        msg: ServerMessage,
+        decryptedContent: MessagePayload,
+        initialDeliveryStatus: DeliveryStatus,
+    ): MessageViewModel {
         return new MessageViewModel(
             msg.id,
             msg.ChatId,
             msg.senderId,
             decryptedContent.text,
             msg.timestamp,
-            decryptedContent.deliveryStatus,
+            initialDeliveryStatus,
             decryptedContent.media || null,
         );
     }

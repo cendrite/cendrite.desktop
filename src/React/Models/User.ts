@@ -16,7 +16,7 @@ export class User {
         connectionId: string,
         externalConnectionIds: string[],
         base64ProfilePicture: string | null,
-        displayName: string | null
+        displayName: string | null,
     ) {
         this.id = id;
         this.username = username;
@@ -26,5 +26,9 @@ export class User {
         this.externalConnectionIds = externalConnectionIds;
         this.base64ProfilePicture = base64ProfilePicture;
         this.displayName = displayName;
+    }
+
+    public IsUserConnectionId(connectionId: string): boolean {
+        return this.connectionId === connectionId || this.externalConnectionIds.includes(connectionId);
     }
 }

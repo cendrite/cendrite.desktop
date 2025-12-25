@@ -35,7 +35,7 @@ const MainContent: React.FC = () => {
         case 'chat':
             content = (
                 <ChatPage
-                    chat={selectedItem.value}
+                    chatId={selectedItem.value.id}
                     onClose={() =>
                         homeDispatch({ type: HomePageActionType.Clear }) 
                     }

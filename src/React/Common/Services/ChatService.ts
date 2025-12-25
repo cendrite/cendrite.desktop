@@ -116,18 +116,19 @@ export class ChatService {
         console.log('server message', msg);
 
         return decryptedMessage.participants.length > 2
-            ? this.startGroupChat(contacts, msg, decryptedMessage)
+            ? this.startGroupChat(user, contacts, msg, decryptedMessage)
             : this.startDirectChat(
+                user,
                 contacts.find((c) => c.id !== user.userTag),
                 msg,
                 decryptedMessage,
             );
     }
 
-    public async addMessage(msg: ServerMessage, chatId: string): Promise<MessageViewModel> {
+    public async addMessage(user: User, msg: ServerMessage, chatId: string): Promise<MessageViewModel> {
         const sessionManager = new SessionManager(msg.senderId);
         const decryptedMessage = await sessionManager.decrypt<MessagePayload>(msg.payload);
-        const mappedMsg = MessageViewModel.mapFromDecrypted(msg, decryptedMessage);
+        const mappedMsg = MessageViewModel.mapFromDecrypted(msg, decryptedMessage, this.getInitialDeliveryStatus(user, msg.senderId));
         await this.persistMessage(mappedMsg, chatId);
         return mappedMsg;
     }
@@ -177,6 +178,7 @@ export class ChatService {
     }
 
     private async startGroupChat(
+        _user: User,
         _contacts: Contact[],
         _msg: ServerMessage,
         _content: MessagePayload,
@@ -185,6 +187,7 @@ export class ChatService {
     }
 
     private async startDirectChat(
+        user: User,
         contact: Contact | undefined,
         msg: ServerMessage,
         content: MessagePayload,
@@ -193,10 +196,9 @@ export class ChatService {
             console.warn(`Contact with ID ${msg.senderId} not found.`);
             return null;
         }
-        console.log('msg direct chat method', msg);
 
         const member = new ChatMemberViewModel(uuid().toString(), ChatPrivileges.Member, contact.displayName, contact);
-        const mappedMsg = MessageViewModel.mapFromDecrypted(msg, content);
+        const mappedMsg = MessageViewModel.mapFromDecrypted(msg, content, this.getInitialDeliveryStatus(user, msg.senderId));
         const chat = new ChatViewModel(msg.ChatId, [member], [mappedMsg]);
         console.log('created chat', chat);
 
@@ -218,6 +220,10 @@ export class ChatService {
             ),
         );
         return chat;
+    }
+
+    private getInitialDeliveryStatus(user: User, senderId: string): DeliveryStatus {
+        return user.IsUserConnectionId(senderId) ? DeliveryStatus.Sent : DeliveryStatus.Received;
     }
 
     private async persistMessage(msg: MessageViewModel, chatId: string): Promise<void> {

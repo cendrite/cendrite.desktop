@@ -27,6 +27,7 @@ function statusIcon(status: DeliveryStatus): React.ReactElement {
         case DeliveryStatus.Failed:
             return <IconCircleX className="w-3.5 h-3.5 text-red-500" />;
         case DeliveryStatus.Received:
+            return <></>;
         default:
             throw new Error('Invalid delivery status for icon');
     }
