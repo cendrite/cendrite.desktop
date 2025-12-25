@@ -11,36 +11,30 @@ const MessageList: React.FC<MessageListProps> = ({ messages }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const { user } = useUser();
 
-    const isMine = (message: MessageViewModel): boolean =>
-        message.senderId === user!.connectionId || user!.externalConnectionIds.includes(message.senderId);
-
     useLayoutEffect(() => {
         if (containerRef.current) {
             containerRef.current.scrollTop = containerRef.current.scrollHeight;
         }
     }, [messages.length]);
 
+    function shouldShowStatus(messages: MessageViewModel[], index: number): boolean {
+        if (!user?.IsUserConnectionId(messages[index].senderId)) {
+            return false;
+        }
+
+        for (let i = index + 1; i < messages.length; i++) {
+            if (user?.IsUserConnectionId(messages[i].senderId)) {
+                return messages[i].deliveryStatus !== messages[index].deliveryStatus;
+            }
+        }
+
+        return true;
+    }
+
     return (
         <div ref={containerRef} className="flex-1 overflow-y-auto p-4 pb-8">
             {messages.map((message, index) => {
-                const mine = isMine(message);
-
-                let showStatus = false;
-
-                if (mine) {
-                    const isLast = index === messages.length - 1;
-
-                    if (isLast) {
-                        showStatus = true;
-                    } else {
-                        const next = messages[index + 1];
-                        const nextIsMine = isMine(next);
-                        if (!nextIsMine || next.deliveryStatus !== message.deliveryStatus) {
-                            showStatus = true;
-                        }
-                    }
-                }
-
+                const showStatus = shouldShowStatus(messages, index);
                 return <MessageBubble key={message.id} message={message} showStatus={showStatus} />;
             })}
         </div>
