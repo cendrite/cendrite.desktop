@@ -64,6 +64,8 @@ export enum PayloadType {
     ChatMessage = 0,
     DeliveryStatusUpdate = 1,
     SettingsUpdate = 2,
+    DeleteMessage = 3,
+    EditMessage = 4,
 }
 
 export abstract class Payload {
