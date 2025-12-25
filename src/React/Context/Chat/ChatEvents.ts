@@ -27,14 +27,13 @@ export function useChatEvents(
             if (!chat) {
                 chat = await chatService.startChat(user!, contacts, msg);
                 if (chat === null) return;
-                notificationDispatch({ type: NotificationActionType.AddChat, payload: { chatId: chat.id } });
                 chatDispatch({ type: ChatActionType.AddChat, payload: chat });
             } else {
-                const message = await chatService.addMessage(msg, chat.id);
+                const message = await chatService.addMessage(user!, msg, chat.id);
                 chatDispatch({ type: ChatActionType.AddMessage, payload: message });
             }
 
-            if (activeChatId !== chat.id) {
+            if (activeChatId !== chat.id && !user?.IsUserConnectionId(msg.senderId)) {
                 notificationDispatch({ type: NotificationActionType.AddChat, payload: { chatId: chat.id } });
             }
         },

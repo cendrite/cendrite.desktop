@@ -69,8 +69,7 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
                 if (chat.id !== chatId) return chat;
 
                 const updatedMessages = chat.messages.map((msg) => {
-                    const shouldMark =
-                        action.payload.messagesIds.includes(msg.id) && msg.deliveryStatus === DeliveryStatus.Delivered;
+                    const shouldMark = action.payload.messagesIds.includes(msg.id);
 
                     return shouldMark
                         ? new MessageViewModel(
