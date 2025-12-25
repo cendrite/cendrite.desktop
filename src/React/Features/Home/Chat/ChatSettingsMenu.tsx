@@ -4,13 +4,13 @@ import { EllipsisHorizontalIcon } from '@heroicons/react/24/solid';
 import { ChatViewModel } from '../../../Models/ChatViewModel.ts';
 import { useChatSettings } from '../../../Common/Hooks/ChatSettings.ts';
 
-interface ChatSettingsButtonProps {
+interface ChatSettingsMenu {
     chat: ChatViewModel;
 }
 
 const menuButtonClass = 'w-full text-left px-3 py-2 text-sm text-gray-200 hover:bg-darkGray-300 rounded-md';
 
-const ChatSettingsButton: React.FC<ChatSettingsButtonProps> = ({ chat }) => {
+const ChatSettingsMenu: React.FC<ChatSettingsMenu> = ({ chat }) => {
     const { deleteChat } = useChatSettings();
 
     return (
@@ -95,5 +95,4 @@ const ChatSettingsButton: React.FC<ChatSettingsButtonProps> = ({ chat }) => {
     );
 };
 
-export default ChatSettingsButton;
-
+export default ChatSettingsMenu;

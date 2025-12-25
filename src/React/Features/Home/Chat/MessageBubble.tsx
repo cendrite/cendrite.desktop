@@ -1,5 +1,4 @@
-﻿
-import { DeliveryStatus } from '../../../../Electron/Domain/Enums/DeliveryStatus.ts';
+﻿import { DeliveryStatus } from '../../../../Electron/Domain/Enums/DeliveryStatus.ts';
 import { useUser } from '../../../Context/User/UserContext.tsx';
 import { MessageViewModel } from '../../../Models/MessageViewModel.ts';
 import {
@@ -7,9 +6,10 @@ import {
     IconCircleChevronRight,
     IconCircleChevronsRight,
     IconCircleChevronsRightFilled,
-    IconCircleX
+    IconCircleX,
 } from '@tabler/icons-react';
-import React, { type ReactNode } from 'react';
+import React, { type ReactNode, useState } from 'react';
+import MessageSettingsMenu from './MessageSettingsMenu.tsx';
 
 export interface ChatBubbleProps {
     message: MessageViewModel;
@@ -38,24 +38,34 @@ function statusIcon(status: DeliveryStatus): ReactNode {
 
 export const MessageBubble: React.FC<ChatBubbleProps> = ({ message, showStatus }) => {
     const { user } = useUser();
-
-    const isMine =
-        message.senderId === user!.connectionId ||
-        user!.externalConnectionIds.includes(message.senderId);
-
+    const isMine = user?.IsUserConnectionId(message.senderId) ?? false;
     const icon = isMine && showStatus ? statusIcon(message.deliveryStatus) : null;
+    const [menuOpen, setMenuOpen] = useState(false);
 
     return (
         <>
             <div className={`flex ${isMine ? 'justify-end' : 'justify-start'} mb-2`}>
-                <div
-                    className={`
-                        break-words whitespace-pre-wrap px-4 py-2 rounded-2xl text-sm
-                        ${isMine ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'}
-                        max-w-[75%] sm:max-w-[60%] md:max-w-[50%]
-                    `}
-                >
-                    {message.text}
+                <div className="relative max-w-[75%] sm:max-w-[60%] md:max-w-[50%]">
+                    <div
+                        onContextMenu={(e) => {
+                            if (!isMine) return;
+                            e.preventDefault();
+                            setMenuOpen(true);
+                        }}
+                        className={`
+                            break-words whitespace-pre-wrap px-4 py-2 rounded-2xl text-sm
+                            ${isMine ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'}
+                        `}
+                    >
+                        {message.text}
+                    </div>
+
+                    <MessageSettingsMenu
+                        message={message}
+                        isOpen={menuOpen}
+                        isMine={isMine}
+                        onClose={() => setMenuOpen(false)}
+                    />
                 </div>
             </div>
 
@@ -65,4 +75,3 @@ export const MessageBubble: React.FC<ChatBubbleProps> = ({ message, showStatus }
 };
 
 export default MessageBubble;
-
