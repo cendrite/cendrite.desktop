@@ -16,7 +16,7 @@ export interface ChatBubbleProps {
     showStatus: boolean;
 }
 
-function statusIcon(status: DeliveryStatus): ReactNode {
+function determineStatusIcon(status: DeliveryStatus): ReactNode {
     switch (status) {
         case DeliveryStatus.Pending:
             return <IconCircleDashed className="w-3.5 h-3.5 text-gray-300" />;
@@ -39,8 +39,20 @@ function statusIcon(status: DeliveryStatus): ReactNode {
 export const MessageBubble: React.FC<ChatBubbleProps> = ({ message, showStatus }) => {
     const { user } = useUser();
     const isMine = user?.IsUserConnectionId(message.senderId) ?? false;
-    const icon = isMine && showStatus ? statusIcon(message.deliveryStatus) : null;
+
     const [menuOpen, setMenuOpen] = useState(false);
+    const [showInfo, setShowInfo] = useState(false);
+
+    const handleToggleInfo = () => setShowInfo((prev) => !prev);
+
+    const statusIcon = isMine && showStatus ? determineStatusIcon(message.deliveryStatus) : null;
+
+    const formattedDate = message.date.toLocaleString(undefined, {
+        day: '2-digit',
+        month: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+    });
 
     return (
         <>
@@ -52,13 +64,24 @@ export const MessageBubble: React.FC<ChatBubbleProps> = ({ message, showStatus }
                             e.preventDefault();
                             setMenuOpen(true);
                         }}
+                        onClick={handleToggleInfo}
                         className={`
-                            break-words whitespace-pre-wrap px-4 py-2 rounded-2xl text-sm
+                            break-words whitespace-pre-wrap px-4 py-2 rounded-2xl text-sm cursor-pointer
                             ${isMine ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'}
                         `}
                     >
                         {message.text}
                     </div>
+
+                    {(showInfo || statusIcon) && (
+                        <div
+                            className={`mt-1 text-xs flex items-center gap-2 
+                            ${isMine ? 'mr-2 justify-end text-gray-400' : 'ml-3 text-gray-500'}`}
+                        >
+                            {showInfo && <span>{formattedDate}</span>}
+                            {determineStatusIcon(message.deliveryStatus)}
+                        </div>
+                    )}
 
                     <MessageSettingsMenu
                         message={message}
@@ -68,8 +91,6 @@ export const MessageBubble: React.FC<ChatBubbleProps> = ({ message, showStatus }
                     />
                 </div>
             </div>
-
-            {icon && <div className="flex justify-end mb-1.5 mr-1.5">{icon}</div>}
         </>
     );
 };

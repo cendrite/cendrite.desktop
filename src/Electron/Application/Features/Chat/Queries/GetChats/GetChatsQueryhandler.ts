@@ -13,12 +13,13 @@ export class GetChatsQueryHandler implements Handler<GetChatsQuery, ChatDto[]> {
 
         const chats = await chatStore.getChats(request.chatCount);
 
-        console.log(`Loaded ${chats.length} chats from store.`);
         await Promise.all(
             chats.map(async (chat) => {
-                chat.messages = await chatStore.getMessages(chat.id, request.msgCountPerChat);
+                const messages = await chatStore.getMessages(chat.id, request.msgCountPerChat);
+                chat.messages = messages.slice().reverse();
             }),
         );
+
         const chatDtos = this.mapToDto(chats);
         return Result.success<ChatDto[]>(chatDtos);
     }
