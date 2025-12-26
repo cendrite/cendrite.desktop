@@ -56,7 +56,7 @@ export const MessageBubble: React.FC<ChatBubbleProps> = ({ message, showStatus }
 
     return (
         <>
-            <div className={`flex ${isMine ? 'justify-end' : 'justify-start'} mb-2`}>
+            <div className={`flex ${isMine ? 'justify-end' : 'justify-start'} mt-1 mb-1`}>
                 <div className="relative max-w-[75%] sm:max-w-[60%] md:max-w-[50%]">
                     <div
                         onContextMenu={(e) => {
@@ -73,16 +73,6 @@ export const MessageBubble: React.FC<ChatBubbleProps> = ({ message, showStatus }
                         {message.text}
                     </div>
 
-                    {(showInfo || statusIcon) && (
-                        <div
-                            className={`mt-1 text-xs flex items-center gap-2 
-                            ${isMine ? 'mr-2 justify-end text-gray-400' : 'ml-3 text-gray-500'}`}
-                        >
-                            {showInfo && <span>{formattedDate}</span>}
-                            {determineStatusIcon(message.deliveryStatus)}
-                        </div>
-                    )}
-
                     <MessageSettingsMenu
                         message={message}
                         isOpen={menuOpen}
@@ -90,6 +80,17 @@ export const MessageBubble: React.FC<ChatBubbleProps> = ({ message, showStatus }
                         onClose={() => setMenuOpen(false)}
                     />
                 </div>
+            </div>
+            <div className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
+                {(showInfo || statusIcon) && (
+                    <div
+                        className={`mt-1 text-xs flex items-center gap-2 
+                            ${isMine ? 'mr-2 justify-end text-gray-400' : 'ml-3 text-gray-500'}`}
+                    >
+                        {showInfo && <span>{formattedDate}</span>}
+                        {determineStatusIcon(message.deliveryStatus)}
+                    </div>
+                )}
             </div>
         </>
     );
