@@ -15,7 +15,7 @@ export class GetChatsQueryHandler implements Handler<GetChatsQuery, ChatDto[]> {
 
         await Promise.all(
             chats.map(async (chat) => {
-                const messages = await chatStore.getMessages(chat.id, request.msgCountPerChat);
+                const messages = await chatStore.getMessages(chat.id, 0, request.msgCountPerChat);
                 chat.messages = messages.slice().reverse();
             }),
         );

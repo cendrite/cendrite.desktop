@@ -44,5 +44,9 @@ export function useMessageService() {
         [chatDispatch, user, chatService],
     );
 
-    return { markMessagesAsRead, sendMessage };
+    const loadMessages = useCallback(async (chatId: string, offset: number, take: number) => {
+        return await chatService.getMessages(chatId, offset, take);
+    }, [chatService]);
+
+    return { markMessagesAsRead, sendMessage, loadMessages };
 }

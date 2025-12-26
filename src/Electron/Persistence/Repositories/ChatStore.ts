@@ -52,11 +52,12 @@ export class ChatStore {
             .getMany();
     }
 
-    public async getMessages(chatId: string, messageLoadCount: number): Promise<Message[]> {
+    public async getMessages(chatId: string, skip: number, take: number): Promise<Message[]> {
         return this.messageRepository.find({
             where: { chat: { id: chatId } },
+            skip: skip,
             order: { timestamp: 'DESC' },
-            take: messageLoadCount,
+            take: take,
         });
     }
 
