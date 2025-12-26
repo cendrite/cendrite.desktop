@@ -1,6 +1,7 @@
 ﻿import { DeliveryStatus } from '../../Electron/Domain/Enums/DeliveryStatus.ts';
 import { v4 as uuid } from 'uuid';
 import { MessagePayload, ServerMessage } from '../SignalR/Messaging/ServerMessage.ts';
+import { MessageDto } from '../../Electron/Application/Features/Chat/Dtos/MessageDto.ts';
 
 export class MessageViewModel {
     id: string;
@@ -64,6 +65,19 @@ export class MessageViewModel {
             msg.timestamp,
             initialDeliveryStatus,
             decryptedContent.media || null,
+        );
+    }
+
+    public static mapFromDto(chatId: string, dto: MessageDto): MessageViewModel {
+        return new MessageViewModel(
+            dto.id,
+            chatId,
+            dto.senderId,
+            dto.content,
+            dto.timestamp,
+            dto.deliveryStatus,
+            dto.contentUrl,
+            dto.messageToken,
         );
     }
 }

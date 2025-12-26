@@ -20,6 +20,7 @@ import { SessionManager } from '../../Security/Encryption/SessionManager.ts';
 import { MessageDto } from '../../../Electron/Application/Features/Chat/Dtos/MessageDto.ts';
 import { DeliveryStatus } from '../../../Electron/Domain/Enums/DeliveryStatus.ts';
 import { MessagePayload, ServerMessage } from '../../SignalR/Messaging/ServerMessage.ts';
+import { GetMessagesQuery } from '../../../Electron/Application/Features/Chat/Queries/GetMessages/GetMessagesQuery.ts';
 
 export class ChatService {
     private readonly messageSender = SignalManager.getInstance().getHandler<MessageHubHandler>('Messaging');
@@ -128,13 +129,17 @@ export class ChatService {
     public async addMessage(user: User, msg: ServerMessage, chatId: string): Promise<MessageViewModel> {
         const sessionManager = new SessionManager(msg.senderId);
         const decryptedMessage = await sessionManager.decrypt<MessagePayload>(msg.payload);
-        const mappedMsg = MessageViewModel.mapFromDecrypted(msg, decryptedMessage, this.getInitialDeliveryStatus(user, msg.senderId));
+        const mappedMsg = MessageViewModel.mapFromDecrypted(
+            msg,
+            decryptedMessage,
+            this.getInitialDeliveryStatus(user, msg.senderId),
+        );
         await this.persistMessage(mappedMsg, chatId);
         return mappedMsg;
     }
 
     public async getChats(contacts: Contact[]): Promise<ChatViewModel[]> {
-        const chatsResult = await window.electron.sendRequestAsync<Result<ChatDto[]>>(new GetChatsQuery(30, 10));
+        const chatsResult = await window.electron.sendRequestAsync<Result<ChatDto[]>>(new GetChatsQuery(30, 20));
 
         if (!chatsResult.success) {
             throw new Error('Failed to get chats');
@@ -148,18 +153,7 @@ export class ChatService {
                 return [new ChatMemberViewModel(memberDto.id, memberDto.privilege, memberDto.displayName, contact)];
             });
 
-            const messages = chatDto.messages.map(
-                (msgDto) =>
-                    new MessageViewModel(
-                        msgDto.id,
-                        chatDto.id,
-                        msgDto.senderId,
-                        msgDto.content,
-                        new Date(msgDto.timestamp),
-                        msgDto.deliveryStatus,
-                        msgDto.contentUrl,
-                    ),
-            );
+            const messages = chatDto.messages.map((msgDto) => MessageViewModel.mapFromDto(chatDto.id, msgDto));
 
             return new ChatViewModel(
                 chatDto.id,
@@ -169,6 +163,18 @@ export class ChatService {
                 chatDto.muteTimer ? new Date(chatDto.muteTimer) : null,
             );
         });
+    }
+
+    public async getMessages(chatId: string, offset: number, take: number): Promise<MessageViewModel[]> {
+        const messages = await window.electron.sendRequestAsync<Result<MessageDto[]>>(
+            new GetMessagesQuery(chatId, offset, take),
+        );
+
+        if (!messages.success) {
+            throw new Error('Failed to get messages');
+        }
+
+        return messages.data!.map((dto) => MessageViewModel.mapFromDto(chatId, dto));
     }
 
     public async deriveChatId(a: string, b: string): Promise<string> {
@@ -198,7 +204,11 @@ export class ChatService {
         }
 
         const member = new ChatMemberViewModel(uuid().toString(), ChatPrivileges.Member, contact.displayName, contact);
-        const mappedMsg = MessageViewModel.mapFromDecrypted(msg, content, this.getInitialDeliveryStatus(user, msg.senderId));
+        const mappedMsg = MessageViewModel.mapFromDecrypted(
+            msg,
+            content,
+            this.getInitialDeliveryStatus(user, msg.senderId),
+        );
         const chat = new ChatViewModel(msg.ChatId, [member], [mappedMsg]);
         console.log('created chat', chat);
 

@@ -55,7 +55,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ chatId, onClose }) => {
                 <div className="flex flex-col h-full">
                     <ChatHeader chat={currentChat} onClose={() => handleSlide()} />
 
-                    <MessageList messages={currentChat.messages} />
+                    <MessageList chat={currentChat} />
 
                     <div className="sticky bottom-0 bg-zinc-950">
                         <ChatBar sendMessage={onSendMessage} message={message} setMessage={setMessage} />
