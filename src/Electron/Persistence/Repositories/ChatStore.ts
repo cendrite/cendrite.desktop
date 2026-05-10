@@ -43,11 +43,12 @@ export class ChatStore {
             .leftJoinAndSelect('members.friend', 'friend')
             .leftJoinAndSelect('friend.connectionIds', 'connectionIds')
             .leftJoin('chat.messages', 'messages')
+            .addSelect('MAX(messages.timestamp)', 'latestMessage')
             .groupBy('chat.id')
             .addGroupBy('members.id')
             .addGroupBy('friend.id')
             .addGroupBy('connectionIds.id')
-            .orderBy('MAX(messages.timestamp)', 'DESC')
+            .orderBy('latestMessage', 'DESC')
             .limit(chatLoadCount)
             .getMany();
     }
