@@ -31,7 +31,7 @@ const ContactCard: React.FC<ContactCardProps> = ({contact}) => {
         <div className={cardClasses} onClick={onHandleClick}>
             <div className="w-11 h-11 rounded-full flex items-center justify-center overflow-hidden bg-gray-100">
                 <UserProfileImage
-                    base64ProfilePicture={contact.profilePicture}
+                    base64ProfilePicture={contact.avatarKey}
                     displayName={contact.displayName}
                     username={contact.username}
                 />

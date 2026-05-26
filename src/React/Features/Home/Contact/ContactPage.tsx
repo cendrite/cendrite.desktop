@@ -64,7 +64,7 @@ const ContactPage: React.FC<ContactPageProps> = ({contact, onClose}) => {
                             <div
                                 className="w-20 h-20 rounded-full flex items-center justify-center overflow-hidden bg-gray-100 mb-3">
                                 <UserProfileImage
-                                    base64ProfilePicture={contact.profilePicture}
+                                    base64ProfilePicture={contact.avatarKey}
                                     displayName={contact.displayName}
                                     username={contact.username}
                                     profilePictureUrl={null}

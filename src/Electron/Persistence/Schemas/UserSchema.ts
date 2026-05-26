@@ -20,8 +20,8 @@ export const UserSchema = new EntitySchema<User>({
             type: "text",
             unique: true
         },
-        profilePicture: {
-            type: "blob",
+        avatarKey: {
+            type: "text",
             nullable: true
         },
         displayName: {

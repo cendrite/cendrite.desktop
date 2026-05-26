@@ -14,7 +14,7 @@ export class GetUserProfilePictureApi {
     private readonly client: ApiClient;
 
     constructor() {
-        this.client = new ApiClient(API_URLS.USER_MANAGEMENT.GET_PROFILE_PICTURE, true);
+        this.client = new ApiClient(API_URLS.USER_MANAGEMENT.GET_AVATAR, true);
     }
 
     public async getUserProfilePicture(request: GetUserProfilePictureRequest): Promise<Result<GetUserProfilePictureResponse | void>> {

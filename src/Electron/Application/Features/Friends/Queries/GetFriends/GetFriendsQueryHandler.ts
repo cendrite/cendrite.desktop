@@ -4,29 +4,18 @@ import {FriendDto} from "../../Dto/FriendDto.js";
 import { Result } from "../../../../../../Shared/Result/Result.js";
 import {ErrorMessage} from "../../../../../../Shared/Result/ErrorMessage.js";
 import { FriendRepository } from "../../../../../Persistence/Repositories/FriendRepository.js";
-import { ImageConverter } from "../../../../Services/Images/ImageConverter.js";
 
 export class GetFriendsQueryHandler implements Handler<GetFriendsQuery, Array<FriendDto>> {
 
-    public async handle(request: GetFriendsQuery): Promise<Result<FriendDto[]>> {
+    public async handle(_q: GetFriendsQuery): Promise<Result<FriendDto[]>> {
         try{
             const friendRepository = new FriendRepository();
             const friends = await friendRepository.getAll();
 
             if(friends === null || friends.length === 0)
-            {
                 return Result.success<FriendDto[]>(new Array<FriendDto>());
-            }
 
-            const friendDtos = await Promise.all(friends.map(async (friend) => {
-                let profilePictureBase64: string | null = null;
-
-                if (friend.profilePicture) {
-                    profilePictureBase64 = await ImageConverter.bufferToBase64(friend.profilePicture);
-                }
-
-                return FriendDto.MapFrom(friend, profilePictureBase64);
-            }));
+            const friendDtos = friends.map(friend => FriendDto.MapFrom(friend));
 
             return Result.success<FriendDto[]>(friendDtos);
         }

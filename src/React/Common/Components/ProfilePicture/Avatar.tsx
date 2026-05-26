@@ -2,12 +2,14 @@
 import clsx from "clsx";
 import { useUser } from "../../../Context/User/UserContext";
 
-interface ProfilePictureProps {
+interface AvatarProps {
     className?: string;
+    AvatarKey?: string;
 }
 
-const ProfilePicture: React.FC<ProfilePictureProps> = ({className}) => {
+const Avatar: React.FC<AvatarProps> = ({className, AvatarKey}) => {
     const {user} = useUser();
+    console.warn(AvatarKey);
 
     return user!.base64ProfilePicture ? (
         <img
@@ -23,4 +25,4 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({className}) => {
     );
 };
 
-export default ProfilePicture;
+export default Avatar;

@@ -19,8 +19,8 @@ export const FriendSchema =new EntitySchema<Friend>({
             type: String,
             nullable: true
         },
-        profilePicture: {
-            type: "blob",
+        avatarKey: {
+            type: "text",
             nullable: true
         }
     },

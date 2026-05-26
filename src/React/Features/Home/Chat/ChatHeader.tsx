@@ -23,7 +23,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ chat, onClose }) => {
 
                 <div className="w-7 h-7 rounded-full flex items-center justify-center overflow-hidden bg-gray-100 ml-3">
                     <UserProfileImage
-                        base64ProfilePicture={chatMember.contact.profilePicture}
+                        base64ProfilePicture={chatMember.contact.avatarKey}
                         displayName={chatMember.displayName || chatMember.contact.displayName}
                         username={chatMember.contact.username}
                     />

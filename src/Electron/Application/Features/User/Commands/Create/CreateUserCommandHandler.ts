@@ -4,25 +4,28 @@ import { Result } from '../../../../../../Shared/Result/Result.js';
 import { Handler } from '../../../../Mediator/Handler.js';
 import { CreateUserDto } from './CreateUserDto.js';
 import { ErrorMessage } from '../../../../../../Shared/Result/ErrorMessage.js';
-import { ImageConverter } from '../../../../Services/Images/ImageConverter.js';
 import { User } from '../../../../../Domain/Aggregates/User.js';
 import { UserConnectionId } from '../../../../../Domain/Entities/UserConnectionId.js';
 
 export class CreateUserCommandHandler implements Handler<CreateUserCommand, CreateUserDto> {
-    public async handle(request: CreateUserCommand): Promise<Result<CreateUserDto>> {
+
+    public async handle(cmd: CreateUserCommand): Promise<Result<CreateUserDto>> {
         try {
             const _userRepository = new UserRepository();
 
-            const profilePicture = request.base64ProfilePicture
-                ? await ImageConverter.base64ToBuffer(request.base64ProfilePicture)
-                : null;
-            const user = new User(request.id, request.username, request.userTag, profilePicture, request.displayName);
+            const user = new User(
+                cmd.id,
+                cmd.username,
+                cmd.userTag,
+                cmd.avatarKey,
+                cmd.displayName,
+            );
 
-            user.connectionIds = request.connectionIds.map((connectionId) => new UserConnectionId(connectionId, user));
+            user.connectionIds = cmd.connectionIds.map((connectionId) => new UserConnectionId(connectionId, user));
 
             const savedUser = await _userRepository.create(user);
 
-            const dto = CreateUserDto.MapFrom(savedUser, request.base64ProfilePicture);
+            const dto = CreateUserDto.MapFrom(savedUser, cmd.avatarKey);
 
             return Result.success<CreateUserDto>(dto);
         } catch (error: unknown) {

@@ -42,7 +42,7 @@ export const AuthSessionProvider: React.FC<{ children: React.ReactNode }> = ({ c
                     deviceResult.data!.id,
                     deviceResult.data!.connectionId,
                     userResult.data!.externalConnectionIds,
-                    userResult.data!.base64ProfilePicture,
+                    userResult.data!.avatarKey,
                     userResult.data!.displayName,
                 ),
             });

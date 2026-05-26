@@ -1,9 +1,9 @@
 ﻿import React, {useState} from "react";
 import Modal from "react-modal";
 import LogoutModal from "./LogoutModal.tsx";
-import ProfilePictureModal from "./ProfilePictureModal.tsx";
-import ProfilePicture from "../../../Common/Components/ProfilePicture/ProfilePicture.tsx";
 import { useUser } from "../../../Context/User/UserContext.tsx";
+import Avatar from "../../../Common/Components/ProfilePicture/Avatar.tsx";
+import AvatarModal from "./AvatarModal.tsx";
 
 
 interface UserModalProps {
@@ -42,7 +42,7 @@ const UserModal: React.FC<UserModalProps> = ({isOpen, onClose}) => {
                         {/* Profile Section */}
                         <div className="flex flex-col items-center mt-8">
                             {/* Profile Picture */}
-                            <ProfilePicture className="w-20 h-20"/>
+                            <Avatar className="w-20 h-20"/>
 
                             {/* Edit Button */}
                             <button className="text-sm text-blue-500 font-semibold hover:underline mt-2"
@@ -92,7 +92,7 @@ const UserModal: React.FC<UserModalProps> = ({isOpen, onClose}) => {
                 onClose();
             }}/>
 
-            <ProfilePictureModal isOpen={isProfilePictureModalOpen} onClose={(shouldReopenParent) => {
+            <AvatarModal isOpen={isProfilePictureModalOpen} onClose={(shouldReopenParent) => {
                 setIsProfilePictureModalOpen(false);
                 if (shouldReopenParent) {
                     return;

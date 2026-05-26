@@ -4,7 +4,7 @@ import { AddUserConnectionIdCommand } from '../../../Electron/Application/Featur
 import { RemoveUserConnectionIdCommand } from '../../../Electron/Application/Features/User/Commands/Update/RemoveConnectionId/RemoveUserConnectionIdCommand';
 import { UserAction, UserActionType } from './UserReducer';
 import { ChangeEvent } from '../../SignalR/ChangeEvent/ChangeEvent';
-import { ProfilePictureUpdatedEvent, UserLoggedInEvent } from '../../SignalR/ChangeEvent/EventData';
+import { AvatarUpdatedEvent, UserLoggedInEvent } from '../../SignalR/ChangeEvent/EventData';
 import { GetUserProfilePictureApi } from '../../Common/Api/UserProfile/GetUserProfilePicture';
 import { useSignalEvent } from '../../SignalR/Utility/Utilities';
 import { ChangeEventType } from '../../SignalR/ChangeEvent/ChangeEventType';
@@ -15,17 +15,17 @@ export function useUserEvents(
     profilePictureApi: GetUserProfilePictureApi,
 ) {
     const handleProfilePictureUpdate = useCallback(
-        async (evt: ChangeEvent<ProfilePictureUpdatedEvent>) => {
+        async (evt: ChangeEvent<AvatarUpdatedEvent>) => {
             try {
                 if (user?.userTag !== evt.data.userTag) return;
                 const result = await profilePictureApi.getUserProfilePicture({
-                    profilePictureUrl: evt.data.profilePictureUrl,
+                    profilePictureUrl: evt.data.avatarKey,
                 });
 
                 if (result.success) {
                     dispatch({
-                        type: UserActionType.UpdateProfilePicture,
-                        payload: { base64ProfilePicture: result.data!.base64ProfilePicture },
+                        type: UserActionType.UpdateAvatar,
+                        payload: { AvatarKey: result.data!.base64ProfilePicture },
                     });
                 }
             } catch (err) {

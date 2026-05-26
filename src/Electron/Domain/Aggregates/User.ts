@@ -4,7 +4,7 @@ export class User {
     id: string;
     username: string;
     userTag: string;
-    profilePicture: Buffer | null;
+    avatarKey: string | null;
     displayName: string | null;
     connectionIds!: UserConnectionId[];
 
@@ -12,18 +12,18 @@ export class User {
         id: string,
         username: string,
         userTag: string,
-        profilePicture: Buffer | null,
+        avatarKey: string | null,
         displayName: string | null,
     ) {
         this.id = id;
         this.username = username;
         this.userTag = userTag;
-        this.profilePicture = profilePicture;
+        this.avatarKey = avatarKey;
         this.displayName = displayName;
     }
 
-    public setProfilePicture(profilePicture: Buffer) {
-        this.profilePicture = profilePicture;
+    public setAvatar(avatarKey: string) {
+        this.avatarKey = avatarKey;
     }
 
     public setDisplayName(displayName: string) {

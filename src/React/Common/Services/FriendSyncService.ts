@@ -2,7 +2,6 @@
 import {Result} from "../../../Shared/Result/Result.ts";
 import {FriendDto} from "../../../Electron/Application/Features/Friends/Dto/FriendDto.ts";
 import {GetFriendsQuery} from "../../../Electron/Application/Features/Friends/Queries/GetFriends/GetFriendsQuery.ts";
-import {ProfilePictureService} from "./ProfilePictureService.ts";
 import {
     DeleteFriendCommand
 } from "../../../Electron/Application/Features/Friends/Commands/Delete/DeleteFriendCommand.ts";
@@ -19,6 +18,7 @@ import {
     AddFriendConnectionIdCommand
 } from "../../../Electron/Application/Features/Friends/Commands/AddConnectionId/AddFriendConnectionIdCommand.ts";
 import { Contact } from "../../Models/Contact.ts";
+import { AvatarService as AvatarService } from "./AvatarService.ts";
 
 interface ConnectionDiff {
     friendId: string;
@@ -28,7 +28,7 @@ interface ConnectionDiff {
 
 export class FriendSyncService {
     private readonly getFriendsApi = new GetFriendsApi();
-    private readonly profilePictureService = new ProfilePictureService();
+    private readonly profilePictureService = new AvatarService();
 
     public async SyncFriends(): Promise<Array<Contact>> {
         const localMap = await this.LoadLocalContacts();
@@ -44,7 +44,7 @@ export class FriendSyncService {
         const toUpdate = Array.from(remoteMap.entries())
             .filter(([id, rc]) => {
                 const lc = localMap.get(id);
-                return lc && (lc.username !== rc.username || lc.displayName !== rc.displayName || lc.profilePicture !== rc.profilePicture);
+                return lc && (lc.username !== rc.username || lc.displayName !== rc.displayName || lc.avatarKey !== rc.avatarKey);
             })
             .map(([, rc]) => rc);
 
@@ -70,10 +70,10 @@ export class FriendSyncService {
                 window.electron.sendRequestAsync(new DeleteFriendCommand(id))
             ),
             ...toCreate.map(rc =>
-                window.electron.sendRequestAsync(new CreateFriendCommand(rc.username, rc.displayName, rc.connectionIds, rc.id, rc.profilePicture))
+                window.electron.sendRequestAsync(new CreateFriendCommand(rc.username, rc.displayName, rc.connectionIds, rc.id, rc.avatarKey))
             ),
             ...toUpdate.map(rc =>
-                window.electron.sendRequestAsync(new UpdateFriendCommand(rc.id, rc.username, rc.displayName, rc.profilePicture))
+                window.electron.sendRequestAsync(new UpdateFriendCommand(rc.id, rc.username, rc.displayName, rc.avatarKey))
             ),
             ...connDiffs.map(diff =>
                 window.electron.sendRequestAsync(new RemoveFriendConnectionIdCommand(diff.friendId, ...diff.staleConnectionIds))
@@ -93,7 +93,7 @@ export class FriendSyncService {
 
         if (result.success && result.data) {
             for (const friend of result.data) {
-                const contact = new Contact(friend.id, friend.username, friend.displayName, friend.profilePicture, friend.connectionIds);
+                const contact = new Contact(friend.id, friend.username, friend.displayName, friend.avatarKey, friend.connectionIds);
                 contacts.set(friend.id, contact);
             }
         }

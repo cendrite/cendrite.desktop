@@ -2,27 +2,27 @@
 import {API_URLS} from "../ApiUrls.ts";
 import {Result} from "../../../../Shared/Result/Result.ts";
 
-export interface UpdateProfilePictureApiRequest {
-    ProfilePicture: File;
+export interface UpdateAvatarApiRequest {
+    Avatar: File;
 }
 
-export interface UpdateProfilePictureApiResponse {
-    ProfilePictureUrl: string;
+export interface UpdateAvatarApiResponse {
+    AvatarKey: string;
 }
 
 export class UpdateProfilePictureApi {
     private readonly client: ApiClient;
 
     constructor() {
-        this.client = new ApiClient(API_URLS.USER_MANAGEMENT.UPDATE_PROFILE_PICTURE, true);
+        this.client = new ApiClient(API_URLS.USER_MANAGEMENT.UPDATE_AVATAR, true);
     }
 
-    public async updateProfilePicture(request: UpdateProfilePictureApiRequest): Promise<Result<UpdateProfilePictureApiResponse>> {
+    public async handle(req: UpdateAvatarApiRequest): Promise<Result<UpdateAvatarApiResponse>> {
 
         const formData = new FormData();
-        formData.append("ProfilePicture", request.ProfilePicture);
+        formData.append("Avatar", req.Avatar);
 
-        return this.client.handle<UpdateProfilePictureApiResponse>({
+        return this.client.handle<UpdateAvatarApiResponse>({
             method: "PUT",
             data: formData,
             headers: {

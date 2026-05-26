@@ -7,21 +7,21 @@ import {
     GetMediaQuery,
     MediaType
 } from "../../../../Electron/Application/Features/Files/Queries/GetMedia/GetMediaQuery.ts";
-import {ProfilePictureService} from "../../../Common/Services/ProfilePictureService.ts";
 import { useUser } from "../../../Context/User/UserContext.tsx";
 import { UserActionType } from "../../../Context/User/UserReducer.ts";
+import { AvatarService } from "../../../Common/Services/AvatarService.ts";
 
-interface ProfilePictureModalProps {
+interface AvatarModelProps {
     isOpen: boolean;
     onClose: (shouldReopenParent: boolean) => void;
 }
 
-const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClose}) => {
+const AvatarModal: React.FC<AvatarModelProps> = ({isOpen, onClose}) => {
     const {user, userDispatch} = useUser();
-    const [selectedProfilePicture, setSelectedProfilePicture] = useState<string | null>(null);
+    const [selectedAvatar, setSelectedProfilePicture] = useState<string | null>(null);
     const [isStock, setIsStock] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
-    const profilePictureService = new ProfilePictureService();
+    const avatarService = new AvatarService();
 
     const avatarModules = import.meta.glob("../../../Assets/StockProfilePictures/*.png", { eager: true });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -31,9 +31,9 @@ const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClos
     const saveProfilePicture = async () => {
         try {
             setLoading(true);
-            const result = await profilePictureService.updateProfilePicture(selectedProfilePicture!, isStock);
+            const result = await avatarService.updateAvatar(selectedAvatar!, isStock);
             if (result.success) {
-                userDispatch({type: UserActionType.UpdateProfilePicture, payload: {base64ProfilePicture: selectedProfilePicture!}});
+                userDispatch({type: UserActionType.UpdateAvatar, payload: {AvatarKey: result.data}});
                 onClose(true);
             } else {
                 console.error(result.errorMessage);
@@ -78,9 +78,9 @@ const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClos
 
                 <div className="flex flex-col items-center mt-8 mb-4">
                     {/* Show Selected Profile Picture */}
-                    {selectedProfilePicture ? (
+                    {selectedAvatar ? (
                         <img
-                            src={selectedProfilePicture}
+                            src={selectedAvatar}
                             alt="Selected profile"
                             className="w-20 h-20 rounded-full"
                         />
@@ -148,9 +148,9 @@ const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClos
                     </button>
                     <button
                         onClick={() => saveProfilePicture()}
-                        disabled={!selectedProfilePicture || loading}
+                        disabled={!selectedAvatar || loading}
                         className={`text-[0.8rem] font-semibold rounded-full px-5 py-0.5 ${
-                            !selectedProfilePicture
+                            !selectedAvatar
                                 ? "bg-darkGray-200 text-gray-400 cursor-not-allowed"
                                 : "bg-darkGray-200 text-white hover:bg-darkGray-300"}
                                 ${loading ? "cursor-wait" : ""}`}>
@@ -162,4 +162,4 @@ const ProfilePictureModal: React.FC<ProfilePictureModalProps> = ({isOpen, onClos
     )
 };
 
-export default ProfilePictureModal;
+export default AvatarModal;

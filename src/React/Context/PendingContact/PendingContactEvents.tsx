@@ -20,7 +20,7 @@ export function usePendingContactEvents(
                     evt.data.username,
                     false,
                     evt.data.displayName,
-                    evt.data.presignedProfilePictureUrl,
+                    evt.data.avatarKey,
                 ),
             });
             notificationDispatch({ type: NotificationActionType.AddFriendRequest, payload: { userTag: evt.data.tag } });
