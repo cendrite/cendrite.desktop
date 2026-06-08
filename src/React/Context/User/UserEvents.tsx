@@ -11,6 +11,7 @@ import { ChangeEventType } from '../../SignalR/ChangeEvent/ChangeEventType';
 export function useUserEvents(user: User | null, dispatch: React.Dispatch<UserAction>) {
     const handleAvatarUpdate = useCallback(
         async (evt: ChangeEvent<AvatarUpdatedEvent>) => {
+            if (user?.userTag !== evt.data.userTag) return;
             dispatch({
                 type: UserActionType.UpdateAvatar,
                 payload: { AvatarKey: evt.data.avatarKey },

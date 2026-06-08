@@ -20,7 +20,7 @@ const Avatar: React.FC<AvatarProps> = ({ className, AvatarKey, Username }) => {
                 className,
             )}
         >
-            {Username[0].concat(Username[1]).toUpperCase() || '?'}
+            {Username.slice(0, 2).toUpperCase() || '?'}
         </div>
     );
 };

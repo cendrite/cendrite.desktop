@@ -64,14 +64,14 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onHide, setPaneType, paneT
                             <Avatar
                                 className="w-8 h-8"
                                 AvatarKey={user?.avatarKey ?? null}
-                                Username={user?.displayName ?? '?'}
+                                Username={user?.displayName ?? user?.username ?? '?'}
                             />
                         }
                         activeIcon={
                             <Avatar
                                 className="w-8 h-8"
                                 AvatarKey={user?.avatarKey ?? null}
-                                Username={user?.displayName ?? '?'}
+                                Username={user?.displayName ?? user?.username ?? '?'}
                             />
                         }
                         isActive={isModalOpen}
