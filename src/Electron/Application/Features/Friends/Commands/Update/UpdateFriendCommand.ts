@@ -3,16 +3,16 @@
     id: string;
     username: string | null;
     displayName: string | null;
-    profilePicture: string | null;
+    avatarKey: string | null;
     constructor(
         id: string,
         username: string | null = null,
         displayName: string | null = null,
-        profilePicture: string | null = null
+        avatarKey: string | null = null
     ) {
         this.id = id;
         this.username = username;
         this.displayName = displayName;
-        this.profilePicture = profilePicture;
+        this.avatarKey = avatarKey;
     }
 }

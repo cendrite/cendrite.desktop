@@ -2,8 +2,8 @@
     USER_MANAGEMENT: {
         GET_PROFILE: "https://conduit.xhykl49jkg.org/api/profile",
         GET_BY_TAG: "https://conduit.xhykl49jkg.org/api/profile/tag",
-        UPDATE_PROFILE_PICTURE: "https://social.xhykl49jkg.org/api/UserProfile/profile-picture",
-        GET_PROFILE_PICTURE: "https://social.xhykl49jkg.org/api/UserProfile/profile-picture",
+        UPDATE_AVATAR: "https://conduit.xhykl49jkg.org/api/profile/avatar",
+        GET_AVATAR: "https://conduit.xhykl49jkg.org/api/profile/avatar",
         SEND_FRIEND_REQUEST: "https://social.xhykl49jkg.org/api/UserProfile/friendship",
         DELETE_FRIENDSHIP: "https://social.xhykl49jkg.org/api/UserProfile/friendship/delete",
         DECLINE_FRIEND_REQUEST: "https://social.xhykl49jkg.org/api/UserProfile/friendship/reject",

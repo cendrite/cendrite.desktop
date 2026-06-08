@@ -1,6 +1,5 @@
 import React, {useCallback, useEffect, useMemo} from "react";
 import { FriendSyncService } from '../../Common/Services/FriendSyncService';
-import { ProfilePictureService } from '../../Common/Services/ProfilePictureService';
 import { ContactActionType, contactReducer } from "./ContactReducer";
 import { ContactContext } from "./ContactContext";
 import { useUser } from "../User/UserContext";
@@ -10,7 +9,6 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const [contacts, contactDispatch] = React.useReducer(contactReducer, []);
     const {user} = useUser();
     const friendSyncService = useMemo(() => new FriendSyncService(), []);
-    const profilePictureService = useMemo(() => new ProfilePictureService(), []);
 
     const loadContacts = useCallback(async () => {
         if (!user) {
@@ -30,7 +28,7 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({ child
         loadContacts();
     }, [loadContacts]);
 
-    useContactEvents(user, contacts, contactDispatch, profilePictureService);
+    useContactEvents(user, contacts, contactDispatch);
 
     return <ContactContext.Provider value={{ contacts, contactDispatch }}>
         {children}

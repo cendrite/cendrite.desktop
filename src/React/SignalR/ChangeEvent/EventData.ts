@@ -1,14 +1,14 @@
 ﻿
-export interface ProfilePictureUpdatedEvent{
+export interface AvatarUpdatedEvent{
     userTag: string;
-    profilePictureUrl: string;
+    avatarKey: string;
 }
 
 export interface FriendRequestEvent {
     tag: string;
     username: string;
     displayName: string | null;
-    presignedProfilePictureUrl: string | null;
+    avatarKey: string | null;
 }
 
 export interface FriendRequestRejectedEvent {
@@ -19,7 +19,7 @@ export interface FriendRequestAcceptedEvent {
     tag: string;
     username: string;
     displayName: string | null;
-    profilePictureUrl: string | null;
+    avatarKey: string | null;
     connectionIds: string[];
 }
 

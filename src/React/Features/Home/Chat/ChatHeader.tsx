@@ -1,10 +1,10 @@
 ﻿import React from 'react';
 import ChevronLeftIcon from '@heroicons/react/24/outline/ChevronLeftIcon';
 import { ChatViewModel } from '../../../Models/ChatViewModel.ts';
-import { UserProfileImage } from '../../../Common/Components/ProfilePicture/UserProfileImage.tsx';
 import VoiceCallButton from '../../../Common/Components/CommunicationButtons/VoiceCallButton.tsx';
 import VideoCallButton from '../../../Common/Components/CommunicationButtons/VideoCallButton.tsx';
 import ChatSettingsMenu from './ChatSettingsMenu.tsx';
+import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
 
 interface ChatHeaderProps {
     chat: ChatViewModel;
@@ -22,10 +22,10 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ chat, onClose }) => {
                 </button>
 
                 <div className="w-7 h-7 rounded-full flex items-center justify-center overflow-hidden bg-gray-100 ml-3">
-                    <UserProfileImage
-                        base64ProfilePicture={chatMember.contact.profilePicture}
-                        displayName={chatMember.displayName || chatMember.contact.displayName}
-                        username={chatMember.contact.username}
+                    <Avatar
+                        className="w-11 h-11"
+                        AvatarKey={chatMember.contact.avatarKey}
+                        Username={chatMember.contact.username}
                     />
                 </div>
 

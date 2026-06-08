@@ -3,11 +3,11 @@ import ChevronLeftIcon from '@heroicons/react/24/outline/ChevronLeftIcon';
 import { CheckIcon, ExclamationTriangleIcon, NoSymbolIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { FriendService } from '../../../Common/Services/FriendService.ts';
 import { delay } from '../../../../Shared/HelperFunctions.ts';
-import { UserProfileImage } from '../../../Common/Components/ProfilePicture/UserProfileImage.tsx';
 import ToolTip from '../../../Common/Components/Utility/ToolTip.tsx';
 import { PendingContact } from '../../../Models/PendingContact.ts';
 import { usePendingContacts } from '../../../Context/PendingContact/PendingContactContext.tsx';
 import { PendingContactActionType } from '../../../Context/PendingContact/PendingContactReducer.ts';
+import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
 
 interface PendingContactPage {
     pendingContact: PendingContact;
@@ -34,7 +34,7 @@ const PendingContactPage: React.FC<PendingContactPage> = ({ pendingContact, onCl
     const handleAccept = async () => {
         const result = await friendService.AcceptFriendship(pendingContact.id);
         if (result.success) {
-            pendingContactDispatch({ type: PendingContactActionType.Remove, payload: { id: pendingContact.id} });
+            pendingContactDispatch({ type: PendingContactActionType.Remove, payload: { id: pendingContact.id } });
             setLoadingAction('accept');
         }
         await delay(750);
@@ -73,11 +73,10 @@ const PendingContactPage: React.FC<PendingContactPage> = ({ pendingContact, onCl
                         {/* Profile Section */}
                         <div className="flex flex-col items-center mt-4">
                             <div className="w-20 h-20 rounded-full flex items-center justify-center overflow-hidden bg-gray-100 mb-3">
-                                <UserProfileImage
-                                    base64ProfilePicture={null}
-                                    displayName={pendingContact.displayName}
-                                    username={pendingContact.username}
-                                    profilePictureUrl={pendingContact.profilePicture}
+                                <Avatar
+                                    className="w-11 h-11"
+                                    AvatarKey={pendingContact.avatarKey}
+                                    Username={pendingContact.username}
                                 />
                             </div>
                             <h2 className="text-lg font-semibold">

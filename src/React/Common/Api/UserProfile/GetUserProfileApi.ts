@@ -7,7 +7,7 @@ export interface GetUserProfileResponse{
     id: string;
     username: string;
     userTag: string,
-    profilePictureUrl: string | null;
+    avatarKey: string | null;
     displayName: string | null;
     connectionIds: string[];
 }

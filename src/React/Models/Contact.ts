@@ -2,7 +2,7 @@ export class Contact {
     id: string;
     username: string;
     displayName: string | null;
-    profilePicture: string | null;
+    avatarKey: string | null;
     connectionIds: string[];
 
     constructor(
@@ -15,7 +15,7 @@ export class Contact {
         this.id = id;
         this.username = username;
         this.displayName = displayName;
-        this.profilePicture = profilePicture;
+        this.avatarKey = profilePicture;
         this.connectionIds = connectionIds;
     }
 }

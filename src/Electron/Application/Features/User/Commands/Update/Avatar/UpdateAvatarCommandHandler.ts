@@ -1,21 +1,18 @@
-﻿import {UpdateProfilePictureCommand} from "./UpdateProfilePictureCommand.js";
-import {Handler} from "../../../../../Mediator/Handler.js";
+﻿import {Handler} from "../../../../../Mediator/Handler.js";
+import {UpdateAvatarCommand} from "./UpdateAvatarCommand.js";
 import { Result } from "../../../../../../../Shared/Result/Result.js";
 import {ErrorMessage} from "../../../../../../../Shared/Result/ErrorMessage.js";
 import {UserRepository} from "../../../../../../Persistence/Repositories/UserRepository.js";
 
-export class UpdateProfilePictureCommandHandler implements Handler<UpdateProfilePictureCommand> {
+export class UpdateAvatarCommandHandler implements Handler<UpdateAvatarCommand> {
 
-    public async handle(request: UpdateProfilePictureCommand): Promise<Result> {
+    public async handle(cmd: UpdateAvatarCommand): Promise<Result> {
         try{
             const repository = new UserRepository()
 
             const user = await repository.get(false);
 
-            const base64Data = request.base64ProfilePicture.replace(/^data:image\/\w+;base64,/, '');
-            const profilePictureBuffer = Buffer.from(base64Data, 'base64');
-
-            user.setProfilePicture(profilePictureBuffer);
+            user.setAvatar(cmd.avatarKey);
 
             await repository.update(user);
 

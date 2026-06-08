@@ -35,7 +35,7 @@ export const contactReducer = (state: Contact[], action: ContactAction): Contact
                         contact.id, 
                         contact.username, 
                         contact.displayName, 
-                        contact.profilePicture, 
+                        contact.avatarKey, 
                         [...contact.connectionIds,
                         action.payload.connectionId])
                     : contact);
@@ -47,7 +47,7 @@ export const contactReducer = (state: Contact[], action: ContactAction): Contact
                         contact.id, 
                         contact.username, 
                         contact.displayName, 
-                        contact.profilePicture, 
+                        contact.avatarKey, 
                         contact.connectionIds.filter((cid) => cid !== action.payload.connectionId))
                     : contact);
 

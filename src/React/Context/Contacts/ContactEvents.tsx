@@ -1,6 +1,5 @@
 import { useCallback } from 'react';
 import { CreateFriendCommand } from '../../../Electron/Application/Features/Friends/Commands/Create/CreateFriendCommand';
-import { ProfilePictureService } from '../../Common/Services/ProfilePictureService';
 import { Contact } from '../../Models/Contact';
 import { User } from '../../Models/User';
 import { ChangeEvent } from '../../SignalR/ChangeEvent/ChangeEvent';
@@ -22,7 +21,6 @@ export function useContactEvents(
     user: User | null,
     contacts: Contact[],
     dispatch: React.Dispatch<ContactAction>,
-    profilePictureService: ProfilePictureService,
 ) {
     const handleContactAddedEvent = useCallback(
         async (evt: ChangeEvent<FriendRequestAcceptedEvent>) => {
@@ -30,16 +28,12 @@ export function useContactEvents(
             if (existingContact) {
                 return;
             }
-            const profilePicture = evt.data.profilePictureUrl
-                ? await profilePictureService.FetchProfilePicture(evt.data.profilePictureUrl)
-                : null;
-
             const newContact = {
                 id: evt.data.tag,
                 username: evt.data.username,
                 displayName: evt.data.displayName,
-                profilePicture: profilePicture,
                 connectionIds: evt.data.connectionIds,
+                avatarKey: evt.data.avatarKey,
             };
             await window.electron.sendRequestAsync(
                 new CreateFriendCommand(
@@ -47,13 +41,13 @@ export function useContactEvents(
                     newContact.displayName,
                     newContact.connectionIds,
                     newContact.id,
-                    newContact.profilePicture,
+                    newContact.avatarKey,
                 ),
             );
 
             dispatch({ type: ContactActionType.Add, payload: newContact });
         },
-        [getById, profilePictureService, dispatch],
+        [getById, dispatch],
     );
 
     const handleContactDeletedEvent = useCallback(

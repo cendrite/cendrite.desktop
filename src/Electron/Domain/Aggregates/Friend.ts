@@ -4,6 +4,6 @@ export class Friend {
     id!: string;
     username!: string;
     displayName?: string | null;
-    profilePicture!: Buffer | null;
+    avatarKey!: string | null;
     connectionIds!: FriendConnectionId[];
 }

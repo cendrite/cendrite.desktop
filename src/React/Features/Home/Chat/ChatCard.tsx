@@ -1,9 +1,9 @@
 ﻿import React from 'react';
 import { ChatViewModel } from '../../../Models/ChatViewModel.ts';
-import { UserProfileImage } from '../../../Common/Components/ProfilePicture/UserProfileImage.tsx';
 import { useHomePage } from '../../../Context/HomePage/HomePageContext.tsx';
 import { HomePageActionType } from '../../../Context/HomePage/HomePageReducer.ts';
 import { useUser } from '../../../Context/User/UserContext.tsx';
+import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
 
 interface ChatCardProps {
     chat: ChatViewModel;
@@ -35,11 +35,11 @@ export const ChatCard: React.FC<ChatCardProps> = ({ chat }) => {
     return (
         <div className={cardClasses} onClick={onHandleClick}>
             <div className="w-11 h-11 rounded-full flex items-center justify-center overflow-hidden bg-gray-100">
-                <UserProfileImage
-                    base64ProfilePicture={chat.chatMembers[0].contact.profilePicture}
-                    displayName={name}
-                    username={chat.chatMembers[0].contact.username}
-                />
+                    <Avatar
+                        className="w-11 h-11"
+                        AvatarKey={chat.chatMembers[0].contact.avatarKey}
+                        Username={chat.chatMembers[0].contact.username}
+                    />
             </div>
             <div className="ml-3 flex flex-col overflow-hidden">
                 <div className="flex items-center">

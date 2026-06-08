@@ -7,7 +7,6 @@ import { SignNonceRequestHandler } from './Application/Features/Device/Commands/
 import { LogoutCommandHandler } from './Application/Features/User/Commands/Logout/LogoutCommandHandler.js';
 import { CreateRefreshTokenRequestHandler } from './Application/Features/RefreshToken/Commands/Create/CreateRefreshTokenRequestHandler.js';
 import { GetUserQueryHandler } from './Application/Features/User/Queries/GetUserQueryHandler.js';
-import { UpdateProfilePictureCommandHandler } from './Application/Features/User/Commands/Update/ProfilePicture/UpdateProfilePictureCommandHandler.js';
 import { GetMediaQueryHandler } from './Application/Features/Files/Queries/GetMedia/GetMediaQueryHandler.js';
 import { CreateFriendCommandHandler } from './Application/Features/Friends/Commands/Create/CreateFriendCommandHandler.js';
 import { GetFriendsQueryHandler } from './Application/Features/Friends/Queries/GetFriends/GetFriendsQueryHandler.js';
@@ -56,6 +55,8 @@ import { DeleteChatCommand } from './Application/Features/Chat/Commands/Delete/D
 import { DeleteChatCommandHandler } from './Application/Features/Chat/Commands/Delete/DeleteChatCommandHandler.js';
 import { GetMessagesQuery } from './Application/Features/Chat/Queries/GetMessages/GetMessagesQuery.js';
 import { GetMessagesQueryHandler } from './Application/Features/Chat/Queries/GetMessages/GetMessagesQueryHandler.js';
+import { UpdateAvatarCommand } from './Application/Features/User/Commands/Update/Avatar/UpdateAvatarCommand.js';
+import { UpdateAvatarCommandHandler } from './Application/Features/User/Commands/Update/Avatar/UpdateAvatarCommandHandler.js';
 
 export function registerIpcHandlers(mainWindow: BrowserWindow) {
     const mediator = new Mediator();
@@ -71,7 +72,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
 
     mediator.registerHandler('GetUserQuery', new GetUserQueryHandler());
     mediator.registerHandler('CreateUserCommand', new CreateUserCommandHandler());
-    mediator.registerHandler('UpdateProfilePictureCommand', new UpdateProfilePictureCommandHandler());
+    mediator.registerHandler(UpdateAvatarCommand.name, new UpdateAvatarCommandHandler());
     mediator.registerHandler(AddUserConnectionIdCommand.name, new AddUserConnectionIdCommandHandler());
     mediator.registerHandler(RemoveUserConnectionIdCommand.name, new RemoveUserConnectionIdCommandHandler());
 

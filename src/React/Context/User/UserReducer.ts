@@ -4,7 +4,7 @@ export enum UserActionType {
     Initialize = -1,
     UpdateUsername = 0,
     UpdateDisplayName = 1,
-    UpdateProfilePicture = 2,
+    UpdateAvatar = 2,
     AddConnectionId = 3,
     RemoveConnectionId = 4,
     Clear = 5,
@@ -14,7 +14,7 @@ export type UserAction =
     | { type: UserActionType.Initialize; payload: User  }
     | { type: UserActionType.UpdateUsername; payload: { username: string } }
     | { type: UserActionType.UpdateDisplayName; payload: { displayName: string | null } }
-    | { type: UserActionType.UpdateProfilePicture; payload: { base64ProfilePicture: string | null } }
+    | { type: UserActionType.UpdateAvatar; payload: { AvatarKey: string | null } }
     | { type: UserActionType.AddConnectionId; payload: { connectionId: string } }
     | { type: UserActionType.RemoveConnectionId; payload: { connectionId: string } }
     | { type: UserActionType.Clear };
@@ -33,7 +33,7 @@ export const userReducer = (state: User | null, action: UserAction): User | null
                     state.deviceId,
                     state.connectionId,
                     state.externalConnectionIds,
-                    state.base64ProfilePicture,
+                    state.avatarKey,
                     state.displayName
                 );
             }
@@ -48,13 +48,13 @@ export const userReducer = (state: User | null, action: UserAction): User | null
                     state.deviceId,
                     state.connectionId,
                     state.externalConnectionIds,
-                    state.base64ProfilePicture,
+                    state.avatarKey,
                     action.payload.displayName
                 );
             }
             return state;
 
-        case UserActionType.UpdateProfilePicture:
+        case UserActionType.UpdateAvatar:
             if (state) {
                 return new User(
                     state.id,
@@ -63,7 +63,7 @@ export const userReducer = (state: User | null, action: UserAction): User | null
                     state.deviceId,
                     state.connectionId,
                     state.externalConnectionIds,
-                    action.payload.base64ProfilePicture,
+                    action.payload.AvatarKey,
                     state.displayName
                 );
             }
@@ -78,7 +78,7 @@ export const userReducer = (state: User | null, action: UserAction): User | null
                     state.deviceId,
                     state.connectionId,
                     [...state.externalConnectionIds, action.payload.connectionId],
-                    state.base64ProfilePicture,
+                    state.avatarKey,
                     state.displayName
                 );
             }
@@ -92,7 +92,7 @@ export const userReducer = (state: User | null, action: UserAction): User | null
                     state.deviceId,
                     state.connectionId,
                     state.externalConnectionIds.filter(id => id !== action.payload.connectionId),
-                    state.base64ProfilePicture,
+                    state.avatarKey,
                     state.displayName
                 );
             }

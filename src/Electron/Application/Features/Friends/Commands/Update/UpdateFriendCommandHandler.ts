@@ -1,7 +1,6 @@
 ﻿import {UpdateFriendCommand} from "./UpdateFriendCommand.js";
 import {Handler} from "../../../../Mediator/Handler.js";
 import {Result} from "../../../../../../Shared/Result/Result.js";
-import {ImageConverter} from "../../../../Services/Images/ImageConverter.js";
 import {ErrorMessage} from "../../../../../../Shared/Result/ErrorMessage.js";
 import {FriendRepository} from "../../../../../Persistence/Repositories/FriendRepository.js";
 
@@ -21,8 +20,8 @@ export class UpdateFriendCommandHandler implements Handler<UpdateFriendCommand> 
             if (request.displayName !== null) {
                 friend.displayName = request.displayName;
             }
-            if (request.profilePicture !== null) {
-                friend.profilePicture = await ImageConverter.base64ToBuffer(request.profilePicture);
+            if (request.avatarKey !== null) {
+                friend.avatarKey = request.avatarKey;
             }
 
             await friendRepository.update(friend);

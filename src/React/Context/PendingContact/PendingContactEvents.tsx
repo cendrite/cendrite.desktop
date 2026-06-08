@@ -13,6 +13,7 @@ export function usePendingContactEvents(
 ) {
     const handleFriendRequestReceived = useCallback(
         async (evt: ChangeEvent<FriendRequestEvent>) => {
+            console.log('Received friend request event:', evt);
             pendingContactDispatch({
                 type: PendingContactActionType.Add,
                 payload: new PendingContact(
@@ -20,7 +21,7 @@ export function usePendingContactEvents(
                     evt.data.username,
                     false,
                     evt.data.displayName,
-                    evt.data.presignedProfilePictureUrl,
+                    evt.data.avatarKey,
                 ),
             });
             notificationDispatch({ type: NotificationActionType.AddFriendRequest, payload: { userTag: evt.data.tag } });

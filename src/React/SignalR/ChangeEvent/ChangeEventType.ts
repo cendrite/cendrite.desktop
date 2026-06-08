@@ -1,5 +1,5 @@
 ﻿export enum ChangeEventType{
-    ProfilePictureChanged = 0,
+    AvatarChanged = 0,
     DisplayNameChanged = 1,
     StatusChanged = 2,
     FriendRequest = 3,

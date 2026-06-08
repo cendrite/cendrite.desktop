@@ -1,16 +1,22 @@
 export class CreateFriendCommand implements MediatorRequest {
-    type = "CreateFriendCommand";
+    type = 'CreateFriendCommand';
     username!: string;
     displayName: string | null;
-    base64ProfilePicture: string | null;
+    avatarKey: string | null;
     connectionIds!: string[];
     tag!: string;
 
-    constructor(username: string, displayName: string | null, connectionId: string[], tag: string, base64Url: string | null) {
+    constructor(
+        username: string,
+        displayName: string | null,
+        connectionId: string[],
+        tag: string,
+        avatarKey: string | null,
+    ) {
         this.tag = tag;
         this.username = username;
         this.displayName = displayName;
-        this.base64ProfilePicture = base64Url;
+        this.avatarKey = avatarKey;
         this.connectionIds = connectionId;
     }
 }

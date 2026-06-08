@@ -7,8 +7,9 @@ import {
 import SidePanelToggle from './SidePanelToggle';
 import PanelButton from './SidePanelButton';
 import UserModal from '../Modals/UserModal.tsx';
-import ProfilePicture from '../../../Common/Components/ProfilePicture/ProfilePicture.tsx';
 import NotificationBadge from '../../../Context/Notification/NotificationBadge.tsx';
+import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
+import { useUser } from '../../../Context/User/UserContext.tsx';
 
 export interface SidePanelProps {
     onHide: () => void;
@@ -18,6 +19,7 @@ export interface SidePanelProps {
 
 export const SidePanel: React.FC<SidePanelProps> = ({ onHide, setPaneType, paneType }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const { user } = useUser();
 
     return (
         <>
@@ -58,8 +60,20 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onHide, setPaneType, paneT
 
                     <PanelButton
                         onClick={() => setIsModalOpen(true)}
-                        icon={<ProfilePicture className="w-8 h-8" />}
-                        activeIcon={<ProfilePicture className="w-8 h-8" />}
+                        icon={
+                            <Avatar
+                                className="w-8 h-8"
+                                AvatarKey={user?.avatarKey ?? null}
+                                Username={user?.displayName ?? user?.username ?? '?'}
+                            />
+                        }
+                        activeIcon={
+                            <Avatar
+                                className="w-8 h-8"
+                                AvatarKey={user?.avatarKey ?? null}
+                                Username={user?.displayName ?? user?.username ?? '?'}
+                            />
+                        }
                         isActive={isModalOpen}
                     />
                 </div>

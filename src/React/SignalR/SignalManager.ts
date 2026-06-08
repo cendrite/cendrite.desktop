@@ -60,6 +60,7 @@ export class SignalManager {
     }
 
     public async disconnect() {
+        if (this._connections.size === 0) return;
         this._connections.forEach(c => c.stop());
         this._connections.clear();
         this._handlers.forEach(r => r.dispose());
