@@ -3,7 +3,7 @@ import { ChatViewModel } from '../../../Models/ChatViewModel.ts';
 import { useHomePage } from '../../../Context/HomePage/HomePageContext.tsx';
 import { HomePageActionType } from '../../../Context/HomePage/HomePageReducer.ts';
 import { useUser } from '../../../Context/User/UserContext.tsx';
-import Avatar from '../../../Common/Components/ProfilePicture/Avatar.tsx';
+import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
 
 interface ChatCardProps {
     chat: ChatViewModel;

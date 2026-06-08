@@ -5,7 +5,7 @@ import { useNotifications } from '../../../Context/Notification/NotificationCont
 import { useHomePage } from '../../../Context/HomePage/HomePageContext.tsx';
 import { HomePageActionType } from '../../../Context/HomePage/HomePageReducer.ts';
 import { PendingContact } from '../../../Models/PendingContact.ts';
-import Avatar from '../../../Common/Components/ProfilePicture/Avatar.tsx';
+import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
 
 interface PendingContactCardProps {
     contact: PendingContact;

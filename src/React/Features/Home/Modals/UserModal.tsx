@@ -2,7 +2,7 @@
 import Modal from 'react-modal';
 import LogoutModal from './LogoutModal.tsx';
 import { useUser } from '../../../Context/User/UserContext.tsx';
-import Avatar from '../../../Common/Components/ProfilePicture/Avatar.tsx';
+import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
 import AvatarModal from './AvatarModal.tsx';
 
 interface UserModalProps {

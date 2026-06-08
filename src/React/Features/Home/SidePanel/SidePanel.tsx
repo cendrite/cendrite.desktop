@@ -8,7 +8,7 @@ import SidePanelToggle from './SidePanelToggle';
 import PanelButton from './SidePanelButton';
 import UserModal from '../Modals/UserModal.tsx';
 import NotificationBadge from '../../../Context/Notification/NotificationBadge.tsx';
-import Avatar from '../../../Common/Components/ProfilePicture/Avatar.tsx';
+import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
 import { useUser } from '../../../Context/User/UserContext.tsx';
 
 export interface SidePanelProps {

@@ -8,7 +8,7 @@ import ToolTip from '../Utility/ToolTip.tsx';
 import { useContacts } from '../../../Context/Contacts/ContactContext.tsx';
 import { ContactActionType } from '../../../Context/Contacts/ContactReducer.ts';
 import { useUser } from '../../../Context/User/UserContext.tsx';
-import Avatar from './Avatar.tsx';
+import Avatar from '../Avatar/Avatar.tsx';
 
 interface PublicUserProfileCardProps {
     username: string;

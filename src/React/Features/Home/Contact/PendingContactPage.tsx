@@ -7,7 +7,7 @@ import ToolTip from '../../../Common/Components/Utility/ToolTip.tsx';
 import { PendingContact } from '../../../Models/PendingContact.ts';
 import { usePendingContacts } from '../../../Context/PendingContact/PendingContactContext.tsx';
 import { PendingContactActionType } from '../../../Context/PendingContact/PendingContactReducer.ts';
-import Avatar from '../../../Common/Components/ProfilePicture/Avatar.tsx';
+import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
 
 interface PendingContactPage {
     pendingContact: PendingContact;

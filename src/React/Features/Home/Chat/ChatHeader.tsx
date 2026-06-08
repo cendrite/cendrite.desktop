@@ -4,7 +4,7 @@ import { ChatViewModel } from '../../../Models/ChatViewModel.ts';
 import VoiceCallButton from '../../../Common/Components/CommunicationButtons/VoiceCallButton.tsx';
 import VideoCallButton from '../../../Common/Components/CommunicationButtons/VideoCallButton.tsx';
 import ChatSettingsMenu from './ChatSettingsMenu.tsx';
-import Avatar from '../../../Common/Components/ProfilePicture/Avatar.tsx';
+import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
 
 interface ChatHeaderProps {
     chat: ChatViewModel;

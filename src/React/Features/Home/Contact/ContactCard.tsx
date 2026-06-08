@@ -2,7 +2,7 @@ import React from 'react';
 import { useHomePage } from '../../../Context/HomePage/HomePageContext.tsx';
 import { HomePageActionType } from '../../../Context/HomePage/HomePageReducer.ts';
 import { Contact } from '../../../Models/Contact.ts';
-import Avatar from '../../../Common/Components/ProfilePicture/Avatar.tsx';
+import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
 
 interface ContactCardProps {
     contact: Contact;

@@ -10,7 +10,7 @@ import {
 import { useUser } from "../../../Context/User/UserContext.tsx";
 import { UserActionType } from "../../../Context/User/UserReducer.ts";
 import { AvatarService } from "../../../Common/Services/AvatarService.ts";
-import Avatar from "../../../Common/Components/ProfilePicture/Avatar.tsx";
+import Avatar from "../../../Common/Components/Avatar/Avatar.tsx";
 
 interface AvatarModelProps {
     isOpen: boolean;
