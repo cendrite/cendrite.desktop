@@ -1,11 +1,11 @@
 ﻿import React from 'react';
-import { UserProfileImage } from '../../../Common/Components/ProfilePicture/UserProfileImage.tsx';
 import { NotificationActionType } from '../../../Context/Notification/NotificationReducer.ts';
 import NotificationBadge from '../../../Context/Notification/NotificationBadge.tsx';
 import { useNotifications } from '../../../Context/Notification/NotificationContext.tsx';
 import { useHomePage } from '../../../Context/HomePage/HomePageContext.tsx';
 import { HomePageActionType } from '../../../Context/HomePage/HomePageReducer.ts';
 import { PendingContact } from '../../../Models/PendingContact.ts';
+import Avatar from '../../../Common/Components/ProfilePicture/Avatar.tsx';
 
 interface PendingContactCardProps {
     contact: PendingContact;
@@ -35,13 +35,11 @@ const PendingContactCard: React.FC<PendingContactCardProps> = ({ contact }) => {
     return (
         <div className={cardClasses} onClick={onHandleClick}>
             <NotificationBadge section="requests" itemId={contact.id} />
-            <div className="w-11 h-11 rounded-full flex items-center justify-center overflow-hidden bg-gray-100 relative">
-                <UserProfileImage
-                    username={contact.username}
-                    displayName={contact.displayName}
-                    profilePictureUrl={contact.profilePicture}
-                />
-            </div>
+            <Avatar
+                className="w-11 h-11 rounded-full flex items-center justify-center overflow-hidden bg-gray-100 relative"
+                AvatarKey={contact.avatarKey}
+                Username={name}
+            />
             <div className="ml-3">
                 <div className="text-white font-semibold">{name}</div>
             </div>

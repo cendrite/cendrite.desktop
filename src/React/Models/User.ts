@@ -5,7 +5,7 @@ export class User {
     deviceId: string;
     connectionId: string;
     externalConnectionIds: string[];
-    base64ProfilePicture: string | null;
+    avatarKey: string | null;
     displayName: string | null;
 
     constructor(
@@ -15,7 +15,7 @@ export class User {
         deviceId: string,
         connectionId: string,
         externalConnectionIds: string[],
-        base64ProfilePicture: string | null,
+        avatarKey: string | null,
         displayName: string | null,
     ) {
         this.id = id;
@@ -24,7 +24,7 @@ export class User {
         this.deviceId = deviceId;
         this.connectionId = connectionId;
         this.externalConnectionIds = externalConnectionIds;
-        this.base64ProfilePicture = base64ProfilePicture;
+        this.avatarKey = avatarKey;
         this.displayName = displayName;
     }
 

@@ -1,11 +1,9 @@
 import { Result } from '../../../Shared/Result/Result';
-import { UpdateProfilePictureApi as UpdateAvatarApi } from '../Api/UserProfile/UpdateProfilePictureApi';
-import { GetUserProfilePictureApi } from '../Api/UserProfile/GetUserProfilePicture.ts';
 import { UpdateAvatarCommand } from '../../../Electron/Application/Features/User/Commands/Update/Avatar/UpdateAvatarCommand.ts';
+import { UpdateAvatarApi } from '../Api/UserProfile/UpdateAvatarApi.ts';
 
 export class AvatarService {
     private readonly updateAvatarApi = new UpdateAvatarApi();
-    private readonly pictureApi = new GetUserProfilePictureApi();
 
     public async updateAvatar(avatar: string, isStock: boolean): Promise<Result<string>> {
         let file: File | null;
@@ -18,36 +16,20 @@ export class AvatarService {
 
         const remoteUpdateResult = await this.updateAvatarApi.handle({ Avatar: file });
 
+        console.log('Remote update result:', remoteUpdateResult);
         if (!remoteUpdateResult.success) {
             return Result.fail<string>(remoteUpdateResult.errorMessage!);
         }
 
         const localUpdateResult = await window.electron.sendRequestAsync<Result>(
-            new UpdateAvatarCommand(remoteUpdateResult.data!.AvatarKey),
+            new UpdateAvatarCommand(remoteUpdateResult.data!.fileKey),
         );
 
         if (!localUpdateResult.success) {
             return Result.fail<string>(localUpdateResult.errorMessage!);
         }
 
-        return Result.success(remoteUpdateResult.data!.AvatarKey);
-    }
-
-    public async FetchProfilePicture(avatar_key: string): Promise<string | null> {
-        if (!avatar_key) return null;
-        try {
-            const profilePictureResult = await this.pictureApi.getUserProfilePicture({ profilePictureUrl: avatar_key });
-
-            if (!profilePictureResult.success) {
-                console.error(profilePictureResult.errorMessage);
-                return null;
-            }
-
-            return profilePictureResult.data?.base64ProfilePicture ?? null;
-        } catch (err) {
-            console.error('Failed to fetch profile picture:', err);
-            return null;
-        }
+        return Result.success(remoteUpdateResult.data!.fileKey);
     }
 
     private base64ToFile(base64Data: string, fileName: string): File {

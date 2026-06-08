@@ -7,10 +7,10 @@ export interface UpdateAvatarApiRequest {
 }
 
 export interface UpdateAvatarApiResponse {
-    AvatarKey: string;
+    fileKey: string;
 }
 
-export class UpdateProfilePictureApi {
+export class UpdateAvatarApi {
     private readonly client: ApiClient;
 
     constructor() {
@@ -22,7 +22,7 @@ export class UpdateProfilePictureApi {
         const formData = new FormData();
         formData.append("Avatar", req.Avatar);
 
-        return this.client.handle<UpdateAvatarApiResponse>({
+        return this.client.handleConduit<UpdateAvatarApiResponse>({
             method: "PUT",
             data: formData,
             headers: {

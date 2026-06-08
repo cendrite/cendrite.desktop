@@ -110,7 +110,7 @@ const SearchForUserModal: React.FC<SearchForUserModalProps> = ({isOpen, onClose}
                                 username={searchResult.username}
                                 friendTag={searchResult.userTag}
                                 displayName={searchResult.displayName}
-                                profilePictureUrl={searchResult.profilePictureUrl}
+                                avatarKey={searchResult.avatarKey}
                                 friendshipStatus={searchResult.friendshipStatus.status ?? undefined}
                                 friendshipDirection={searchResult.friendshipStatus.direction}
                             />

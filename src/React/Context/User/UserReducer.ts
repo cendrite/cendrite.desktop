@@ -33,7 +33,7 @@ export const userReducer = (state: User | null, action: UserAction): User | null
                     state.deviceId,
                     state.connectionId,
                     state.externalConnectionIds,
-                    state.base64ProfilePicture,
+                    state.avatarKey,
                     state.displayName
                 );
             }
@@ -48,7 +48,7 @@ export const userReducer = (state: User | null, action: UserAction): User | null
                     state.deviceId,
                     state.connectionId,
                     state.externalConnectionIds,
-                    state.base64ProfilePicture,
+                    state.avatarKey,
                     action.payload.displayName
                 );
             }
@@ -78,7 +78,7 @@ export const userReducer = (state: User | null, action: UserAction): User | null
                     state.deviceId,
                     state.connectionId,
                     [...state.externalConnectionIds, action.payload.connectionId],
-                    state.base64ProfilePicture,
+                    state.avatarKey,
                     state.displayName
                 );
             }
@@ -92,7 +92,7 @@ export const userReducer = (state: User | null, action: UserAction): User | null
                     state.deviceId,
                     state.connectionId,
                     state.externalConnectionIds.filter(id => id !== action.payload.connectionId),
-                    state.base64ProfilePicture,
+                    state.avatarKey,
                     state.displayName
                 );
             }

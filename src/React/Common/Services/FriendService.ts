@@ -36,7 +36,7 @@ export class FriendService {
                     friend.username,
                     false,
                     friend.displayName,
-                    friend.profilePictureUrl,
+                    friend.avatarKey,
                 )
             )
         );

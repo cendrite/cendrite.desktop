@@ -6,7 +6,7 @@ export interface GetFriendsResponse {
     username: string;
     userTag: string;
     displayName: string | null;
-    profilePictureUrl: string | null;
+    avatarKey: string | null;
     connectionIds: string[];
 }
 

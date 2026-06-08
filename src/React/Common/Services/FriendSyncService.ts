@@ -18,7 +18,6 @@ import {
     AddFriendConnectionIdCommand
 } from "../../../Electron/Application/Features/Friends/Commands/AddConnectionId/AddFriendConnectionIdCommand.ts";
 import { Contact } from "../../Models/Contact.ts";
-import { AvatarService as AvatarService } from "./AvatarService.ts";
 
 interface ConnectionDiff {
     friendId: string;
@@ -28,7 +27,6 @@ interface ConnectionDiff {
 
 export class FriendSyncService {
     private readonly getFriendsApi = new GetFriendsApi();
-    private readonly profilePictureService = new AvatarService();
 
     public async SyncFriends(): Promise<Array<Contact>> {
         const localMap = await this.LoadLocalContacts();
@@ -106,19 +104,17 @@ export class FriendSyncService {
         if (!result.success || !result.data) return contacts;
         console.log("Remote friends loaded:", result);
 
-        const entries = await Promise.all(
-            result.data.map(async rc => {
-                const pic = rc.profilePictureUrl ? await this.profilePictureService.FetchProfilePicture(rc.profilePictureUrl) : null;
-                const contact = new Contact(
-                    rc.userTag,
-                    rc.username,
-                    rc.displayName,
-                    pic,
-                    rc.connectionIds
-                );
-                return [contact.id, contact] as [string, Contact];
-            })
-        );
+        
+        const entries = result.data.map(rc => {
+            const contact = new Contact(
+                rc.userTag,
+                rc.username,
+                rc.displayName,
+                rc.avatarKey,
+                rc.connectionIds
+            );
+            return [contact.id, contact] as [string, Contact];
+        });
 
         for (const [id, contact] of entries) {
             contacts.set(id, contact);

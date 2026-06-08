@@ -2,7 +2,7 @@ export class PendingContact {
     id: string;
     username: string;
     displayName: string | null;
-    profilePicture: string | null;
+    avatarKey: string | null;
     IsSeen: boolean = false;
 
     constructor(
@@ -10,12 +10,12 @@ export class PendingContact {
         username: string,
         isSeen: boolean,
         displayName: string | null,
-        profilePicture: string | null,
+        avatarKey: string | null,
     ) {
         this.id = id;
         this.username = username;
         this.displayName = displayName;
-        this.profilePicture = profilePicture;
+        this.avatarKey = avatarKey;
         this.IsSeen = isSeen;
     }
 }

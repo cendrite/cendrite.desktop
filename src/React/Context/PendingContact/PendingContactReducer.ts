@@ -37,7 +37,7 @@ export const pendingContactReducer = (
                         pending.username,
                         true,
                         pending.displayName,
-                        pending.profilePicture)
+                        pending.avatarKey)
                     : pending);
 
         case PendingContactActionType.Clear:

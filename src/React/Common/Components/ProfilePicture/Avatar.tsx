@@ -1,26 +1,26 @@
-﻿import React from "react";
-import clsx from "clsx";
-import { useUser } from "../../../Context/User/UserContext";
+﻿import React from 'react';
+import clsx from 'clsx';
+import { API_URLS } from '../../Api/ApiUrls.ts';
 
 interface AvatarProps {
     className?: string;
-    AvatarKey?: string;
+    AvatarKey: string | null;
+    Username: string;
 }
 
-const Avatar: React.FC<AvatarProps> = ({className, AvatarKey}) => {
-    const {user} = useUser();
-    console.warn(AvatarKey);
+const Avatar: React.FC<AvatarProps> = ({ className, AvatarKey, Username }) => {
+    const src = AvatarKey ? `${API_URLS.USER_MANAGEMENT.GET_AVATAR}?fileKey=${AvatarKey}` : null;
 
-    return user!.base64ProfilePicture ? (
-        <img
-            src={user?.base64ProfilePicture}
-            alt="Profile Picture"
-            className={clsx("rounded-full", className)}
-        />
+    return src ? (
+        <img src={src} alt="Profile Picture" className={clsx('rounded-full', className)} />
     ) : (
         <div
-            className= {clsx("rounded-full bg-blue-200 flex items-center justify-center text-2xl font-extralight text-blue-900", className)}>
-            {user?.username[0].concat(user?.username[1]).toUpperCase() || "?"}
+            className={clsx(
+                'rounded-full bg-blue-200 flex items-center justify-center text-2xl font-extralight text-blue-900',
+                className,
+            )}
+        >
+            {Username[0].concat(Username[1]).toUpperCase() || '?'}
         </div>
     );
 };

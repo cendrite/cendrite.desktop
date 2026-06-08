@@ -5,34 +5,18 @@ import { RemoveUserConnectionIdCommand } from '../../../Electron/Application/Fea
 import { UserAction, UserActionType } from './UserReducer';
 import { ChangeEvent } from '../../SignalR/ChangeEvent/ChangeEvent';
 import { AvatarUpdatedEvent, UserLoggedInEvent } from '../../SignalR/ChangeEvent/EventData';
-import { GetUserProfilePictureApi } from '../../Common/Api/UserProfile/GetUserProfilePicture';
 import { useSignalEvent } from '../../SignalR/Utility/Utilities';
 import { ChangeEventType } from '../../SignalR/ChangeEvent/ChangeEventType';
 
-export function useUserEvents(
-    user: User | null,
-    dispatch: React.Dispatch<UserAction>,
-    profilePictureApi: GetUserProfilePictureApi,
-) {
-    const handleProfilePictureUpdate = useCallback(
+export function useUserEvents(user: User | null, dispatch: React.Dispatch<UserAction>) {
+    const handleAvatarUpdate = useCallback(
         async (evt: ChangeEvent<AvatarUpdatedEvent>) => {
-            try {
-                if (user?.userTag !== evt.data.userTag) return;
-                const result = await profilePictureApi.getUserProfilePicture({
-                    profilePictureUrl: evt.data.avatarKey,
-                });
-
-                if (result.success) {
-                    dispatch({
-                        type: UserActionType.UpdateAvatar,
-                        payload: { AvatarKey: result.data!.base64ProfilePicture },
-                    });
-                }
-            } catch (err) {
-                console.error('Failed to fetch updated profile picture', err);
-            }
+            dispatch({
+                type: UserActionType.UpdateAvatar,
+                payload: { AvatarKey: evt.data.avatarKey },
+            });
         },
-        [profilePictureApi, dispatch, user],
+        [dispatch, user],
     );
 
     const handleUserLoginEvent = useCallback(
@@ -65,7 +49,7 @@ export function useUserEvents(
         [dispatch, user],
     );
 
-    useSignalEvent(ChangeEventType.ProfilePictureChanged, handleProfilePictureUpdate);
+    useSignalEvent(ChangeEventType.AvatarChanged, handleAvatarUpdate);
     useSignalEvent(ChangeEventType.UserLoggedIn, handleUserLoginEvent);
     useSignalEvent(ChangeEventType.UserLoggedOut, handleUserLogoutEvent);
 

@@ -6,7 +6,7 @@ export interface GetFriendRequestResponse {
     userTag: string;
     username: string;
     displayName: string | null;
-    profilePictureUrl: string | null;
+    avatarKey: string | null;
     isSeen: boolean;
 }
 
