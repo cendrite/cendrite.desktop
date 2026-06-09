@@ -29,7 +29,6 @@ export const ChatMemberSchema = new EntitySchema<ChatMember>({
             type: "many-to-one",
             joinColumn: true,
             cascade: true,
-            onDelete: "CASCADE",
             eager: true,
         },
         chat: {

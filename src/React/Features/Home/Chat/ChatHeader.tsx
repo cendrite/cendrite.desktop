@@ -24,8 +24,8 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ chat, onClose }) => {
                 <div className="w-7 h-7 rounded-full flex items-center justify-center overflow-hidden bg-gray-100 ml-3">
                     <Avatar
                         className="w-11 h-11"
-                        AvatarKey={chatMember.contact.avatarKey}
-                        Username={chatMember.contact.username}
+                        AvatarKey={chatMember?.contact.avatarKey}
+                        Username={chatMember?.contact.username ?? "?"}
                     />
                 </div>
 
