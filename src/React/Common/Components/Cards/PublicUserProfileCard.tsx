@@ -157,7 +157,7 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
     return (
         <div className="flex items-center justify-between p-3 bg-darkGray-600 rounded-lg shadow-lg w-full">
             <div className="flex items-center">
-                <Avatar className="w-11 h-11" AvatarKey={avatarKey ?? null} Username={user?.username ?? '?'} />
+                <Avatar className="w-11 h-11" AvatarKey={avatarKey ?? null} Username={username ?? '?'} />
                 <div className="ml-3">
                     <div className="text-white font-semibold">{displayName || username}</div>
                     <div className="text-gray-400 text-sm">@{friendTag}</div>
