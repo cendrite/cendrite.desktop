@@ -28,12 +28,7 @@ export class ChatStore {
     }
 
     public async deleteChat(chatId: string): Promise<void> {
-        return this.chatRepository.createQueryBuilder()
-            .delete()
-            .from(Chat)
-            .where('id = :chatId', { chatId })
-            .execute()
-            .then(() => { });
+        await this.chatRepository.delete(chatId);
     }
 
     public async getChats(chatLoadCount: number): Promise<Chat[]> {
@@ -70,6 +65,19 @@ export class ChatStore {
             .where('chatId = :chatId', { chatId })
             .andWhere('id IN (:...messageIds)', { messageIds })
             .execute();
+    }
+
+    public async deleteByFriendId(friendId: string): Promise<void> {
+        const chat = await this.chatRepository
+            .createQueryBuilder('chat')
+            .innerJoin('chat.members', 'member')
+            .innerJoin('member.friend', 'friend')
+            .where('friend.id = :friendId', { friendId })
+            .getOne();
+
+        if (chat) {
+            await this.chatRepository.delete(chat.id);
+        }
     }
 
     public async create(chat: Chat): Promise<Chat> {
