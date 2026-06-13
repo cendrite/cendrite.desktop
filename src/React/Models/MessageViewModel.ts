@@ -10,7 +10,7 @@ export class MessageViewModel {
     messageToken: string | null = null;
     senderId: string;
     text: string;
-    media: Media[]
+    media: Media[];
     date: Date;
     deliveryStatus: DeliveryStatus;
 
@@ -76,8 +76,8 @@ export class MessageViewModel {
             dto.senderId,
             dto.content,
             new Date(dto.timestamp),
+            dto.media,
             dto.deliveryStatus,
-            dto.contentUrl,
             dto.messageToken,
         );
     }
