@@ -16,11 +16,7 @@ const PAGE_SIZE = 10;
 const SCROLL_TOP_THRESHOLD = 80;
 const BOTTOM_THRESHOLD = 120;
 
-function shouldShowStatus(
-    messages: MessageViewModel[],
-    index: number,
-    isMine: (senderId: string) => boolean,
-): boolean {
+function shouldShowStatus(messages: MessageViewModel[], index: number, isMine: (senderId: string) => boolean): boolean {
     if (!isMine(messages[index].senderId)) return false;
 
     for (let i = index + 1; i < messages.length; i++) {
@@ -54,15 +50,11 @@ function useChatScroll(chat: ChatViewModel): ChatScroll {
     const prevScrollHeight = useRef<number | null>(null);
     const wasNearBottom = useRef(true);
     const prevLength = useRef(0);
-    const prevChatId = useRef<string | null>(null);
 
     const [showJumpButton, setShowJumpButton] = useState(false);
 
-    // Reset paging state when switching chats (the component instance is reused).
-    useEffect(() => {
-        hasMore.current = true;
-        isLoading.current = false;
-    }, [chat.id]);
+    // One instance per chat (MessageList is keyed by chat.id), so every ref starts fresh
+    // on each chat — no manual chat-switch reset needed.
 
     // Fetch one page of older messages. `anchor` keeps the current viewport stable
     // (used when the user scrolls up); without it the layout effect sticks to the
@@ -94,18 +86,6 @@ function useChatScroll(chat: ChatViewModel): ChatScroll {
     useLayoutEffect(() => {
         if (!container.current) return;
 
-        // Chat switched (or first mount): jump to the bottom and reset tracking.
-        if (prevChatId.current !== chat.id) {
-            prevChatId.current = chat.id;
-            prevLength.current = chat.messages.length;
-            prevScrollHeight.current = null;
-            wasNearBottom.current = true;
-            container.current.scrollTop = container.current.scrollHeight;
-            setShowJumpButton(false);
-            return;
-        }
-
-        // Anchored prepend of older history: keep the viewport on the same messages.
         if (prevScrollHeight.current !== null) {
             container.current.scrollTop += container.current.scrollHeight - prevScrollHeight.current;
             prevScrollHeight.current = null;
@@ -137,12 +117,14 @@ function useChatScroll(chat: ChatViewModel): ChatScroll {
         if (container.current.scrollHeight <= container.current.clientHeight) {
             void fetchMessages(false);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [chat.id, chat.messages.length]);
 
     const onScroll = () => {
         if (!container.current) return;
 
-        const distanceFromBottom = container.current.scrollHeight - container.current.scrollTop - container.current.clientHeight;
+        const distanceFromBottom =
+            container.current.scrollHeight - container.current.scrollTop - container.current.clientHeight;
         wasNearBottom.current = distanceFromBottom <= BOTTOM_THRESHOLD;
         if (wasNearBottom.current) setShowJumpButton(false);
 
@@ -178,14 +160,14 @@ const JumpToLatestButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
 
 const MessageList: React.FC<MessageListProps> = ({ chat }) => {
     const { user } = useUser();
-    const { container: containerRef, showJump, onScroll, jumpToBottom } = useChatScroll(chat);
+    const { container, showJump, onScroll, jumpToBottom } = useChatScroll(chat);
 
     const isMine = (senderId: string) => user?.IsUserConnectionId(senderId) ?? false;
 
     return (
         <div className="relative flex-1 min-h-0">
             <div
-                ref={containerRef}
+                ref={container}
                 id="scroll_chat"
                 className="h-full overflow-y-auto p-4 pb-8"
                 style={{ overflowAnchor: 'none' }}
