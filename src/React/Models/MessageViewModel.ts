@@ -2,6 +2,7 @@
 import { v4 as uuid } from 'uuid';
 import { MessagePayload, ServerMessage } from '../SignalR/Messaging/ServerMessage.ts';
 import { MessageDto } from '../../Electron/Application/Features/Chat/Dtos/MessageDto.ts';
+import { Media } from './Media.ts';
 
 export class MessageViewModel {
     id: string;
@@ -9,7 +10,7 @@ export class MessageViewModel {
     messageToken: string | null = null;
     senderId: string;
     text: string;
-    media: string | null;
+    media: Media[]
     date: Date;
     deliveryStatus: DeliveryStatus;
 
@@ -20,7 +21,7 @@ export class MessageViewModel {
         message: string,
         date: Date,
         deliveryStatus: DeliveryStatus,
-        mediaUrl: string | null = null,
+        media: Media[],
         messageToken: string | null = null,
     ) {
         this.id = id;
@@ -28,7 +29,7 @@ export class MessageViewModel {
         this.senderId = senderId;
         this.text = message;
         this.date = date;
-        this.media = mediaUrl;
+        this.media = media;
         this.deliveryStatus = deliveryStatus;
         this.messageToken = messageToken;
     }
@@ -37,7 +38,7 @@ export class MessageViewModel {
         chatId: string,
         senderId: string,
         text: string | null,
-        media: string | null,
+        media: Media[] = [],
         deliveryStatus: DeliveryStatus,
     ): MessageViewModel {
         return new MessageViewModel(
@@ -47,7 +48,7 @@ export class MessageViewModel {
             text || '',
             new Date(),
             deliveryStatus,
-            media || null,
+            media || [],
             uuid().toString(),
         );
     }

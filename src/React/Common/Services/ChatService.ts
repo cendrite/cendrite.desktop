@@ -220,10 +220,8 @@ export class ChatService {
                 member.privilege,
                 new MessageDto(
                     mappedMsg.id,
-                    null,
                     mappedMsg.senderId,
                     mappedMsg.text,
-                    mappedMsg.media,
                     mappedMsg.date,
                     mappedMsg.deliveryStatus,
                 ),
