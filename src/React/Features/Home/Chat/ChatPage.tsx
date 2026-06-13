@@ -13,10 +13,9 @@ interface ChatPageProps {
 }
 const ChatPage: React.FC<ChatPageProps> = ({ chatId, onClose }) => {
     const [slideClass, setSlideClass] = useState('translate-x-full');
-    const [message, setMessage] = useState<string>('');
     const { getChatById } = useChatContext();
     const currentChat = getChatById(chatId);
-    const { sendMessage, markMessagesAsRead } = useMessageService();
+    const { markMessagesAsRead } = useMessageService();
     const { chatDispatch } = useChatContext();
 
     useEffect(() => {
@@ -44,11 +43,6 @@ const ChatPage: React.FC<ChatPageProps> = ({ chatId, onClose }) => {
         }, 300);
     };
 
-    const onSendMessage = async (text: string): Promise<void> => {
-        if (!text.trim()) return;
-        await sendMessage(currentChat, text, null);
-    };
-
     return (
         <>
             <div className={`absolute inset-0  text-white shadow-lg transition-transform duration-300 ${slideClass}`}>
@@ -58,7 +52,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ chatId, onClose }) => {
                     <MessageList key={currentChat.id} chat={currentChat} />
 
                     <div className="sticky bottom-0 bg-zinc-950">
-                        <ChatBar sendMessage={onSendMessage} message={message} setMessage={setMessage} />
+                        <ChatBar chat={currentChat} />
                     </div>
                 </div>
             </div>

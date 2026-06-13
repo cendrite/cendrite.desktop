@@ -54,6 +54,14 @@ export const MessageBubble: React.FC<ChatBubbleProps> = ({ message, showStatus }
         minute: '2-digit',
     });
 
+    const mediaContent = message.media ? (
+        message.media.startsWith('data:video/') ? (
+            <video src={message.media} className="max-h-60 rounded-lg" controls />
+        ) : (
+            <img src={message.media} alt="media" className="max-h-60 rounded-lg" />
+        )
+    ) : undefined;
+
     return (
         <>
             <div className={`flex ${isMine ? 'justify-end' : 'justify-start'} mt-1 mb-1`}>
@@ -70,6 +78,7 @@ export const MessageBubble: React.FC<ChatBubbleProps> = ({ message, showStatus }
                             ${isMine ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'}
                         `}
                     >
+                        {mediaContent}
                         {message.text}
                     </div>
 

@@ -1,11 +1,13 @@
-﻿import { EntitySchema } from "typeorm/entity-schema/EntitySchema.js";
-import { Message } from "../../Domain/Entities/Message.js";
-import { Chat } from "../../Domain/Aggregates/Chat.js";
+﻿import { EntitySchema } from 'typeorm/entity-schema/EntitySchema.js';
+import { Message } from '../../Domain/Entities/Message.js';
+import { Chat } from '../../Domain/Aggregates/Chat.js';
+import { BaseSchema } from './BaseSchema.js';
 
 export const MessageSchema = new EntitySchema<Message>({
     name: 'Message',
     target: Message,
     columns: {
+        ...BaseSchema.columns,
         id: {
             type: 'uuid',
             primary: true,
