@@ -93,8 +93,8 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
         if (currentFriendshipStatus === FriendshipStatus.Accepted) {
             return (
                 <ToolTip content={'already friends'}>
-                    <button className="p-2 bg-green-500 rounded-full cursor-default">
-                        <CheckIcon className="h-6 w-6 text-white" />
+                    <button className="p-2 mr-2 bg-green-600 rounded-full cursor-default">
+                        <CheckIcon className="h-3 w-3 text-white" />
                     </button>
                 </ToolTip>
             );
@@ -111,7 +111,7 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
                             onClick={onDeclineFriendRequest}
                             className="p-2 bg-darkGray-300 hover:bg-darkGray-100 rounded-full cursor-pointer transition-colors"
                         >
-                            <XMarkIcon className="h-4 w-4 text-white" />
+                            <XMarkIcon className="h-3 w-3 text-white" />
                         </button>
                     </ToolTip>
                     <ToolTip content="Accept friend request">
@@ -119,7 +119,7 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
                             onClick={onAcceptFriendRequest}
                             className="p-2 bg-blue-500 hover:bg-blue-600 rounded-full cursor-pointer transition-colors"
                         >
-                            <CheckIcon className="h-4 w-4 text-white" />
+                            <CheckIcon className="h-3 w-3 text-white" />
                         </button>
                     </ToolTip>
                 </>
@@ -137,7 +137,7 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
                         onClick={onDeclineFriendRequest}
                         className="p-2 bg-darkGray-300 hover:bg-darkGray-100 rounded-full cursor-pointer transition-colors"
                     >
-                        <XMarkIcon className="h-4 w-4 text-white" />
+                        <XMarkIcon className="h-3 w-3 text-white" />
                     </button>
                 </ToolTip>
             );
@@ -148,7 +148,7 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
                     onClick={onAddFriend}
                     className="p-2 bg-darkGray-300 hover:bg-darkGray-100 rounded-full cursor-pointer transition-colors"
                 >
-                    <PlusIcon className="h-4 w-4 text-white" />
+                    <PlusIcon className="h-3 w-3 text-white" />
                 </button>
             </ToolTip>
         );

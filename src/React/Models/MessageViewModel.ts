@@ -62,7 +62,7 @@ export class MessageViewModel {
             msg.ChatId,
             msg.senderId,
             decryptedContent.text,
-            msg.timestamp,
+            new Date(msg.timestamp),
             initialDeliveryStatus,
             decryptedContent.media || null,
         );
@@ -74,7 +74,7 @@ export class MessageViewModel {
             chatId,
             dto.senderId,
             dto.content,
-            dto.timestamp,
+            new Date(dto.timestamp),
             dto.deliveryStatus,
             dto.contentUrl,
             dto.messageToken,
