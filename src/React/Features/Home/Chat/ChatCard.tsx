@@ -12,10 +12,7 @@ interface ChatCardProps {
 export const ChatCard: React.FC<ChatCardProps> = ({ chat }) => {
     const { selectedItem, homeDispatch } = useHomePage();
     const { user } = useUser();
-    console.log("Rendering ChatCard for chat:", chat);
-    console.log("Current user:", user);
     const unreadMessages = chat.getUnreadMessages(user!.connectionId);
-    console.log('Rendering ChatCard for chat id:', chat.id, 'Unread messages:', unreadMessages.length);
     const isSelected = selectedItem.type === 'chat' && selectedItem.value.id === chat.id;
     const name = chat.chatMembers[0]?.displayName ?? chat.chatMembers[0]?.contact.displayName ?? "?";
     const lastMessage = chat.messages.length > 0 ? chat.messages[chat.messages.length - 1] : null;
