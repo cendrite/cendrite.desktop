@@ -109,9 +109,7 @@ function useChatScroll(chat: ChatViewModel): ChatScroll {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [chat.id, chat.messages.length]);
 
-    // Auto-fill: if the loaded messages don't overflow the viewport there is nothing to
-    // scroll, so keep pulling pages until the list overflows or there are no more. Safe
-    // because it stops as soon as scrollHeight exceeds clientHeight.
+    // Initial load and auto-fill until scrollbar appears. If the chat has few messages, it feels more natural to show them all at once instead of starting in the middle and forcing the user to scroll up.
     useEffect(() => {
         if (!container.current || isLoading.current || !hasMore.current) return;
         if (container.current.scrollHeight <= container.current.clientHeight) {
