@@ -69,7 +69,10 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
             const { chatId, messages } = action.payload;
             const chats = state.chats.map((chat) => {
                 if (chat.id !== chatId) return chat;
-                return new ChatViewModel(chat.id, chat.chatMembers, [...messages, ...chat.messages]);
+                const existingIds = new Set(chat.messages.map((m) => m.id));
+                const newMessages = messages.filter((m) => !existingIds.has(m.id));
+                if (newMessages.length === 0) return chat;
+                return new ChatViewModel(chat.id, chat.chatMembers, [...newMessages, ...chat.messages]);
             });
             return { ...state, chats };
         }

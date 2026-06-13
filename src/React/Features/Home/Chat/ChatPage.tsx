@@ -5,7 +5,7 @@ import { useChatContext } from '../../../Context/Chat/ChatContext.tsx';
 import { DeliveryStatus } from '../../../../Electron/Domain/Enums/DeliveryStatus.ts';
 import { ChatActionType } from '../../../Context/Chat/ChatReducer.ts';
 import { useMessageService } from '../../../Common/Hooks/MessageService.ts';
-import MessageListV2 from './MessageListV2.tsx';
+import MessageList from './MessageList.tsx';
 
 interface ChatPageProps {
     chatId: string;
@@ -55,7 +55,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ chatId, onClose }) => {
                 <div className="flex flex-col h-full">
                     <ChatHeader chat={currentChat} onClose={() => handleSlide()} />
 
-                    <MessageListV2 chat={currentChat} />
+                    <MessageList chat={currentChat} />
 
                     <div className="sticky bottom-0 bg-zinc-950">
                         <ChatBar sendMessage={onSendMessage} message={message} setMessage={setMessage} />
