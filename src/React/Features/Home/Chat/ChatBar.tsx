@@ -5,23 +5,24 @@ import {
     GetMediaQuery,
     MediaType,
 } from '../../../../Electron/Application/Features/Files/Queries/GetMedia/GetMediaQuery';
-import { GetMediaDto } from '../../../../Electron/Application/Features/Files/Queries/GetMedia/GetMediaDto';
+import { MediaDto } from '../../../../Electron/Application/Features/Chat/Dtos/MediaDto';
 import { Result } from '../../../../Shared/Result/Result';
 import { ChatViewModel } from '../../../Models/ChatViewModel';
+import { Media } from '../../../Models/Media';
 import { useMessageService } from '../../../Common/Hooks/MessageService';
 
 interface ChatBarProps {
     chat: ChatViewModel;
 }
 
-const MediaPreview: React.FC<{ media: string; onRemove: () => void }> = ({ media, onRemove }) => {
-    const isVideo = media.startsWith('data:video/');
+const MediaPreview: React.FC<{ media: Media; onRemove: () => void }> = ({ media, onRemove }) => {
+    const isVideo = media.type.startsWith('video/');
     return (
         <div className="relative mb-2 inline-block">
             {isVideo ? (
-                <video src={media} className="max-h-40 rounded-lg" controls />
+                <video src={media.url} className="max-h-40 rounded-lg" controls />
             ) : (
-                <img src={media} alt="preview" className="max-h-40 rounded-lg" />
+                <img src={media.url} alt="preview" className="max-h-40 rounded-lg" />
             )}
             <button
                 onClick={onRemove}
@@ -36,26 +37,26 @@ const MediaPreview: React.FC<{ media: string; onRemove: () => void }> = ({ media
 export const ChatBar: React.FC<ChatBarProps> = ({ chat }) => {
     const { sendMessage } = useMessageService();
     const [placeholderText, setPlaceholderText] = useState('message');
-    const [media, setMedia] = useState<string | null>(null);
+    const [media, setMedia] = useState<Media[]>([]);
     const [message, setMessage] = useState<string>('');
 
     const handleImpageUpload = async () => {
         console.log('Uploading image...');
-        const base64Image = await window.electron.sendRequestAsync<Result<GetMediaDto>>(
+        const result = await window.electron.sendRequestAsync<Result<MediaDto[]>>(
             new GetMediaQuery(MediaType.All),
         );
-        if (base64Image.success) {
-            setMedia(base64Image.data!.media);
+        if (result.success) {
+            setMedia((prev) => [...prev, ...result.data!]);
         } else {
             console.error('Failed to upload image');
         }
     };
 
     const onSendMessage = async (text: string): Promise<void> => {
-        if (!text.trim() && !media) return;
+        if (!text.trim() && media.length === 0) return;
         await sendMessage(chat, text.trim() ? text : null, media);
         setMessage('');
-        setMedia(null);
+        setMedia([]);
     };
 
     return (
@@ -66,7 +67,13 @@ export const ChatBar: React.FC<ChatBarProps> = ({ chat }) => {
                 </button>
 
                 <div className="flex-1 bg-darkGray-700 rounded-3xl px-3 py-2">
-                    {media && <MediaPreview media={media} onRemove={() => setMedia(null)} />}
+                    {media.map((m, index) => (
+                        <MediaPreview
+                            key={index}
+                            media={m}
+                            onRemove={() => setMedia((prev) => prev.filter((_, i) => i !== index))}
+                        />
+                    ))}
                     <TextareaAutosize
                         className="w-full bg-transparent text-white resize-none focus:outline-none"
                         minRows={1}

@@ -45,19 +45,8 @@ export class GetChatsQueryHandler implements Handler<GetChatsQuery, ChatDto[]> {
                     chat.messageTtl,
                     chat.muted,
                     chat.muteTimer,
-                    chat.messages.map(
-                        (message) =>
-                            new MessageDto(
-                                message.id,
-                                message.messageToken,
-                                message.senderId,
-                                message.content,
-                                message.contentUrl,
-                                message.timestamp,
-                                message.deliveryStatus,
-                            ),
-                    ),
+                    chat.messages.map(m => MessageDto.fromMessage(m))
                 ),
-        );
+        )
     }
 }

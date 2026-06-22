@@ -35,9 +35,6 @@ interface ChatScroll {
     jumpToBottom: () => void;
 }
 
-// Encapsulates the scroll behaviour of the message list: infinite scroll of older
-// messages with manual anchoring, auto-fill until the viewport overflows, sticking to
-// the bottom for new/own messages, and the "jump to latest" pill when reading history.
 function useChatScroll(chat: ChatViewModel): ChatScroll {
     const { user } = useUser();
     const { chatDispatch } = useChatContext();
@@ -45,20 +42,12 @@ function useChatScroll(chat: ChatViewModel): ChatScroll {
     const container = useRef<HTMLDivElement>(null);
     const hasMore = useRef(true);
     const isLoading = useRef(false);
-    // Height captured right before an anchored prepend. When set, the layout effect
-    // restores scroll position by the added height instead of sticking to the bottom.
     const prevScrollHeight = useRef<number | null>(null);
     const wasNearBottom = useRef(true);
     const prevLength = useRef(0);
 
     const [showJumpButton, setShowJumpButton] = useState(false);
 
-    // One instance per chat (MessageList is keyed by chat.id), so every ref starts fresh
-    // on each chat — no manual chat-switch reset needed.
-
-    // Fetch one page of older messages. `anchor` keeps the current viewport stable
-    // (used when the user scrolls up); without it the layout effect sticks to the
-    // bottom (used while auto-filling so the newest messages stay in view).
     const fetchMessages = async (anchor: boolean) => {
         if (!container.current || isLoading.current || !hasMore.current) return;
 
@@ -80,9 +69,6 @@ function useChatScroll(chat: ChatViewModel): ChatScroll {
         isLoading.current = false;
     };
 
-    // Decide where to put the scroll position after each render. Runs before paint, so
-    // there is no visible jump. Chromium does not reliably anchor scroll on prepend, so
-    // we do it manually.
     useLayoutEffect(() => {
         if (!container.current) return;
 

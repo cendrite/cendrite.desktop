@@ -1,3 +1,4 @@
+import { Message } from '../../../../Domain/Entities/Message.js';
 import { DeliveryStatus } from '../../../../Domain/Enums/DeliveryStatus.js';
 import { Media } from '../../Files/Dto/Media.js';
 
@@ -26,5 +27,17 @@ export class MessageDto {
         this.timestamp = timestamp;
         this.media = media;
         this.deliveryStatus = deliveryStatus;
+    }
+
+    public static fromMessage(message: Message): MessageDto {
+        return new MessageDto(
+            message.id,
+            message.messageToken,
+            message.senderId,
+            message.content,
+            message.timestamp,
+            message.MessageMedia.map((media) => ({ url: '', content: media.media, type: 'unknown' })),
+            message.deliveryStatus,
+        );
     }
 }

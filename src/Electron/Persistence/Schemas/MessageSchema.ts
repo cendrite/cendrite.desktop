@@ -24,10 +24,6 @@ export const MessageSchema = new EntitySchema<Message>({
             type: 'text',
             nullable: false,
         },
-        contentUrl: {
-            type: 'text',
-            nullable: true,
-        },
         deliveryStatus: {
             type: 'integer',
             nullable: false,

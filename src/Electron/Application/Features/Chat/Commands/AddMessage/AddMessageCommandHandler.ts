@@ -1,5 +1,6 @@
 import { Result } from '../../../../../../Shared/Result/Result.js';
 import { Message } from '../../../../../Domain/Entities/Message.js';
+import { MessageMedia } from '../../../../../Domain/Entities/MessageMedia.js';
 import { ChatStore } from '../../../../../Persistence/Repositories/ChatStore.js';
 import { Handler } from '../../../../Mediator/Handler.js';
 import { AddMessageCommand } from './AddMessageCommand.js';
@@ -13,10 +14,10 @@ export class AddMessageCommandHandler implements Handler<AddMessageCommand> {
             request.messageId,
             request.chatId,
             request.senderId,
-            request.content,
             request.timestamp,
+            request.content,
+            request.messageMedia?.map((m) => new MessageMedia(request.chatId, m.content, request.messageId)),
             request.deliveryStatus,
-            request.contentUrl,
             request.messageToken,
         );
 

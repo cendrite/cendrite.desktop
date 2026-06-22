@@ -10,6 +10,7 @@ import {
 } from '@tabler/icons-react';
 import React, { type ReactNode, useState } from 'react';
 import MessageSettingsMenu from './MessageSettingsMenu.tsx';
+import { MediaBox } from './MediaBox.tsx';
 
 export interface ChatBubbleProps {
     message: MessageViewModel;
@@ -54,13 +55,6 @@ export const MessageBubble: React.FC<ChatBubbleProps> = ({ message, showStatus }
         minute: '2-digit',
     });
 
-    const mediaContent = message.media ? (
-        message.media.startsWith('data:video/') ? (
-            <video src={message.media} className="max-h-60 rounded-lg" controls />
-        ) : (
-            <img src={message.media} alt="media" className="max-h-60 rounded-lg" />
-        )
-    ) : undefined;
 
     return (
         <>
@@ -78,7 +72,7 @@ export const MessageBubble: React.FC<ChatBubbleProps> = ({ message, showStatus }
                             ${isMine ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'}
                         `}
                     >
-                        {mediaContent}
+                    <MediaBox media={message.media} />
                         {message.text}
                     </div>
 
