@@ -8,6 +8,7 @@ import { useUser } from '../../Context/User/UserContext.tsx';
 import React from 'react';
 import { DeliveryStatus } from '../../../Electron/Domain/Enums/DeliveryStatus.ts';
 import { ChatService } from '../Services/ChatService.ts';
+import { Media } from '../../Models/Media.ts';
 
 export function useMessageService() {
     const { chatDispatch } = useChatContext();
@@ -26,7 +27,7 @@ export function useMessageService() {
     );
 
     const sendMessage = useCallback(
-        async (chat: ChatViewModel, text: string | null, media: string | null) => {
+        async (chat: ChatViewModel, text: string | null, media: Media[]) => {
             const msg = await chatService.sendMessage(
                 user!,
                 chat.chatMembers.map((member) => member.contact.connectionIds).flat(),

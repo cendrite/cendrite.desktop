@@ -92,8 +92,8 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
                             msg.senderId,
                             msg.text,
                             msg.date,
-                            DeliveryStatus.Read,
                             msg.media,
+                            DeliveryStatus.Read,
                         )
                         : msg;
                 });

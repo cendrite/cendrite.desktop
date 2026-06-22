@@ -20,8 +20,8 @@ export class MessageViewModel {
         senderId: string,
         message: string,
         date: Date,
-        deliveryStatus: DeliveryStatus,
         media: Media[],
+        deliveryStatus: DeliveryStatus,
         messageToken: string | null = null,
     ) {
         this.id = id;
@@ -47,8 +47,8 @@ export class MessageViewModel {
             senderId,
             text || '',
             new Date(),
+            media,
             deliveryStatus,
-            media || [],
             uuid().toString(),
         );
     }
@@ -64,8 +64,8 @@ export class MessageViewModel {
             msg.senderId,
             decryptedContent.text,
             new Date(msg.timestamp),
+            decryptedContent.media || [],
             initialDeliveryStatus,
-            decryptedContent.media || null,
         );
     }
 
