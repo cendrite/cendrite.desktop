@@ -21,6 +21,7 @@ import { MessageDto } from '../../../Electron/Application/Features/Chat/Dtos/Mes
 import { DeliveryStatus } from '../../../Electron/Domain/Enums/DeliveryStatus.ts';
 import { MessagePayload, ServerMessage } from '../../SignalR/Messaging/ServerMessage.ts';
 import { GetMessagesQuery } from '../../../Electron/Application/Features/Chat/Queries/GetMessages/GetMessagesQuery.ts';
+import { Media } from '../../Models/Media.ts';
 
 export class ChatService {
     private readonly messageSender = SignalManager.getInstance().getHandler<MessageHubHandler>('Messaging');
@@ -31,7 +32,7 @@ export class ChatService {
         recipientTags: string[],
         chatId: string,
         text: string | null,
-        media: string | null,
+        media: Media[] = [],
     ): Promise<MessageViewModel | null> {
         if (!text && !media) return null;
 
@@ -174,6 +175,7 @@ export class ChatService {
             throw new Error('Failed to get messages');
         }
 
+        console.log('Fetched messages:', messages.data);
         return messages.data!.map((dto) => MessageViewModel.mapFromDto(chatId, dto));
     }
 
@@ -220,11 +222,11 @@ export class ChatService {
                 member.privilege,
                 new MessageDto(
                     mappedMsg.id,
-                    null,
+                    mappedMsg.messageToken,
                     mappedMsg.senderId,
                     mappedMsg.text,
-                    mappedMsg.media,
                     mappedMsg.date,
+                    mappedMsg.media,
                     mappedMsg.deliveryStatus,
                 ),
             ),
@@ -242,11 +244,11 @@ export class ChatService {
                 chatId,
                 msg.id,
                 msg.senderId,
-                msg.text,
                 msg.date,
                 msg.deliveryStatus,
-                msg.media,
                 msg.messageToken,
+                msg.text,
+                msg.media,
             ),
         );
     }

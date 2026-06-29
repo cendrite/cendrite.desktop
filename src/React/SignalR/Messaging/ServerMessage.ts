@@ -1,4 +1,5 @@
 ﻿import { DeliveryStatus } from '../../../Electron/Domain/Enums/DeliveryStatus';
+import { Media } from '../../Models/Media';
 import { MessageViewModel } from '../../Models/MessageViewModel';
 
 export type ServerMessageDto = {
@@ -75,7 +76,7 @@ export abstract class Payload {
 export class MessagePayload extends Payload {
     constructor(
         public text: string,
-        public media: string | null,
+        public media: Media[] = [],
         public participants: string[],
         public deliveryStatus: DeliveryStatus,
     ) {

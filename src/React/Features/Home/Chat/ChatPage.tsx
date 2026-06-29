@@ -13,11 +13,11 @@ interface ChatPageProps {
 }
 const ChatPage: React.FC<ChatPageProps> = ({ chatId, onClose }) => {
     const [slideClass, setSlideClass] = useState('translate-x-full');
-    const [message, setMessage] = useState<string>('');
     const { getChatById } = useChatContext();
     const currentChat = getChatById(chatId);
-    const { sendMessage, markMessagesAsRead } = useMessageService();
+    const { markMessagesAsRead } = useMessageService();
     const { chatDispatch } = useChatContext();
+    const lastMessage = currentChat.messages.at(-1);
 
     useEffect(() => {
         chatDispatch({ type: ChatActionType.SetActiveChat, payload: { chatId: chatId } });
@@ -27,11 +27,14 @@ const ChatPage: React.FC<ChatPageProps> = ({ chatId, onClose }) => {
     }, [chatId, chatDispatch]);
 
     useEffect(() => {
-        const lastMessage = currentChat.messages.at(-1);
         if (!lastMessage) return;
         if (lastMessage.deliveryStatus === DeliveryStatus.Read) return;
         markMessagesAsRead(currentChat).then((_) => _);
-    }, [currentChat.id, currentChat.messages.at(-1)?.id, markMessagesAsRead]);
+        // Intentionally keyed on chat id + newest message id, not the whole
+        // currentChat / lastMessage objects, to avoid re-running on every chat
+        // reference change.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentChat.id, lastMessage?.id, markMessagesAsRead]);
 
     useEffect(() => {
         setSlideClass('translate-x-0');
@@ -44,11 +47,6 @@ const ChatPage: React.FC<ChatPageProps> = ({ chatId, onClose }) => {
         }, 300);
     };
 
-    const onSendMessage = async (text: string): Promise<void> => {
-        if (!text.trim()) return;
-        await sendMessage(currentChat, text, null);
-    };
-
     return (
         <>
             <div className={`absolute inset-0  text-white shadow-lg transition-transform duration-300 ${slideClass}`}>
@@ -58,7 +56,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ chatId, onClose }) => {
                     <MessageList key={currentChat.id} chat={currentChat} />
 
                     <div className="sticky bottom-0 bg-zinc-950">
-                        <ChatBar sendMessage={onSendMessage} message={message} setMessage={setMessage} />
+                        <ChatBar chat={currentChat} />
                     </div>
                 </div>
             </div>

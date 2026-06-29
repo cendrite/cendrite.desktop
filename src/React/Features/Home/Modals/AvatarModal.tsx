@@ -1,7 +1,7 @@
 ﻿import React, { useState } from "react";
 import Modal from "react-modal";
 import { PencilIcon, PhotoIcon } from "@heroicons/react/24/outline";
-import { GetMediaDto } from "../../../../Electron/Application/Features/Files/Queries/GetMedia/GetMediaDto.ts";
+import { MediaDto } from "../../../../Electron/Application/Features/Chat/Dtos/MediaDto.ts";
 import { Result } from "../../../../Shared/Result/Result.ts";
 import {
     GetMediaQuery,
@@ -47,12 +47,12 @@ const AvatarModal: React.FC<AvatarModelProps> = ({ isOpen, onClose }) => {
     }
 
     const uploadProfilePicture = async () => {
-        const base64Image = await window.electron.sendRequestAsync<Result<GetMediaDto>>(new GetMediaQuery(MediaType.Image));
-        if (base64Image.success) {
-            setSelectedProfilePicture(base64Image.data!.media);
+        const result = await window.electron.sendRequestAsync<Result<MediaDto[]>>(new GetMediaQuery(MediaType.Image));
+        if (result.success) {
+            setSelectedProfilePicture(result.data![0].url);
             setIsStock(false);
         } else {
-            console.error(base64Image.errorMessage);
+            console.error(result.errorMessage);
         }
     }
 

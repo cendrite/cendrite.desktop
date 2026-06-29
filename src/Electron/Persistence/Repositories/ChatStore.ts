@@ -37,7 +37,7 @@ export class ChatStore {
             .leftJoinAndSelect('chat.members', 'members')
             .leftJoinAndSelect('members.friend', 'friend')
             .leftJoinAndSelect('friend.connectionIds', 'connectionIds')
-            .leftJoin('chat.messages', 'messages')
+            .leftJoinAndSelect('chat.messages', 'messages')
             .addSelect('MAX(messages.timestamp)', 'latestMessage')
             .groupBy('chat.id')
             .addGroupBy('members.id')
@@ -51,6 +51,7 @@ export class ChatStore {
     public async getMessages(chatId: string, skip: number, take: number): Promise<Message[]> {
         return this.messageRepository.find({
             where: { chat: { id: chatId } },
+            relations: { messageMedia: true },
             skip: skip,
             order: { timestamp: 'DESC' },
             take: take,

@@ -2,6 +2,7 @@
 import { v4 as uuid } from 'uuid';
 import { MessagePayload, ServerMessage } from '../SignalR/Messaging/ServerMessage.ts';
 import { MessageDto } from '../../Electron/Application/Features/Chat/Dtos/MessageDto.ts';
+import { Media } from './Media.ts';
 
 export class MessageViewModel {
     id: string;
@@ -9,7 +10,7 @@ export class MessageViewModel {
     messageToken: string | null = null;
     senderId: string;
     text: string;
-    media: string | null;
+    media: Media[];
     date: Date;
     deliveryStatus: DeliveryStatus;
 
@@ -19,8 +20,8 @@ export class MessageViewModel {
         senderId: string,
         message: string,
         date: Date,
+        media: Media[],
         deliveryStatus: DeliveryStatus,
-        mediaUrl: string | null = null,
         messageToken: string | null = null,
     ) {
         this.id = id;
@@ -28,7 +29,7 @@ export class MessageViewModel {
         this.senderId = senderId;
         this.text = message;
         this.date = date;
-        this.media = mediaUrl;
+        this.media = media;
         this.deliveryStatus = deliveryStatus;
         this.messageToken = messageToken;
     }
@@ -37,7 +38,7 @@ export class MessageViewModel {
         chatId: string,
         senderId: string,
         text: string | null,
-        media: string | null,
+        media: Media[] = [],
         deliveryStatus: DeliveryStatus,
     ): MessageViewModel {
         return new MessageViewModel(
@@ -46,8 +47,8 @@ export class MessageViewModel {
             senderId,
             text || '',
             new Date(),
+            media,
             deliveryStatus,
-            media || null,
             uuid().toString(),
         );
     }
@@ -63,8 +64,8 @@ export class MessageViewModel {
             msg.senderId,
             decryptedContent.text,
             new Date(msg.timestamp),
+            decryptedContent.media || [],
             initialDeliveryStatus,
-            decryptedContent.media || null,
         );
     }
 
@@ -75,8 +76,8 @@ export class MessageViewModel {
             dto.senderId,
             dto.content,
             new Date(dto.timestamp),
+            dto.media,
             dto.deliveryStatus,
-            dto.contentUrl,
             dto.messageToken,
         );
     }

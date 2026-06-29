@@ -1,11 +1,14 @@
-﻿import { EntitySchema } from "typeorm/entity-schema/EntitySchema.js";
-import { Message } from "../../Domain/Entities/Message.js";
-import { Chat } from "../../Domain/Aggregates/Chat.js";
+﻿import { EntitySchema } from 'typeorm/entity-schema/EntitySchema.js';
+import { Message } from '../../Domain/Entities/Message.js';
+import { Chat } from '../../Domain/Aggregates/Chat.js';
+import { MessageMedia } from '../../Domain/Entities/MessageMedia.js';
+import { BaseSchema } from './BaseSchema.js';
 
 export const MessageSchema = new EntitySchema<Message>({
     name: 'Message',
     target: Message,
     columns: {
+        ...BaseSchema.columns,
         id: {
             type: 'uuid',
             primary: true,
@@ -21,10 +24,6 @@ export const MessageSchema = new EntitySchema<Message>({
         content: {
             type: 'text',
             nullable: false,
-        },
-        contentUrl: {
-            type: 'text',
-            nullable: true,
         },
         deliveryStatus: {
             type: 'integer',
@@ -53,6 +52,12 @@ export const MessageSchema = new EntitySchema<Message>({
             },
             inverseSide: 'messages',
             onDelete: 'CASCADE',
+        },
+        messageMedia: {
+            type: 'one-to-many',
+            target: () => MessageMedia,
+            inverseSide: 'message',
+            cascade: true,
         },
     },
 });

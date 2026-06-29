@@ -1,48 +1,69 @@
-﻿import {GetMediaQuery, MediaType} from "./GetMediaQuery.js";
-import {GetMediaDto} from "./GetMediaDto.js";
-import {Handler} from "../../../../Mediator/Handler.js";
-import { Result } from "../../../../../../Shared/Result/Result.js";
-import {ErrorMessage} from "../../../../../../Shared/Result/ErrorMessage.js";
-import * as fs from "node:fs";
-import {dialog, BrowserWindow, app} from "electron";
+import { GetMediaQuery, MediaType } from './GetMediaQuery.js';
+import { Handler } from '../../../../Mediator/Handler.js';
+import { Result } from '../../../../../../Shared/Result/Result.js';
+import { ErrorMessage } from '../../../../../../Shared/Result/ErrorMessage.js';
+import { MediaDto } from '../../../Chat/Dtos/MediaDto.js';
+import * as fs from 'node:fs';
+import { dialog, BrowserWindow, app } from 'electron';
 
-export class GetMediaQueryHandler implements Handler<GetMediaQuery, GetMediaDto> {
+export class GetMediaQueryHandler implements Handler<GetMediaQuery, MediaDto[]> {
     private readonly mainWindow: BrowserWindow;
 
-    constructor(mainWindow: BrowserWindow){
+    constructor(mainWindow: BrowserWindow) {
         this.mainWindow = mainWindow;
     }
 
-    public async handle(request: GetMediaQuery): Promise<Result<GetMediaDto>> {
-
-        try{
-            const {canceled, filePaths} = await dialog.showOpenDialog(this.mainWindow, {
-                title: "Select a media file",
-                properties: ['openFile'],
+    public async handle(request: GetMediaQuery): Promise<Result<MediaDto[]>> {
+        try {
+            const { canceled, filePaths } = await dialog.showOpenDialog(this.mainWindow, {
+                title: 'Select a media file',
+                properties: ['openFile', 'multiSelections'],
                 filters: [{ name: 'Media', extensions: this.SelectExtension(request.mediaType) }],
-                defaultPath: app.getPath("desktop")
+                defaultPath: app.getPath('desktop'),
             });
 
-            if(canceled || !filePaths || filePaths.length === 0){
-                return Result.fail<GetMediaDto>(new ErrorMessage(null, "No file selected"));
+            if (canceled || !filePaths || filePaths.length === 0) {
+                return Result.fail<MediaDto[]>(new ErrorMessage(null, 'No file selected'));
             }
 
-            const filePath = filePaths[0];
-            const fileBuffer = fs.readFileSync(filePath);
+            const media = filePaths.map((filePath) => this.ToMediaDto(filePath));
 
-            const base64Image = `data:image/png;base64,${fileBuffer.toString("base64")}`;
-            const dto = GetMediaDto.MapFrom(base64Image);
-
-            return Result.success(dto);
-        }
-        catch(error: unknown){
-            const errorMessage = (error instanceof Error) ? error.message : 'An unknown error occurred';
+            return Result.success(media);
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
             console.error('GetMedia Failed:', errorMessage);
-            return Result.fail<GetMediaDto>(new ErrorMessage(null, "GetMedia Failed"));
+            return Result.fail<MediaDto[]>(new ErrorMessage(null, 'GetMedia Failed'));
         }
     }
 
-    private SelectExtension(mediaType: MediaType): string[]{
-        return mediaType === MediaType.Image ? ['png', 'jpg', 'jpeg'] : ['png', 'jpg', 'jpeg','mp4', 'webm', 'ogg', 'wav', 'mp3', 'flac'];
+    private ToMediaDto(filePath: string): MediaDto {
+        const fileExtension = filePath.split('.').pop()?.toLowerCase() ?? '';
+        const fileBuffer = fs.readFileSync(filePath);
+        const mime = this.MimeForExtension(fileExtension);
+        const content = fileBuffer.toString('base64');
+        const url = `data:${mime};base64,${content}`;
+
+        return new MediaDto(url, mime, content);
+    }
+
+    private SelectExtension(mediaType: MediaType): string[] {
+        return mediaType === MediaType.Image
+            ? ['png', 'jpg', 'jpeg']
+            : ['png', 'jpg', 'jpeg', 'mp4', 'webm', 'ogg', 'wav', 'mp3', 'flac'];
+    }
+
+    private MimeForExtension(extension: string): string {
+        const mimeByExtension: Record<string, string> = {
+            png: 'image/png',
+            jpg: 'image/jpeg',
+            jpeg: 'image/jpeg',
+            mp4: 'video/mp4',
+            webm: 'video/webm',
+            ogg: 'audio/ogg',
+            wav: 'audio/wav',
+            mp3: 'audio/mpeg',
+            flac: 'audio/flac',
+        };
+        return mimeByExtension[extension] ?? 'application/octet-stream';
     }
 }
