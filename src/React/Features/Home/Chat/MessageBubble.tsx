@@ -31,9 +31,10 @@ function determineStatusIcon(status: DeliveryStatus): ReactNode {
             return <IconCircleX className="w-3.5 h-3.5 text-red-500" />;
         case DeliveryStatus.Received:
             return null;
-        default:
+        default: {
             const _exhaustiveCheck: never = status;
             return _exhaustiveCheck;
+        }
     }
 }
 
@@ -55,7 +56,6 @@ export const MessageBubble: React.FC<ChatBubbleProps> = ({ message, showStatus }
         minute: '2-digit',
     });
 
-
     return (
         <>
             <div className={`flex ${isMine ? 'justify-end' : 'justify-start'} mt-1 mb-1`}>
@@ -72,8 +72,7 @@ export const MessageBubble: React.FC<ChatBubbleProps> = ({ message, showStatus }
                             ${isMine ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'}
                         `}
                     >
-
-                    <MediaBox media={message.media} />
+                        <MediaBox media={message.media} />
                         {message.text}
                     </div>
 

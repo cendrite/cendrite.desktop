@@ -38,7 +38,7 @@ export class MessageDto {
             message.content,
             message.timestamp,
             message.messageMedia?.map((media) => ({
-                url: media.getUrl(),
+                url: `data:${media.type};base64,${media.media}`,
                 content: media.media,
                 type: media.type,
             })) ?? [],
