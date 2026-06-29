@@ -17,6 +17,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ chatId, onClose }) => {
     const currentChat = getChatById(chatId);
     const { markMessagesAsRead } = useMessageService();
     const { chatDispatch } = useChatContext();
+    const lastMessage = currentChat.messages.at(-1);
 
     useEffect(() => {
         chatDispatch({ type: ChatActionType.SetActiveChat, payload: { chatId: chatId } });
@@ -26,11 +27,14 @@ const ChatPage: React.FC<ChatPageProps> = ({ chatId, onClose }) => {
     }, [chatId, chatDispatch]);
 
     useEffect(() => {
-        const lastMessage = currentChat.messages.at(-1);
         if (!lastMessage) return;
         if (lastMessage.deliveryStatus === DeliveryStatus.Read) return;
         markMessagesAsRead(currentChat).then((_) => _);
-    }, [currentChat.id, currentChat.messages.at(-1)?.id, markMessagesAsRead]);
+        // Intentionally keyed on chat id + newest message id, not the whole
+        // currentChat / lastMessage objects, to avoid re-running on every chat
+        // reference change.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentChat.id, lastMessage?.id, markMessagesAsRead]);
 
     useEffect(() => {
         setSlideClass('translate-x-0');
