@@ -175,6 +175,7 @@ export class ChatService {
             throw new Error('Failed to get messages');
         }
 
+        console.log('Fetched messages:', messages.data);
         return messages.data!.map((dto) => MessageViewModel.mapFromDto(chatId, dto));
     }
 

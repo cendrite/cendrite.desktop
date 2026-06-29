@@ -30,13 +30,18 @@ export class MessageDto {
     }
 
     public static fromMessage(message: Message): MessageDto {
+        console.log("mapping message to MessageDto:", message);
         return new MessageDto(
             message.id,
             message.messageToken,
             message.senderId,
             message.content,
             message.timestamp,
-            message.MessageMedia.map((media) => ({ url: '', content: media.media, type: 'unknown' })),
+            message.messageMedia?.map((media) => ({
+                url: media.getUrl(),
+                content: media.media,
+                type: media.type,
+            })) ?? [],
             message.deliveryStatus,
         );
     }

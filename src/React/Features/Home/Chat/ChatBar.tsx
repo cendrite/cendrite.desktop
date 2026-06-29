@@ -52,9 +52,9 @@ export const ChatBar: React.FC<ChatBarProps> = ({ chat }) => {
         }
     };
 
-    const onSendMessage = async (text: string): Promise<void> => {
-        if (!text.trim() && media.length === 0) return;
-        await sendMessage(chat, text.trim() ? text : null, media);
+    const onSendMessage = async (): Promise<void> => {
+        if (!message.trim() && media.length === 0) return;
+        await sendMessage(chat, message.trim() ? message : null, media);
         setMessage('');
         setMedia([]);
     };
@@ -86,7 +86,7 @@ export const ChatBar: React.FC<ChatBarProps> = ({ chat }) => {
                         onKeyDown={(e) => {
                             if (e.key === 'Enter' && !e.shiftKey) {
                                 e.preventDefault();
-                                onSendMessage(message);
+                                onSendMessage();
                             }
                         }}
                     />

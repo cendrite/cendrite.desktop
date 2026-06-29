@@ -16,7 +16,7 @@ export class AddMessageCommandHandler implements Handler<AddMessageCommand> {
             request.senderId,
             request.timestamp,
             request.content,
-            request.messageMedia?.map((m) => new MessageMedia(request.chatId, m.content, request.messageId)),
+            request.messageMedia?.map((m) => new MessageMedia(m.content, m.type, request.messageId)),
             request.deliveryStatus,
             request.messageToken,
         );

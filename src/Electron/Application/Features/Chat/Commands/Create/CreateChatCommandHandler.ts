@@ -25,7 +25,7 @@ export class CreateChatCommandHandler implements Handler<CreateChatCommand, Crea
                 request.message.senderId,
                 request.message.timestamp,
                 request.message.content,
-                request.message.media?.map((m) => new MessageMedia(request.chatId, m.content, request.message!.id)),
+                request.message.media?.map((m) => new MessageMedia(m.content, m.type, request.message!.id)), 
                 request.message.deliveryStatus,
             )
             : null;

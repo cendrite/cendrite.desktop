@@ -11,7 +11,7 @@ export class Message {
     chatId: string;
     chat!: Chat;
     content: string;
-    MessageMedia: MessageMedia[];
+    messageMedia: MessageMedia[] | null;
 
     constructor(
         id: string,
@@ -19,7 +19,7 @@ export class Message {
         senderId: string,
         timestamp: Date,
         content: string | null,
-        messageMedia: MessageMedia[] = [],
+        messageMedia: MessageMedia[] | null = null,
         deliveryStatus: DeliveryStatus,
         messageToken: string | null = null,
     ) {
@@ -28,7 +28,7 @@ export class Message {
         this.senderId = senderId;
         this.timestamp = timestamp;
         this.deliveryStatus = deliveryStatus;
-        this.MessageMedia = messageMedia;
+        this.messageMedia = messageMedia ?? null;
         this.content = content || '';
         this.messageToken = messageToken;
     }

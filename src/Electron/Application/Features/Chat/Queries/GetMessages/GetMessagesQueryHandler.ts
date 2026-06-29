@@ -9,8 +9,10 @@ export class GetMessagesQueryHandler implements Handler<GetMessagesQuery, Messag
         const chatStore = new ChatStore();
 
         const messages = await chatStore.getMessages(request.chatId, request.offset, request.take);
+
         messages.reverse();
-        const messageDtos = messages.map(m=> MessageDto.fromMessage(m));
+
+        const messageDtos = messages.map((m) => MessageDto.fromMessage(m));
 
         return Result.success(messageDtos);
     }
