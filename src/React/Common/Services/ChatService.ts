@@ -19,13 +19,13 @@ import { UpdateDeliveryStatusCommand } from '../../../Electron/Application/Featu
 import { SessionManager } from '../../Security/Encryption/SessionManager.ts';
 import { MessageDto } from '../../../Electron/Application/Features/Chat/Dtos/MessageDto.ts';
 import { DeliveryStatus } from '../../../Electron/Domain/Enums/DeliveryStatus.ts';
-import { MediaPointer, MessagePayload, ServerMessage } from '../../SignalR/Messaging/ServerMessage.ts';
+import { MessagePayload, ServerMessage } from '../../SignalR/Messaging/ServerMessage.ts';
 import { GetMessagesQuery } from '../../../Electron/Application/Features/Chat/Queries/GetMessages/GetMessagesQuery.ts';
 import { Media } from '../../Models/Media.ts';
-import { MediaApi } from '../Api/ChatServer/MediaApi.ts';
+import { MediaService } from './MediaService.ts';
 
 export class ChatService {
-    private readonly mediaApi = new MediaApi();
+    private readonly mediaService = new MediaService();
     private readonly messageSender = SignalManager.getInstance().getHandler<MessageHubHandler>('Messaging');
 
     public async sendMessage(
@@ -48,9 +48,10 @@ export class ChatService {
 
         const recieverIds = [...connectionIds, user.externalConnectionIds].flat();
 
+        const mpointers = await this.mediaService.uploadMedia(user.connectionId, media);
+
         for (const connectionId of recieverIds) {
             const manager = new SessionManager(connectionId);
-            const mpointers = await this.uploadMedia(user.connectionId, media);
             const cipher = await manager.encrypt(
                 new MessagePayload(message.text, mpointers, participants, DeliveryStatus.Pending),
             );
@@ -60,7 +61,6 @@ export class ChatService {
         }
 
         const receipt = await this.messageSender.sendMessage(messages);
-        console.log('Message send receipt:', receipt);
         const msg = this.setDeliveryStatusOnReceipt(message, receipt);
         return msg;
     }
@@ -134,10 +134,12 @@ export class ChatService {
     public async addMessage(user: User, msg: ServerMessage, chatId: string): Promise<MessageViewModel> {
         const sessionManager = new SessionManager(msg.senderId);
         const decryptedMessage = await sessionManager.decrypt<MessagePayload>(msg.payload);
+        const media = await this.mediaService.getMedia(decryptedMessage.media);
         const mappedMsg = MessageViewModel.mapFromDecrypted(
             msg,
             decryptedMessage,
             this.getInitialDeliveryStatus(user, msg.senderId),
+            media,
         );
         await this.persistMessage(mappedMsg, chatId);
         return mappedMsg;
@@ -264,16 +266,5 @@ export class ChatService {
         });
         participantIds.add(userTag);
         return Array.from(participantIds);
-    }
-
-    private async uploadMedia(senderId: string, media: Media[]): Promise<MediaPointer[]> {
-        const mediaPointers: MediaPointer[] = [];
-        for (const m of media) {
-            const { key, iv } = await SessionManager.encryptBlob(m.content);
-            await this.mediaApi.upload(m.id, senderId, m.content);
-            mediaPointers.push(new MediaPointer(m.id, m.type, iv, key));
-        }
-
-        return mediaPointers;
     }
 }

@@ -21,19 +21,22 @@ export class MediaApi {
         });
     }
 
-    public async get(mediaId: string): Promise<Result<Blob>> {
-        return this.client.handle({
+    public async get(mediaId: string): Promise<Result<Uint8Array>> {
+        const result = await this.client.handleConduit<ArrayBuffer>({
             method: 'GET',
-            params: { mediaId },
-            responseType: 'blob',
+            params: { id: mediaId },
+            responseType: 'arraybuffer',
         });
+
+        if (!result.success) return Result.fail<Uint8Array>(result.errorMessage!);
+        return Result.success(new Uint8Array(result.data!));
     }
 
     public async ack(mediaId: string, senderId: string): Promise<Result> {
         return this.client.handle({
-            url: API_URLS.MEDIA.ACK,
+            url: `/${mediaId}${API_URLS.MEDIA.ACK}`,
             method: 'POST',
-            params: { mediaId, senderId },
+            params: { senderId },
         });
     }
 }
