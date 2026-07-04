@@ -1,29 +1,35 @@
-import { app } from "electron";
-import path from "path";
-import { Media } from "../../Application/Features/Files/Dto/Media.js";
+import { app } from 'electron';
+import path from 'path';
+import { writeFile, readFile, unlink } from 'fs/promises';
+import { mkdirSync } from 'fs';
 
-interface IMediaStore {
-    StoreAsync: (media: any) => Promise<void>;
-    GetAsync: (mediaId: string) => Promise<any>;
-    DeleteAsync: (mediaId: string) => Promise<void>;
-}
-
-export class MediaStore implements IMediaStore {
+export class MediaStore {
     private path = path.join(app.getPath('userData'), 'media');
+    private static instance: MediaStore;
 
-    constructor() {
+    private constructor() {
+        mkdirSync(this.path, { recursive: true });
     }
 
-    async StoreAsync(media: Media): Promise<void> {
-        throw new Error("Method not implemented.");
-
+    public static getInstance(): MediaStore {
+        if (!MediaStore.instance) {
+            MediaStore.instance = new MediaStore();
+        }
+        return MediaStore.instance;
     }
 
-    async GetAsync(mediaId: string): Promise<any> {
-        throw new Error("Method not implemented.");
+    async store(id: string, content: Buffer): Promise<void> {
+        const filePath = path.join(this.path, id);
+        await writeFile(filePath, content);
     }
 
-    async DeleteAsync(mediaId: string): Promise<void> {
-        throw new Error("Method not implemented.");
+    async get(mediaId: string): Promise<Buffer> {
+        const filePath = path.join(this.path, mediaId);
+        return await readFile(filePath);
+    }
+
+    async delete(mediaId: string): Promise<void> {
+        const filePath = path.join(this.path, mediaId);
+        await unlink(filePath);
     }
 }
