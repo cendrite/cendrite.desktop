@@ -1,6 +1,5 @@
 ﻿import { DeliveryStatus } from '../Enums/DeliveryStatus.js';
 import { Chat } from '../Aggregates/Chat.js';
-import { MessageMedia } from './MessageMedia.js';
 
 export class Message {
     id: string;
@@ -11,7 +10,7 @@ export class Message {
     chatId: string;
     chat!: Chat;
     content: string;
-    messageMedia: MessageMedia[] | null;
+    mediaIds: string[] | null;
 
     constructor(
         id: string,
@@ -19,7 +18,7 @@ export class Message {
         senderId: string,
         timestamp: Date,
         content: string | null,
-        messageMedia: MessageMedia[] | null = null,
+        messageMedia: string[] | null = null,
         deliveryStatus: DeliveryStatus,
         messageToken: string | null = null,
     ) {
@@ -28,7 +27,7 @@ export class Message {
         this.senderId = senderId;
         this.timestamp = timestamp;
         this.deliveryStatus = deliveryStatus;
-        this.messageMedia = messageMedia ?? null;
+        this.mediaIds = messageMedia ?? null;
         this.content = content || '';
         this.messageToken = messageToken;
     }

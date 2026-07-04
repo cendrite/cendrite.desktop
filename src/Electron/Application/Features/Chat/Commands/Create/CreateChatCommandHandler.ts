@@ -3,7 +3,6 @@ import { Chat } from '../../../../../Domain/Aggregates/Chat.js';
 import { Friend } from '../../../../../Domain/Aggregates/Friend.js';
 import { ChatMember } from '../../../../../Domain/Entities/ChatMember.js';
 import { Message } from '../../../../../Domain/Entities/Message.js';
-import { MessageMedia } from '../../../../../Domain/Entities/MessageMedia.js';
 import { ChatStore } from '../../../../../Persistence/Repositories/ChatStore.js';
 import { FriendRepository } from '../../../../../Persistence/Repositories/FriendRepository.js';
 import { Handler } from '../../../../Mediator/Handler.js';
@@ -25,7 +24,7 @@ export class CreateChatCommandHandler implements Handler<CreateChatCommand, Crea
                 request.message.senderId,
                 request.message.timestamp,
                 request.message.content,
-                request.message.media?.map((m) => new MessageMedia(m.content, m.type, request.message!.id)), 
+                [],
                 request.message.deliveryStatus,
             )
             : null;

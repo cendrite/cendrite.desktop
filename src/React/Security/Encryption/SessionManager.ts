@@ -71,4 +71,48 @@ export class SessionManager {
         const decryptedMsg = new TextDecoder().decode(plaintextBuffer);
         return JSON.parse(decryptedMsg);
     }
+
+    /**
+     * Encrypts an attachment blob with a fresh, single-use AES-GCM key.
+     * This does NOT touch the ratchet — only the returned key/iv (carried inside the
+     * ratchet-encrypted pointer) tie the blob back to the session.
+     */
+    public static async encryptBlob(bytes: Uint8Array): Promise<{ cipher: Uint8Array; key: string; iv: string }> {
+        const rawKey = crypto.getRandomValues(new Uint8Array(32));
+        const iv = crypto.getRandomValues(new Uint8Array(12));
+
+        const key = await crypto.subtle.importKey('raw', rawKey, 'AES-GCM', false, ['encrypt']);
+        const cipher = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, bytes);
+
+        return {
+            cipher: new Uint8Array(cipher),
+            key: SessionManager.toBase64(rawKey),
+            iv: SessionManager.toBase64(iv),
+        };
+    }
+
+    /**
+     * Decrypts an attachment blob using the key/iv recovered from the pointer.
+     */
+    public static async decryptBlob(cipher: Uint8Array, key: string, iv: string): Promise<Uint8Array> {
+        const cryptoKey = await crypto.subtle.importKey('raw', SessionManager.fromBase64(key), 'AES-GCM', false, [
+            'decrypt',
+        ]);
+
+        const plaintext = await crypto.subtle.decrypt(
+            { name: 'AES-GCM', iv: SessionManager.fromBase64(iv) },
+            cryptoKey,
+            cipher,
+        );
+
+        return new Uint8Array(plaintext);
+    }
+
+    private static toBase64(bytes: Uint8Array): string {
+        return btoa(String.fromCharCode(...bytes));
+    }
+
+    private static fromBase64(value: string): Uint8Array {
+        return Uint8Array.from(atob(value), (c) => c.charCodeAt(0));
+    }
 }
