@@ -29,12 +29,13 @@
             GET_DEVICES: "https://identity.xhykl49jkg.org/api/User/device",
         }
     },
-    BUCKET: {
-        BUCKET_BASE: "https://bucket-console.xhykl49jkg.org",
-    },
     KEYSTORE: {
         CREATE_KEY_BUNDLE: "https://conduit.xhykl49jkg.org/api/keys",   
         GET_PRE_KEY_BUNDLE: "https://conduit.xhykl49jkg.org/api/keys/session",
         UPLOAD_OTPS: "https://conduit.xhykl49jkg.org/api/keys/otps",
+    },
+    MEDIA: {
+        BASE: "https://chat.xhykl49jkg.org/api/media",
+        UPLOAD_MEDIA: "https://chat.xhykl49jkg.org/api/media/upload",
     }
 }
