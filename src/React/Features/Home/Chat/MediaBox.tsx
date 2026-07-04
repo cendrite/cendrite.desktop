@@ -27,9 +27,16 @@ export const MediaItem: React.FC<{ media: Media }> = ({ media }) => {
 
 export const MediaBox: React.FC<MediaBoxProps> = ({ media }) => {
     return (
-        <div className="media-box">
-            {media.map((m) => (
-                <MediaItem key={m.id} media={m} />
+        // TODO: on click, open a modal to scroll through the images
+        <div className="grid cursor-pointer">
+            {media.map((m, i) => (
+                <div
+                    key={m.id}
+                    className="rounded-lg overflow-hidden shadow"
+                    style={{ gridArea: '1 / 1', transform: `translate(${i * 5}px, ${i * 5}px)`, zIndex: i }}
+                >
+                    <MediaItem media={m} />
+                </div>
             ))}
         </div>
     );

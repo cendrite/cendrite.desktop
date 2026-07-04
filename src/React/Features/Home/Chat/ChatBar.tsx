@@ -1,29 +1,21 @@
 ﻿import { FaceSmileIcon, MicrophoneIcon, PaperClipIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import React, { useState } from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
-import {
-    GetMediaQuery,
-    MediaType,
-} from '../../../../Electron/Application/Features/Files/Queries/GetMedia/GetMediaQuery';
-import { MediaDto } from '../../../../Electron/Application/Features/Chat/Dtos/MediaDto';
-import { Result } from '../../../../Shared/Result/Result';
+import { MediaType } from '../../../../Electron/Application/Features/Files/Queries/GetMedia/GetMediaQuery';
 import { ChatViewModel } from '../../../Models/ChatViewModel';
 import { Media } from '../../../Models/Media';
 import { useMessageService } from '../../../Common/Hooks/MessageService';
+import { MediaService } from '../../../Common/Services/MediaService';
+import { MediaItem } from './MediaBox';
 
 interface ChatBarProps {
     chat: ChatViewModel;
 }
 
 const MediaPreview: React.FC<{ media: Media; onRemove: () => void }> = ({ media, onRemove }) => {
-    const isVideo = media.type.startsWith('video/');
     return (
         <div className="relative mb-2 inline-block">
-            {isVideo ? (
-                <video src={media.url} className="max-h-40 rounded-lg" controls />
-            ) : (
-                <img src={media.url} alt="preview" className="max-h-40 rounded-lg" />
-            )}
+            <MediaItem media={media} />
             <button
                 onClick={onRemove}
                 className="absolute -top-2 -right-2 bg-zinc-800 rounded-full p-1 hover:bg-darkGray-300"
@@ -36,20 +28,14 @@ const MediaPreview: React.FC<{ media: Media; onRemove: () => void }> = ({ media,
 
 export const ChatBar: React.FC<ChatBarProps> = ({ chat }) => {
     const { sendMessage } = useMessageService();
+    const mediaService = new MediaService();
     const [placeholderText, setPlaceholderText] = useState('message');
     const [media, setMedia] = useState<Media[]>([]);
     const [message, setMessage] = useState<string>('');
 
     const handleImpageUpload = async () => {
-        console.log('Uploading image...');
-        const result = await window.electron.sendRequestAsync<Result<MediaDto[]>>(
-            new GetMediaQuery(MediaType.All),
-        );
-        if (result.success) {
-            setMedia((prev) => [...prev, ...result.data!]);
-        } else {
-            console.error('Failed to upload image');
-        }
+        const selected = await mediaService.getLocalMedia(MediaType.All);
+        setMedia((prev) => [...prev, ...selected]);
     };
 
     const onSendMessage = async (): Promise<void> => {
