@@ -73,7 +73,7 @@ const AvatarModal: React.FC<AvatarModelProps> = ({ isOpen, onClose }) => {
                     {/* Show Selected Profile Picture */}
                     {selectedAvatar ? (
                         selectedAvatar instanceof Media ? (
-                            <MediaItem media={selectedAvatar} />
+                            <MediaItem media={selectedAvatar} className="w-20 h-20 rounded-full object-cover" />
                         ) : (
                             <img
                                 src={selectedAvatar}

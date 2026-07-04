@@ -14,8 +14,8 @@ interface ChatBarProps {
 
 const MediaPreview: React.FC<{ media: Media; onRemove: () => void }> = ({ media, onRemove }) => {
     return (
-        <div className="relative mb-2 inline-block">
-            <MediaItem media={media} />
+        <div className="relative inline-block">
+            <MediaItem media={media} className="h-64 w-64 object-cover rounded-lg" />
             <button
                 onClick={onRemove}
                 className="absolute -top-2 -right-2 bg-zinc-800 rounded-full p-1 hover:bg-darkGray-300"
@@ -53,13 +53,17 @@ export const ChatBar: React.FC<ChatBarProps> = ({ chat }) => {
                 </button>
 
                 <div className="flex-1 bg-darkGray-700 rounded-3xl px-3 py-2">
-                    {media.map((m, index) => (
-                        <MediaPreview
-                            key={index}
-                            media={m}
-                            onRemove={() => setMedia((prev) => prev.filter((_, i) => i !== index))}
-                        />
-                    ))}
+                    {media.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-2">
+                            {media.map((m, index) => (
+                                <MediaPreview
+                                    key={index}
+                                    media={m}
+                                    onRemove={() => setMedia((prev) => prev.filter((_, i) => i !== index))}
+                                />
+                            ))}
+                        </div>
+                    )}
                     <TextareaAutosize
                         className="w-full bg-transparent text-white resize-none focus:outline-none"
                         minRows={1}

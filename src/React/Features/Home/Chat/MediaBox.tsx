@@ -5,7 +5,7 @@ interface MediaBoxProps {
     media: Media[];
 }
 
-export const MediaItem: React.FC<{ media: Media }> = ({ media }) => {
+export const MediaItem: React.FC<{ media: Media; className?: string }> = ({ media, className }) => {
     const [url, setUrl] = useState<string>();
 
     useEffect(() => {
@@ -16,13 +16,10 @@ export const MediaItem: React.FC<{ media: Media }> = ({ media }) => {
 
     if (!url) return null;
 
-    return (
-        <div className="media-item">
-            {media.type.startsWith("image/") && <img src={url} alt="media" />}
-            {media.type.startsWith("video/") && <video controls src={url} />}
-            {media.type.startsWith("audio/") && <audio controls src={url} />}
-        </div>
-    );
+    if (media.type.startsWith("image/")) return <img src={url} alt="media" className={className} />;
+    if (media.type.startsWith("video/")) return <video controls src={url} className={className} />;
+    if (media.type.startsWith("audio/")) return <audio controls src={url} className={className} />;
+    return null;
 };
 
 export const MediaBox: React.FC<MediaBoxProps> = ({ media }) => {
@@ -35,7 +32,7 @@ export const MediaBox: React.FC<MediaBoxProps> = ({ media }) => {
                     className="rounded-lg overflow-hidden shadow"
                     style={{ gridArea: '1 / 1', transform: `translate(${i * 5}px, ${i * 5}px)`, zIndex: i }}
                 >
-                    <MediaItem media={m} />
+                    <MediaItem media={m} className="max-h-60 rounded-lg" />
                 </div>
             ))}
         </div>
