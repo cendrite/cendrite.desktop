@@ -51,7 +51,7 @@ export class ChatStore {
     public async getMessages(chatId: string, skip: number, take: number): Promise<Message[]> {
         return this.messageRepository.find({
             where: { chat: { id: chatId } },
-            relations: { mediaIds: true },
+            relations: { messageMedia: true },
             skip: skip,
             order: { timestamp: 'DESC' },
             take: take,

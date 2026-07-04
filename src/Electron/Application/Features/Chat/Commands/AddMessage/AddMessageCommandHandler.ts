@@ -1,5 +1,6 @@
 import { Result } from '../../../../../../Shared/Result/Result.js';
 import { Message } from '../../../../../Domain/Entities/Message.js';
+import { MessageMedia } from '../../../../../Domain/Entities/MessageMedia.js';
 import { ChatStore } from '../../../../../Persistence/Repositories/ChatStore.js';
 import { Handler } from '../../../../Mediator/Handler.js';
 import { AddMessageCommand } from './AddMessageCommand.js';
@@ -15,9 +16,9 @@ export class AddMessageCommandHandler implements Handler<AddMessageCommand> {
             request.senderId,
             request.timestamp,
             request.content,
-            request.media,
+            request.media?.map((mdto) => new MessageMedia(mdto.id, mdto.type)) ?? [],
             request.deliveryStatus,
-            request.messageToken,
+            request.messageToken
         );
 
         await chatStore.storeMessage(message);

@@ -53,7 +53,7 @@ export const MessageSchema = new EntitySchema<Message>({
             inverseSide: 'messages',
             onDelete: 'CASCADE',
         },
-        mediaIds: {
+        messageMedia: {
             type: 'one-to-many',
             target: () => MessageMedia,
             inverseSide: 'message',
