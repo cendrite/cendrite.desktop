@@ -1,18 +1,15 @@
 import { Result } from '../../../Shared/Result/Result';
 import { UpdateAvatarCommand } from '../../../Electron/Application/Features/User/Commands/Update/Avatar/UpdateAvatarCommand.ts';
 import { UpdateAvatarApi } from '../Api/UserProfile/UpdateAvatarApi.ts';
+import { Media } from '../../Models/Media.ts';
 
 export class AvatarService {
     private readonly updateAvatarApi = new UpdateAvatarApi();
 
-    public async updateAvatar(avatar: string, isStock: boolean): Promise<Result<string>> {
-        let file: File | null;
-
-        if (isStock) {
-            file = await this.imagePathToBlob(avatar);
-        } else {
-            file = this.base64ToFile(avatar, 'profilePicture.png');
-        }
+    public async updateAvatar(avatar: Media | string, isStock: boolean): Promise<Result<string>> {
+        const file = isStock
+            ? await this.imagePathToBlob(avatar as string)
+            : this.mediaToFile(avatar as Media);
 
         const remoteUpdateResult = await this.updateAvatarApi.handle({ Avatar: file });
 
@@ -32,22 +29,8 @@ export class AvatarService {
         return Result.success(remoteUpdateResult.data!.fileKey);
     }
 
-    private base64ToFile(base64Data: string, fileName: string): File {
-        const matches = base64Data.match(/^data:(.+);base64,(.*)$/);
-        if (!matches || matches.length !== 3) {
-            throw new Error('Invalid base64 format');
-        }
-
-        const mimeType = matches[1];
-        const byteCharacters = atob(matches[2]);
-        const byteNumbers = new Array(byteCharacters.length);
-
-        for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-
-        const byteArray = new Uint8Array(byteNumbers);
-        return new File([byteArray], fileName, { type: mimeType });
+    private mediaToFile(media: Media): File {
+        return new File([media.content], 'profilePicture.png', { type: media.type });
     }
 
     private async imagePathToBlob(imageUrl: string): Promise<File> {

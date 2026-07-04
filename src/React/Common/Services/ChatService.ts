@@ -19,11 +19,13 @@ import { UpdateDeliveryStatusCommand } from '../../../Electron/Application/Featu
 import { SessionManager } from '../../Security/Encryption/SessionManager.ts';
 import { MessageDto } from '../../../Electron/Application/Features/Chat/Dtos/MessageDto.ts';
 import { DeliveryStatus } from '../../../Electron/Domain/Enums/DeliveryStatus.ts';
-import { MessagePayload, ServerMessage } from '../../SignalR/Messaging/ServerMessage.ts';
+import { MediaPointer, MessagePayload, ServerMessage } from '../../SignalR/Messaging/ServerMessage.ts';
 import { GetMessagesQuery } from '../../../Electron/Application/Features/Chat/Queries/GetMessages/GetMessagesQuery.ts';
 import { Media } from '../../Models/Media.ts';
+import { MediaApi } from '../Api/ChatServer/MediaApi.ts';
 
 export class ChatService {
+    private readonly mediaApi = new MediaApi();
     private readonly messageSender = SignalManager.getInstance().getHandler<MessageHubHandler>('Messaging');
 
     public async sendMessage(
@@ -48,9 +50,11 @@ export class ChatService {
 
         for (const connectionId of recieverIds) {
             const manager = new SessionManager(connectionId);
+            const mpointers = await this.uploadMedia(user.connectionId, media);
             const cipher = await manager.encrypt(
-                new MessagePayload(message.text, message.media, participants, DeliveryStatus.Pending),
+                new MessagePayload(message.text, mpointers, participants, DeliveryStatus.Pending),
             );
+
             const msg = ServerMessage.create(message, connectionId, cipher);
             messages.push(msg);
         }
@@ -206,13 +210,13 @@ export class ChatService {
         }
 
         const member = new ChatMemberViewModel(uuid().toString(), ChatPrivileges.Member, contact.displayName, contact);
+
         const mappedMsg = MessageViewModel.mapFromDecrypted(
             msg,
             content,
             this.getInitialDeliveryStatus(user, msg.senderId),
         );
         const chat = new ChatViewModel(msg.ChatId, [member], [mappedMsg]);
-        console.log('created chat', chat);
 
         await window.electron.sendRequestAsync(
             new CreateChatCommand(
@@ -260,5 +264,16 @@ export class ChatService {
         });
         participantIds.add(userTag);
         return Array.from(participantIds);
+    }
+
+    private async uploadMedia(senderId: string, media: Media[]): Promise<MediaPointer[]> {
+        const mediaPointers: MediaPointer[] = [];
+        for (const m of media) {
+            const { key, iv } = await SessionManager.encryptBlob(m.content);
+            await this.mediaApi.upload(m.id, senderId, m.content);
+            mediaPointers.push(new MediaPointer(m.id, m.type, iv, key));
+        }
+
+        return mediaPointers;
     }
 }

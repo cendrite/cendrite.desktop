@@ -9,17 +9,14 @@ export class MediaApi {
         this.client = new ApiClient(API_URLS.MEDIA.BASE, true);
     }
 
-    public async upload(mediaId: string, senderId: string, file: File): Promise<Result> {
-        const formData = new FormData();
-        formData.append('file', file);
-
+    public async upload(mediaId: string, senderId: string, cipher: Uint8Array): Promise<Result> {
         return this.client.handle({
             url: API_URLS.MEDIA.UPLOAD,
             method: 'POST',
             params: { mediaId, senderId },
-            data: formData,
+            data: cipher,
             headers: {
-                'Content-Type': 'multipart/form-data',
+                'Content-Type': 'application/octet-stream',
             },
         });
     }

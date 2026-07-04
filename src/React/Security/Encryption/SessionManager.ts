@@ -15,6 +15,10 @@ export class SessionManager {
         return new libsignal.SignalProtocolAddress(this.connectionId, generateAddressId(this.connectionId));
     }
 
+    /**
+     * Ensures that a session exists for the given connectionId. If no session exists, it retrieves the pre-key bundle
+     * from the KeyService and processes it to establish a new session.
+     */
     private async ensureSession(): Promise<void> {
         const session = await this.keyStore.loadSession(this.address.toString());
         if (session) {
@@ -36,6 +40,11 @@ export class SessionManager {
         await builder.processPreKey(mappedBundle);
     }
 
+    /**
+     * Encrypts a payload object into a ciphertext string.
+     * @param payload The payload object to encrypt.
+     * @returns A promise that resolves to the encrypted ciphertext string.
+     */
     public async encrypt(payload: Payload): Promise<string> {
         await this.ensureSession();
 
@@ -53,6 +62,11 @@ export class SessionManager {
         });
     }
 
+    /**
+     * Decrypts a ciphertext string into a payload object.
+     * @param ciphertext The ciphertext string to decrypt.
+     * @returns A promise that resolves to the decrypted payload object.
+     */
     public async decrypt<T extends Payload>(ciphertext: string): Promise<T> {
         const { type, body } = JSON.parse(ciphertext);
 

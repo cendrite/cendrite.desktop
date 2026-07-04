@@ -57,6 +57,7 @@ export class MessageViewModel {
         msg: ServerMessage,
         decryptedContent: MessagePayload,
         initialDeliveryStatus: DeliveryStatus,
+        media: Media[] = [],
     ): MessageViewModel {
         return new MessageViewModel(
             msg.id,
@@ -64,7 +65,7 @@ export class MessageViewModel {
             msg.senderId,
             decryptedContent.text,
             new Date(msg.timestamp),
-            decryptedContent.media || [],
+            media,
             initialDeliveryStatus,
         );
     }
@@ -76,7 +77,7 @@ export class MessageViewModel {
             dto.senderId,
             dto.content,
             new Date(dto.timestamp),
-            dto.media,
+            dto.media.map((m) => new Media(m.id, m.type, m.content)),
             dto.deliveryStatus,
             dto.messageToken,
         );

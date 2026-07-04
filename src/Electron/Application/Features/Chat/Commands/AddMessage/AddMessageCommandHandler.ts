@@ -15,7 +15,7 @@ export class AddMessageCommandHandler implements Handler<AddMessageCommand> {
             request.senderId,
             request.timestamp,
             request.content,
-            request.mediaIds,
+            request.media,
             request.deliveryStatus,
             request.messageToken,
         );

@@ -1,11 +1,16 @@
 export class Media {
-    public readonly url: string;
+    public readonly id: string;
     public readonly type: string;
-    public readonly content: string;
+    public readonly content: Uint8Array;
 
-    constructor(url: string, type: string, content: string) {
-        this.url = url;
+    constructor(id: string, type: string, content: Uint8Array) {
+        this.id = id;
         this.type = type;
         this.content = content;
+    }
+
+    public getBlob():  Blob {
+        const blob = new Blob([this.content], { type: this.type });
+        return blob;
     }
 }
