@@ -1,18 +1,19 @@
+import { ChangeEvent } from '../React/SignalR/ChangeEvent/ChangeEvent';
 import { ServerMessageDto } from '../React/SignalR/Messaging/ServerMessage';
 
-export type ConnectionState = 'connected' | 'disconnected' | 'connecting';
-
-export interface AppEventMap {
-    changeEvent: ChangeEvent;
-    hubMessage: ServerMessageDto;
-    connectionState: ConnectionState;
-}
-export type AppEvent = keyof AppEventMap;
-
 declare global {
+    type ConnectionState = 'connected' | 'disconnected' | 'connecting';
+
     type MediatorRequest = {
         type: string;
     };
+
+    interface AppEventMap {
+        changeEvent: ChangeEvent;
+        hubMessage: ServerMessageDto;
+        connectionState: ConnectionState;
+    }
+    type AppEvent = keyof AppEventMap;
 
     interface Window {
         electron: {
