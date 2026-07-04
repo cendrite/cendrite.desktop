@@ -36,6 +36,7 @@
     },
     MEDIA: {
         BASE: "https://chat.xhykl49jkg.org/api/media",
-        UPLOAD_MEDIA: "https://chat.xhykl49jkg.org/api/media/upload",
+        UPLOAD: "/upload",
+        ACK: "/ack",
     }
 }
