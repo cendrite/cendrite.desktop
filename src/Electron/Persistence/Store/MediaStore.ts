@@ -18,7 +18,7 @@ export class MediaStore {
         return MediaStore.instance;
     }
 
-    async store(id: string, content: Buffer): Promise<void> {
+    async store(id: string, content: Uint8Array): Promise<void> {
         const filePath = path.join(this.path, id);
         await writeFile(filePath, content);
     }

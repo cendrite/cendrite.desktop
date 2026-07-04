@@ -10,7 +10,7 @@ export class AddMessageCommand implements MediatorRequest {
     timestamp: Date;
     deliveryStatus: DeliveryStatus;
     content: string | null = null;
-    messageMedia: MediaDto[] | null;
+    media: MediaDto[] | null = null; 
 
     constructor(
         chatId: string,
@@ -20,7 +20,7 @@ export class AddMessageCommand implements MediatorRequest {
         deliveryStatus: DeliveryStatus,
         messageToken: string | null = null,
         content: string | null = null,
-        messageMedia: MediaDto[] | null = null,
+        media: MediaDto[] | null = null,
     ) {
         this.chatId = chatId;
         this.messageId = messageId;
@@ -28,7 +28,7 @@ export class AddMessageCommand implements MediatorRequest {
         this.timestamp = timestamp;
         this.deliveryStatus = deliveryStatus;
         this.messageToken = messageToken;
-        this.messageMedia = messageMedia;
+        this.media = media;
         this.content = content;
     }
 }

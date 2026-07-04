@@ -15,6 +15,10 @@ export class SessionManager {
         return new libsignal.SignalProtocolAddress(this.connectionId, generateAddressId(this.connectionId));
     }
 
+    /**
+     * Ensures that a session exists for the given connectionId. If no session exists, it retrieves the pre-key bundle
+     * from the KeyService and processes it to establish a new session.
+     */
     private async ensureSession(): Promise<void> {
         const session = await this.keyStore.loadSession(this.address.toString());
         if (session) {
@@ -36,6 +40,11 @@ export class SessionManager {
         await builder.processPreKey(mappedBundle);
     }
 
+    /**
+     * Encrypts a payload object into a ciphertext string.
+     * @param payload The payload object to encrypt.
+     * @returns A promise that resolves to the encrypted ciphertext string.
+     */
     public async encrypt(payload: Payload): Promise<string> {
         await this.ensureSession();
 
@@ -53,6 +62,11 @@ export class SessionManager {
         });
     }
 
+    /**
+     * Decrypts a ciphertext string into a payload object.
+     * @param ciphertext The ciphertext string to decrypt.
+     * @returns A promise that resolves to the decrypted payload object.
+     */
     public async decrypt<T extends Payload>(ciphertext: string): Promise<T> {
         const { type, body } = JSON.parse(ciphertext);
 
@@ -70,5 +84,49 @@ export class SessionManager {
 
         const decryptedMsg = new TextDecoder().decode(plaintextBuffer);
         return JSON.parse(decryptedMsg);
+    }
+
+    /**
+     * Encrypts an attachment blob with a fresh, single-use AES-GCM key.
+     * This does NOT touch the ratchet — only the returned key/iv (carried inside the
+     * ratchet-encrypted pointer) tie the blob back to the session.
+     */
+    public static async encryptBlob(bytes: Uint8Array): Promise<{ cipher: Uint8Array; key: string; iv: string }> {
+        const rawKey = crypto.getRandomValues(new Uint8Array(32));
+        const iv = crypto.getRandomValues(new Uint8Array(12));
+
+        const key = await crypto.subtle.importKey('raw', rawKey, 'AES-GCM', false, ['encrypt']);
+        const cipher = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, bytes);
+
+        return {
+            cipher: new Uint8Array(cipher),
+            key: SessionManager.toBase64(rawKey),
+            iv: SessionManager.toBase64(iv),
+        };
+    }
+
+    /**
+     * Decrypts an attachment blob using the key/iv recovered from the pointer.
+     */
+    public static async decryptBlob(cipher: Uint8Array, key: string, iv: string): Promise<Uint8Array> {
+        const cryptoKey = await crypto.subtle.importKey('raw', SessionManager.fromBase64(key), 'AES-GCM', false, [
+            'decrypt',
+        ]);
+
+        const plaintext = await crypto.subtle.decrypt(
+            { name: 'AES-GCM', iv: SessionManager.fromBase64(iv) },
+            cryptoKey,
+            cipher,
+        );
+
+        return new Uint8Array(plaintext);
+    }
+
+    private static toBase64(bytes: Uint8Array): string {
+        return btoa(String.fromCharCode(...bytes));
+    }
+
+    private static fromBase64(value: string): Uint8Array {
+        return Uint8Array.from(atob(value), (c) => c.charCodeAt(0));
     }
 }

@@ -22,8 +22,10 @@ import { DeliveryStatus } from '../../../Electron/Domain/Enums/DeliveryStatus.ts
 import { MessagePayload, ServerMessage } from '../../SignalR/Messaging/ServerMessage.ts';
 import { GetMessagesQuery } from '../../../Electron/Application/Features/Chat/Queries/GetMessages/GetMessagesQuery.ts';
 import { Media } from '../../Models/Media.ts';
+import { MediaService } from './MediaService.ts';
 
 export class ChatService {
+    private readonly mediaService = new MediaService();
     private readonly messageSender = SignalManager.getInstance().getHandler<MessageHubHandler>('Messaging');
 
     public async sendMessage(
@@ -46,17 +48,19 @@ export class ChatService {
 
         const recieverIds = [...connectionIds, user.externalConnectionIds].flat();
 
+        const mpointers = await this.mediaService.uploadMedia(user.connectionId, media);
+
         for (const connectionId of recieverIds) {
             const manager = new SessionManager(connectionId);
             const cipher = await manager.encrypt(
-                new MessagePayload(message.text, message.media, participants, DeliveryStatus.Pending),
+                new MessagePayload(message.text, mpointers, participants, DeliveryStatus.Pending),
             );
+
             const msg = ServerMessage.create(message, connectionId, cipher);
             messages.push(msg);
         }
 
         const receipt = await this.messageSender.sendMessage(messages);
-        console.log('Message send receipt:', receipt);
         const msg = this.setDeliveryStatusOnReceipt(message, receipt);
         return msg;
     }
@@ -130,10 +134,12 @@ export class ChatService {
     public async addMessage(user: User, msg: ServerMessage, chatId: string): Promise<MessageViewModel> {
         const sessionManager = new SessionManager(msg.senderId);
         const decryptedMessage = await sessionManager.decrypt<MessagePayload>(msg.payload);
+        const media = await this.mediaService.getMedia(decryptedMessage.media);
         const mappedMsg = MessageViewModel.mapFromDecrypted(
             msg,
             decryptedMessage,
             this.getInitialDeliveryStatus(user, msg.senderId),
+            media,
         );
         await this.persistMessage(mappedMsg, chatId);
         return mappedMsg;
@@ -206,13 +212,13 @@ export class ChatService {
         }
 
         const member = new ChatMemberViewModel(uuid().toString(), ChatPrivileges.Member, contact.displayName, contact);
+
         const mappedMsg = MessageViewModel.mapFromDecrypted(
             msg,
             content,
             this.getInitialDeliveryStatus(user, msg.senderId),
         );
         const chat = new ChatViewModel(msg.ChatId, [member], [mappedMsg]);
-        console.log('created chat', chat);
 
         await window.electron.sendRequestAsync(
             new CreateChatCommand(

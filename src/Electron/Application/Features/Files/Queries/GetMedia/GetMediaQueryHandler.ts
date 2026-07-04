@@ -4,6 +4,7 @@ import { Result } from '../../../../../../Shared/Result/Result.js';
 import { ErrorMessage } from '../../../../../../Shared/Result/ErrorMessage.js';
 import { MediaDto } from '../../../Chat/Dtos/MediaDto.js';
 import * as fs from 'node:fs';
+import { randomUUID } from 'node:crypto';
 import { dialog, BrowserWindow, app } from 'electron';
 
 export class GetMediaQueryHandler implements Handler<GetMediaQuery, MediaDto[]> {
@@ -38,12 +39,10 @@ export class GetMediaQueryHandler implements Handler<GetMediaQuery, MediaDto[]> 
 
     private ToMediaDto(filePath: string): MediaDto {
         const fileExtension = filePath.split('.').pop()?.toLowerCase() ?? '';
-        const fileBuffer = fs.readFileSync(filePath);
+        const content = fs.readFileSync(filePath);
         const mime = this.MimeForExtension(fileExtension);
-        const content = fileBuffer.toString('base64');
-        const url = `data:${mime};base64,${content}`;
 
-        return new MediaDto(url, mime, content);
+        return new MediaDto(randomUUID(), mime, content);
     }
 
     private SelectExtension(mediaType: MediaType): string[] {

@@ -1,6 +1,6 @@
 import { Message } from '../../../../Domain/Entities/Message.js';
 import { DeliveryStatus } from '../../../../Domain/Enums/DeliveryStatus.js';
-import { Media } from '../../Files/Dto/Media.js';
+import { MediaDto } from './MediaDto.js';
 
 export class MessageDto {
     id: string;
@@ -8,7 +8,7 @@ export class MessageDto {
     senderId: string;
     timestamp: Date;
     content: string;
-    media: Media[];
+    media: MediaDto[];
     deliveryStatus: DeliveryStatus;
 
     constructor(
@@ -17,7 +17,7 @@ export class MessageDto {
         senderId: string,
         content: string,
         timestamp: Date,
-        media: Media[],
+        media: MediaDto[],
         deliveryStatus: DeliveryStatus,
     ) {
         this.id = id;
@@ -30,18 +30,13 @@ export class MessageDto {
     }
 
     public static fromMessage(message: Message): MessageDto {
-        console.log("mapping message to MessageDto:", message);
         return new MessageDto(
             message.id,
             message.messageToken,
             message.senderId,
             message.content,
             message.timestamp,
-            message.messageMedia?.map((media) => ({
-                url: `data:${media.type};base64,${media.media}`,
-                content: media.media,
-                type: media.type,
-            })) ?? [],
+            [], //TODO: MEDIA REFACTOR
             message.deliveryStatus,
         );
     }

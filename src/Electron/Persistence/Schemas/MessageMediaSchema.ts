@@ -13,9 +13,6 @@ export const MessageMediaSchema = new EntitySchema<MessageMedia>({
             primary: true,
             generated: true,
         },
-        media: {
-            type: String,
-        },
         type: {
             type: String,
         },

@@ -2,13 +2,14 @@ import { Result } from '../../../../../../Shared/Result/Result.js';
 import { Message } from '../../../../../Domain/Entities/Message.js';
 import { MessageMedia } from '../../../../../Domain/Entities/MessageMedia.js';
 import { ChatStore } from '../../../../../Persistence/Repositories/ChatStore.js';
+import { MediaStore } from '../../../../../Persistence/Store/MediaStore.js';
 import { Handler } from '../../../../Mediator/Handler.js';
 import { AddMessageCommand } from './AddMessageCommand.js';
 
 export class AddMessageCommandHandler implements Handler<AddMessageCommand> {
     public async handle(request: AddMessageCommand): Promise<Result> {
         const chatStore = new ChatStore();
-        console.log(`Storing message with ID: ${request.messageId} to chat ID: ${request.chatId}`);
+        const mediaStore = MediaStore.getInstance();
 
         const message = new Message(
             request.messageId,
@@ -16,10 +17,16 @@ export class AddMessageCommandHandler implements Handler<AddMessageCommand> {
             request.senderId,
             request.timestamp,
             request.content,
-            request.messageMedia?.map((m) => new MessageMedia(m.content, m.type, request.messageId)),
+            request.media?.map((mdto) => new MessageMedia(mdto.id, mdto.type)) ?? [],
             request.deliveryStatus,
-            request.messageToken,
+            request.messageToken
         );
+
+        if (request.media) {
+            for (const media of request.media) {
+                await mediaStore.store(media.id, media.content);
+            }
+        }
 
         await chatStore.storeMessage(message);
 
