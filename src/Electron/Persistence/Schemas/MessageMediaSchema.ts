@@ -9,9 +9,8 @@ export const MessageMediaSchema = new EntitySchema<MessageMedia>({
     columns: {
         ...BaseSchema.columns,
         id: {
-            type: Number,
+            type: String,
             primary: true,
-            generated: true,
         },
         type: {
             type: String,

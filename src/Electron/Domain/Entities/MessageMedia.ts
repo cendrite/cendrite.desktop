@@ -6,8 +6,9 @@ export class MessageMedia {
     messageId: string;
     message!: Message;
 
-    constructor(id: string, type: string) {
+    constructor(id: string, type: string, messageId: string) {
+        this.id = id;
         this.type = type;
-        this.messageId = id;
+        this.messageId = messageId;
     }
 }
