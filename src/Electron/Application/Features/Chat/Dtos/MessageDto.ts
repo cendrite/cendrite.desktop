@@ -29,14 +29,14 @@ export class MessageDto {
         this.deliveryStatus = deliveryStatus;
     }
 
-    public static fromMessage(message: Message): MessageDto {
+    public static fromMessage(message: Message, media: MediaDto[]): MessageDto {
         return new MessageDto(
             message.id,
             message.messageToken,
             message.senderId,
             message.content,
             message.timestamp,
-            [], //TODO: MEDIA REFACTOR
+            media,
             message.deliveryStatus,
         );
     }

@@ -1,3 +1,5 @@
+import { MessageMedia } from '../../../../Domain/Entities/MessageMedia.js';
+
 export class MediaDto {
     public readonly id: string;
     public readonly type: string;
@@ -7,5 +9,9 @@ export class MediaDto {
         this.id = id;
         this.type = type;
         this.content = content;
+    }
+
+    public static fromMessageMedia(messageMedia: MessageMedia, content: Uint8Array): MediaDto {
+        return new MediaDto(messageMedia.id, messageMedia.type, content);
     }
 }
