@@ -11,15 +11,14 @@ import { useSignal } from '../../SignalR/SignalRProvider.tsx';
 import ErrorTooltip from '../../Common/Components/Utility/ErrorToolTip.tsx';
 import FormButton from '../../Common/Components/Form/FormButton.tsx';
 import ResendCodeButton from '../../Common/Components/Form/ResendCodeButton.tsx';
-import { TokenManager } from '../../Security/Tokens/TokenManager.ts';
 import { KeyService } from '../../Common/Services/KeyService.ts';
 import { useUser } from '../../Context/User/UserContext.tsx';
 import { UserActionType } from '../../Context/User/UserReducer.ts';
 import { User } from '../../Models/User.ts';
+import { InitializeTokenManagerCommand } from '../../../Electron/Application/Features/Tokens/Commands/Initialize/InitializeTokenMangerCommand.ts';
 
 const VerifyLoginPage: React.FC = () => {
     const navigate = useNavigate();
-    const tokenManager = TokenManager.getInstance();
     const verifyLoginApi = new VerifyLoginApi();
     const userProfileService = new UserProfileService();
     const deviceService = new DeviceService();
@@ -55,9 +54,11 @@ const VerifyLoginPage: React.FC = () => {
             return;
         }
 
-        await tokenManager.initialize(
-            onboardingContext.onboardingData.UserId!,
-            deviceRegistrationResult.data!.deviceId,
+        await window.electron.sendRequestAsync(
+            new InitializeTokenManagerCommand(
+                onboardingContext.onboardingData.UserId!,
+                deviceRegistrationResult.data!.deviceId,
+            ),
         );
 
         const userProfileResult = await userProfileService.HandleUserProfile(
@@ -66,16 +67,19 @@ const VerifyLoginPage: React.FC = () => {
 
         console.log('User profile result:', userProfileResult);
 
-        userDispatch({type: UserActionType.Initialize, payload: new User(
-            userProfileResult!.id,
-            userProfileResult!.username,
-            userProfileResult!.userTag,
-            deviceRegistrationResult.data!.deviceId,
-            deviceRegistrationResult.data!.connectionId,
-            userProfileResult!.connectionIds,
-            userProfileResult!.avatarKey,
-            userProfileResult!.displayName
-        )});
+        userDispatch({
+            type: UserActionType.Initialize,
+            payload: new User(
+                userProfileResult!.id,
+                userProfileResult!.username,
+                userProfileResult!.userTag,
+                deviceRegistrationResult.data!.deviceId,
+                deviceRegistrationResult.data!.connectionId,
+                userProfileResult!.connectionIds,
+                userProfileResult!.avatarKey,
+                userProfileResult!.displayName,
+            ),
+        });
 
         await signalRContext.client.connect();
         await keyService.SaveKeys(deviceRegistrationResult.data!.connectionId);

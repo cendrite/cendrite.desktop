@@ -1,10 +1,12 @@
-﻿import axios, {AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig} from "axios";
-import {Result} from "../../../Shared/Result/Result.ts";
-import {Envelope} from "./Envelope.ts";
-import {ErrorMessage} from "../../../Shared/Result/ErrorMessage.ts";
-import {TokenManager} from "../../Security/Tokens/TokenManager.ts";
+﻿import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from "axios";
+import { Result } from "../../../Shared/Result/Result.ts";
+import { Envelope } from "./Envelope.ts";
+import { ErrorMessage } from "../../../Shared/Result/ErrorMessage.ts";
+import { TokenManager } from "../../Security/Tokens/TokenManager.ts";
+import { GetTokenQuery } from "../../../Electron/Application/Features/Tokens/Queries/GetTokenQuery.ts";
+import { RefreshTokenCommand } from "../../../Electron/Application/Features/Tokens/Commands/Refresh/RefreshTokenCommand.ts";
 
-export class ApiClient{
+export class ApiClient {
     protected api: AxiosInstance;
 
     /**
@@ -27,33 +29,31 @@ export class ApiClient{
             }
         });
 
-        if(requiresAuth){
+        if (requiresAuth) {
             this.addAuthInterceptors();
         }
     }
 
-    private addAuthInterceptors(){
-        const tokenManager = TokenManager.getInstance();
+    private addAuthInterceptors() {
         this.api.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
-            const token = tokenManager.getJwt();
-            if(token){
-                config.headers.Authorization = `Bearer ${token}`;
+            const accessToken = await window.electron.sendRequestAsync<Result<string>>(new GetTokenQuery());
+            if (accessToken!.data) {
+                config.headers.Authorization = `Bearer ${accessToken.data}`;
             }
             return config;
         });
 
-        this.api.interceptors.response.use((response)=> response,
+        this.api.interceptors.response.use((response) => response,
             async (error: AxiosError) => {
-                if(error.response?.status === 401) {
+                if (error.response?.status === 401) {
                     console.warn("Token expired, refreshing token");
-                    try{
-                        await tokenManager.refreshTokens();
-                        const newToken = tokenManager.getJwt();
-                        if(newToken && error.config) {
-                            error.config.headers.Authorization = `Bearer ${newToken}`;
+                    try {
+                        const newtoken = await window.electron.sendRequestAsync<Result<string>>(new RefreshTokenCommand());
+                        if (newtoken.success && error.config) {
+                            error.config.headers.Authorization = `Bearer ${newtoken!.data}`;
                             return this.api.request(error.config);
                         }
-                    } catch(refreshError){
+                    } catch (refreshError) {
                         console.error("Token refresh failed. Fatal. Logging out.");
                         //TODO: Handle fatal errors that should result in logout.
                     }
@@ -82,19 +82,19 @@ export class ApiClient{
             return Result.fail<T>(new ErrorMessage("ApiError", "An unexpected error occurred."));
         }
     }
- 
-    public async handleConduit<T>(config: AxiosRequestConfig, allowEmpty: true) : Promise<Result<T | void>>;
-    public async handleConduit<T>(config: AxiosRequestConfig, allowEmpty?: boolean) : Promise<Result<T>>;   
-    
-    public async handleConduit<T>(config: AxiosRequestConfig) : Promise<Result<T | void>> {
-        try{
+
+    public async handleConduit<T>(config: AxiosRequestConfig, allowEmpty: true): Promise<Result<T | void>>;
+    public async handleConduit<T>(config: AxiosRequestConfig, allowEmpty?: boolean): Promise<Result<T>>;
+
+    public async handleConduit<T>(config: AxiosRequestConfig): Promise<Result<T | void>> {
+        try {
             const response: AxiosResponse<T | null> = await this.api.request<T>(config);
-            if(response.status === 204){
+            if (response.status === 204) {
                 return Result.success();
             }
-            
+
             return Result.success(response.data!);
-        }catch(error){
+        } catch (error) {
             if (error instanceof AxiosError && error.response) {
                 const data = error.response.data as ProblemDetails;
                 return Result.fail<T>(ErrorMessage.fromProblemDetails(data));
@@ -111,6 +111,6 @@ interface ProblemDetails {
     status: number;
     instance: string;
     type: string;
-    errors: {code: string; description: string; type: number}[];
+    errors: { code: string; description: string; type: number }[];
 }
 

@@ -7,8 +7,8 @@ import { GetDeviceDto } from '../../../Electron/Application/Features/Device/Quer
 import { GetDeviceQuery } from '../../../Electron/Application/Features/Device/Queries/GetDevice/GetDeviceQuery';
 import { GetUserDto } from '../../../Electron/Application/Features/User/Queries/GetUserDto';
 import { GetUserQuery } from '../../../Electron/Application/Features/User/Queries/GetUserQuery';
-import { TokenManager } from '../../Security/Tokens/TokenManager';
 import { UserActionType } from '../User/UserReducer';
+import { InitializeTokenManagerCommand } from '../../../Electron/Application/Features/Tokens/Commands/Initialize/InitializeTokenMangerCommand';
 import { User } from '../../Models/User';
 import {v4 as uuid } from 'uuid';
 
@@ -30,8 +30,7 @@ export const AuthSessionProvider: React.FC<{ children: React.ReactNode }> = ({ c
                 return false;
             }
 
-            const tokenManager = TokenManager.getInstance();
-            await tokenManager.initialize(userResult.data!.id, deviceResult.data!.id);
+            await window.electron.sendRequestAsync(new InitializeTokenManagerCommand(userResult.data!.id, deviceResult.data!.id));
 
             userDispatch({
                 type: UserActionType.Initialize,
