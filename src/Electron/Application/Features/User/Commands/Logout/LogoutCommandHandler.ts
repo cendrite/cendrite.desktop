@@ -4,6 +4,7 @@ import {Handler} from "../../../../Mediator/Handler.js";
 import {ErrorMessage} from "../../../../../../Shared/Result/ErrorMessage.js";
 import {LogoutManager} from "../../../../Services/LogoutManager/LogoutManager.js";
 import { PurgeLocalDataService } from "../../../../Services/Data/PurgeLocalDataService.js";
+import { TokenManager } from "../../../../Services/Authentication/TokenManager.js";
 
 export class LogoutCommandHandler implements Handler<LogoutCommand, void> {
 
@@ -11,13 +12,16 @@ export class LogoutCommandHandler implements Handler<LogoutCommand, void> {
 
         try {
             const logoutManager = LogoutManager.getInstance();
+            const tokenManger = TokenManager.getInstance();
             logoutManager.startLogout();
             console.log("started logout: ", logoutManager.IsLoggingOut);
 
             const purger = new PurgeLocalDataService();
             await purger.purgeLocalData();
 
+
             logoutManager.endLogout();
+            tokenManger.disableAndClear();   
             console.log("ended logout: ", logoutManager.IsLoggingOut);
 
             return Result.success();

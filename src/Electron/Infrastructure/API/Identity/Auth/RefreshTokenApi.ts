@@ -1,6 +1,6 @@
-import {ApiClient} from "../../ApiClient.ts";
-import {API_URLS} from "../../ApiUrls.ts";
-import {Result} from "../../../../../Shared/Result/Result.ts";
+import { Result } from "../../../../../Shared/Result/Result.js";
+import { ApiClient } from "../../ApiClient.js";
+import { API_URLS } from "../../ApiUrls.js";
 
 export interface RefreshTokenApiResponse {
     jwt: string;

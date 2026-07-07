@@ -57,6 +57,12 @@ import { GetMessagesQuery } from './Application/Features/Chat/Queries/GetMessage
 import { GetMessagesQueryHandler } from './Application/Features/Chat/Queries/GetMessages/GetMessagesQueryHandler.js';
 import { UpdateAvatarCommand } from './Application/Features/User/Commands/Update/Avatar/UpdateAvatarCommand.js';
 import { UpdateAvatarCommandHandler } from './Application/Features/User/Commands/Update/Avatar/UpdateAvatarCommandHandler.js';
+import { GetTokenQuery } from './Application/Features/Tokens/Queries/GetTokenQuery.js';
+import { GetTokenQueryHandler } from './Application/Features/Tokens/Queries/GetTokenQueryHandler.js';
+import { InitializeTokenManagerCommand } from './Application/Features/Tokens/Commands/Initialize/InitializeTokenMangerCommand.js';
+import { InitializeTokenManagerCommandHandler } from './Application/Features/Tokens/Commands/Initialize/InitializeTokenCommandHandler.js';
+import { RefreshTokenCommand } from './Application/Features/Tokens/Commands/Refresh/RefreshTokenCommand.js';
+import { RefreshTokenCommandHandler } from './Application/Features/Tokens/Commands/Refresh/RefreshTokenCommandHandler.js';
 
 export function registerIpcHandlers(mainWindow: BrowserWindow) {
     const mediator = new Mediator();
@@ -104,6 +110,12 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
     mediator.registerHandler(UpdateDeliveryStatusCommand.name, new UpdateDeliveryStatusCommandHandler());
     mediator.registerHandler(DeleteChatCommand.name, new DeleteChatCommandHandler());
     mediator.registerHandler(GetMessagesQuery.name, new GetMessagesQueryHandler());
+
+
+    // TEMPORARY
+    mediator.registerHandler(GetTokenQuery.name, new GetTokenQueryHandler());
+    mediator.registerHandler(RefreshTokenCommand.name, new RefreshTokenCommandHandler());
+    mediator.registerHandler(InitializeTokenManagerCommand.name, new InitializeTokenManagerCommandHandler());
 
     ipcMain.handle('mediator:send', async (_event, request) => {
         return await mediator.send(request);
