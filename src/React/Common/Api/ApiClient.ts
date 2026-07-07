@@ -2,7 +2,6 @@
 import { Result } from "../../../Shared/Result/Result.ts";
 import { Envelope } from "./Envelope.ts";
 import { ErrorMessage } from "../../../Shared/Result/ErrorMessage.ts";
-import { TokenManager } from "../../Security/Tokens/TokenManager.ts";
 import { GetTokenQuery } from "../../../Electron/Application/Features/Tokens/Queries/GetTokenQuery.ts";
 import { RefreshTokenCommand } from "../../../Electron/Application/Features/Tokens/Commands/Refresh/RefreshTokenCommand.ts";
 
