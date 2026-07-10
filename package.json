@@ -30,6 +30,7 @@
     "@tabler/icons-react": "^3.36.0",
     "@types/lodash": "^4.17.20",
     "autoprefixer": "^10.4.20",
+    "awilix": "^13.0.5",
     "axios": "^1.7.9",
     "buffer": "^6.0.3",
     "clsx": "^2.1.1",

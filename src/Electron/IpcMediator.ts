@@ -63,9 +63,11 @@ import { InitializeTokenManagerCommand } from './Application/Features/Tokens/Com
 import { InitializeTokenManagerCommandHandler } from './Application/Features/Tokens/Commands/Initialize/InitializeTokenCommandHandler.js';
 import { RefreshTokenCommand } from './Application/Features/Tokens/Commands/Refresh/RefreshTokenCommand.js';
 import { RefreshTokenCommandHandler } from './Application/Features/Tokens/Commands/Refresh/RefreshTokenCommandHandler.js';
+import { AwilixContainer } from 'awilix';
+import { Cradle } from './Container.js';
 
-export function registerIpcHandlers(mainWindow: BrowserWindow) {
-    const mediator = new Mediator();
+export function registerIpcHandlers(mainWindow: BrowserWindow, container: AwilixContainer<Cradle>) {
+    const mediator = new Mediator(container);
 
     mediator.registerHandler('CreateDeviceRequest', new CreateDeviceCommandHandler());
     mediator.registerHandler('GenerateKeysRequest', new GenerateKeysRequestHandler());
