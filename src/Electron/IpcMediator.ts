@@ -4,7 +4,6 @@ import { CreateDeviceCommandHandler } from './Application/Features/Device/Comman
 import { GetDeviceQueryHandler } from './Application/Features/Device/Queries/GetDevice/GetDeviceQueryHandler.js';
 import { GenerateKeysRequestHandler } from './Application/Features/Device/Commands/GenerateKeys/GenerateKeysRequestHandler.js';
 import { SignNonceRequestHandler } from './Application/Features/Device/Commands/SignNonce/SignNonceRequestHandler.js';
-import { LogoutCommandHandler } from './Application/Features/User/Commands/Logout/LogoutCommandHandler.js';
 import { CreateRefreshTokenRequestHandler } from './Application/Features/RefreshToken/Commands/Create/CreateRefreshTokenRequestHandler.js';
 import { GetUserQueryHandler } from './Application/Features/User/Queries/GetUserQueryHandler.js';
 import { GetMediaQueryHandler } from './Application/Features/Files/Queries/GetMedia/GetMediaQueryHandler.js';

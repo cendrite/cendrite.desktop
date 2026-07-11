@@ -9,16 +9,18 @@ import {
 import { ApiClient } from './Base/ApiClient.js';
 
 export class AuthenticationClient implements IAuthenticationProvider {
-    private readonly loginApiClient: ApiClient;
-    private readonly logoutApiClient: ApiClient;
+    private readonly loginClient: ApiClient;
+    private readonly logoutClient: ApiClient;
+    private readonly verifyLoginClient: ApiClient;
 
-    constructor(loginClient: ApiClient, logoutClient: ApiClient) {
-        this.loginApiClient = loginClient;
-        this.logoutApiClient = logoutClient;
+    constructor(loginApiClient: ApiClient, logoutApiClient: ApiClient, verifyLoginApiClient: ApiClient) {
+        this.loginClient = loginApiClient;
+        this.logoutClient = logoutApiClient;
+        this.verifyLoginClient = verifyLoginApiClient;
     }
 
     login(req: LoginRequest): Promise<Result<LoginResponse>> {
-        return this.loginApiClient.handleConduit<LoginResponse>({
+        return this.loginClient.handleConduit<LoginResponse>({
             method: 'POST',
             url: '/login',
             data: req,
@@ -26,15 +28,16 @@ export class AuthenticationClient implements IAuthenticationProvider {
     }
 
     verifyLogin(req: VerifyLoginRequest): Promise<Result<VerifyLoginResponse>> {
-        return this.loginApiClient.handle<VerifyLoginResponse>({
+        console.log('AuthenticationClient.verifyLogin: ', req.userId, req.loginVerificationCode);
+        return this.verifyLoginClient.handle<VerifyLoginResponse>({
             method: 'POST',
-            url: '/verify-login',
+            url: 'verify-login',
             data: req,
         });
     }
 
     logout(): Promise<Result<void>> {
-        return this.logoutApiClient.handle({
+        return this.logoutClient.handle({
             method: 'POST',
             url: '/logout',
         });

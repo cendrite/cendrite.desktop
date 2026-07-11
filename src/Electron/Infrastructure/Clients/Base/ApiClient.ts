@@ -79,7 +79,7 @@ export class ApiClient {
         } catch (error) {
             if (error instanceof AxiosError && error.response) {
                 return Result.fail<T>(
-                    ErrorMessage.fromApiResponse('ApiError', error.response.data?.errorMessage || 'An error occurred.'),
+                    ErrorMessage.fromApiResponse('ApiError', error.response.data?.errorMessage || 'An error occurred.' + error.code),
                 );
             }
             console.error('Unexpected error during api call:', error);

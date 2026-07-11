@@ -13,13 +13,12 @@ export const API_URLS = {
     },
     IDENTITY: {
         AUTH_OLD: 'https://identity.xhykl49jkg.org/api/Authentication',
-        AUTH: 'https://conduit.xhykl49jkg.org/api/conduit',
+        AUTH: 'https://conduit.xhykl49jkg.org/api/identity',
+        DEVICE: 'https://identity.xhykl49jkg.org/api/User/device',
         USER: {
             REGISTER: 'https://identity.xhykl49jkg.org/api/User',
-            DELETE: 'https://identity.xhykl49jkg.org/api/User',
             VERIFY_USER: 'https://identity.xhykl49jkg.org/api/User/verify',
             RESEND_VERIFICATION: 'https://identity.xhykl49jkg.org/api/User/resend-verification',
-            CREATE_DEVICE: 'https://identity.xhykl49jkg.org/api/User/device',
             GET_DEVICES: 'https://identity.xhykl49jkg.org/api/User/device',
         },
     },
