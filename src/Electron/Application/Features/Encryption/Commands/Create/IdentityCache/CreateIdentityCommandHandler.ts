@@ -1,6 +1,6 @@
 import { Result } from "../../../../../../../Shared/Result/Result.js";
 import { IdentityCache } from "../../../../../../Domain/Encryption/IdentityCache.js";
-import { ProtocolStore } from "../../../../../../Persistence/Repositories/ProtocolStore.js";
+import { ProtocolStore } from "../../../../../../Infrastructure/Persistence/Repositories/ProtocolStore.js";
 import { Handler } from "../../../../../Mediator/Handler.js";
 import { CreateIdentityCacheDto } from "./CreateIdentityCacheDto.js";
 import { CreateIdentityCommand } from "./CreateIdentityCommand.js";

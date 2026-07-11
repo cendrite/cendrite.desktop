@@ -3,7 +3,7 @@ import {GetUserDto} from "./GetUserDto.js";
 import { Handler } from "../../../Mediator/Handler.js";
 import { Result } from "../../../../../Shared/Result/Result.js";
 import {ErrorMessage} from "../../../../../Shared/Result/ErrorMessage.js";
-import { UserRepository } from "../../../../Persistence/Repositories/UserRepository.js";
+import { UserRepository } from "../../../../Infrastructure/Persistence/Repositories/UserRepository.js";
 
 export class GetUserQueryHandler implements Handler<GetUserQuery, GetUserDto> {
     public async handle(_request: GetUserQuery): Promise<Result<GetUserDto>> {

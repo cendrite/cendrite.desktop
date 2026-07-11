@@ -1,5 +1,5 @@
 import { Result } from '../../../../../../Shared/Result/Result.js';
-import { DeviceRepository } from '../../../../../Persistence/Repositories/DeviceRepository.js';
+import { DeviceRepository } from '../../../../../Infrastructure/Persistence/Repositories/DeviceRepository.js';
 import { Handler } from '../../../../Mediator/Handler.js';
 import { CreateDeviceCommand } from './CreateDeviceCommand.js';
 import { Device } from '../../../../../Domain/Entities/Device.js';

@@ -1,9 +1,9 @@
-﻿import { RefreshTokenRepository } from '../../../Persistence/Repositories/RefreshTokenRepository.js';
-import { DeviceRepository } from '../../../Persistence/Repositories/DeviceRepository.js';
-import { UserRepository } from '../../../Persistence/Repositories/UserRepository.js';
-import { FriendRepository } from '../../../Persistence/Repositories/FriendRepository.js';
-import { ProtocolStore } from '../../../Persistence/Repositories/ProtocolStore.js';
-import { ChatStore } from '../../../Persistence/Repositories/ChatStore.js';
+﻿import { RefreshTokenRepository } from '../../../Infrastructure/Persistence/Repositories/RefreshTokenRepository.js';
+import { DeviceRepository } from '../../../Infrastructure/Persistence/Repositories/DeviceRepository.js';
+import { UserRepository } from '../../../Infrastructure/Persistence/Repositories/UserRepository.js';
+import { FriendRepository } from '../../../Infrastructure/Persistence/Repositories/FriendRepository.js';
+import { ProtocolStore } from '../../../Infrastructure/Persistence/Repositories/ProtocolStore.js';
+import { ChatStore } from '../../../Infrastructure/Persistence/Repositories/ChatStore.js';
 
 export class PurgeLocalDataService {
 

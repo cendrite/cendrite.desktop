@@ -1,5 +1,5 @@
 import { Result } from '../../../../../../Shared/Result/Result.js';
-import { ChatStore } from '../../../../../Persistence/Repositories/ChatStore.js';
+import { ChatStore } from '../../../../../Infrastructure/Persistence/Repositories/ChatStore.js';
 import { Handler } from '../../../../Mediator/Handler.js';
 import { DeleteChatCommand } from './DeleteChatCommand.js';
 

@@ -1,6 +1,6 @@
 import { Result } from '../../../../../../Shared/Result/Result.js';
-import { ChatStore } from '../../../../../Persistence/Repositories/ChatStore.js';
-import { MediaStore } from '../../../../../Persistence/Store/MediaStore.js';
+import { ChatStore } from '../../../../../Infrastructure/Persistence/Repositories/ChatStore.js';
+import { MediaStore } from '../../../../../Infrastructure/Persistence/Store/MediaStore.js';
 import { Handler } from '../../../../Mediator/Handler.js';
 import { MediaDto } from '../../Dtos/MediaDto.js';
 import { MessageDto } from '../../Dtos/MessageDto.js';

@@ -2,7 +2,7 @@
 import {UpdateAvatarCommand} from "./UpdateAvatarCommand.js";
 import { Result } from "../../../../../../../Shared/Result/Result.js";
 import {ErrorMessage} from "../../../../../../../Shared/Result/ErrorMessage.js";
-import {UserRepository} from "../../../../../../Persistence/Repositories/UserRepository.js";
+import {UserRepository} from "../../../../../../Infrastructure/Persistence/Repositories/UserRepository.js";
 
 export class UpdateAvatarCommandHandler implements Handler<UpdateAvatarCommand> {
 

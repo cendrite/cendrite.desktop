@@ -1,5 +1,5 @@
 import { Result } from "../../../../../../Shared/Result/Result.js";
-import { ProtocolStore } from "../../../../../Persistence/Repositories/ProtocolStore.js";
+import { ProtocolStore } from "../../../../../Infrastructure/Persistence/Repositories/ProtocolStore.js";
 import { Handler } from "../../../../Mediator/Handler.js";
 import { KeyPairDto } from "../../Dtos/KeyPairDto.js";
 import { GetSignedPreKeyDto } from "./GetSignedPreKeyDto.js";

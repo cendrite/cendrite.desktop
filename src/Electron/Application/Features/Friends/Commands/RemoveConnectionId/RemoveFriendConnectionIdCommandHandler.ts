@@ -1,7 +1,7 @@
 ﻿import {Handler} from "../../../../Mediator/Handler.js";
 import { Result } from "../../../../../../Shared/Result/Result.js";
 import {ErrorMessage} from "../../../../../../Shared/Result/ErrorMessage.js";
-import {FriendRepository} from "../../../../../Persistence/Repositories/FriendRepository.js";
+import {FriendRepository} from "../../../../../Infrastructure/Persistence/Repositories/FriendRepository.js";
 import { RemoveFriendConnectionIdCommand } from "./RemoveFriendConnectionIdCommand.js";
 
 export class RemoveFriendConnectionIdCommandHandler implements Handler<RemoveFriendConnectionIdCommand> {

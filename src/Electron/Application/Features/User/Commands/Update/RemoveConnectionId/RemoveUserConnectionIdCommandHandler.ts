@@ -1,6 +1,6 @@
 import { ErrorMessage } from '../../../../../../../Shared/Result/ErrorMessage.js';
 import { Result } from '../../../../../../../Shared/Result/Result.js';
-import { UserRepository } from '../../../../../../Persistence/Repositories/UserRepository.js';
+import { UserRepository } from '../../../../../../Infrastructure/Persistence/Repositories/UserRepository.js';
 import { Handler } from '../../../../../Mediator/Handler.js';
 import { RemoveUserConnectionIdCommand } from './RemoveUserConnectionIdCommand.js';
 

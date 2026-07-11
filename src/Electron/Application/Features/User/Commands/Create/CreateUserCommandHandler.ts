@@ -1,4 +1,4 @@
-import { UserRepository } from '../../../../../Persistence/Repositories/UserRepository.js';
+import { UserRepository } from '../../../../../Infrastructure/Persistence/Repositories/UserRepository.js';
 import { CreateUserCommand } from './CreateUserCommand.js';
 import { Result } from '../../../../../../Shared/Result/Result.js';
 import { Handler } from '../../../../Mediator/Handler.js';

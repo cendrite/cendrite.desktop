@@ -1,9 +1,9 @@
 ﻿import { Repository } from 'typeorm';
-import { Chat } from '../../Domain/Aggregates/Chat.js';
+import { Chat } from '../../../Domain/Aggregates/Chat.js';
 import { getDbContext } from '../Context/DatabaseContext.js';
-import { ChatMember } from '../../Domain/Entities/ChatMember.js';
-import { Message } from '../../Domain/Entities/Message.js';
-import { DeliveryStatus } from '../../Domain/Enums/DeliveryStatus.js';
+import { ChatMember } from '../../../Domain/Entities/ChatMember.js';
+import { Message } from '../../../Domain/Entities/Message.js';
+import { DeliveryStatus } from '../../../Domain/Enums/DeliveryStatus.js';
 
 export class ChatStore {
     private readonly chatRepository: Repository<Chat>;

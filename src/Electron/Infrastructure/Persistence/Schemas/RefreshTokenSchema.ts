@@ -1,6 +1,6 @@
 ﻿import { EntitySchema } from "typeorm";
 import {BaseSchema} from "./BaseSchema.js";
-import {RefreshToken} from "../../Domain/Entities/RefreshToken.js";
+import {RefreshToken} from "../../../Domain/Entities/RefreshToken.js";
 
 export const RefreshTokenSchema = new EntitySchema<RefreshToken>({
     name: "RefreshToken",

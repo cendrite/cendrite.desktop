@@ -3,11 +3,11 @@ import 'reflect-metadata';
 import { app, BrowserWindow } from 'electron';
 import path from 'path';
 import { getPreloadPath, isDevelopment, isSpawnDevelopment } from './Utilities.js';
-import { initializeDatabase } from './Persistence/Context/DatabaseContext.js';
 import { LogoutManager } from './Application/Services/LogoutManager/LogoutManager.js';
 import { registerIpcHandlers as setupMediator } from './IpcMediator.js';
 import * as fs from 'node:fs';
 import { buildContainer } from './Container.js';
+import { initializeDatabase } from './Infrastructure/Persistence/Context/DatabaseContext.js';
 
 if (process.env.ELECTRON_INSTANCE_ID) {
     console.log(`ELECTRON_INSTANCE_ID: ${process.env.ELECTRON_INSTANCE_ID}`);

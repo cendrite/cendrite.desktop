@@ -1,9 +1,9 @@
 import { DeleteFriendCommand } from './DeleteFriendCommand.js';
 import { Result } from '../../../../../../Shared/Result/Result.js';
 import { ErrorMessage } from '../../../../../../Shared/Result/ErrorMessage.js';
-import { FriendRepository } from '../../../../../Persistence/Repositories/FriendRepository.js';
+import { FriendRepository } from '../../../../../Infrastructure/Persistence/Repositories/FriendRepository.js';
 import { Handler } from '../../../../Mediator/Handler.js';
-import { ChatStore } from '../../../../../Persistence/Repositories/ChatStore.js';
+import { ChatStore } from '../../../../../Infrastructure/Persistence/Repositories/ChatStore.js';
 
 export class DeleteFriendCommandHandler implements Handler<DeleteFriendCommand> {
     public async handle(request: DeleteFriendCommand): Promise<Result> {

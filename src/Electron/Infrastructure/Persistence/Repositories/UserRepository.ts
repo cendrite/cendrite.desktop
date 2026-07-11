@@ -1,7 +1,7 @@
 import { Repository } from 'typeorm/repository/Repository.js';
 import { CryptographyService } from '../Encryption/CryptographyService.js';
 import { getDbContext } from '../Context/DatabaseContext.js';
-import { User } from '../../Domain/Aggregates/User.js';
+import { User } from '../../../Domain/Aggregates/User.js';
 import cloneDeep from 'lodash/cloneDeep.js';
 
 export class UserRepository {

@@ -1,6 +1,6 @@
 ﻿import {EntitySchema} from "typeorm";
 import {BaseSchema} from "./BaseSchema.js";
-import {Device} from "../../Domain/Entities/Device.js";
+import {Device} from "../../../Domain/Entities/Device.js";
 
 export const DeviceSchema = new EntitySchema<Device>({
     name: "Device",

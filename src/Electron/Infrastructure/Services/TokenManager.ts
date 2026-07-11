@@ -1,6 +1,6 @@
 import { ITokenProvider } from '../../Application/Contracts/Providers/ITokenProvider.js';
 import { RefreshToken } from '../../Domain/Entities/RefreshToken.js';
-import { RefreshTokenRepository } from '../../Persistence/Repositories/RefreshTokenRepository.js';
+import { RefreshTokenRepository } from '../Persistence/Repositories/RefreshTokenRepository.js';
 import { INonceSigner } from '../Interfaces/INonceSigner.js';
 import { NonceSigner } from './NonceSigner.js';
 

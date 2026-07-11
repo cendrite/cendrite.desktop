@@ -3,7 +3,7 @@ import { Result } from '../../../../../Shared/Result/Result.js';
 import { Device } from '../../../../Domain/Entities/Device.js';
 import { INonceSigner } from '../../../../Infrastructure/Interfaces/INonceSigner.js';
 import { TokenManager } from '../../../../Infrastructure/Services/TokenManager.js';
-import { DeviceRepository } from '../../../../Persistence/Repositories/DeviceRepository.js';
+import { DeviceRepository } from '../../../../Infrastructure/Persistence/Repositories/DeviceRepository.js';
 import { IAuthenticationProvider } from '../../../Contracts/Providers/IAuthenticationProvider.js';
 import { IDeviceProvider } from '../../../Contracts/Providers/IDeviceProvider.js';
 import { Handler } from '../../../Mediator/Handler.js';

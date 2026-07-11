@@ -4,7 +4,7 @@ import { Handler } from '../../../../Mediator/Handler.js';
 import { GenerateKeyBundleCommand } from './GenerateKeyBundleCommand.js';
 import { GenerateKeyBundleDto } from './GenerateKeyBundleDto.js';
 import { randomUUID } from 'crypto';
-import { KeyCacher } from '../../../../../Persistence/Cache/KeyCacher.js';
+import { KeyCacher } from '../../../../../Infrastructure/Persistence/Cache/KeyCacher.js';
 import { SignedPreKeyDto } from '../../Dtos/SignedPreKeyDto.js';
 import generateNumberId from '../../../../Utilities/IdHelpers.js';
 

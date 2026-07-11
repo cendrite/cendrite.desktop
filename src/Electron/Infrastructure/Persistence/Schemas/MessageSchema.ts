@@ -1,7 +1,7 @@
 ﻿import { EntitySchema } from 'typeorm/entity-schema/EntitySchema.js';
-import { Message } from '../../Domain/Entities/Message.js';
-import { Chat } from '../../Domain/Aggregates/Chat.js';
-import { MessageMedia } from '../../Domain/Entities/MessageMedia.js';
+import { Message } from '../../../Domain/Entities/Message.js';
+import { Chat } from '../../../Domain/Aggregates/Chat.js';
+import { MessageMedia } from '../../../Domain/Entities/MessageMedia.js';
 import { BaseSchema } from './BaseSchema.js';
 
 export const MessageSchema = new EntitySchema<Message>({

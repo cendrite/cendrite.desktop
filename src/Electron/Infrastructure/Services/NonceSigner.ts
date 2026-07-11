@@ -1,5 +1,5 @@
 import nacl from 'tweetnacl';
-import { DeviceRepository } from '../../Persistence/Repositories/DeviceRepository.js';
+import { DeviceRepository } from '../Persistence/Repositories/DeviceRepository.js';
 import { DeviceKeys, INonceSigner } from '../Interfaces/INonceSigner.js';
 
 export class NonceSigner implements INonceSigner {

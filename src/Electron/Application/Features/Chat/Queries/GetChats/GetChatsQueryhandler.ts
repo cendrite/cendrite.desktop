@@ -1,8 +1,8 @@
 import { Result } from '../../../../../../Shared/Result/Result.js';
 import { Chat } from '../../../../../Domain/Aggregates/Chat.js';
 import { Message } from '../../../../../Domain/Entities/Message.js';
-import { ChatStore } from '../../../../../Persistence/Repositories/ChatStore.js';
-import { MediaStore } from '../../../../../Persistence/Store/MediaStore.js';
+import { ChatStore } from '../../../../../Infrastructure/Persistence/Repositories/ChatStore.js';
+import { MediaStore } from '../../../../../Infrastructure/Persistence/Store/MediaStore.js';
 import { Handler } from '../../../../Mediator/Handler.js';
 import { ChatDto } from '../../Dtos/ChatDto.js';
 import { ChatMemberDto } from '../../Dtos/ChatMemberDto.js';

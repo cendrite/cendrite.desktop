@@ -1,8 +1,8 @@
 ﻿import {EntitySchema} from "typeorm";
-import {Chat} from "../../Domain/Aggregates/Chat.js";
+import {Chat} from "../../../Domain/Aggregates/Chat.js";
 import {BaseSchema} from "./BaseSchema.js";
-import {ChatMember} from "../../Domain/Entities/ChatMember.js";
-import {Message} from "../../Domain/Entities/Message.js";
+import {ChatMember} from "../../../Domain/Entities/ChatMember.js";
+import {Message} from "../../../Domain/Entities/Message.js";
 
 export const ChatSchema = new EntitySchema<Chat>({
     name: "Chat",

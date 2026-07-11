@@ -3,8 +3,8 @@ import { Result } from '../../../../../../../Shared/Result/Result.js';
 import { EcPreKey } from '../../../../../../Domain/Encryption/EcPreKey.js';
 import { IdentityKeys } from '../../../../../../Domain/Encryption/IdentityKeys.js';
 import { SignedPreKey } from '../../../../../../Domain/Encryption/SignedPreKey.js';
-import { KeyCacher } from '../../../../../../Persistence/Cache/KeyCacher.js';
-import { ProtocolStore } from '../../../../../../Persistence/Repositories/ProtocolStore.js';
+import { KeyCacher } from '../../../../../../Infrastructure/Persistence/Cache/KeyCacher.js';
+import { ProtocolStore } from '../../../../../../Infrastructure/Persistence/Repositories/ProtocolStore.js';
 import { Handler } from '../../../../../Mediator/Handler.js';
 import { PersistKeyBundleCommand } from './PersistKeyBundleCommand.js';
 

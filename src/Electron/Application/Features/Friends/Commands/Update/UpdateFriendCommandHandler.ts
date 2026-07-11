@@ -2,7 +2,7 @@
 import {Handler} from "../../../../Mediator/Handler.js";
 import {Result} from "../../../../../../Shared/Result/Result.js";
 import {ErrorMessage} from "../../../../../../Shared/Result/ErrorMessage.js";
-import {FriendRepository} from "../../../../../Persistence/Repositories/FriendRepository.js";
+import {FriendRepository} from "../../../../../Infrastructure/Persistence/Repositories/FriendRepository.js";
 
 export class UpdateFriendCommandHandler implements Handler<UpdateFriendCommand> {
     public async handle(request: UpdateFriendCommand): Promise<Result> {

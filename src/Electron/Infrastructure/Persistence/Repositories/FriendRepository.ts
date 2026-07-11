@@ -1,5 +1,5 @@
 import { getDbContext } from '../Context/DatabaseContext.js';
-import { Friend } from '../../Domain/Aggregates/Friend.js';
+import { Friend } from '../../../Domain/Aggregates/Friend.js';
 
 export class FriendRepository {
     private readonly friendRepository = getDbContext().getRepository(Friend);

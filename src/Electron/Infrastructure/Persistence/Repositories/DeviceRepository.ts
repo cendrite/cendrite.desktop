@@ -1,7 +1,7 @@
 import { Repository } from "typeorm/repository/Repository.js";
 import { getDbContext} from "../Context/DatabaseContext.js";
 import { CryptographyService } from "../Encryption/CryptographyService.js";
-import { Device } from "../../Domain/Entities/Device.js";
+import { Device } from "../../../Domain/Entities/Device.js";
 
 export class DeviceRepository {
     private repository: Repository<Device>;

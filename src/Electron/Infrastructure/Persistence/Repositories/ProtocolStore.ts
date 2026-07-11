@@ -1,9 +1,9 @@
-import { SignedPreKey } from '../../Domain/Encryption/SignedPreKey.js';
-import { EcPreKey } from '../../Domain/Encryption/EcPreKey.js';
-import { IdentityKeys } from '../../Domain/Encryption/IdentityKeys.js';
-import { IdentityCache } from '../../Domain/Encryption/IdentityCache.js';
+import { SignedPreKey } from '../../../Domain/Encryption/SignedPreKey.js';
+import { EcPreKey } from '../../../Domain/Encryption/EcPreKey.js';
+import { IdentityKeys } from '../../../Domain/Encryption/IdentityKeys.js';
+import { IdentityCache } from '../../../Domain/Encryption/IdentityCache.js';
 import { getDbContext } from '../Context/DatabaseContext.js';
-import { SessionRecord } from '../../Domain/Encryption/SessionRecord.js';
+import { SessionRecord } from '../../../Domain/Encryption/SessionRecord.js';
 
 export class ProtocolStore {
     private readonly signedPreKeysRepository = getDbContext().getRepository(SignedPreKey);

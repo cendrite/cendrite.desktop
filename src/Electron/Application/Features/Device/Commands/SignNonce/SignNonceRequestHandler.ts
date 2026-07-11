@@ -1,7 +1,7 @@
 import nacl from 'tweetnacl';
 import { ErrorMessage } from "../../../../../../Shared/Result/ErrorMessage.js";
 import { Result } from "../../../../../../Shared/Result/Result.js";
-import { DeviceRepository } from "../../../../../Persistence/Repositories/DeviceRepository.js";
+import { DeviceRepository } from "../../../../../Infrastructure/Persistence/Repositories/DeviceRepository.js";
 import { Handler } from "../../../../Mediator/Handler.js";
 import { SignNonceDto } from "./SignNonceDto.js";
 import { SignNonceRequest } from "./SignNonceRequest.js";

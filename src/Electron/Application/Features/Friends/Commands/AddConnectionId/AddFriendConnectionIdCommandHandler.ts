@@ -1,5 +1,5 @@
 ﻿import { Result } from "../../../../../../Shared/Result/Result.js";
-import { FriendRepository } from "../../../../../Persistence/Repositories/FriendRepository.js";
+import { FriendRepository } from "../../../../../Infrastructure/Persistence/Repositories/FriendRepository.js";
 import {Handler} from "../../../../Mediator/Handler.js";
 import {ErrorMessage} from "../../../../../../Shared/Result/ErrorMessage.js";
 import {FriendConnectionId} from "../../../../../Domain/Entities/FriendConnectionId.js";

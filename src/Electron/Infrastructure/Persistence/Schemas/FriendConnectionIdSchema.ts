@@ -1,6 +1,6 @@
 ﻿import {EntitySchema} from "typeorm";
-import {Friend} from "../../Domain/Aggregates/Friend.js";
-import {FriendConnectionId} from "../../Domain/Entities/FriendConnectionId.js";
+import {Friend} from "../../../Domain/Aggregates/Friend.js";
+import {FriendConnectionId} from "../../../Domain/Entities/FriendConnectionId.js";
 
 export const FriendConnectionIdSchema = new EntitySchema<FriendConnectionId>({
     name: "FriendConnectionId",

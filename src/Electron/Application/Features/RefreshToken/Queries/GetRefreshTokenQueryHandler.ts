@@ -1,6 +1,6 @@
 import { ErrorMessage } from "../../../../../Shared/Result/ErrorMessage.js";
 import { Result } from "../../../../../Shared/Result/Result.js";
-import { RefreshTokenRepository } from "../../../../Persistence/Repositories/RefreshTokenRepository.js";
+import { RefreshTokenRepository } from "../../../../Infrastructure/Persistence/Repositories/RefreshTokenRepository.js";
 import { Handler } from "../../../Mediator/Handler.js";
 import { GetRefreshTokenDto } from "./GetRefreshTokenDto.js";
 import { GetRefreshTokenQuery } from "./GetRefreshTokenQuery.js";

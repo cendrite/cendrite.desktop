@@ -1,5 +1,5 @@
 import { EntitySchema } from "typeorm";
-import { SignedPreKey } from "../../Domain/Encryption/SignedPreKey.js";
+import { SignedPreKey } from "../../../Domain/Encryption/SignedPreKey.js";
 import { BaseSchema } from "./BaseSchema.js";
 
 
