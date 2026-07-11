@@ -1,15 +1,19 @@
 import nacl from "tweetnacl";
-import { DeviceRepository } from "../../../Persistence/Repositories/DeviceRepository.js";
+import { DeviceRepository } from "../../Persistence/Repositories/DeviceRepository.js";
 
 export interface INonceSigner {
     signNonce(nonce: string): Promise<string>;
 }
 
 export class NonceSigner implements INonceSigner {
-    private readonly deviceRepo = new DeviceRepository();
+    private readonly deviceRepository: DeviceRepository;
+    
+    constructor(deviceRepository: DeviceRepository) {
+        this.deviceRepository = deviceRepository;
+    }
 
     public async signNonce(nonce: string): Promise<string> {
-        const device = await this.deviceRepo.get();
+        const device = await this.deviceRepository.get();
         if (!device || !device.privateKey) {
             throw new Error("Device or private key not found");
         }

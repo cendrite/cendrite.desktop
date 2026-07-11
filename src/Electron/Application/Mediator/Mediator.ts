@@ -36,6 +36,6 @@ export class Mediator {
     }
 
     public getRequestKey(request: MediatorRequest): string {
-        return request.type.charAt(0).toUpperCase() + request.type.slice(1) + 'Handler';
+        return request.type.charAt(0).toLowerCase() + request.type.slice(1) + 'Handler';
     }
 }

@@ -44,7 +44,7 @@ app.on('ready', async () => {
         mainWindow.loadFile(path.join(app.getAppPath(), './dist-react/index.html'));
     }
 
-    const container =  buildContainer(mainWindow);
+    const container = buildContainer(mainWindow);
     setupMediator(mainWindow, container);
 
     mainWindow.on('close', (event) => {
