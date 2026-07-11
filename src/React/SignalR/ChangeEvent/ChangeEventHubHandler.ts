@@ -11,6 +11,7 @@ export class ChangeEventHubHandler implements IHubHandler {
     private connection?: HubConnection;
     private subscribers = new Map<ChangeEventType, Set<ChangeEventHandler>>();
 
+
     public initialize(connection: HubConnection) {
         if (this.isInitialized) {
             throw new Error('ChangeEventReceiver is already initialized');

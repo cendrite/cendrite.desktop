@@ -16,6 +16,8 @@ import { LoginCommandHandler } from './Application/Features/Authentication/Comma
 import { VerifyLoginCommandHandler } from './Application/Features/Authentication/Commands/VerifyLoginCommandHandler.js';
 import { LogoutManager } from './Application/Services/LogoutManager/LogoutManager.js';
 import { LogoutCommandHandler } from './Application/Features/Authentication/Commands/LogoutCommandHandler.js';
+import { SignalManager } from './Infrastructure/Signal/SignalManager.js';
+import { MessageHubHandler } from './Infrastructure/Signal/Messaging/MessageHubHandler.js';
 
 export interface Cradle {
     mainWindow: Electron.BrowserWindow;
@@ -83,6 +85,14 @@ function registerRepositories(container: AwilixContainer<Cradle>) {
     container.register({
         refreshTokenRepository: asClass(RefreshTokenRepository, { lifetime: Lifetime.SINGLETON }),
         deviceRepository: asClass(DeviceRepository, { lifetime: Lifetime.SINGLETON }),
+    });
+}
+
+function registerSignalR(container: AwilixContainer<Cradle>){
+    container.register({
+        signalManager: asClass(SignalManager, { lifetime: Lifetime.SINGLETON }),
+        messageHubHanlder: asClass(MessageHubHandler, { lifetime: Lifetime.SINGLETON }),
+
     });
 }
 
