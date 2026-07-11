@@ -28,8 +28,7 @@ export class AuthenticationClient implements IAuthenticationProvider {
     }
 
     verifyLogin(req: VerifyLoginRequest): Promise<Result<VerifyLoginResponse>> {
-        console.log('AuthenticationClient.verifyLogin: ', req.userId, req.loginVerificationCode);
-        return this.verifyLoginClient.handle<VerifyLoginResponse>({
+        return this.verifyLoginClient.handleConduit<VerifyLoginResponse>({
             method: 'POST',
             url: 'verify-login',
             data: req,
@@ -37,7 +36,7 @@ export class AuthenticationClient implements IAuthenticationProvider {
     }
 
     logout(): Promise<Result<void>> {
-        return this.logoutClient.handle({
+        return this.logoutClient.handleConduit({
             method: 'POST',
             url: '/logout',
         });

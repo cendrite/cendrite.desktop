@@ -89,11 +89,11 @@ function registerRepositories(container: AwilixContainer<Cradle>) {
 function registerApiClients(container: AwilixContainer<Cradle>) {
     container.register({
         deviceApiClient: asFunction(() => new ApiClient(API_URLS.IDENTITY.DEVICE, null)).singleton(),
-        tokenApiClient: asFunction(() => new ApiClient(API_URLS.IDENTITY.AUTH_OLD, null)).singleton(),
+        tokenApiClient: asFunction(() => new ApiClient(API_URLS.IDENTITY.AUTH, null)).singleton(),
         loginApiClient: asFunction(() => new ApiClient(API_URLS.IDENTITY.AUTH, null)).singleton(),
-        verifyLoginApiClient: asFunction(() => new ApiClient(API_URLS.IDENTITY.AUTH_OLD, null)).singleton(),
+        verifyLoginApiClient: asFunction(() => new ApiClient(API_URLS.IDENTITY.AUTH, null)).singleton(),
         logoutApiClient: asFunction(
-            (tokenManager: TokenManager) => new ApiClient(API_URLS.IDENTITY.AUTH_OLD, tokenManager),
+            (tokenManager: TokenManager) => new ApiClient(API_URLS.IDENTITY.AUTH, tokenManager),
         ).singleton(),
     });
 }

@@ -12,7 +12,6 @@ export const API_URLS = {
         GET_FRIEND_REQUESTS: 'https://social.xhykl49jkg.org/api/UserProfile/friendship/requests',
     },
     IDENTITY: {
-        AUTH_OLD: 'https://identity.xhykl49jkg.org/api/Authentication',
         AUTH: 'https://conduit.xhykl49jkg.org/api/identity',
         DEVICE: 'https://identity.xhykl49jkg.org/api/User/device',
         USER: {

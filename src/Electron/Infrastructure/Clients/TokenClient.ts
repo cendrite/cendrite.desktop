@@ -10,7 +10,7 @@ export class TokenClient implements ITokenProvider {
     }
 
     getNonce(req: GetNonceRequest): Promise<Result<GetNonceResponse>> {
-        return this.tokenClient.handle<GetNonceResponse>({
+        return this.tokenClient.handleConduit<GetNonceResponse>({
             method: 'GET',
             url: "nonce",
             params: req,
@@ -18,7 +18,7 @@ export class TokenClient implements ITokenProvider {
     }
 
     verifyNonce(req: VerifyNonceRequest): Promise<Result<VerifyNonceResponse>> {
-        return this.tokenClient.handle<VerifyNonceResponse>({
+        return this.tokenClient.handleConduit<VerifyNonceResponse>({
             method: 'POST',
             url: "verify-nonce",
             data: req,
@@ -26,7 +26,7 @@ export class TokenClient implements ITokenProvider {
     }
 
     refreshToken(req: RefreshTokenRequest): Promise<Result<RefreshTokenResponse>> {
-        return this.tokenClient.handle<RefreshTokenResponse>({
+        return this.tokenClient.handleConduit<RefreshTokenResponse>({
             method: 'POST',
             url: "refresh-token",
             data: req,
