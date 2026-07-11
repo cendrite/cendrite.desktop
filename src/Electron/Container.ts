@@ -9,12 +9,13 @@ import { ApiClient } from './Infrastructure/Clients/Base/ApiClient.js';
 import { NonceSigner } from './Infrastructure/Services/NonceSigner.js';
 import { TokenManager } from './Infrastructure/Services/TokenManager.js';
 import { InitializeTokenManagerCommandHandler } from './Application/Features/Tokens/Commands/Initialize/InitializeTokenCommandHandler.js';
-import { LogoutCommandHandler } from './Application/Features/User/Commands/Logout/LogoutCommandHandler.js';
 import { RefreshTokenCommandHandler } from './Application/Features/Tokens/Commands/Refresh/RefreshTokenCommandHandler.js';
 import { GetTokenQueryHandler } from './Application/Features/Tokens/Queries/GetTokenQueryHandler.js';
 import { DeviceClient } from './Infrastructure/Clients/DeviceClient.js';
 import { LoginCommandHandler } from './Application/Features/Authentication/Commands/LoginCommandHandler.js';
 import { VerifyLoginCommandHandler } from './Application/Features/Authentication/Commands/VerifyLoginCommandHandler.js';
+import { LogoutManager } from './Application/Services/LogoutManager/LogoutManager.js';
+import { LogoutCommandHandler } from './Application/Features/Authentication/Commands/LogoutCommandHandler.js';
 
 export interface Cradle {
     mainWindow: Electron.BrowserWindow;
@@ -52,7 +53,10 @@ function registerHandlers(container: AwilixContainer<Cradle>) {
         initializeTokenManagerCommandHandler: asClass(InitializeTokenManagerCommandHandler, {
             lifetime: Lifetime.TRANSIENT,
         }),
+
+        // auth handlers
         loginCommandHandler: asClass(LoginCommandHandler, { lifetime: Lifetime.SINGLETON }),
+        logoutCommandHandler: asClass(LogoutCommandHandler, { lifetime: Lifetime.SINGLETON }),
         refreshTokenCommandHandler: asClass(RefreshTokenCommandHandler, { lifetime: Lifetime.SINGLETON }),
         getTokenQueryHandler: asClass(GetTokenQueryHandler, { lifetime: Lifetime.SINGLETON }),
         verifyLoginCommandHandler: asClass(VerifyLoginCommandHandler, { lifetime: Lifetime.SINGLETON }),
@@ -62,6 +66,7 @@ function registerHandlers(container: AwilixContainer<Cradle>) {
 function registerServices(container: AwilixContainer<Cradle>) {
     container.register({
         tokenManager: asClass(TokenManager, { lifetime: Lifetime.SINGLETON }),
+        logoutManager: asValue(LogoutManager.getInstance()),
         nonceSigner: asClass(NonceSigner, { lifetime: Lifetime.SINGLETON }),
     });
 }
