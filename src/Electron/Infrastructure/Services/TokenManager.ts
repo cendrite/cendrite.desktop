@@ -1,13 +1,16 @@
-import { RefreshToken } from "../../../Domain/Entities/RefreshToken.js";
-import { GetNonceApi } from "../../../Infrastructure/API/Identity/Auth/GetNonceApi.js";
-import { RefreshTokenApi } from "../../../Infrastructure/API/Identity/Auth/RefreshTokenApi.js";
-import { VerifyNonceApi } from "../../../Infrastructure/API/Identity/Auth/VerifyNonceApi.js";
-import { RefreshTokenRepository } from "../../../Persistence/Repositories/RefreshTokenRepository.js";
-import { NonceSigner } from "./NonceSigner.js";
-import { Tokens } from "./Tokens.js";
+import { ITokenProvider } from '../../Application/Contracts/Providers/ITokenProvider.js';
+import { RefreshToken } from '../../Domain/Entities/RefreshToken.js';
+import { RefreshTokenRepository } from '../../Persistence/Repositories/RefreshTokenRepository.js';
+import { INonceSigner } from '../Interfaces/INonceSigner.js';
+import { NonceSigner } from './NonceSigner.js';
+
+export interface Tokens {
+    jwt: string | null;
+    refreshToken: string | null;
+    expiresAt: string | null;
+}
 
 export class TokenManager {
-    private static instance: TokenManager;
     private userId: string | null = null;
     private deviceId: string | null = null;
     private tokens: Tokens;
@@ -15,25 +18,23 @@ export class TokenManager {
     private refreshInProgress: Promise<void> | null = null;
     private refreshLoopTimer: ReturnType<typeof setTimeout> | null = null;
 
-    private readonly NonceSigner = new NonceSigner();
-    private readonly refreshTokenApi = new RefreshTokenApi();
-    private readonly getNonceApi = new GetNonceApi();
-    private readonly verifyNonceApi = new VerifyNonceApi();
-    private readonly refreshTokenRepo = new RefreshTokenRepository();
+    private readonly tokenProvider: ITokenProvider;
+    private readonly nonceSigner: INonceSigner;
+    private readonly refreshTokenRepository: RefreshTokenRepository;
 
-    private constructor() {
+    public constructor(
+        tokenProvider: ITokenProvider,
+        nonceSigner: NonceSigner,
+        refreshTokenRepository: RefreshTokenRepository,
+    ) {
+        this.tokenProvider = tokenProvider;
+        this.nonceSigner = nonceSigner;
+        this.refreshTokenRepository = refreshTokenRepository;
         this.tokens = {
             jwt: null,
             refreshToken: null,
             expiresAt: null,
         };
-    }
-
-    public static getInstance(): TokenManager {
-        if (!TokenManager.instance) {
-            TokenManager.instance = new TokenManager();
-        }
-        return TokenManager.instance;
     }
 
     public getJwt(): string {
@@ -60,11 +61,10 @@ export class TokenManager {
         this.setUserId(userId);
         this.setDeviceId(deviceId);
         console.log(`TokenManager initialized with userId: ${userId} and deviceId: ${deviceId}`);
-        const refreshToken = await this.refreshTokenRepo.get();
+        const refreshToken = await this.refreshTokenRepository.get();
         if (refreshToken) {
             this.tokens.refreshToken = refreshToken.token;
             await this.refreshTokens();
-
         } else {
             console.log('No refresh token found. Generating new nonce and refresh token.');
             await this.generateTokensViaNonce();
@@ -74,23 +74,22 @@ export class TokenManager {
     }
 
     public async refreshTokens(): Promise<void> {
-        if(this.stopRefreshLoop){
-            console.log("Refresh loop stopped by request. Aborting.");
+        if (this.stopRefreshLoop) {
+            console.log('Refresh loop stopped by request. Aborting.');
             return;
         }
 
         if (this.refreshInProgress) {
-            console.log("Refresh in progress, waiting for it to finish");
+            console.log('Refresh in progress, waiting for it to finish');
             await this.refreshInProgress;
             return;
         }
 
         this.refreshInProgress = this.refreshTokensInternal();
 
-        try{
+        try {
             await this.refreshInProgress;
-        }
-        finally{
+        } finally {
             this.refreshInProgress = null;
         }
     }
@@ -102,7 +101,7 @@ export class TokenManager {
             return;
         }
 
-        const rtResponse = await this.refreshTokenApi.refreshToken({
+        const rtResponse = await this.tokenProvider.refreshToken({
             userId: this.userId!,
             deviceId: this.deviceId!,
             refreshToken: this.tokens.refreshToken,
@@ -120,7 +119,9 @@ export class TokenManager {
             expiresAt: rtResponse.data!.expiresAt,
         });
 
-        await this.refreshTokenRepo.create(new RefreshToken(rtResponse.data!.refreshToken, rtResponse.data!.expiresAt));
+        await this.refreshTokenRepository.create(
+            new RefreshToken(rtResponse.data!.refreshToken, rtResponse.data!.expiresAt),
+        );
     }
 
     private async generateTokensViaNonce(): Promise<void> {
@@ -128,18 +129,18 @@ export class TokenManager {
             throw new Error('UserId or DeviceId is not set. Cannot generate tokens.');
         }
 
-        const nonceResponse = await this.getNonceApi.getNonce({
-            UserId: this.userId,
-            DeviceId: this.deviceId,
+        const nonceResponse = await this.tokenProvider.getNonce({
+            userId: this.userId,
+            deviceId: this.deviceId,
         });
 
         if (!nonceResponse.success) {
             throw new Error(`Failed to get nonce: ${nonceResponse.errorMessage}`);
         }
 
-        const signedNonce = await this.NonceSigner.signNonce(nonceResponse.data!.nonceValue);
+        const signedNonce = await this.nonceSigner.signNonce(nonceResponse.data!.nonceValue);
 
-        const verifyResponse = await this.verifyNonceApi.verifyNonce({
+        const verifyResponse = await this.tokenProvider.verifyNonce({
             userId: this.userId,
             deviceId: this.deviceId,
             nonceId: nonceResponse.data!.nonceId,
@@ -156,7 +157,7 @@ export class TokenManager {
             expiresAt: verifyResponse.data!.expiresAt,
         });
 
-        await this.refreshTokenRepo.create(
+        await this.refreshTokenRepository.create(
             new RefreshToken(verifyResponse.data!.refreshToken, verifyResponse.data!.expiresAt),
         );
     }

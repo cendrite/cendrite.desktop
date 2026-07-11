@@ -4,7 +4,6 @@ import { CreateDeviceCommandHandler } from './Application/Features/Device/Comman
 import { GetDeviceQueryHandler } from './Application/Features/Device/Queries/GetDevice/GetDeviceQueryHandler.js';
 import { GenerateKeysRequestHandler } from './Application/Features/Device/Commands/GenerateKeys/GenerateKeysRequestHandler.js';
 import { SignNonceRequestHandler } from './Application/Features/Device/Commands/SignNonce/SignNonceRequestHandler.js';
-import { LogoutCommandHandler } from './Application/Features/User/Commands/Logout/LogoutCommandHandler.js';
 import { CreateRefreshTokenRequestHandler } from './Application/Features/RefreshToken/Commands/Create/CreateRefreshTokenRequestHandler.js';
 import { GetUserQueryHandler } from './Application/Features/User/Queries/GetUserQueryHandler.js';
 import { GetMediaQueryHandler } from './Application/Features/Files/Queries/GetMedia/GetMediaQueryHandler.js';
@@ -57,21 +56,16 @@ import { GetMessagesQuery } from './Application/Features/Chat/Queries/GetMessage
 import { GetMessagesQueryHandler } from './Application/Features/Chat/Queries/GetMessages/GetMessagesQueryHandler.js';
 import { UpdateAvatarCommand } from './Application/Features/User/Commands/Update/Avatar/UpdateAvatarCommand.js';
 import { UpdateAvatarCommandHandler } from './Application/Features/User/Commands/Update/Avatar/UpdateAvatarCommandHandler.js';
-import { GetTokenQuery } from './Application/Features/Tokens/Queries/GetTokenQuery.js';
-import { GetTokenQueryHandler } from './Application/Features/Tokens/Queries/GetTokenQueryHandler.js';
-import { InitializeTokenManagerCommand } from './Application/Features/Tokens/Commands/Initialize/InitializeTokenMangerCommand.js';
-import { InitializeTokenManagerCommandHandler } from './Application/Features/Tokens/Commands/Initialize/InitializeTokenCommandHandler.js';
-import { RefreshTokenCommand } from './Application/Features/Tokens/Commands/Refresh/RefreshTokenCommand.js';
-import { RefreshTokenCommandHandler } from './Application/Features/Tokens/Commands/Refresh/RefreshTokenCommandHandler.js';
+import { AwilixContainer } from 'awilix';
+import { Cradle } from './Container.js';
 
-export function registerIpcHandlers(mainWindow: BrowserWindow) {
-    const mediator = new Mediator();
+export function registerIpcHandlers(mainWindow: BrowserWindow, container: AwilixContainer<Cradle>) {
+    const mediator = new Mediator(container);
 
     mediator.registerHandler('CreateDeviceRequest', new CreateDeviceCommandHandler());
     mediator.registerHandler('GenerateKeysRequest', new GenerateKeysRequestHandler());
     mediator.registerHandler('GetDeviceQuery', new GetDeviceQueryHandler());
     mediator.registerHandler('SignNonceRequest', new SignNonceRequestHandler());
-    mediator.registerHandler('LogoutCommand', new LogoutCommandHandler());
 
     mediator.registerHandler('CreateRefreshTokenRequest', new CreateRefreshTokenRequestHandler());
     mediator.registerHandler('GetRefreshTokenQuery', new GetRefreshTokenQueryHandler());
@@ -110,12 +104,6 @@ export function registerIpcHandlers(mainWindow: BrowserWindow) {
     mediator.registerHandler(UpdateDeliveryStatusCommand.name, new UpdateDeliveryStatusCommandHandler());
     mediator.registerHandler(DeleteChatCommand.name, new DeleteChatCommandHandler());
     mediator.registerHandler(GetMessagesQuery.name, new GetMessagesQueryHandler());
-
-
-    // TEMPORARY
-    mediator.registerHandler(GetTokenQuery.name, new GetTokenQueryHandler());
-    mediator.registerHandler(RefreshTokenCommand.name, new RefreshTokenCommandHandler());
-    mediator.registerHandler(InitializeTokenManagerCommand.name, new InitializeTokenManagerCommandHandler());
 
     ipcMain.handle('mediator:send', async (_event, request) => {
         return await mediator.send(request);

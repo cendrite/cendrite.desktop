@@ -16,10 +16,10 @@ export class RefreshTokenRepository {
         return await this.repository.save(refreshToken);
     }
 
-    public async get(): Promise<RefreshToken> {
+    public async get(): Promise<RefreshToken | null> {
         const refreshToken = await this.repository.find({ take: 1 });
         if (refreshToken.length === 0) {
-            throw new Error("No refresh token found");
+            return null;
         }
 
         refreshToken[0].token = await this.cryptoService.decrypt(refreshToken[0].token);

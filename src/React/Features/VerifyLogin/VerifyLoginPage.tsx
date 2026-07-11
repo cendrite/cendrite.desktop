@@ -2,11 +2,9 @@ import { useNavigate } from 'react-router-dom';
 import React from 'react';
 import { Form, Formik, FormikHelpers } from 'formik';
 import { VerifyLoginValidationSchema } from './Validation/VerifyLoginValidationSchema';
-import { VerifyLoginApi } from '../../Common/Api/Identity/Auth/VerifyLoginApi.ts';
 import { CodeType } from '../../Common/Api/Identity/User/ResendVerificationCodeApi.ts';
 import { useOnboarding } from '../../Context/OnboardingContext.tsx';
 import { UserProfileService } from '../../Common/Services/UserProfileService.ts';
-import { DeviceService } from '../../Common/Services/CreateDeviceService.ts';
 import { useSignal } from '../../SignalR/SignalRProvider.tsx';
 import ErrorTooltip from '../../Common/Components/Utility/ErrorToolTip.tsx';
 import FormButton from '../../Common/Components/Form/FormButton.tsx';
@@ -15,13 +13,15 @@ import { KeyService } from '../../Common/Services/KeyService.ts';
 import { useUser } from '../../Context/User/UserContext.tsx';
 import { UserActionType } from '../../Context/User/UserReducer.ts';
 import { User } from '../../Models/User.ts';
-import { InitializeTokenManagerCommand } from '../../../Electron/Application/Features/Tokens/Commands/Initialize/InitializeTokenMangerCommand.ts';
+import { Result } from '../../../Shared/Result/Result.ts';
+import {
+    VerifyLoginCommand,
+    VerifyLoginResponse,
+} from '../../../Electron/Application/Features/Authentication/Contracts/VerifyLogin.ts';
 
 const VerifyLoginPage: React.FC = () => {
     const navigate = useNavigate();
-    const verifyLoginApi = new VerifyLoginApi();
     const userProfileService = new UserProfileService();
-    const deviceService = new DeviceService();
     const keyService = new KeyService();
     const { userDispatch } = useUser();
     const onboardingContext = useOnboarding();
@@ -31,39 +31,16 @@ const VerifyLoginPage: React.FC = () => {
         values: { verificationCode: string },
         { setFieldError }: FormikHelpers<{ verificationCode: string }>,
     ) => {
-        const verifyLoginResult = await verifyLoginApi.verifyLogin({
-            userId: onboardingContext.onboardingData.UserId!,
-            loginVerificationCode: values.verificationCode,
-        });
-
+        const verifyLoginResult = await window.electron.sendRequestAsync<Result<VerifyLoginResponse>>(
+            new VerifyLoginCommand(onboardingContext.onboardingData.UserId!, values.verificationCode),
+        );
         if (!verifyLoginResult.success) {
             console.error(verifyLoginResult.errorMessage);
             setFieldError('verificationCode', verifyLoginResult.errorMessage!.message);
             return;
         }
 
-        const deviceRegistrationResult = await deviceService.HandleDeviceRegistration(
-            onboardingContext.onboardingData.UserId!,
-            verifyLoginResult.data!.nonceId,
-            verifyLoginResult.data!.nonce,
-        );
-
-        if (!deviceRegistrationResult.success) {
-            console.error(deviceRegistrationResult.errorMessage);
-            setFieldError('verificationCode', 'Something went wrong. Please try again later.');
-            return;
-        }
-
-        await window.electron.sendRequestAsync(
-            new InitializeTokenManagerCommand(
-                onboardingContext.onboardingData.UserId!,
-                deviceRegistrationResult.data!.deviceId,
-            ),
-        );
-
-        const userProfileResult = await userProfileService.HandleUserProfile(
-            deviceRegistrationResult.data!.connectionId,
-        );
+        const userProfileResult = await userProfileService.HandleUserProfile(verifyLoginResult.data!.connectionId);
 
         console.log('User profile result:', userProfileResult);
 
@@ -73,8 +50,8 @@ const VerifyLoginPage: React.FC = () => {
                 userProfileResult!.id,
                 userProfileResult!.username,
                 userProfileResult!.userTag,
-                deviceRegistrationResult.data!.deviceId,
-                deviceRegistrationResult.data!.connectionId,
+                verifyLoginResult.data!.deviceId,
+                verifyLoginResult.data!.connectionId,
                 userProfileResult!.connectionIds,
                 userProfileResult!.avatarKey,
                 userProfileResult!.displayName,
@@ -82,7 +59,7 @@ const VerifyLoginPage: React.FC = () => {
         });
 
         await signalRContext.client.connect();
-        await keyService.SaveKeys(deviceRegistrationResult.data!.connectionId);
+        await keyService.SaveKeys(verifyLoginResult.data!.connectionId);
 
         navigate('/home');
     };

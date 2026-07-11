@@ -13,6 +13,7 @@
     },
     IDENTITY: {
         AUTH: {
+            BASE: 'https://identity.xhykl49jkg.org/api/Authentication',
             LOGOUT: 'https://identity.xhykl49jkg.org/api/Authentication/logout',
             LOGIN: 'https://conduit.xhykl49jkg.org/api/identity/login',
             VERIFY_LOGIN: 'https://identity.xhykl49jkg.org/api/Authentication/verify-login',

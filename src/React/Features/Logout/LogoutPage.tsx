@@ -2,7 +2,6 @@
 import { useNavigate } from 'react-router-dom';
 import Lottie from 'lottie-react';
 import boxAnimation from '../../Assets/Animations/box_load_animation.json';
-import { LogoutService } from '../../Common/Services/LogoutService.ts';
 import { useUser } from '../../Context/User/UserContext.tsx';
 import { useAuthSession } from '../../Context/AuthSession/AuthSessionContext.tsx';
 import { useContacts } from '../../Context/Contacts/ContactContext.tsx';
@@ -17,8 +16,7 @@ import { NotificationActionType } from '../../Context/Notification/NotificationR
 import { UserActionType } from '../../Context/User/UserReducer.ts';
 import { useHomePage } from '../../Context/HomePage/HomePageContext.tsx';
 import { HomePageActionType } from '../../Context/HomePage/HomePageReducer.ts';
-
-const logoutService = new LogoutService();
+import { LogoutCommand } from '../../../Electron/Application/Features/Authentication/Contracts/Logout.ts';
 
 const LogoutPage: React.FC = () => {
     const navigate = useNavigate();
@@ -37,8 +35,7 @@ const LogoutPage: React.FC = () => {
             return;
         }
 
-        logoutService
-            .logout()
+        window.electron.sendRequestAsync(new LogoutCommand())
             .catch((err) => {
                 console.error('Logout error:', err);
             })
@@ -67,6 +64,7 @@ const LogoutPage: React.FC = () => {
     }, [
         user,
         navigate,
+        homeDispatch,
         authSessionDispatch,
         contactDispatch,
         pendingContactDispatch,
