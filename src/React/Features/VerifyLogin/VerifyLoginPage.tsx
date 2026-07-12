@@ -9,7 +9,6 @@ import { useSignal } from '../../SignalR/SignalRProvider.tsx';
 import ErrorTooltip from '../../Common/Components/Utility/ErrorToolTip.tsx';
 import FormButton from '../../Common/Components/Form/FormButton.tsx';
 import ResendCodeButton from '../../Common/Components/Form/ResendCodeButton.tsx';
-import { KeyService } from '../../Common/Services/KeyService.ts';
 import { useUser } from '../../Context/User/UserContext.tsx';
 import { UserActionType } from '../../Context/User/UserReducer.ts';
 import { User } from '../../Models/User.ts';
@@ -22,7 +21,6 @@ import {
 const VerifyLoginPage: React.FC = () => {
     const navigate = useNavigate();
     const userProfileService = new UserProfileService();
-    const keyService = new KeyService();
     const { userDispatch } = useUser();
     const onboardingContext = useOnboarding();
     const signalRContext = useSignal();

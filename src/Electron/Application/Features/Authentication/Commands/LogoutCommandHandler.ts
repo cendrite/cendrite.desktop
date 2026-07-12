@@ -14,6 +14,7 @@ export class LogoutCommandHandler implements Handler<LogoutCommand, void> {
     ) { }
 
     public async handle(_cmd: LogoutCommand): Promise<Result<void>> {
+
         this.logoutManager.startLogout();
 
         console.log('LogoutCommandHandler.handle: Logging out user');
