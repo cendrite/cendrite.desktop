@@ -8,6 +8,7 @@ import { IAuthenticationProvider } from '../../../Contracts/Providers/IAuthentic
 import { IDeviceProvider } from '../../../Contracts/Providers/IDeviceProvider.js';
 import { Handler } from '../../../Mediator/Handler.js';
 import { VerifyLoginCommand, VerifyLoginResponse } from '../Contracts/VerifyLogin.js';
+import { IKeyService } from '../../../Services/Cryptography/KeyService.js';
 
 export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, VerifyLoginResponse> {
     constructor(
@@ -16,6 +17,7 @@ export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, Ve
         private readonly nonceSigner: INonceSigner,
         private readonly deviceRepository: DeviceRepository,
         private readonly tokenManager: TokenManager,
+        private readonly keyService: IKeyService,
     ) { }
 
     public async handle(cmd: VerifyLoginCommand): Promise<Result<VerifyLoginResponse>> {
@@ -59,6 +61,8 @@ export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, Ve
             await this.deviceRepository.create(device);
 
             await this.tokenManager.init(cmd.userId, device.id);
+
+            await this.keyService.generateKeyBundle(device.connectionId);
 
             return Result.success<VerifyLoginResponse>({
                 deviceId: device.id,

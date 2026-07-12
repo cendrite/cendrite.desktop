@@ -59,7 +59,6 @@ const VerifyLoginPage: React.FC = () => {
         });
 
         await signalRContext.client.connect();
-        await keyService.SaveKeys(verifyLoginResult.data!.connectionId);
 
         navigate('/home');
     };

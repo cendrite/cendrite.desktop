@@ -22,6 +22,7 @@ export class LogoutCommandHandler implements Handler<LogoutCommand, void> {
 
         const purger = new PurgeLocalDataService();
         await purger.purgeLocalData();
+
         this.tokenManager.disableAndClear();
         
         this.logoutManager.endLogout();

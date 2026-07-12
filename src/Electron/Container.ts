@@ -16,6 +16,9 @@ import { LoginCommandHandler } from './Application/Features/Authentication/Comma
 import { VerifyLoginCommandHandler } from './Application/Features/Authentication/Commands/VerifyLoginCommandHandler.js';
 import { LogoutManager } from './Application/Services/LogoutManager/LogoutManager.js';
 import { LogoutCommandHandler } from './Application/Features/Authentication/Commands/LogoutCommandHandler.js';
+import { KeyStoreClient } from './Infrastructure/Clients/KeyStoreClient.js';
+import { ProtocolStore } from './Infrastructure/Persistence/Repositories/ProtocolStore.js';
+import { KeyService } from './Application/Services/Cryptography/KeyService.js';
 
 export interface Cradle {
     mainWindow: Electron.BrowserWindow;
@@ -39,16 +42,16 @@ export function buildContainer(mainWindow: BrowserWindow): AwilixContainer<Cradl
         mainWindow: asValue(mainWindow),
     });
 
-    registerServices(container);
-    registerProviders(container);
-    registerRepositories(container);
-    registerApiClients(container);
-    registerHandlers(container);
+    addServices(container);
+    addProviders(container);
+    addPersistence(container);
+    addHttpClients(container);
+    addHandlers(container);
 
     return container;
 }
 
-function registerHandlers(container: AwilixContainer<Cradle>) {
+function addHandlers(container: AwilixContainer<Cradle>) {
     container.register({
         initializeTokenManagerCommandHandler: asClass(InitializeTokenManagerCommandHandler, {
             lifetime: Lifetime.TRANSIENT,
@@ -63,30 +66,33 @@ function registerHandlers(container: AwilixContainer<Cradle>) {
     });
 }
 
-function registerServices(container: AwilixContainer<Cradle>) {
+function addServices(container: AwilixContainer<Cradle>) {
     container.register({
         tokenManager: asClass(TokenManager, { lifetime: Lifetime.SINGLETON }),
         logoutManager: asValue(LogoutManager.getInstance()),
         nonceSigner: asClass(NonceSigner, { lifetime: Lifetime.SINGLETON }),
+        keyService: asClass(KeyService, { lifetime: Lifetime.SINGLETON }),
     });
 }
 
-function registerProviders(container: AwilixContainer<Cradle>) {
+function addProviders(container: AwilixContainer<Cradle>) {
     container.register({
         authenticationProvider: asClass(AuthenticationClient, { lifetime: Lifetime.SINGLETON }),
         tokenProvider: asClass(TokenClient, { lifetime: Lifetime.SINGLETON }),
         deviceProvider: asClass(DeviceClient, { lifetime: Lifetime.SINGLETON }),
+        keyStoreProvider: asClass(KeyStoreClient, { lifetime: Lifetime.SINGLETON }),
     });
 }
 
-function registerRepositories(container: AwilixContainer<Cradle>) {
+function addPersistence(container: AwilixContainer<Cradle>) {
     container.register({
         refreshTokenRepository: asClass(RefreshTokenRepository, { lifetime: Lifetime.SINGLETON }),
         deviceRepository: asClass(DeviceRepository, { lifetime: Lifetime.SINGLETON }),
+        protocolStore: asClass(ProtocolStore, { lifetime: Lifetime.SINGLETON }),
     });
 }
 
-function registerApiClients(container: AwilixContainer<Cradle>) {
+function addHttpClients(container: AwilixContainer<Cradle>) {
     container.register({
         deviceApiClient: asFunction(() => new ApiClient(API_URLS.IDENTITY.DEVICE, null)).singleton(),
         tokenApiClient: asFunction(() => new ApiClient(API_URLS.IDENTITY.AUTH, null)).singleton(),
@@ -94,6 +100,9 @@ function registerApiClients(container: AwilixContainer<Cradle>) {
         verifyLoginApiClient: asFunction(() => new ApiClient(API_URLS.IDENTITY.AUTH, null)).singleton(),
         logoutApiClient: asFunction(
             (tokenManager: TokenManager) => new ApiClient(API_URLS.IDENTITY.AUTH, tokenManager),
+        ).singleton(),
+        keyStoreApiClient: asFunction(
+            (tokenManager: TokenManager) => new ApiClient(API_URLS.KEYSTORE.BASE, tokenManager),
         ).singleton(),
     });
 }
