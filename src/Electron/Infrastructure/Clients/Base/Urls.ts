@@ -22,7 +22,7 @@ export const API_URLS = {
         },
     },
     KEYSTORE: {
-        CREATE_KEY_BUNDLE: 'https://conduit.xhykl49jkg.org/api/keys',
+        BASE: 'https://conduit.xhykl49jkg.org/api/keys',
         GET_PRE_KEY_BUNDLE: 'https://conduit.xhykl49jkg.org/api/keys/session',
         UPLOAD_OTPS: 'https://conduit.xhykl49jkg.org/api/keys/otps',
     },
