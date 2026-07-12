@@ -48,7 +48,7 @@ export class ApiClient {
                 if (error.response?.status === 401) {
                     console.warn('Token expired, refreshing token');
                     try {
-                        this.tokenManager!.refreshTokens();
+                        await this.tokenManager!.refreshTokens();
                         const newToken = this.tokenManager!.getJwt();
                         if (newToken && error.config) {
                             error.config.headers.Authorization = `Bearer ${newToken}`;
