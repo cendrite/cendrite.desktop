@@ -21,6 +21,7 @@ import { MessageHubHandler } from './Infrastructure/Signal/Messaging/MessageHubH
 import { KeyStoreClient } from './Infrastructure/Clients/KeyStoreClient.js';
 import { ProtocolStore } from './Infrastructure/Persistence/Repositories/ProtocolStore.js';
 import { KeyService } from './Application/Services/Cryptography/KeyService.js';
+import { SessionManager } from './Infrastructure/Services/SessionManager.js';
 
 export interface Cradle {
     mainWindow: Electron.BrowserWindow;
@@ -74,6 +75,7 @@ function addServices(container: AwilixContainer<Cradle>) {
         logoutManager: asValue(LogoutManager.getInstance()),
         nonceSigner: asClass(NonceSigner, { lifetime: Lifetime.SINGLETON }),
         keyService: asClass(KeyService, { lifetime: Lifetime.SINGLETON }),
+        sessionManager: asClass(SessionManager, { lifetime: Lifetime.SINGLETON }),
     });
 }
 
@@ -91,6 +93,7 @@ function addPersistence(container: AwilixContainer<Cradle>) {
         refreshTokenRepository: asClass(RefreshTokenRepository, { lifetime: Lifetime.SINGLETON }),
         deviceRepository: asClass(DeviceRepository, { lifetime: Lifetime.SINGLETON }),
         protocolStore: asClass(ProtocolStore, { lifetime: Lifetime.SINGLETON }),
+        keyStore: asClass(ProtocolStore, { lifetime: Lifetime.SINGLETON }),
     });
 }
 
@@ -98,11 +101,10 @@ function registerSignalR(container: AwilixContainer<Cradle>){
     container.register({
         signalManager: asClass(SignalManager, { lifetime: Lifetime.SINGLETON }),
         messageHubHanlder: asClass(MessageHubHandler, { lifetime: Lifetime.SINGLETON }),
-
+        changeEventHubHandler: asClass(MessageHubHandler, { lifetime: Lifetime.SINGLETON }),
     });
 }
 
-function registerApiClients(container: AwilixContainer<Cradle>) {
 function addHttpClients(container: AwilixContainer<Cradle>) {
     container.register({
         deviceApiClient: asFunction(() => new ApiClient(API_URLS.IDENTITY.DEVICE, null)).singleton(),
