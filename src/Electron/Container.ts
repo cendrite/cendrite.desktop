@@ -20,8 +20,9 @@ import { SignalManager } from './Infrastructure/Signal/SignalManager.js';
 import { MessageHubHandler } from './Infrastructure/Signal/Messaging/MessageHubHandler.js';
 import { KeyStoreClient } from './Infrastructure/Clients/KeyStoreClient.js';
 import { ProtocolStore } from './Infrastructure/Persistence/Repositories/ProtocolStore.js';
-import { KeyService } from './Application/Services/Cryptography/KeyService.js';
+import { KeyGenerator } from './Application/Services/Cryptography/KeyService.js';
 import { SessionManager } from './Infrastructure/Services/SessionManager.js';
+import { KeyService } from './Infrastructure/Services/KeyStore.js';
 
 export interface Cradle {
     mainWindow: Electron.BrowserWindow;
@@ -74,6 +75,7 @@ function addServices(container: AwilixContainer<Cradle>) {
         tokenManager: asClass(TokenManager, { lifetime: Lifetime.SINGLETON }),
         logoutManager: asValue(LogoutManager.getInstance()),
         nonceSigner: asClass(NonceSigner, { lifetime: Lifetime.SINGLETON }),
+        keyGenerator: asClass(KeyGenerator, { lifetime: Lifetime.SINGLETON }),
         keyService: asClass(KeyService, { lifetime: Lifetime.SINGLETON }),
         sessionManager: asClass(SessionManager, { lifetime: Lifetime.SINGLETON }),
     });
@@ -93,7 +95,6 @@ function addPersistence(container: AwilixContainer<Cradle>) {
         refreshTokenRepository: asClass(RefreshTokenRepository, { lifetime: Lifetime.SINGLETON }),
         deviceRepository: asClass(DeviceRepository, { lifetime: Lifetime.SINGLETON }),
         protocolStore: asClass(ProtocolStore, { lifetime: Lifetime.SINGLETON }),
-        keyStore: asClass(ProtocolStore, { lifetime: Lifetime.SINGLETON }),
     });
 }
 

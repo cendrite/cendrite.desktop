@@ -1,17 +1,17 @@
 import { IKeyStoreProvider } from '../../Application/Contracts/Providers/IKeyStoreProvider.js';
 import { ISessionManager } from '../Interfaces/ISessionManager.js';
 import * as libsignal from '@privacyresearch/libsignal-protocol-typescript';
-import { KeyStore } from './KeyStore.js';
+import { KeyService } from './KeyStore.js';
 import { mapBundleToDevice } from '../Mappers/KeyMapper.js';
 import { Payload } from '../Signal/Messaging/ServerMessage.js';
 
 export class SessionManager implements ISessionManager {
-    private readonly keyStore: KeyStore;
+    private readonly keyService: KeyService;
     private readonly keyProvider: IKeyStoreProvider;
     private connectionId: string | null = null;
 
-    constructor(keyStore: KeyStore, keyProvider: IKeyStoreProvider) {
-        this.keyStore = keyStore;
+    constructor(keyStore: KeyService, keyProvider: IKeyStoreProvider) {
+        this.keyService = keyStore;
         this.keyProvider = keyProvider;
     }
 
@@ -36,7 +36,7 @@ export class SessionManager implements ISessionManager {
      * from the KeyService and processes it to establish a new session.
      */
     private async ensureSession(): Promise<void> {
-        const session = await this.keyStore.loadSession(this.address.toString());
+        const session = await this.keyService.loadSession(this.address.toString());
         if (session) {
             return;
         }
@@ -48,7 +48,7 @@ export class SessionManager implements ISessionManager {
 
         const preKeyBundle = preKeyBundleResult.data!;
 
-        const builder = new libsignal.SessionBuilder(this.keyStore, this.address);
+        const builder = new libsignal.SessionBuilder(this.keyService, this.address);
 
         const mappedBundle = mapBundleToDevice(preKeyBundle);
 
@@ -64,7 +64,7 @@ export class SessionManager implements ISessionManager {
     public async encrypt(payload: Payload): Promise<string> {
         await this.ensureSession();
 
-        const sessionCipher = new libsignal.SessionCipher(this.keyStore, this.address);
+        const sessionCipher = new libsignal.SessionCipher(this.keyService, this.address);
 
         const plainTextStr = JSON.stringify(payload);
 
@@ -86,7 +86,7 @@ export class SessionManager implements ISessionManager {
     public async decrypt<T extends Payload>(ciphertext: string): Promise<T> {
         const { type, body } = JSON.parse(ciphertext);
 
-        const cipher = new libsignal.SessionCipher(this.keyStore, this.address);
+        const cipher = new libsignal.SessionCipher(this.keyService, this.address);
 
         const bodyBuffer = body ? Uint8Array.from(atob(body), (c) => c.charCodeAt(0)).buffer : new ArrayBuffer(0);
 

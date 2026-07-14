@@ -5,11 +5,11 @@ import { IdentityKeys } from '../../../Domain/Encryption/IdentityKeys.js';
 import { EcPreKey } from '../../../Domain/Encryption/EcPreKey.js';
 import { SignedPreKey } from '../../../Domain/Encryption/SignedPreKey.js';
 
-export interface IKeyService {
+export interface IKeyGenerator {
     generateKeyBundle(connectionId: string): Promise<void>;
 }
 
-export class KeyService implements IKeyService {
+export class KeyGenerator implements IKeyGenerator {
     private readonly keyStoreProvider: IKeyStoreProvider;
     private readonly ProtocolStore: ProtocolStore;
 
