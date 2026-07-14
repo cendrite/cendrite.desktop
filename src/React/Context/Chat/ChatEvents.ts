@@ -43,7 +43,7 @@ export function useChatEvents(
                 notificationDispatch({ type: NotificationActionType.AddChat, payload: { chatId: chat.id } });
             }
         },
-        [activeChatId, chats, chatDispatch, contacts, notificationDispatch, user],
+        [activeChatId, chats, chatDispatch, contacts, notificationDispatch, user, chatService],
     );
 
     const handleFriendDeleted = useCallback(

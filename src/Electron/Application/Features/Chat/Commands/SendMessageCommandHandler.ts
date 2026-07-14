@@ -1,10 +1,14 @@
-import { v4 as uuid } from 'uuid';
 import { Result } from '../../../../../Shared/Result/Result.js';
 import { Message } from '../../../../Domain/Entities/Message.js';
+import { MessageMedia } from '../../../../Domain/Entities/MessageMedia.js';
 import { DeliveryStatus } from '../../../../Domain/Enums/DeliveryStatus.js';
 import { SessionManager } from '../../../../Infrastructure/Services/SessionManager.js';
 import { MessageHubHandler } from '../../../../Infrastructure/Signal/Messaging/MessageHubHandler.js';
-import { MessagePayload } from '../../../../Infrastructure/Signal/Messaging/ServerMessage.js';
+import {
+    MessagePayload,
+    PayloadType,
+    ServerMessage,
+} from '../../../../Infrastructure/Signal/Messaging/ServerMessage.js';
 import { IMediaProvider } from '../../../Contracts/Providers/IMediaProvider.js';
 import { IChatStore } from '../../../Contracts/Repositories/IChatStore.js';
 import { Handler } from '../../../Mediator/Handler.js';
@@ -19,26 +23,42 @@ export class SendMessageCommandHandler implements Handler<SendMessageCommand, De
     ) { }
 
     public async handle(cmd: SendMessageCommand): Promise<Result<DeliveryStatus>> {
-        const m_pointers = await this.mediaProvider.uploadMedia(cmd.userConnectionId, cmd.media);
+        const m_pointers = await this.mediaProvider.upload(cmd.userConnectionId, cmd.media);
 
         const message = new Message(
-            uuid(),
+            cmd.messageId,
             cmd.chatId,
             cmd.userConnectionId,
             new Date(),
             cmd.message,
-            null,
+            cmd.media.map((m) => new MessageMedia(m.id, m.type, cmd.messageId)),
             DeliveryStatus.Pending,
         );
         await this.messageStore.storeMessage(message);
 
+        const messages: ServerMessage[] = [];
+
         for (const conId of cmd.connectionIds) {
             this.sessionManager.setConnectionId(conId);
             const cipher = await this.sessionManager.encrypt(
-                new MessagePayload(cmd.message, m_pointers, cmd.participants, DeliveryStatus.Pending),
+                new MessagePayload(message.content, m_pointers, cmd.participants, message.deliveryStatus),
+            );
+
+            messages.push(
+                new ServerMessage(
+                    message.id,
+                    message.chatId,
+                    message.senderId,
+                    conId,
+                    PayloadType.ChatMessage,
+                    cipher,
+                    message.timestamp,
+                    message.messageToken,
+                ),
             );
         }
 
-        throw new Error('Not implemented');
+        const receipt = await this.messageHubHandler.sendMessage(messages);
+        return Result.success(receipt);
     }
 }

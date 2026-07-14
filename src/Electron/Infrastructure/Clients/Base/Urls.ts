@@ -28,7 +28,5 @@ export const API_URLS = {
     },
     MEDIA: {
         BASE: 'https://chatserver.xhykl49jkg.org/api/media',
-        UPLOAD: '/upload',
-        ACK: '/ack',
     },
 };

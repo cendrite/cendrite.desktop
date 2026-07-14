@@ -9,6 +9,7 @@ import { IDeviceProvider } from '../../../Contracts/Providers/IDeviceProvider.js
 import { Handler } from '../../../Mediator/Handler.js';
 import { VerifyLoginCommand, VerifyLoginResponse } from '../Contracts/VerifyLogin.js';
 import { IKeyGenerator } from '../../../Services/Cryptography/KeyService.js';
+import { SignalManager } from '../../../../Infrastructure/Signal/SignalManager.js';
 
 export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, VerifyLoginResponse> {
     constructor(
@@ -18,6 +19,7 @@ export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, Ve
         private readonly deviceRepository: DeviceRepository,
         private readonly tokenManager: TokenManager,
         private readonly keyGenerator: IKeyGenerator,
+        private readonly signalManager: SignalManager,
     ) { }
 
     public async handle(cmd: VerifyLoginCommand): Promise<Result<VerifyLoginResponse>> {
@@ -63,6 +65,8 @@ export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, Ve
             await this.tokenManager.init(cmd.userId, device.id);
 
             await this.keyGenerator.generateKeyBundle(device.connectionId);
+
+            await this.signalManager.connect();
 
             return Result.success<VerifyLoginResponse>({
                 deviceId: device.id,

@@ -5,7 +5,6 @@ import { VerifyLoginValidationSchema } from './Validation/VerifyLoginValidationS
 import { CodeType } from '../../Common/Api/Identity/User/ResendVerificationCodeApi.ts';
 import { useOnboarding } from '../../Context/OnboardingContext.tsx';
 import { UserProfileService } from '../../Common/Services/UserProfileService.ts';
-import { useSignal } from '../../SignalR/SignalRProvider.tsx';
 import ErrorTooltip from '../../Common/Components/Utility/ErrorToolTip.tsx';
 import FormButton from '../../Common/Components/Form/FormButton.tsx';
 import ResendCodeButton from '../../Common/Components/Form/ResendCodeButton.tsx';
@@ -23,7 +22,6 @@ const VerifyLoginPage: React.FC = () => {
     const userProfileService = new UserProfileService();
     const { userDispatch } = useUser();
     const onboardingContext = useOnboarding();
-    const signalRContext = useSignal();
 
     const handleSubmit = async (
         values: { verificationCode: string },
@@ -55,8 +53,6 @@ const VerifyLoginPage: React.FC = () => {
                 userProfileResult!.displayName,
             ),
         });
-
-        await signalRContext.client.connect();
 
         navigate('/home');
     };

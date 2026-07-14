@@ -23,6 +23,8 @@ import { ProtocolStore } from './Infrastructure/Persistence/Repositories/Protoco
 import { KeyGenerator } from './Application/Services/Cryptography/KeyService.js';
 import { SessionManager } from './Infrastructure/Services/SessionManager.js';
 import { KeyService } from './Infrastructure/Services/KeyStore.js';
+import { SendMessageCommandHandler } from './Application/Features/Chat/Commands/SendMessageCommandHandler.js';
+import { MediaProvider } from './Infrastructure/Clients/MediaProvider.js';
 
 export interface Cradle {
     mainWindow: Electron.BrowserWindow;
@@ -51,6 +53,7 @@ export function buildContainer(mainWindow: BrowserWindow): AwilixContainer<Cradl
     addPersistence(container);
     addHttpClients(container);
     addHandlers(container);
+    registerSignalR(container);
 
     return container;
 }
@@ -67,6 +70,7 @@ function addHandlers(container: AwilixContainer<Cradle>) {
         refreshTokenCommandHandler: asClass(RefreshTokenCommandHandler, { lifetime: Lifetime.SINGLETON }),
         getTokenQueryHandler: asClass(GetTokenQueryHandler, { lifetime: Lifetime.SINGLETON }),
         verifyLoginCommandHandler: asClass(VerifyLoginCommandHandler, { lifetime: Lifetime.SINGLETON }),
+        sendMessageCommandHandler: asClass(SendMessageCommandHandler, { lifetime: Lifetime.SINGLETON }),
     });
 }
 
@@ -87,6 +91,7 @@ function addProviders(container: AwilixContainer<Cradle>) {
         tokenProvider: asClass(TokenClient, { lifetime: Lifetime.SINGLETON }),
         deviceProvider: asClass(DeviceClient, { lifetime: Lifetime.SINGLETON }),
         keyStoreProvider: asClass(KeyStoreClient, { lifetime: Lifetime.SINGLETON }),
+        mediaProvider: asClass(MediaProvider, { lifetime: Lifetime.SINGLETON }),
     });
 }
 
@@ -98,7 +103,7 @@ function addPersistence(container: AwilixContainer<Cradle>) {
     });
 }
 
-function registerSignalR(container: AwilixContainer<Cradle>){
+function registerSignalR(container: AwilixContainer<Cradle>) {
     container.register({
         signalManager: asClass(SignalManager, { lifetime: Lifetime.SINGLETON }),
         messageHubHanlder: asClass(MessageHubHandler, { lifetime: Lifetime.SINGLETON }),
@@ -117,6 +122,9 @@ function addHttpClients(container: AwilixContainer<Cradle>) {
         ).singleton(),
         keyStoreApiClient: asFunction(
             (tokenManager: TokenManager) => new ApiClient(API_URLS.KEYSTORE.BASE, tokenManager),
+        ).singleton(),
+        mediaApiClient: asFunction(
+            (tokenManager: TokenManager) => new ApiClient(API_URLS.MEDIA.BASE, tokenManager),
         ).singleton(),
     });
 }
