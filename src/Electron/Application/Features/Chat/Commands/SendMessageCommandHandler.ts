@@ -9,21 +9,21 @@ import {
     PayloadType,
     ServerMessage,
 } from '../../../../Infrastructure/Signal/Messaging/ServerMessage.js';
-import { IMediaProvider } from '../../../Contracts/Providers/IMediaProvider.js';
 import { IChatStore } from '../../../Contracts/Repositories/IChatStore.js';
 import { Handler } from '../../../Mediator/Handler.js';
+import { IMediaService } from '../../../Services/Media/MediaService.js';
 import { SendMessageCommand } from '../Contracts/SendMessage.js';
 
 export class SendMessageCommandHandler implements Handler<SendMessageCommand, DeliveryStatus> {
     constructor(
         private readonly sessionManager: SessionManager,
-        private readonly mediaProvider: IMediaProvider,
+        private readonly mediaService: IMediaService,
         private readonly messageHubHandler: MessageHubHandler,
         private readonly messageStore: IChatStore,
     ) { }
 
     public async handle(cmd: SendMessageCommand): Promise<Result<DeliveryStatus>> {
-        const m_pointers = await this.mediaProvider.upload(cmd.userConnectionId, cmd.media);
+        const m_pointers = await this.mediaService.upload(cmd.userConnectionId, cmd.media);
 
         const message = new Message(
             cmd.messageId,

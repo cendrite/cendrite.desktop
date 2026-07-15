@@ -1,7 +1,7 @@
-import { MediaPointer } from "../../../Infrastructure/Signal/Messaging/ServerMessage.js";
-import { Media } from "../Models/Media.js";
+import { Result } from "../../../../Shared/Result/Result.js";
 
 export interface IMediaProvider { 
-    get(pointers: MediaPointer[]): Promise<Media[]>;
-    upload(senderId: string, media: Media[]): Promise<MediaPointer[]>;
+    upload(id: string, senderId: string, cipher: Uint8Array): Promise<Result>;
+    get(id: string): Promise<Result<Uint8Array>>;
+    ack(id: string, senderId: string): Promise<Result>;
 }

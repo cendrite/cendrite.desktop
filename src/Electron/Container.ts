@@ -25,6 +25,7 @@ import { SessionManager } from './Infrastructure/Services/SessionManager.js';
 import { KeyService } from './Infrastructure/Services/KeyStore.js';
 import { SendMessageCommandHandler } from './Application/Features/Chat/Commands/SendMessageCommandHandler.js';
 import { MediaProvider } from './Infrastructure/Clients/MediaProvider.js';
+import { MediaService } from './Application/Services/Media/MediaService.js';
 
 export interface Cradle {
     mainWindow: Electron.BrowserWindow;
@@ -82,6 +83,7 @@ function addServices(container: AwilixContainer<Cradle>) {
         keyGenerator: asClass(KeyGenerator, { lifetime: Lifetime.SINGLETON }),
         keyService: asClass(KeyService, { lifetime: Lifetime.SINGLETON }),
         sessionManager: asClass(SessionManager, { lifetime: Lifetime.SINGLETON }),
+        mediaService: asClass(MediaService, { lifetime: Lifetime.SINGLETON }),
     });
 }
 
