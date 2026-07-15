@@ -3,8 +3,9 @@ import { CryptographyService } from '../Encryption/CryptographyService.js';
 import { getDbContext } from '../Context/DatabaseContext.js';
 import { User } from '../../../Domain/Aggregates/User.js';
 import cloneDeep from 'lodash/cloneDeep.js';
+import { IUserRepository } from '../../../Application/Contracts/Repositories/IUserRepository.js';
 
-export class UserRepository {
+export class UserRepository implements IUserRepository {
     private repository: Repository<User>;
     private readonly cryptoService = CryptographyService.getInstance();
 
@@ -35,7 +36,7 @@ export class UserRepository {
         return user[0];
     }
 
-    public async update(user: User) {
+    public async update(user: User): Promise<void> {
         await this.repository.save(user);
     }
 

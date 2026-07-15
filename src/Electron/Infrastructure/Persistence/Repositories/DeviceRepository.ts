@@ -1,9 +1,10 @@
-import { Repository } from "typeorm/repository/Repository.js";
-import { getDbContext} from "../Context/DatabaseContext.js";
-import { CryptographyService } from "../Encryption/CryptographyService.js";
-import { Device } from "../../../Domain/Entities/Device.js";
+import { Repository } from 'typeorm/repository/Repository.js';
+import { getDbContext } from '../Context/DatabaseContext.js';
+import { CryptographyService } from '../Encryption/CryptographyService.js';
+import { Device } from '../../../Domain/Entities/Device.js';
+import { IDeviceRepository } from '../../../Application/Contracts/Repositories/IDeviceRepository.js';
 
-export class DeviceRepository {
+export class DeviceRepository implements IDeviceRepository {
     private repository: Repository<Device>;
     private readonly cryptoService = CryptographyService.getInstance();
 
@@ -16,11 +17,8 @@ export class DeviceRepository {
         return await this.repository.save(device);
     }
 
-    public async get(): Promise<Device> {
+    public async get(): Promise<Device | null> {
         const device = await this.repository.find({ take: 1 });
-        if (device.length === 0) {
-            throw new Error("No device found");
-        }
         device[0].privateKey = await this.cryptoService.decrypt(device[0].privateKey);
 
         return device[0];
