@@ -11,11 +11,11 @@ export class SendMessageCommand implements MediatorRequest {
     public readonly media: Media[];
 
     constructor(
+        chatId: string,
         messageId: string,
         userConnectionId: string,
         participants: string[],
         connectionIds: string[],
-        chatId: string,
         message: string,
         media: Media[] | null = null,
     ) {

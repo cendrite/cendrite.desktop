@@ -10,9 +10,9 @@ export class SessionManager implements ISessionManager {
     private readonly keyProvider: IKeyStoreProvider;
     private connectionId: string | null = null;
 
-    constructor(keyStore: KeyService, keyProvider: IKeyStoreProvider) {
-        this.keyService = keyStore;
-        this.keyProvider = keyProvider;
+    constructor(keyService: KeyService, keyStoreProvider: IKeyStoreProvider) {
+        this.keyService = keyService;
+        this.keyProvider = keyStoreProvider;
     }
 
 

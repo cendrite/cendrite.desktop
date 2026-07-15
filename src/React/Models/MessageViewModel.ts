@@ -3,6 +3,7 @@ import { v4 as uuid } from 'uuid';
 import { MessagePayload, ServerMessage } from '../SignalR/Messaging/ServerMessage.ts';
 import { MessageDto } from '../../Electron/Application/Features/Chat/Dtos/MessageDto.ts';
 import { Media } from './Media.ts';
+import { Message } from '../../Electron/Application/Contracts/Models/Message.ts';
 
 export class MessageViewModel {
     id: string;
@@ -67,6 +68,19 @@ export class MessageViewModel {
             new Date(msg.timestamp),
             media,
             initialDeliveryStatus,
+        );
+    }
+
+    public static mapFromContract(msg: Message): MessageViewModel {
+        return new MessageViewModel(
+            msg.id,
+            msg.chatId,
+            msg.senderId,
+            msg.text,
+            msg.date,
+            msg.media,
+            msg.deliveryStatus,
+            msg.messageToken,
         );
     }
 

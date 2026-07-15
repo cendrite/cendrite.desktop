@@ -26,6 +26,7 @@ import { KeyService } from './Infrastructure/Services/KeyStore.js';
 import { SendMessageCommandHandler } from './Application/Features/Chat/Commands/SendMessageCommandHandler.js';
 import { MediaProvider } from './Infrastructure/Clients/MediaProvider.js';
 import { MediaService } from './Application/Services/Media/MediaService.js';
+import { ChatStore } from './Infrastructure/Persistence/Repositories/ChatStore.js';
 
 export interface Cradle {
     mainWindow: Electron.BrowserWindow;
@@ -102,13 +103,14 @@ function addPersistence(container: AwilixContainer<Cradle>) {
         refreshTokenRepository: asClass(RefreshTokenRepository, { lifetime: Lifetime.SINGLETON }),
         deviceRepository: asClass(DeviceRepository, { lifetime: Lifetime.SINGLETON }),
         protocolStore: asClass(ProtocolStore, { lifetime: Lifetime.SINGLETON }),
+        chatStore: asClass(ChatStore, { lifetime: Lifetime.SINGLETON }),
     });
 }
 
 function registerSignalR(container: AwilixContainer<Cradle>) {
     container.register({
         signalManager: asClass(SignalManager, { lifetime: Lifetime.SINGLETON }),
-        messageHubHanlder: asClass(MessageHubHandler, { lifetime: Lifetime.SINGLETON }),
+        messageHubHandler: asClass(MessageHubHandler, { lifetime: Lifetime.SINGLETON }),
         changeEventHubHandler: asClass(MessageHubHandler, { lifetime: Lifetime.SINGLETON }),
     });
 }

@@ -106,7 +106,7 @@ export class KeyService implements libsignal.StorageType {
         const identityCache = await this.procolStore.getIdentityCache(identifier);
 
         if (!identityCache) {
-            return false;
+            return true;
         }
 
         const isTrusted = identityCache.trusted && identityCache.identityKeyPublic.equals(Buffer.from(identityKey));

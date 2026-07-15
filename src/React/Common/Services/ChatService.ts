@@ -12,8 +12,6 @@ import { Contact } from '../../Models/Contact.ts';
 import { User } from '../../Models/User.ts';
 import { sha256 } from '../../../Shared/HelperFunctions.ts';
 import { MessageViewModel } from '../../Models/MessageViewModel.ts';
-import { MessageHubHandler } from '../../SignalR/Messaging/MessageHubHandler.ts';
-import { SignalManager } from '../../SignalR/SignalManager.ts';
 import { AddMessageCommand } from '../../../Electron/Application/Features/Chat/Commands/AddMessage/AddMessageCommand.ts';
 import { UpdateDeliveryStatusCommand } from '../../../Electron/Application/Features/Chat/Commands/UpdateDeliveryStatus/UpdateDeliveryStatusCommand.ts';
 import { SessionManager } from '../../Security/Encryption/SessionManager.ts';
@@ -23,10 +21,11 @@ import { MessagePayload, ServerMessage } from '../../SignalR/Messaging/ServerMes
 import { GetMessagesQuery } from '../../../Electron/Application/Features/Chat/Queries/GetMessages/GetMessagesQuery.ts';
 import { Media } from '../../Models/Media.ts';
 import { MediaService } from './MediaService.ts';
+import { SendMessageCommand } from '../../../Electron/Application/Features/Chat/Contracts/SendMessage.ts';
+import { Message } from '../../../Electron/Application/Contracts/Models/Message.ts';
 
 export class ChatService {
     private readonly mediaService = new MediaService();
-    private readonly messageSender = SignalManager.getInstance().getHandler<MessageHubHandler>('Messaging');
 
     public async sendMessage(
         user: User,
@@ -38,34 +37,29 @@ export class ChatService {
     ): Promise<MessageViewModel | null> {
         if (!text && !media) return null;
 
-        const message = MessageViewModel.create(chatId, user.connectionId, text, media, DeliveryStatus.Pending);
+        const messageResult = await window.electron.sendRequestAsync<Result<Message>>(
+            new SendMessageCommand(
+                chatId,
+                uuid().toString(),
+                user.connectionId,
+                this.generateParticipantList(user.userTag, recipientTags),
+                [...connectionIds, user.externalConnectionIds].flat(),
+                text || '',
+                media,
+            ),
+        );
 
-        const participants = this.generateParticipantList(user.userTag, recipientTags);
-
-        await this.persistMessage(message, chatId);
-
-        const messages: ServerMessage[] = [];
-
-        const recieverIds = [...connectionIds, user.externalConnectionIds].flat();
-
-        const mpointers = await this.mediaService.uploadMedia(user.connectionId, media);
-
-        for (const connectionId of recieverIds) {
-            const manager = new SessionManager(connectionId);
-            const cipher = await manager.encrypt(
-                new MessagePayload(message.text, mpointers, participants, DeliveryStatus.Pending),
-            );
-
-            const msg = ServerMessage.create(message, connectionId, cipher);
-            messages.push(msg);
+        if (!messageResult.success) {
+            console.error('Failed to send message:', messageResult.errorMessage);
+            return null;
         }
 
-        const receipt = await this.messageSender.sendMessage(messages);
-        const msg = this.setDeliveryStatusOnReceipt(message, receipt);
-        return msg;
+        const message = MessageViewModel.mapFromContract(messageResult.data!);
+
+        return message;
     }
 
-    private async setDeliveryStatusOnReceipt(
+    public async setDeliveryStatusOnReceipt(
         msg: MessageViewModel,
         receipt: DeliveryStatus | null | undefined,
     ): Promise<MessageViewModel> {

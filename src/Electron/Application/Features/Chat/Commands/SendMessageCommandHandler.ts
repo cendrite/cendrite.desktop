@@ -14,15 +14,15 @@ import { Handler } from '../../../Mediator/Handler.js';
 import { IMediaService } from '../../../Services/Media/MediaService.js';
 import { SendMessageCommand } from '../Contracts/SendMessage.js';
 
-export class SendMessageCommandHandler implements Handler<SendMessageCommand, DeliveryStatus> {
+export class SendMessageCommandHandler implements Handler<SendMessageCommand, Message> {
     constructor(
         private readonly sessionManager: SessionManager,
         private readonly mediaService: IMediaService,
         private readonly messageHubHandler: MessageHubHandler,
-        private readonly messageStore: IChatStore,
+        private readonly chatStore: IChatStore,
     ) { }
 
-    public async handle(cmd: SendMessageCommand): Promise<Result<DeliveryStatus>> {
+    public async handle(cmd: SendMessageCommand): Promise<Result<Message>> {
         const m_pointers = await this.mediaService.upload(cmd.userConnectionId, cmd.media);
 
         const message = new Message(
@@ -34,7 +34,7 @@ export class SendMessageCommandHandler implements Handler<SendMessageCommand, De
             cmd.media.map((m) => new MessageMedia(m.id, m.type, cmd.messageId)),
             DeliveryStatus.Pending,
         );
-        await this.messageStore.storeMessage(message);
+        await this.chatStore.storeMessage(message);
 
         const messages: ServerMessage[] = [];
 
@@ -59,6 +59,17 @@ export class SendMessageCommandHandler implements Handler<SendMessageCommand, De
         }
 
         const receipt = await this.messageHubHandler.sendMessage(messages);
-        return Result.success(receipt);
+        const returnMsg = new Message(
+            message.id,
+            message.chatId,
+            message.senderId,
+            message.timestamp,
+            message.content,
+            message.messageMedia,
+            receipt,
+            message.messageToken,
+        );
+
+        return Result.success(returnMsg);
     }
 }
