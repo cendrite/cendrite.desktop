@@ -1,20 +1,16 @@
 ﻿import { HubConnection } from '@microsoft/signalr';
 import { IHubHandler } from '../IHubHandler.js';
 import { HubKey } from '../SignalRHubPath.js';
-import { ServerMessage, ServerMessageDto } from './ServerMessage.js';
+import { PayloadType, ServerMessage, ServerMessageDto } from './ServerMessage.js';
 import { HubMethods } from '../HubMethods.js';
 import { DeliveryStatus } from '../../../Domain/Enums/DeliveryStatus.js';
-import { BrowserWindow } from 'electron';
+import { MessageHandler } from './Subscribers.js';
 
 export class MessageHubHandler implements IHubHandler {
     public readonly key: HubKey = 'Messaging';
-    private readonly mainWindow: Electron.BrowserWindow;
     private isInitialized: boolean = false;
     private connection?: HubConnection;
-
-    public constructor(mainWindow: BrowserWindow) {
-        this.mainWindow = mainWindow;
-    }
+    private readonly subscribers = new Map<PayloadType, Set<MessageHandler>>();
 
     public initialize(connection: HubConnection) {
         if (this.isInitialized) {
@@ -32,10 +28,22 @@ export class MessageHubHandler implements IHubHandler {
         this.isInitialized = true;
     }
 
+    subscribe(payloadType: PayloadType, handler: MessageHandler): void {
+        if (!this.subscribers.has(payloadType)) {
+            this.subscribers.set(payloadType, new Set<MessageHandler>());
+        }
+        this.subscribers.get(payloadType)!.add(handler);
+    }
+
+    unsubscribe(payloadType: PayloadType, handler: MessageHandler): void {
+        (this.subscribers.get(payloadType) as Set<MessageHandler>)?.delete(handler);
+    }
+
     publish(message: ServerMessage): void {
-        // Encryption should be moved in here and a proper Message Contract should be defined here
-        console.log('MessageReceiver: publish', message.payloadType, message);
-        throw new Error('Method not implemented.');
+        console.log('MessageHubHandler: publish', message.payloadType, message);
+        if (this.subscribers.has(message.payloadType)) {
+            this.subscribers.get(message.payloadType)!.forEach((handler) => handler(message));
+        }
     }
 
     public async sendMessage(messages: ServerMessage[]): Promise<DeliveryStatus> {

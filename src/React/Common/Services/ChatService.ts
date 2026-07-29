@@ -12,20 +12,15 @@ import { Contact } from '../../Models/Contact.ts';
 import { User } from '../../Models/User.ts';
 import { sha256 } from '../../../Shared/HelperFunctions.ts';
 import { MessageViewModel } from '../../Models/MessageViewModel.ts';
-import { AddMessageCommand } from '../../../Electron/Application/Features/Chat/Commands/AddMessage/AddMessageCommand.ts';
 import { UpdateDeliveryStatusCommand } from '../../../Electron/Application/Features/Chat/Commands/UpdateDeliveryStatus/UpdateDeliveryStatusCommand.ts';
-import { SessionManager } from '../../Security/Encryption/SessionManager.ts';
 import { MessageDto } from '../../../Electron/Application/Features/Chat/Dtos/MessageDto.ts';
 import { DeliveryStatus } from '../../../Electron/Domain/Enums/DeliveryStatus.ts';
-import { MessagePayload, ServerMessage } from '../../SignalR/Messaging/ServerMessage.ts';
 import { GetMessagesQuery } from '../../../Electron/Application/Features/Chat/Queries/GetMessages/GetMessagesQuery.ts';
 import { Media } from '../../Models/Media.ts';
-import { MediaService } from './MediaService.ts';
 import { SendMessageCommand } from '../../../Electron/Application/Features/Chat/Contracts/SendMessage.ts';
 import { MessageContract } from '../../../Electron/Application/Contracts/Models/MessageContract.ts';
 
 export class ChatService {
-    private readonly mediaService = new MediaService();
 
     public async sendMessage(
         user: User,
@@ -110,35 +105,6 @@ export class ChatService {
         return new ChatViewModel(result.data!.id, [chatMember]);
     }
 
-    public async startChat(user: User, contacts: Contact[], msg: ServerMessage): Promise<ChatViewModel | null> {
-        const sessionManager = new SessionManager(msg.senderId);
-        const decryptedMessage = await sessionManager.decrypt<MessagePayload>(msg.payload);
-        console.log('server message', msg);
-
-        return decryptedMessage.participants.length > 2
-            ? this.startGroupChat(user, contacts, msg, decryptedMessage)
-            : this.startDirectChat(
-                user,
-                contacts.find((c) => c.id !== user.userTag),
-                msg,
-                decryptedMessage,
-            );
-    }
-
-    public async addMessage(user: User, msg: ServerMessage, chatId: string): Promise<MessageViewModel> {
-        const sessionManager = new SessionManager(msg.senderId);
-        const decryptedMessage = await sessionManager.decrypt<MessagePayload>(msg.payload);
-        const media = await this.mediaService.getMedia(decryptedMessage.media);
-        const mappedMsg = MessageViewModel.mapFromDecrypted(
-            msg,
-            decryptedMessage,
-            this.getInitialDeliveryStatus(user, msg.senderId),
-            media,
-        );
-        await this.persistMessage(mappedMsg, chatId);
-        return mappedMsg;
-    }
-
     public async getChats(contacts: Contact[]): Promise<ChatViewModel[]> {
         const chatsResult = await window.electron.sendRequestAsync<Result<ChatDto[]>>(new GetChatsQuery(30, 20));
 
@@ -183,74 +149,6 @@ export class ChatService {
         const [sh, lo] = [a, b].sort();
         const input = `cypherly:dm:${sh}:${lo}`;
         return await sha256(input);
-    }
-
-    private async startGroupChat(
-        _user: User,
-        _contacts: Contact[],
-        _msg: ServerMessage,
-        _content: MessagePayload,
-    ): Promise<ChatViewModel> {
-        throw new Error('Not implemented');
-    }
-
-    private async startDirectChat(
-        user: User,
-        contact: Contact | undefined,
-        msg: ServerMessage,
-        content: MessagePayload,
-    ): Promise<ChatViewModel | null> {
-        if (!contact) {
-            console.warn(`Contact with ID ${msg.senderId} not found.`);
-            return null;
-        }
-
-        const member = new ChatMemberViewModel(uuid().toString(), ChatPrivileges.Member, contact.displayName, contact);
-
-        const mappedMsg = MessageViewModel.mapFromDecrypted(
-            msg,
-            content,
-            this.getInitialDeliveryStatus(user, msg.senderId),
-        );
-        const chat = new ChatViewModel(msg.ChatId, [member], [mappedMsg]);
-
-        await window.electron.sendRequestAsync(
-            new CreateChatCommand(
-                chat.id,
-                contact.id,
-                member.id,
-                member.privilege,
-                new MessageDto(
-                    mappedMsg.id,
-                    mappedMsg.messageToken,
-                    mappedMsg.senderId,
-                    mappedMsg.text,
-                    mappedMsg.date,
-                    mappedMsg.media,
-                    mappedMsg.deliveryStatus,
-                ),
-            ),
-        );
-        return chat;
-    }
-
-    private getInitialDeliveryStatus(user: User, senderId: string): DeliveryStatus {
-        return user.IsUserConnectionId(senderId) ? DeliveryStatus.Sent : DeliveryStatus.Received;
-    }
-
-    private async persistMessage(msg: MessageViewModel, chatId: string): Promise<void> {
-        await window.electron.sendRequestAsync(
-            new AddMessageCommand(
-                chatId,
-                msg.id,
-                msg.senderId,
-                msg.date,
-                msg.deliveryStatus,
-                msg.messageToken,
-                msg.text,
-                msg.media,
-            ),
-        );
     }
 
     private generateParticipantList(userTag: string, friendIds: string[]): string[] {

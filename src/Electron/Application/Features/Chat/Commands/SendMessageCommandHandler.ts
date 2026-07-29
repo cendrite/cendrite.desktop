@@ -49,9 +49,9 @@ export class SendMessageCommandHandler implements Handler<SendMessageCommand, Me
         const messages: ServerMessage[] = [];
 
         for (const conId of cmd.connectionIds) {
-            this.sessionManager.setConnectionId(conId);
             const cipher = await this.sessionManager.encrypt(
                 new MessagePayload(message.content, m_pointers, cmd.participants, message.deliveryStatus),
+                conId
             );
 
             messages.push(

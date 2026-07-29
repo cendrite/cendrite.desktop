@@ -30,11 +30,13 @@ import { ChatStore } from './Infrastructure/Persistence/Repositories/ChatStore.j
 import { StartupCommandHandler } from './Application/Features/Authentication/Commands/StartupCommandHandler.js';
 import { SignNonceRequestHandler } from './Application/Features/Device/Commands/SignNonce/SignNonceRequestHandler.js';
 import { UserRepository } from './Infrastructure/Persistence/Repositories/UserRepository.js';
+import { FriendRepository } from './Infrastructure/Persistence/Repositories/FriendRepository.js';
 import { ChangeEventHubHandler } from './Infrastructure/Signal/ChangeEvent/ChangeEventHubHandler.js';
 import { MediaStore } from './Infrastructure/Persistence/Store/MediaStore.js';
 import { AddMessageCommandHandler } from './Application/Features/Chat/Commands/AddMessage/AddMessageCommandHandler.js';
 import { GetChatsQueryHandler } from './Application/Features/Chat/Queries/GetChats/GetChatsQueryhandler.js';
 import { GetMessagesQueryHandler } from './Application/Features/Chat/Queries/GetMessages/GetMessagesQueryHandler.js';
+import { MessageReceiver } from './Infrastructure/Signal/Messaging/MessageReceiver.js';
 
 export interface Cradle {
     mainWindow: Electron.BrowserWindow;
@@ -121,6 +123,7 @@ function addPersistence(container: AwilixContainer<Cradle>) {
         chatStore: asClass(ChatStore, { lifetime: Lifetime.SINGLETON }),
         userRepository: asClass(UserRepository, { lifetime: Lifetime.SINGLETON }),
         mediaStore: asClass(MediaStore, { lifetime: Lifetime.SINGLETON }),
+        friendRepository: asClass(FriendRepository, { lifetime: Lifetime.SINGLETON }),
     });
 }
 
@@ -129,6 +132,7 @@ function registerSignalR(container: AwilixContainer<Cradle>) {
         signalManager: asClass(SignalManager, { lifetime: Lifetime.SINGLETON }),
         messageHubHandler: asClass(MessageHubHandler, { lifetime: Lifetime.SINGLETON }),
         changeEventHubHandler: asClass(ChangeEventHubHandler, { lifetime: Lifetime.SINGLETON }),
+        messageReceiver: asClass(MessageReceiver, { lifetime: Lifetime.SINGLETON }),
     });
 }
 

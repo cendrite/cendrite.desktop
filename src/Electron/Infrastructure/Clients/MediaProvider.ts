@@ -13,7 +13,7 @@ export class MediaProvider implements IMediaProvider {
         return this.client.handle({
             url: 'upload',
             method: 'POST',
-            params: { id, senderId },
+            params: { mediaId: id, senderId },
             data: cipher,
             headers: {
                 'Content-Type': 'application/octet-stream',

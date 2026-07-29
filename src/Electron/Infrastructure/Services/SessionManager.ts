@@ -8,47 +8,37 @@ import { Payload } from '../Signal/Messaging/ServerMessage.js';
 export class SessionManager implements ISessionManager {
     private readonly keyService: KeyService;
     private readonly keyProvider: IKeyStoreProvider;
-    private connectionId: string | null = null;
 
     constructor(keyService: KeyService, keyStoreProvider: IKeyStoreProvider) {
         this.keyService = keyService;
         this.keyProvider = keyStoreProvider;
     }
 
-
-    private get address(): libsignal.SignalProtocolAddress {
-        if (this.connectionId === null) {
-            throw new Error('Connection ID is not set');
-        }
-
+    private address(connectionId: string): libsignal.SignalProtocolAddress {
         return new libsignal.SignalProtocolAddress(
-            this.connectionId,
-            SessionManager.generateAddressId(this.connectionId),
+            connectionId,
+            SessionManager.generateAddressId(connectionId),
         );
-    }
-
-    public setConnectionId(connectionId: string): void {
-        this.connectionId = connectionId;
     }
 
     /**
      * Ensures that a session exists for the given connectionId. If no session exists, it retrieves the pre-key bundle
      * from the KeyService and processes it to establish a new session.
      */
-    private async ensureSession(): Promise<void> {
+    private async ensureSession(connectionId: string): Promise<void> {
         const session = await this.keyService.loadSession(this.address.toString());
         if (session) {
             return;
         }
 
-        const preKeyBundleResult = await this.keyProvider.getPreKeyBundle(this.connectionId!);
+        const preKeyBundleResult = await this.keyProvider.getPreKeyBundle(connectionId);
         if (!preKeyBundleResult.success) {
             throw new Error('Failed to retrieve pre-key bundle: ' + preKeyBundleResult.errorMessage);
         }
 
         const preKeyBundle = preKeyBundleResult.data!;
 
-        const builder = new libsignal.SessionBuilder(this.keyService, this.address);
+        const builder = new libsignal.SessionBuilder(this.keyService, this.address(connectionId));
 
         const mappedBundle = mapBundleToDevice(preKeyBundle);
 
@@ -61,10 +51,10 @@ export class SessionManager implements ISessionManager {
      * @param payload The payload object to encrypt.
      * @returns A promise that resolves to the encrypted ciphertext string.
      */
-    public async encrypt(payload: Payload): Promise<string> {
-        await this.ensureSession();
+    public async encrypt(payload: Payload, connectionId: string): Promise<string> {
+        await this.ensureSession(connectionId);
 
-        const sessionCipher = new libsignal.SessionCipher(this.keyService, this.address);
+        const sessionCipher = new libsignal.SessionCipher(this.keyService, this.address(connectionId));
 
         const plainTextStr = JSON.stringify(payload);
 
@@ -83,10 +73,10 @@ export class SessionManager implements ISessionManager {
      * @param ciphertext The ciphertext string to decrypt.
      * @returns A promise that resolves to the decrypted payload object.
      */
-    public async decrypt<T extends Payload>(ciphertext: string): Promise<T> {
+    public async decrypt<T extends Payload>(ciphertext: string, connectionId: string): Promise<T> {
         const { type, body } = JSON.parse(ciphertext);
 
-        const cipher = new libsignal.SessionCipher(this.keyService, this.address);
+        const cipher = new libsignal.SessionCipher(this.keyService, this.address(connectionId));
 
         const bodyBuffer = body ? Uint8Array.from(atob(body), (c) => c.charCodeAt(0)).buffer : new ArrayBuffer(0);
 

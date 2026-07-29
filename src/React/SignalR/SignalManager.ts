@@ -2,14 +2,13 @@
 import { HubKey, HubPaths } from './SignalRHubPath.ts';
 import { IHubHandler } from './IHubHandler.ts';
 import { ChangeEventHubHandler } from './ChangeEvent/ChangeEventHubHandler.ts';
-import { MessageHubHandler } from './Messaging/MessageHubHandler.ts';
 import { GetTokenQuery } from '../../Electron/Application/Features/Tokens/Queries/GetTokenQuery.ts';
 import { Result } from '../../Shared/Result/Result.ts';
 
 export class SignalManager {
     private static _instance: SignalManager;
     private _connections: Map<HubKey, HubConnection> = new Map();
-    private readonly _handlers: IHubHandler[] = [new ChangeEventHubHandler(), new MessageHubHandler()];
+    private readonly _handlers: IHubHandler[] = [new ChangeEventHubHandler()] 
 
     private constructor() { }
 
