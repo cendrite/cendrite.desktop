@@ -2,10 +2,10 @@ import { useCallback } from 'react';
 import { PendingContact } from '../../Models/PendingContact';
 import { NotificationAction, NotificationActionType } from '../Notification/NotificationReducer';
 import { PendingContactAction, PendingContactActionType } from './PendingContactReducer';
-import { useSignalEvent } from '../../SignalR/Utility/Utilities';
 import { ChangeEvent } from '../../../Electron/Infrastructure/Signal/ChangeEvent/ChangeEvent';
 import { FriendRequestAcceptedEvent, FriendRequestEvent } from '../../../Electron/Infrastructure/Signal/ChangeEvent/EventData';
 import { ChangeEventType } from '../../../Electron/Infrastructure/Signal/ChangeEvent/ChangeEventType';
+import { useSignalEvent } from '../../Common/Utilities';
 
 export function usePendingContactEvents(
     pendingContactDispatch: React.Dispatch<PendingContactAction>,

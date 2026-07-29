@@ -5,12 +5,12 @@ import { User } from '../../Models/User';
 import { ContactAction, ContactActionType } from './ContactReducer';
 import { getById } from './ContactSelectors';
 import { DeleteFriendCommand } from '../../../Electron/Application/Features/Friends/Commands/Delete/DeleteFriendCommand';
-import { useSignalEvent } from '../../SignalR/Utility/Utilities';
 import { RemoveFriendConnectionIdCommand } from '../../../Electron/Application/Features/Friends/Commands/RemoveConnectionId/RemoveFriendConnectionIdCommand';
 import { AddFriendConnectionIdCommand } from '../../../Electron/Application/Features/Friends/Commands/AddConnectionId/AddFriendConnectionIdCommand';
 import { ChangeEvent } from '../../../Electron/Infrastructure/Signal/ChangeEvent/ChangeEvent';
 import { FriendDeletedEvent, FriendRequestAcceptedEvent, UserLoggedInEvent, UserLoggedOutEvent } from '../../../Electron/Infrastructure/Signal/ChangeEvent/EventData';
 import { ChangeEventType } from '../../../Electron/Infrastructure/Signal/ChangeEvent/ChangeEventType';
+import { useSignalEvent } from '../../Common/Utilities';
 
 export function useContactEvents(
     user: User | null,

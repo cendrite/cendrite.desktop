@@ -4,9 +4,9 @@ import { AddUserConnectionIdCommand } from '../../../Electron/Application/Featur
 import { RemoveUserConnectionIdCommand } from '../../../Electron/Application/Features/User/Commands/Update/RemoveConnectionId/RemoveUserConnectionIdCommand';
 import { UserAction, UserActionType } from './UserReducer';
 import { AvatarUpdatedEvent, UserLoggedInEvent } from '../../../Electron/Infrastructure/Signal/ChangeEvent/EventData';
-import { useSignalEvent } from '../../SignalR/Utility/Utilities';
 import { ChangeEvent } from '../../../Electron/Infrastructure/Signal/ChangeEvent/ChangeEvent';
 import { ChangeEventType } from '../../../Electron/Infrastructure/Signal/ChangeEvent/ChangeEventType';
+import { useSignalEvent } from '../../Common/Utilities';
 
 export function useUserEvents(user: User | null, dispatch: React.Dispatch<UserAction>) {
     const handleAvatarUpdate = useCallback(
