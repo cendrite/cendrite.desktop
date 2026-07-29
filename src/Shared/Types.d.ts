@@ -1,5 +1,5 @@
 import { MessageContract } from '../Electron/Application/Contracts/Models/MessageContract';
-import { ChangeEvent } from '../React/SignalR/ChangeEvent/ChangeEvent';
+import { ChangeEvent } from '../Electron/Infrastructure/Signal/ChangeEvent/ChangeEvent.ts';
 
 declare global {
     type ConnectionState = 'connected' | 'disconnected' | 'connecting';

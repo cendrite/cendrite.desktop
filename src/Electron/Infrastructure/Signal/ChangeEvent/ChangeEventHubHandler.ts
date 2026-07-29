@@ -30,7 +30,7 @@ export class ChangeEventHubHandler implements IHubHandler {
     }
 
     private publish(event: ChangeEvent): void {
-        this.mainWindow.webContents.send('hubMessage', event);
+        this.mainWindow.webContents.send('changeEvent', event);
     }
 
     public dispose(): void {

@@ -9,12 +9,12 @@ import { useUser } from '../User/UserContext';
 import { ChatService } from '../../Common/Services/ChatService';
 import React from 'react';
 import { useSignalEvent } from '../../SignalR/Utility/Utilities';
-import { ChangeEventType } from '../../SignalR/ChangeEvent/ChangeEventType';
-import { ChangeEvent } from '../../SignalR/ChangeEvent/ChangeEvent';
-import { FriendDeletedEvent } from '../../SignalR/ChangeEvent/EventData';
 import { HomePageAction, HomePageActionType } from '../HomePage/HomePageReducer';
 import { MessageContract } from '../../../Electron/Application/Contracts/Models/MessageContract';
 import { MessageViewModel } from '../../Models/MessageViewModel';
+import { ChangeEvent } from '../../../Electron/Infrastructure/Signal/ChangeEvent/ChangeEvent';
+import { FriendDeletedEvent } from '../../../Electron/Infrastructure/Signal/ChangeEvent/EventData';
+import { ChangeEventType } from '../../../Electron/Infrastructure/Signal/ChangeEvent/ChangeEventType';
 
 export function useChatEvents(
     chats: ChatViewModel[],
