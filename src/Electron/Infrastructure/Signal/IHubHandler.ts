@@ -1,5 +1,5 @@
 ﻿import {HubConnection} from "@microsoft/signalr";
-import { HubKey } from "./SignalRHubPath";
+import { HubKey } from "./SignalRHubPath.js";
 
 export interface IHubHandler {
     key: HubKey;

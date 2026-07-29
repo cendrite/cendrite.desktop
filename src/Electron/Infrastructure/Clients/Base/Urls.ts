@@ -23,12 +23,9 @@ export const API_URLS = {
     },
     KEYSTORE: {
         BASE: 'https://conduit.xhykl49jkg.org/api/keys',
-        GET_PRE_KEY_BUNDLE: 'https://conduit.xhykl49jkg.org/api/keys/session',
         UPLOAD_OTPS: 'https://conduit.xhykl49jkg.org/api/keys/otps',
     },
     MEDIA: {
         BASE: 'https://chatserver.xhykl49jkg.org/api/media',
-        UPLOAD: '/upload',
-        ACK: '/ack',
     },
 };

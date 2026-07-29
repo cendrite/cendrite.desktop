@@ -1,6 +1,5 @@
 import { DeviceType, KeyPairType } from '@privacyresearch/libsignal-protocol-typescript';
-import { PreKeyBundle } from '../../Common/Api/KeyStore/GetPreKeyBundleApi';
-import { KeyPairDto } from '../../../Electron/Application/Features/Encryption/Dtos/KeyPairDto';
+import { KeyPair, PreKeyBundle } from '../Models/KeyModels.js';
 
 export function mapBundleToDevice(keyBundle: PreKeyBundle): DeviceType<ArrayBuffer> {
     return {
@@ -20,11 +19,11 @@ export function mapBundleToDevice(keyBundle: PreKeyBundle): DeviceType<ArrayBuff
     };
 }
 
-export function mapFromSignalKeyPair(keyPair: KeyPairType<ArrayBuffer>): KeyPairDto {
-    return new KeyPairDto(Buffer.from(new Uint8Array(keyPair.pubKey)), Buffer.from(new Uint8Array(keyPair.privKey)));
+export function mapFromSignalKeyPair(keyPair: KeyPairType<ArrayBuffer>): KeyPair {
+    return new KeyPair(Buffer.from(new Uint8Array(keyPair.pubKey)), Buffer.from(new Uint8Array(keyPair.privKey)));
 }
 
-export function mapToSignalKeyPair(keyPair: KeyPairDto): KeyPairType<ArrayBuffer> {
+export function mapToSignalKeyPair(keyPair: KeyPair): KeyPairType<ArrayBuffer> {
     const pub = toArrayBuffer(keyPair.publicKey as any);
     const priv = toArrayBuffer(keyPair.privateKey as any);
 

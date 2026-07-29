@@ -18,6 +18,7 @@ export class KeyStoreClient implements IKeyStoreProvider {
 
     getPreKeyBundle(accessKey: string): Promise<Result<PreKeyBundle>> {
         return this.client.handleConduit<PreKeyBundle>({
+            url: 'session',
             method: 'GET',
             params: { accessKey },
         });

@@ -1,7 +1,8 @@
 import { getDbContext } from '../Context/DatabaseContext.js';
 import { Friend } from '../../../Domain/Aggregates/Friend.js';
+import { IFriendRepository } from '../../../Application/Contracts/Repositories/IFriendRepository.js';
 
-export class FriendRepository {
+export class FriendRepository implements IFriendRepository {
     private readonly friendRepository = getDbContext().getRepository(Friend);
 
     public async create(friend: Friend): Promise<void> {

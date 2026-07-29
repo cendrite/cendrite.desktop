@@ -1,8 +1,8 @@
 ﻿import { DeliveryStatus } from '../../Electron/Domain/Enums/DeliveryStatus.ts';
 import { v4 as uuid } from 'uuid';
-import { MessagePayload, ServerMessage } from '../SignalR/Messaging/ServerMessage.ts';
 import { MessageDto } from '../../Electron/Application/Features/Chat/Dtos/MessageDto.ts';
 import { Media } from './Media.ts';
+import { MessageContract } from '../../Electron/Application/Contracts/Models/MessageContract.ts';
 
 export class MessageViewModel {
     id: string;
@@ -53,20 +53,16 @@ export class MessageViewModel {
         );
     }
 
-    public static mapFromDecrypted(
-        msg: ServerMessage,
-        decryptedContent: MessagePayload,
-        initialDeliveryStatus: DeliveryStatus,
-        media: Media[] = [],
-    ): MessageViewModel {
+    public static mapFromContract(msg: MessageContract): MessageViewModel {
         return new MessageViewModel(
             msg.id,
-            msg.ChatId,
+            msg.chatId,
             msg.senderId,
-            decryptedContent.text,
-            new Date(msg.timestamp),
-            media,
-            initialDeliveryStatus,
+            msg.text,
+            msg.date,
+            msg.media.map((m) => new Media(m.id, m.type, m.content)),
+            msg.deliveryStatus,
+            msg.messageToken,
         );
     }
 

@@ -1,4 +1,4 @@
-﻿import {ChangeEventType} from "./ChangeEventType.ts";
+﻿import { ChangeEventType } from "./ChangeEventType.js";
 
 export type ChangeEventHandler = (event: ChangeEvent) => void;
 

@@ -21,7 +21,7 @@ export class PurgeLocalDataService {
         await deviceRepo.delete();
         await refreshTokenRepo.delete();
         await friendRepo.deleteAll();
-        await chatStore.clearStore();
+        await chatStore.clear();
         await protocolStore.deleteAll();
 
         console.log('Local data purged.');

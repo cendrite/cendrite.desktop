@@ -3,7 +3,6 @@ import './index.css';
 import App from './App.tsx';
 import { OnboardingProvider } from './Context/OnboardingContext.tsx';
 import { StrictMode } from 'react';
-import { SignalRProvider } from './SignalR/SignalRProvider.tsx';
 import { ChatProvider } from './Context/Chat/ChatProvider.tsx';
 import { NotificationProvider } from './Context/Notification/NotitficationProvider.tsx';
 import { HomePageProvider } from './Context/HomePage/HomePageProvider.tsx';
@@ -17,19 +16,17 @@ createRoot(document.getElementById('root')!).render(
         <OnboardingProvider>
             <UserProvider>
                 <AuthSessionProvider>
-                    <SignalRProvider>
-                        <NotificationProvider>
-                            <ContactProvider>
-                                <PendingContactProvider>
-                                    <HomePageProvider>
-                                        <ChatProvider>
-                                            <App />
-                                        </ChatProvider>
-                                    </HomePageProvider>
-                                </PendingContactProvider>
-                            </ContactProvider>
-                        </NotificationProvider>
-                    </SignalRProvider>
+                    <NotificationProvider>
+                        <ContactProvider>
+                            <PendingContactProvider>
+                                <HomePageProvider>
+                                    <ChatProvider>
+                                        <App />
+                                    </ChatProvider>
+                                </HomePageProvider>
+                            </PendingContactProvider>
+                        </ContactProvider>
+                    </NotificationProvider>
                 </AuthSessionProvider>
             </UserProvider>
         </OnboardingProvider>

@@ -1,38 +1,44 @@
-import { KeyService } from '../../Common/Services/KeyService';
-import { LocalKeyStore } from './LocalKeyStore';
+import { IKeyStoreProvider } from '../../Application/Contracts/Providers/IKeyStoreProvider.js';
+import { ISessionManager } from '../Interfaces/ISessionManager.js';
 import * as libsignal from '@privacyresearch/libsignal-protocol-typescript';
-import { convertToBuffer, generateAddressId } from './Utilities';
-import { mapBundleToDevice } from './KeyMapper';
-import { Payload } from '../../SignalR/Messaging/ServerMessage';
+import { KeyService } from './KeyStore.js';
+import { mapBundleToDevice } from '../Mappers/KeyMapper.js';
+import { Payload } from '../Signal/Messaging/ServerMessage.js';
 
-export class SessionManager {
-    private keyStore: libsignal.StorageType = new LocalKeyStore();
-    private keyService: KeyService = new KeyService();
+export class SessionManager implements ISessionManager {
+    private readonly keyService: KeyService;
+    private readonly keyProvider: IKeyStoreProvider;
 
-    constructor(private connectionId: string) { }
+    constructor(keyService: KeyService, keyStoreProvider: IKeyStoreProvider) {
+        this.keyService = keyService;
+        this.keyProvider = keyStoreProvider;
+    }
 
-    private get address(): libsignal.SignalProtocolAddress {
-        return new libsignal.SignalProtocolAddress(this.connectionId, generateAddressId(this.connectionId));
+    private address(connectionId: string): libsignal.SignalProtocolAddress {
+        return new libsignal.SignalProtocolAddress(
+            connectionId,
+            SessionManager.generateAddressId(connectionId),
+        );
     }
 
     /**
      * Ensures that a session exists for the given connectionId. If no session exists, it retrieves the pre-key bundle
      * from the KeyService and processes it to establish a new session.
      */
-    private async ensureSession(): Promise<void> {
-        const session = await this.keyStore.loadSession(this.address.toString());
+    private async ensureSession(connectionId: string): Promise<void> {
+        const session = await this.keyService.loadSession(this.address.toString());
         if (session) {
             return;
         }
 
-        const preKeyBundleResult = await this.keyService.GetKeyBundle(this.connectionId);
+        const preKeyBundleResult = await this.keyProvider.getPreKeyBundle(connectionId);
         if (!preKeyBundleResult.success) {
             throw new Error('Failed to retrieve pre-key bundle: ' + preKeyBundleResult.errorMessage);
         }
 
         const preKeyBundle = preKeyBundleResult.data!;
 
-        const builder = new libsignal.SessionBuilder(this.keyStore, this.address);
+        const builder = new libsignal.SessionBuilder(this.keyService, this.address(connectionId));
 
         const mappedBundle = mapBundleToDevice(preKeyBundle);
 
@@ -45,14 +51,14 @@ export class SessionManager {
      * @param payload The payload object to encrypt.
      * @returns A promise that resolves to the encrypted ciphertext string.
      */
-    public async encrypt(payload: Payload): Promise<string> {
-        await this.ensureSession();
+    public async encrypt(payload: Payload, connectionId: string): Promise<string> {
+        await this.ensureSession(connectionId);
 
-        const sessionCipher = new libsignal.SessionCipher(this.keyStore, this.address);
+        const sessionCipher = new libsignal.SessionCipher(this.keyService, this.address(connectionId));
 
         const plainTextStr = JSON.stringify(payload);
 
-        const messageBuffer = convertToBuffer(plainTextStr);
+        const messageBuffer = SessionManager.convertToBuffer(plainTextStr);
 
         const ciphertext = await sessionCipher.encrypt(messageBuffer);
 
@@ -67,10 +73,10 @@ export class SessionManager {
      * @param ciphertext The ciphertext string to decrypt.
      * @returns A promise that resolves to the decrypted payload object.
      */
-    public async decrypt<T extends Payload>(ciphertext: string): Promise<T> {
+    public async decrypt<T extends Payload>(ciphertext: string, connectionId: string): Promise<T> {
         const { type, body } = JSON.parse(ciphertext);
 
-        const cipher = new libsignal.SessionCipher(this.keyStore, this.address);
+        const cipher = new libsignal.SessionCipher(this.keyService, this.address(connectionId));
 
         const bodyBuffer = body ? Uint8Array.from(atob(body), (c) => c.charCodeAt(0)).buffer : new ArrayBuffer(0);
 
@@ -91,7 +97,7 @@ export class SessionManager {
      * This does NOT touch the ratchet — only the returned key/iv (carried inside the
      * ratchet-encrypted pointer) tie the blob back to the session.
      */
-    public static async encryptBlob(bytes: Uint8Array): Promise<{ cipher: Uint8Array; key: string; iv: string }> {
+    public async encryptBlob(bytes: Uint8Array): Promise<{ cipher: Uint8Array; key: string; iv: string }> {
         const rawKey = crypto.getRandomValues(new Uint8Array(32));
         const iv = crypto.getRandomValues(new Uint8Array(12));
 
@@ -108,7 +114,7 @@ export class SessionManager {
     /**
      * Decrypts an attachment blob using the key/iv recovered from the pointer.
      */
-    public static async decryptBlob(cipher: Uint8Array, key: string, iv: string): Promise<Uint8Array> {
+    public async decryptBlob(cipherBytes: Uint8Array, key: string, iv: string): Promise<Uint8Array> {
         const cryptoKey = await crypto.subtle.importKey('raw', SessionManager.fromBase64(key), 'AES-GCM', false, [
             'decrypt',
         ]);
@@ -116,7 +122,7 @@ export class SessionManager {
         const plaintext = await crypto.subtle.decrypt(
             { name: 'AES-GCM', iv: SessionManager.fromBase64(iv) },
             cryptoKey,
-            cipher,
+            cipherBytes,
         );
 
         return new Uint8Array(plaintext);
@@ -128,5 +134,18 @@ export class SessionManager {
 
     private static fromBase64(value: string): Uint8Array {
         return Uint8Array.from(atob(value), (c) => c.charCodeAt(0));
+    }
+
+    private static generateAddressId(connectionId: string): number {
+        let h = 0;
+        for (let i = 0; i < connectionId.length; i++) {
+            h = (h * 31 + connectionId.charCodeAt(i)) | 0;
+        }
+        return Math.abs(h);
+    }
+
+    private static convertToBuffer(str: string): ArrayBuffer {
+        const encoder = new TextEncoder();
+        return encoder.encode(str).buffer;
     }
 }

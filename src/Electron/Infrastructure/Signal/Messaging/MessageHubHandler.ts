@@ -1,10 +1,10 @@
 ﻿import { HubConnection } from '@microsoft/signalr';
-import { IHubHandler } from '../IHubHandler.ts';
-import { HubKey } from '../SignalRHubPath.ts';
-import { HubMethods } from '../HubMethods.ts';
-import { DeliveryStatus } from '../../../Electron/Domain/Enums/DeliveryStatus.ts';
-import { MessageHandler } from './Subscribers.ts';
-import { PayloadType, ServerMessage, ServerMessageDto } from './ServerMessage.ts';
+import { IHubHandler } from '../IHubHandler.js';
+import { HubKey } from '../SignalRHubPath.js';
+import { PayloadType, ServerMessage, ServerMessageDto } from './ServerMessage.js';
+import { HubMethods } from '../HubMethods.js';
+import { DeliveryStatus } from '../../../Domain/Enums/DeliveryStatus.js';
+import { MessageHandler } from './Subscribers.js';
 
 export class MessageHubHandler implements IHubHandler {
     public readonly key: HubKey = 'Messaging';
@@ -40,7 +40,7 @@ export class MessageHubHandler implements IHubHandler {
     }
 
     publish(message: ServerMessage): void {
-        console.log('MessageReceiver: publish', message.payloadType, message);
+        console.log('MessageHubHandler: publish', message.payloadType, message);
         if (this.subscribers.has(message.payloadType)) {
             this.subscribers.get(message.payloadType)!.forEach((handler) => handler(message));
         }

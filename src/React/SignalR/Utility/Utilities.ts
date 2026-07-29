@@ -1,12 +1,7 @@
-﻿import {HubConnection, HubConnectionState} from "@microsoft/signalr";
-import { ChangeEventType } from "../ChangeEvent/ChangeEventType";
-import {SignalManager} from "../SignalManager.ts";
-import {ChangeEvent, ChangeEventHandler} from "../ChangeEvent/ChangeEvent.ts";
-import {useEffect} from "react";
-import {ChangeEventHubHandler} from "../ChangeEvent/ChangeEventHubHandler.ts";
-import {MessageHubHandler} from "../Messaging/MessageHubHandler.ts";
-import { PayloadType } from "../Messaging/ServerMessage.ts";
-import { MessageHandler } from "../Messaging/Subscribers.ts";
+﻿import { HubConnection, HubConnectionState } from '@microsoft/signalr';
+import { useEffect, useRef } from 'react';
+import { ChangeEvent } from '../../../Electron/Infrastructure/Signal/ChangeEvent/ChangeEvent.ts';
+import { ChangeEventType } from '../../../Electron/Infrastructure/Signal/ChangeEvent/ChangeEventType.ts';
 
 export function waitForConnection(connection: HubConnection): Promise<void> {
     if (connection.state === HubConnectionState.Connected) {
@@ -16,15 +11,15 @@ export function waitForConnection(connection: HubConnection): Promise<void> {
     return new Promise((resolve, reject) => {
         const checkConnection = () => {
             if (connection.state === HubConnectionState.Connected) {
-                console.log("Connection established for: ", connection.baseUrl);
+                console.log('Connection established for: ', connection.baseUrl);
                 resolve();
             } else if (
                 connection.state === HubConnectionState.Disconnected ||
                 connection.state === HubConnectionState.Disconnecting
             ) {
-                reject(new Error("Connection failed"));
+                reject(new Error('Connection failed'));
             } else {
-                console.log("Waiting for connection...");
+                console.log('Waiting for connection...');
                 setTimeout(checkConnection, 1000);
             }
         };
@@ -32,34 +27,14 @@ export function waitForConnection(connection: HubConnection): Promise<void> {
     });
 }
 
-export function useSignalEvent<T>(
-    type: ChangeEventType,
-    handler: (event: ChangeEvent<T>) => void
-) {
-    const receiver = SignalManager
-        .getInstance()
-        .getHandler<ChangeEventHubHandler>("ChangeEvents");
+export function useSignalEvent<T>(type: ChangeEventType, handler: (event: ChangeEvent<T>) => void) {
+    const handlerRef = useRef(handler);
+    handlerRef.current = handler;
 
     useEffect(() => {
-        receiver.subscribe(type, handler as ChangeEventHandler);
-        return () => {
-            receiver.unsubscribe(type, handler as ChangeEventHandler);
-        };
-    }, [receiver, type, handler]);
+        return window.electron.on('changeEvent', (evt) => {
+            if (evt.type !== type) return;
+            handlerRef.current(evt as ChangeEvent<T>);
+        });
+    }, [type]);
 }
-
-export function useSignalMessage(
-    type: PayloadType,
-    handler: MessageHandler): void {
-    const receiver = SignalManager
-        .getInstance()
-        .getHandler<MessageHubHandler>("Messaging");
-
-    useEffect(() => {
-        receiver.subscribe(type, handler);
-        return () => {
-            receiver.unsubscribe(type, handler);
-        };
-    }, [receiver, type, handler]);
-}
-

@@ -1,7 +1,6 @@
 import * as crypto from 'crypto';
 import keytar from 'keytar';
 
-
 const ALGORITHM = 'aes-256-gcm';
 const KEY_LENGTH = 32;
 const APP_NAME = 'Cypherly.Desktop';

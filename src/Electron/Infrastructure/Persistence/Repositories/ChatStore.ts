@@ -4,8 +4,9 @@ import { getDbContext } from '../Context/DatabaseContext.js';
 import { ChatMember } from '../../../Domain/Entities/ChatMember.js';
 import { Message } from '../../../Domain/Entities/Message.js';
 import { DeliveryStatus } from '../../../Domain/Enums/DeliveryStatus.js';
+import { IChatStore } from '../../../Application/Contracts/Repositories/IChatStore.js';
 
-export class ChatStore {
+export class ChatStore implements IChatStore {
     private readonly chatRepository: Repository<Chat>;
     private readonly memberRepository: Repository<ChatMember>;
     private readonly messageRepository: Repository<Message>;
@@ -21,7 +22,7 @@ export class ChatStore {
         await this.messageRepository.save(message);
     }
 
-    public async getChatById(chatId: string): Promise<Chat | null> {
+    public async getChat(chatId: string): Promise<Chat | null> {
         return this.chatRepository.findOne({
             where: { id: chatId },
         });
@@ -31,7 +32,7 @@ export class ChatStore {
         await this.chatRepository.delete(chatId);
     }
 
-    public async getChats(chatLoadCount: number): Promise<Chat[]> {
+    public async getChats(limit: number): Promise<Chat[]> {
         return this.chatRepository
             .createQueryBuilder('chat')
             .leftJoinAndSelect('chat.members', 'members')
@@ -44,7 +45,7 @@ export class ChatStore {
             .addGroupBy('friend.id')
             .addGroupBy('connectionIds.id')
             .orderBy('latestMessage', 'DESC')
-            .limit(chatLoadCount)
+            .limit(limit)
             .getMany();
     }
 
@@ -85,7 +86,7 @@ export class ChatStore {
         return await this.chatRepository.save(chat);
     }
 
-    public async clearStore(): Promise<void> {
+    public async clear(): Promise<void> {
         await this.chatRepository.clear();
         await this.memberRepository.clear();
         await this.messageRepository.clear();

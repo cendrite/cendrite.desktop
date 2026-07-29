@@ -1,5 +1,4 @@
-﻿import { DeliveryStatus } from '../../../Electron/Domain/Enums/DeliveryStatus';
-import { MessageViewModel } from '../../Models/MessageViewModel';
+﻿import { DeliveryStatus } from "../../../Domain/Enums/DeliveryStatus.js";
 
 export type ServerMessageDto = {
     id: string;
@@ -43,19 +42,6 @@ export class ServerMessage {
             dto.payload,
             dto.timestamp,
             dto.messageToken,
-        );
-    }
-
-    public static create(message: MessageViewModel, recipientId: string, payload: string): ServerMessage {
-        return new ServerMessage(
-            message.id,
-            message.chatId,
-            message.senderId,
-            recipientId,
-            PayloadType.ChatMessage,
-            payload,
-            message.date,
-            message.messageToken,
         );
     }
 }

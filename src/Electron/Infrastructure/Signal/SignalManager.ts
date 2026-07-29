@@ -1,21 +1,26 @@
 ﻿import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
-import { HubKey, HubPaths } from './SignalRHubPath.ts';
-import { IHubHandler } from './IHubHandler.ts';
-import { ChangeEventHubHandler } from './ChangeEvent/ChangeEventHubHandler.ts';
-import { MessageHubHandler } from './Messaging/MessageHubHandler.ts';
-import { GetTokenQuery } from '../../Electron/Application/Features/Tokens/Queries/GetTokenQuery.ts';
-import { Result } from '../../Shared/Result/Result.ts';
+import { HubKey, HubPaths } from './SignalRHubPath.js';
+import { IHubHandler } from './IHubHandler.js';
+import { ChangeEventHubHandler } from './ChangeEvent/ChangeEventHubHandler.js';
+import { MessageHubHandler } from './Messaging/MessageHubHandler.js';
+import { TokenManager } from '../Services/TokenManager.js';
+import { BrowserWindow } from 'electron';
 
 export class SignalManager {
-    private static _instance: SignalManager;
+    private readonly tokenManager: TokenManager;
+    private readonly mainWindow: BrowserWindow;
     private _connections: Map<HubKey, HubConnection> = new Map();
-    private readonly _handlers: IHubHandler[] = [new ChangeEventHubHandler(), new MessageHubHandler()];
+    private readonly _handlers: IHubHandler[];
 
-    private constructor() { }
-
-    public static getInstance(): SignalManager {
-        if (!SignalManager._instance) SignalManager._instance = new SignalManager();
-        return SignalManager._instance;
+    public constructor(
+        tokenManager: TokenManager,
+        messageHubHandler: MessageHubHandler,
+        changeEventHubHandler: ChangeEventHubHandler,
+        mainWindow: BrowserWindow,
+    ) {
+        this.tokenManager = tokenManager;
+        this._handlers = [changeEventHubHandler, messageHubHandler];
+        this.mainWindow = mainWindow;
     }
 
     public async connect() {
@@ -23,13 +28,15 @@ export class SignalManager {
             const hubPath = HubPaths[key as HubKey];
             const connection = new HubConnectionBuilder()
                 .withUrl(hubPath, {
-                    accessTokenFactory: async () => {
-                        const token = await window.electron.sendRequestAsync<Result<string>>(new GetTokenQuery());
-                        return token.data ?? '';
-                    },
+                    accessTokenFactory: () => this.tokenManager.getJwt(),
                 })
                 .withAutomaticReconnect()
                 .build();
+
+            connection.onreconnected(() => this.mainWindow.webContents.send('connectionState', 'connecting'));
+            connection.onreconnected(() => this.mainWindow.webContents.send('connectionState', 'connected'));
+            connection.onclose(() => this.mainWindow.webContents.send('connectionState', 'disconnected'));
+
             try {
                 if (this._connections.has(key as HubKey)) {
                     console.log('Connection for: ', key, ' already exists');
@@ -57,6 +64,7 @@ export class SignalManager {
         this._connections.forEach((c) => c.stop());
         this._connections.clear();
         this._handlers.forEach((r) => r.dispose());
+        this.mainWindow.webContents.send('connectionState', 'disconnected');
     }
 
     public getConnection(hubPath: HubKey): HubConnection | undefined {

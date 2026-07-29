@@ -8,6 +8,7 @@ import { registerIpcHandlers as setupMediator } from './IpcMediator.js';
 import * as fs from 'node:fs';
 import { buildContainer } from './Container.js';
 import { initializeDatabase } from './Infrastructure/Persistence/Context/DatabaseContext.js';
+import { IMessageReceiver } from './Infrastructure/Signal/Messaging/MessageReceiver.js';
 
 if (process.env.ELECTRON_INSTANCE_ID) {
     console.log(`ELECTRON_INSTANCE_ID: ${process.env.ELECTRON_INSTANCE_ID}`);
@@ -46,6 +47,7 @@ app.on('ready', async () => {
 
     const container = buildContainer(mainWindow);
     setupMediator(mainWindow, container);
+    container.resolve<IMessageReceiver>('messageReceiver').start();
 
     mainWindow.on('close', (event) => {
         if (logoutManager.IsLoggingOut) {
@@ -56,3 +58,4 @@ app.on('ready', async () => {
         mainWindow.webContents.send('app-close');
     });
 });
+

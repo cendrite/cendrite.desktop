@@ -2,7 +2,7 @@ import { Result } from '../../../../../../Shared/Result/Result.js';
 import { Chat } from '../../../../../Domain/Aggregates/Chat.js';
 import { Message } from '../../../../../Domain/Entities/Message.js';
 import { ChatStore } from '../../../../../Infrastructure/Persistence/Repositories/ChatStore.js';
-import { MediaStore } from '../../../../../Infrastructure/Persistence/Store/MediaStore.js';
+import { IMediaStore } from '../../../../Contracts/Repositories/IMediaStore.js';
 import { Handler } from '../../../../Mediator/Handler.js';
 import { ChatDto } from '../../Dtos/ChatDto.js';
 import { ChatMemberDto } from '../../Dtos/ChatMemberDto.js';
@@ -11,14 +11,17 @@ import { MessageDto } from '../../Dtos/MessageDto.js';
 import { GetChatsQuery } from './GetChatsQuery.js';
 
 export class GetChatsQueryHandler implements Handler<GetChatsQuery, ChatDto[]> {
+    constructor(
+        private readonly chatStore: ChatStore,
+        private readonly mediaStore: IMediaStore,
+    ) { }
     public async handle(request: GetChatsQuery): Promise<Result<ChatDto[]>> {
-        const chatStore = new ChatStore();
 
-        const chats = await chatStore.getChats(request.chatCount);
+        const chats = await this.chatStore.getChats(request.chatCount);
 
         await Promise.all(
             chats.map(async (chat) => {
-                const messages = await chatStore.getMessages(chat.id, 0, request.msgCountPerChat);
+                const messages = await this.chatStore.getMessages(chat.id, 0, request.msgCountPerChat);
                 chat.messages = messages.slice().reverse();
             }),
         );
@@ -56,11 +59,10 @@ export class GetChatsQueryHandler implements Handler<GetChatsQuery, ChatDto[]> {
     }
 
     private async toMessageDto(message: Message): Promise<MessageDto> {
-        const mediaStore = MediaStore.getInstance();
 
         const mediaDtos: MediaDto[] = [];
         for (const m of message.messageMedia ?? []) {
-            const mediaContent = await mediaStore.get(m.id);
+            const mediaContent = await this.mediaStore.get(m.id);
             mediaDtos.push(MediaDto.fromMessageMedia(m, mediaContent));
         }
 
