@@ -22,7 +22,7 @@ import { GetMessagesQuery } from '../../../Electron/Application/Features/Chat/Qu
 import { Media } from '../../Models/Media.ts';
 import { MediaService } from './MediaService.ts';
 import { SendMessageCommand } from '../../../Electron/Application/Features/Chat/Contracts/SendMessage.ts';
-import { Message } from '../../../Electron/Application/Contracts/Models/Message.ts';
+import { MessageContract } from '../../../Electron/Application/Contracts/Models/MessageContract.ts';
 
 export class ChatService {
     private readonly mediaService = new MediaService();
@@ -37,7 +37,7 @@ export class ChatService {
     ): Promise<MessageViewModel | null> {
         if (!text && !media) return null;
 
-        const messageResult = await window.electron.sendRequestAsync<Result<Message>>(
+        const messageResult = await window.electron.sendRequestAsync<Result<MessageContract>>(
             new SendMessageCommand(
                 chatId,
                 uuid().toString(),

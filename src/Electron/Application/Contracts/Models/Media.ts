@@ -8,9 +8,4 @@ export class Media {
         this.type = type;
         this.content = content;
     }
-
-    public getBlob():  Blob {
-        const blob = new Blob([this.content], { type: this.type });
-        return blob;
-    }
 }

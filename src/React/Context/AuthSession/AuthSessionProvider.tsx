@@ -3,13 +3,9 @@ import { AuthSessionActionType, authSessionReducer, initialAuthSessionState } fr
 import { AuthSessionContext } from './AuthSessionContext';
 import { useUser } from '../User/UserContext';
 import { Result } from '../../../Shared/Result/Result';
-import { GetDeviceDto } from '../../../Electron/Application/Features/Device/Queries/GetDevice/GetDeviceDto';
-import { GetDeviceQuery } from '../../../Electron/Application/Features/Device/Queries/GetDevice/GetDeviceQuery';
-import { GetUserDto } from '../../../Electron/Application/Features/User/Queries/GetUserDto';
-import { GetUserQuery } from '../../../Electron/Application/Features/User/Queries/GetUserQuery';
 import { UserActionType } from '../User/UserReducer';
-import { InitializeTokenManagerCommand } from '../../../Electron/Application/Features/Tokens/Commands/Initialize/InitializeTokenMangerCommand';
 import { User } from '../../Models/User';
+import { StartupDto, StartupCommand } from '../../../Electron/Application/Features/Authentication/Contracts/Startup';
 import {v4 as uuid } from 'uuid';
 
 export const AuthSessionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -19,30 +15,30 @@ export const AuthSessionProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
     const initializeApp = useCallback(async (): Promise<boolean> => {
         try {
-            const deviceResult = await window.electron.sendRequestAsync<Result<GetDeviceDto>>(new GetDeviceQuery());
-            if (!deviceResult.success) {
-                console.log('Error getting device', deviceResult.errorMessage);
+            const startUpResult = await window.electron.sendRequestAsync<Result<StartupDto>>(new StartupCommand());
+            if (!startUpResult.success) {
+                console.error('Error during startup', startUpResult.errorMessage);
                 return false;
             }
 
-            const userResult = await window.electron.sendRequestAsync<Result<GetUserDto>>(new GetUserQuery());
-            if (!userResult.success) {
+            if (!startUpResult.data!.user) {
+                console.log('No user found during startup');
                 return false;
             }
 
-            await window.electron.sendRequestAsync(new InitializeTokenManagerCommand(userResult.data!.id, deviceResult.data!.id));
-
+            const user = startUpResult.data!.user;
+         
             userDispatch({
                 type: UserActionType.Initialize,
                 payload: new User(
-                    userResult.data!.id,
-                    userResult.data!.username,
-                    userResult.data!.userTag,
-                    deviceResult.data!.id,
-                    deviceResult.data!.connectionId,
-                    userResult.data!.externalConnectionIds,
-                    userResult.data!.avatarKey,
-                    userResult.data!.displayName,
+                    user.id,
+                    user.username,
+                    user.tag,
+                    user.deviceId,
+                    user.connectionId,
+                    user.externalConnectionIds,
+                    user.avatarKey,
+                    user.displayName,
                 ),
             });
 

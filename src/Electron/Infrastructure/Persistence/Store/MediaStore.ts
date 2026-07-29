@@ -2,20 +2,13 @@ import { app } from 'electron';
 import path from 'path';
 import { writeFile, readFile, unlink } from 'fs/promises';
 import { mkdirSync } from 'fs';
+import { IMediaStore } from '../../../Application/Contracts/Repositories/IMediaStore.js';
 
-export class MediaStore {
+export class MediaStore implements IMediaStore {
     private path = path.join(app.getPath('userData'), 'media');
-    private static instance: MediaStore;
 
-    private constructor() {
+    public constructor() {
         mkdirSync(this.path, { recursive: true });
-    }
-
-    public static getInstance(): MediaStore {
-        if (!MediaStore.instance) {
-            MediaStore.instance = new MediaStore();
-        }
-        return MediaStore.instance;
     }
 
     async store(id: string, content: Uint8Array): Promise<void> {

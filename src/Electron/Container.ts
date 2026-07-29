@@ -27,6 +27,14 @@ import { SendMessageCommandHandler } from './Application/Features/Chat/Commands/
 import { MediaProvider } from './Infrastructure/Clients/MediaProvider.js';
 import { MediaService } from './Application/Services/Media/MediaService.js';
 import { ChatStore } from './Infrastructure/Persistence/Repositories/ChatStore.js';
+import { StartupCommandHandler } from './Application/Features/Authentication/Commands/StartupCommandHandler.js';
+import { SignNonceRequestHandler } from './Application/Features/Device/Commands/SignNonce/SignNonceRequestHandler.js';
+import { UserRepository } from './Infrastructure/Persistence/Repositories/UserRepository.js';
+import { ChangeEventHubHandler } from './Infrastructure/Signal/ChangeEvent/ChangeEventHubHandler.js';
+import { MediaStore } from './Infrastructure/Persistence/Store/MediaStore.js';
+import { AddMessageCommandHandler } from './Application/Features/Chat/Commands/AddMessage/AddMessageCommandHandler.js';
+import { GetChatsQueryHandler } from './Application/Features/Chat/Queries/GetChats/GetChatsQueryhandler.js';
+import { GetMessagesQueryHandler } from './Application/Features/Chat/Queries/GetMessages/GetMessagesQueryHandler.js';
 
 export interface Cradle {
     mainWindow: Electron.BrowserWindow;
@@ -73,6 +81,13 @@ function addHandlers(container: AwilixContainer<Cradle>) {
         getTokenQueryHandler: asClass(GetTokenQueryHandler, { lifetime: Lifetime.SINGLETON }),
         verifyLoginCommandHandler: asClass(VerifyLoginCommandHandler, { lifetime: Lifetime.SINGLETON }),
         sendMessageCommandHandler: asClass(SendMessageCommandHandler, { lifetime: Lifetime.SINGLETON }),
+        startupCommandHandler: asClass(StartupCommandHandler, { lifetime: Lifetime.SINGLETON }),
+        signNonceRequestHandler: asClass(SignNonceRequestHandler, { lifetime: Lifetime.SINGLETON }),
+
+        // chat handlers
+        addMessageCommandHandler: asClass(AddMessageCommandHandler, { lifetime: Lifetime.SINGLETON }),
+        getChatsQueryHandler: asClass(GetChatsQueryHandler, { lifetime: Lifetime.SINGLETON }),
+        getMessagesQueryHandler: asClass(GetMessagesQueryHandler, { lifetime: Lifetime.SINGLETON }),
     });
 }
 
@@ -104,6 +119,8 @@ function addPersistence(container: AwilixContainer<Cradle>) {
         deviceRepository: asClass(DeviceRepository, { lifetime: Lifetime.SINGLETON }),
         protocolStore: asClass(ProtocolStore, { lifetime: Lifetime.SINGLETON }),
         chatStore: asClass(ChatStore, { lifetime: Lifetime.SINGLETON }),
+        userRepository: asClass(UserRepository, { lifetime: Lifetime.SINGLETON }),
+        mediaStore: asClass(MediaStore, { lifetime: Lifetime.SINGLETON }),
     });
 }
 
@@ -111,7 +128,7 @@ function registerSignalR(container: AwilixContainer<Cradle>) {
     container.register({
         signalManager: asClass(SignalManager, { lifetime: Lifetime.SINGLETON }),
         messageHubHandler: asClass(MessageHubHandler, { lifetime: Lifetime.SINGLETON }),
-        changeEventHubHandler: asClass(MessageHubHandler, { lifetime: Lifetime.SINGLETON }),
+        changeEventHubHandler: asClass(ChangeEventHubHandler, { lifetime: Lifetime.SINGLETON }),
     });
 }
 

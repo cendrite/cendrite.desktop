@@ -3,7 +3,6 @@ import { Mediator } from './Application/Mediator/Mediator.js';
 import { CreateDeviceCommandHandler } from './Application/Features/Device/Commands/CreateDevice/CreateDeviceHandler.js';
 import { GetDeviceQueryHandler } from './Application/Features/Device/Queries/GetDevice/GetDeviceQueryHandler.js';
 import { GenerateKeysRequestHandler } from './Application/Features/Device/Commands/GenerateKeys/GenerateKeysRequestHandler.js';
-import { SignNonceRequestHandler } from './Application/Features/Device/Commands/SignNonce/SignNonceRequestHandler.js';
 import { CreateRefreshTokenRequestHandler } from './Application/Features/RefreshToken/Commands/Create/CreateRefreshTokenRequestHandler.js';
 import { GetUserQueryHandler } from './Application/Features/User/Queries/GetUserQueryHandler.js';
 import { GetMediaQueryHandler } from './Application/Features/Files/Queries/GetMedia/GetMediaQueryHandler.js';
@@ -43,17 +42,11 @@ import { CreateIdentityCommandHandler } from './Application/Features/Encryption/
 import { GetSessionQueryHandler } from './Application/Features/Encryption/Queries/GetSession/GetSessionQueryHandler.js';
 import { GetSignedPreKeyQueryHandler } from './Application/Features/Encryption/Queries/GetSignedPreKey/GetSignedPreKeyQueryHandler.js';
 import { GetPreKeyQueryHandler } from './Application/Features/Encryption/Queries/GetPreKey/GetPreKeyQueryHandler.js';
-import { GetChatsQuery } from './Application/Features/Chat/Queries/GetChats/GetChatsQuery.js';
-import { GetChatsQueryHandler } from './Application/Features/Chat/Queries/GetChats/GetChatsQueryhandler.js';
 import { CreateChatCommand } from './Application/Features/Chat/Commands/Create/CreateChatCommand.js';
-import { AddMessageCommand } from './Application/Features/Chat/Commands/AddMessage/AddMessageCommand.js';
-import { AddMessageCommandHandler } from './Application/Features/Chat/Commands/AddMessage/AddMessageCommandHandler.js';
 import { UpdateDeliveryStatusCommand } from './Application/Features/Chat/Commands/UpdateDeliveryStatus/UpdateDeliveryStatusCommand.js';
 import { UpdateDeliveryStatusCommandHandler } from './Application/Features/Chat/Commands/UpdateDeliveryStatus/UpdateDeliveryStatusCommandHandler.js';
 import { DeleteChatCommand } from './Application/Features/Chat/Commands/Delete/DeleteChatCommand.js';
 import { DeleteChatCommandHandler } from './Application/Features/Chat/Commands/Delete/DeleteChatCommandHandler.js';
-import { GetMessagesQuery } from './Application/Features/Chat/Queries/GetMessages/GetMessagesQuery.js';
-import { GetMessagesQueryHandler } from './Application/Features/Chat/Queries/GetMessages/GetMessagesQueryHandler.js';
 import { UpdateAvatarCommand } from './Application/Features/User/Commands/Update/Avatar/UpdateAvatarCommand.js';
 import { UpdateAvatarCommandHandler } from './Application/Features/User/Commands/Update/Avatar/UpdateAvatarCommandHandler.js';
 import { AwilixContainer } from 'awilix';
@@ -65,7 +58,6 @@ export function registerIpcHandlers(mainWindow: BrowserWindow, container: Awilix
     mediator.registerHandler('CreateDeviceRequest', new CreateDeviceCommandHandler());
     mediator.registerHandler('GenerateKeysRequest', new GenerateKeysRequestHandler());
     mediator.registerHandler('GetDeviceQuery', new GetDeviceQueryHandler());
-    mediator.registerHandler('SignNonceRequest', new SignNonceRequestHandler());
 
     mediator.registerHandler('CreateRefreshTokenRequest', new CreateRefreshTokenRequestHandler());
     mediator.registerHandler('GetRefreshTokenQuery', new GetRefreshTokenQueryHandler());
@@ -99,11 +91,8 @@ export function registerIpcHandlers(mainWindow: BrowserWindow, container: Awilix
     mediator.registerHandler(GetIdentityCacheQuery.name, new GetIdentityCacheQueryHandler());
 
     mediator.registerHandler(CreateChatCommand.name, new CreateChatCommandHandler());
-    mediator.registerHandler(GetChatsQuery.name, new GetChatsQueryHandler());
-    mediator.registerHandler(AddMessageCommand.name, new AddMessageCommandHandler());
     mediator.registerHandler(UpdateDeliveryStatusCommand.name, new UpdateDeliveryStatusCommandHandler());
     mediator.registerHandler(DeleteChatCommand.name, new DeleteChatCommandHandler());
-    mediator.registerHandler(GetMessagesQuery.name, new GetMessagesQueryHandler());
 
     ipcMain.handle('mediator:send', async (_event, request) => {
         return await mediator.send(request);

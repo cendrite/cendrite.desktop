@@ -1,7 +1,7 @@
 import { DeliveryStatus } from "../../../Domain/Enums/DeliveryStatus.js";
 import { Media } from "./Media.js";
 
-export class Message {
+export class MessageContract {
     id: string;
     chatId: string;
     messageToken: string | null = null;

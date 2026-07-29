@@ -3,7 +3,7 @@ import { v4 as uuid } from 'uuid';
 import { MessagePayload, ServerMessage } from '../SignalR/Messaging/ServerMessage.ts';
 import { MessageDto } from '../../Electron/Application/Features/Chat/Dtos/MessageDto.ts';
 import { Media } from './Media.ts';
-import { Message } from '../../Electron/Application/Contracts/Models/Message.ts';
+import { MessageContract } from '../../Electron/Application/Contracts/Models/MessageContract.ts';
 
 export class MessageViewModel {
     id: string;
@@ -71,14 +71,14 @@ export class MessageViewModel {
         );
     }
 
-    public static mapFromContract(msg: Message): MessageViewModel {
+    public static mapFromContract(msg: MessageContract): MessageViewModel {
         return new MessageViewModel(
             msg.id,
             msg.chatId,
             msg.senderId,
             msg.text,
             msg.date,
-            msg.media,
+            msg.media.map((m) => new Media(m.id, m.type, m.content)),
             msg.deliveryStatus,
             msg.messageToken,
         );

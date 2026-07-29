@@ -19,6 +19,10 @@ export class DeviceRepository implements IDeviceRepository {
 
     public async get(): Promise<Device | null> {
         const device = await this.repository.find({ take: 1 });
+        if (device.length === 0) {
+            return null;
+        }
+
         device[0].privateKey = await this.cryptoService.decrypt(device[0].privateKey);
 
         return device[0];
