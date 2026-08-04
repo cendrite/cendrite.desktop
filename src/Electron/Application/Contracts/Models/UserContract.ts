@@ -1,4 +1,4 @@
-export class User {
+export class UserContract {
     id: string;
     username: string;
     tag: string;

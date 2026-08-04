@@ -21,6 +21,7 @@ import { DeviceClient } from './Clients/DeviceClient.js';
 import { TokenClient } from './Clients/TokenClient.js';
 import { AuthenticationClient } from './Clients/AuthenticationClient.js';
 import { MediaProvider } from './Clients/MediaProvider.js';
+import { UserClient } from './Clients/UserClient.js';
 
 const services = {
     tokenManager: asClass(TokenManager, { lifetime: Lifetime.SINGLETON }),
@@ -52,6 +53,7 @@ const providers = {
     deviceProvider: asClass(DeviceClient, { lifetime: Lifetime.SINGLETON }),
     keyStoreProvider: asClass(KeyStoreClient, { lifetime: Lifetime.SINGLETON }),
     mediaProvider: asClass(MediaProvider, { lifetime: Lifetime.SINGLETON }),
+    userProvider: asClass(UserClient, { lifetime: Lifetime.SINGLETON }),
 };
 
 const httpClients = {
@@ -59,15 +61,20 @@ const httpClients = {
     tokenApiClient: asFunction(() => new ApiClient(API_URLS.IDENTITY.AUTH, null)).singleton(),
     loginApiClient: asFunction(() => new ApiClient(API_URLS.IDENTITY.AUTH, null)).singleton(),
     verifyLoginApiClient: asFunction(() => new ApiClient(API_URLS.IDENTITY.AUTH, null)).singleton(),
+
     logoutApiClient: asFunction(
         (tokenManager: TokenManager) => new ApiClient(API_URLS.IDENTITY.AUTH, tokenManager),
     ).singleton(),
+
     keyStoreApiClient: asFunction(
         (tokenManager: TokenManager) => new ApiClient(API_URLS.KEYSTORE.BASE, tokenManager),
     ).singleton(),
+
     mediaApiClient: asFunction(
         (tokenManager: TokenManager) => new ApiClient(API_URLS.MEDIA.BASE, tokenManager),
     ).singleton(),
+
+    userApiClient: asFunction((tokenManager: TokenManager) => new ApiClient(API_URLS.USER, tokenManager)).singleton(),
 };
 
 export const infrastructureResolvers = {

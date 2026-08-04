@@ -10,6 +10,7 @@ interface AvatarProps {
 
 const Avatar: React.FC<AvatarProps> = ({ className, AvatarKey, Username }) => {
     const src = AvatarKey ? `${API_URLS.USER_MANAGEMENT.GET_AVATAR}?fileKey=${AvatarKey}` : null;
+    console.log(src);
 
     return src ? (
         <img src={src} alt="Profile Picture" className={clsx('rounded-full', className)} />

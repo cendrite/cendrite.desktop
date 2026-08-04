@@ -93,9 +93,6 @@ export class MessageReceiver implements IMessageReceiver {
         }
 
         const user = await this.userRepository.get(true);
-        if (!user) {
-            throw new Error(`No local user, cannot create chat ${chatId}`);
-        }
 
         const friendTag = payload.participants.find((tag) => tag !== user.userTag);
         if (!friendTag) {

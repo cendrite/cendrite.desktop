@@ -1,4 +1,5 @@
 export const API_URLS = {
+    USER: 'https://conduit.xhykl49jkg.org/api/profile',
     USER_MANAGEMENT: {
         GET_PROFILE: 'https://conduit.xhykl49jkg.org/api/profile',
         GET_BY_TAG: 'https://conduit.xhykl49jkg.org/api/profile/tag',

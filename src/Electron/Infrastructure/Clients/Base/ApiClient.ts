@@ -101,6 +101,7 @@ export class ApiClient {
         } catch (error) {
             if (error instanceof AxiosError && error.response) {
                 const data = error.response.data as ProblemDetails;
+                console.error('Api call failed:', error.response.status, JSON.stringify(data));
                 return Result.fail<T>(ErrorMessage.fromProblemDetails(data));
             }
             console.error('Unexpected error during api call:', error);

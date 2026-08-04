@@ -9,7 +9,6 @@ import { GetMediaQueryHandler } from './Application/Features/Files/Queries/GetMe
 import { CreateFriendCommandHandler } from './Application/Features/Friends/Commands/Create/CreateFriendCommandHandler.js';
 import { GetFriendsQueryHandler } from './Application/Features/Friends/Queries/GetFriends/GetFriendsQueryHandler.js';
 import { GetRefreshTokenQueryHandler } from './Application/Features/RefreshToken/Queries/GetRefreshTokenQueryHandler.js';
-import { CreateUserCommandHandler } from './Application/Features/User/Commands/Create/CreateUserCommandHandler.js';
 import { DeleteFriendCommandHandler } from './Application/Features/Friends/Commands/Delete/DeleteFriendCommandHandler.js';
 import { CreateChatCommandHandler } from './Application/Features/Chat/Commands/Create/CreateChatCommandHandler.js';
 import { UpdateFriendCommandHandler } from './Application/Features/Friends/Commands/Update/UpdateFriendCommandHandler.js';
@@ -47,8 +46,6 @@ import { UpdateDeliveryStatusCommand } from './Application/Features/Chat/Command
 import { UpdateDeliveryStatusCommandHandler } from './Application/Features/Chat/Commands/UpdateDeliveryStatus/UpdateDeliveryStatusCommandHandler.js';
 import { DeleteChatCommand } from './Application/Features/Chat/Commands/Delete/DeleteChatCommand.js';
 import { DeleteChatCommandHandler } from './Application/Features/Chat/Commands/Delete/DeleteChatCommandHandler.js';
-import { UpdateAvatarCommand } from './Application/Features/User/Commands/Update/Avatar/UpdateAvatarCommand.js';
-import { UpdateAvatarCommandHandler } from './Application/Features/User/Commands/Update/Avatar/UpdateAvatarCommandHandler.js';
 import { AwilixContainer } from 'awilix';
 import { Cradle } from './Container.js';
 
@@ -63,8 +60,6 @@ export function registerIpcHandlers(mainWindow: BrowserWindow, container: Awilix
     mediator.registerHandler('GetRefreshTokenQuery', new GetRefreshTokenQueryHandler());
 
     mediator.registerHandler('GetUserQuery', new GetUserQueryHandler());
-    mediator.registerHandler('CreateUserCommand', new CreateUserCommandHandler());
-    mediator.registerHandler(UpdateAvatarCommand.name, new UpdateAvatarCommandHandler());
     mediator.registerHandler(AddUserConnectionIdCommand.name, new AddUserConnectionIdCommandHandler());
     mediator.registerHandler(RemoveUserConnectionIdCommand.name, new RemoveUserConnectionIdCommandHandler());
 
