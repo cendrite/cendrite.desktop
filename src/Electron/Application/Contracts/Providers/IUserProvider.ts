@@ -1,6 +1,6 @@
 import { Result } from '../../../../Shared/Result/Result.js';
 
-export interface GetUserProfileRequest {
+export interface GetUserProfileResponse {
     id: string;
     username: string;
     userTag: string;
@@ -9,7 +9,7 @@ export interface GetUserProfileRequest {
     connectionIds: string[];
 }
 
-export interface GetUserProfileResponse {
+export interface GetUserProfileRequest {
     exclusiveConnectionId: string;
 }
 

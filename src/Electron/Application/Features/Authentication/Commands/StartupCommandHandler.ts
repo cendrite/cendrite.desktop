@@ -1,7 +1,7 @@
 import { Result } from '../../../../../Shared/Result/Result.js';
 import { TokenManager } from '../../../../Infrastructure/Services/TokenManager.js';
 import { SignalManager } from '../../../../Infrastructure/Signal/SignalManager.js';
-import { User } from '../../../Contracts/Models/User.js';
+import { UserContract } from '../../../Contracts/Models/UserContract.js';
 import { IDeviceRepository } from '../../../Contracts/Repositories/IDeviceRepository.js';
 import { IUserRepository } from '../../../Contracts/Repositories/IUserRepository.js';
 import { Handler } from '../../../Mediator/Handler.js';
@@ -28,7 +28,7 @@ export class StartupCommandHandler implements Handler<StartupCommand, StartupDto
             throw new Error('THIS IS A CRITICAL STATE. DEVICE EXISTS BUT USER DOES NOT. THIS SHOULD NEVER HAPPEN.');
         }
 
-        const returnUsr = new User(
+        const returnUsr = new UserContract(
             user.id,
             user.username,
             user.userTag,

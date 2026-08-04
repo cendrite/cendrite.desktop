@@ -4,7 +4,6 @@ import { Form, Formik, FormikHelpers } from 'formik';
 import { VerifyLoginValidationSchema } from './Validation/VerifyLoginValidationSchema';
 import { CodeType } from '../../Common/Api/Identity/User/ResendVerificationCodeApi.ts';
 import { useOnboarding } from '../../Context/OnboardingContext.tsx';
-import { UserProfileService } from '../../Common/Services/UserProfileService.ts';
 import ErrorTooltip from '../../Common/Components/Utility/ErrorToolTip.tsx';
 import FormButton from '../../Common/Components/Form/FormButton.tsx';
 import ResendCodeButton from '../../Common/Components/Form/ResendCodeButton.tsx';
@@ -12,14 +11,14 @@ import { useUser } from '../../Context/User/UserContext.tsx';
 import { UserActionType } from '../../Context/User/UserReducer.ts';
 import { User } from '../../Models/User.ts';
 import { Result } from '../../../Shared/Result/Result.ts';
-import {
-    VerifyLoginCommand,
-    VerifyLoginResponse,
-} from '../../../Electron/Application/Features/Authentication/Contracts/VerifyLogin.ts';
+import { VerifyLoginCommand } from '../../../Electron/Application/Features/Authentication/Contracts/VerifyLogin.ts';
+import { UserContract } from '../../../Electron/Application/Contracts/Models/UserContract.ts';
+
+const createLocalUserProfile = (userId: string, code: string): Promise<Result<UserContract>> =>
+    window.electron.sendRequestAsync<Result<UserContract>>(new VerifyLoginCommand(userId, code));
 
 const VerifyLoginPage: React.FC = () => {
     const navigate = useNavigate();
-    const userProfileService = new UserProfileService();
     const { userDispatch } = useUser();
     const onboardingContext = useOnboarding();
 
@@ -27,30 +26,28 @@ const VerifyLoginPage: React.FC = () => {
         values: { verificationCode: string },
         { setFieldError }: FormikHelpers<{ verificationCode: string }>,
     ) => {
-        const verifyLoginResult = await window.electron.sendRequestAsync<Result<VerifyLoginResponse>>(
-            new VerifyLoginCommand(onboardingContext.onboardingData.UserId!, values.verificationCode),
+        const result = await createLocalUserProfile(
+            onboardingContext.onboardingData.UserId!,
+            values.verificationCode,
         );
-        if (!verifyLoginResult.success) {
-            console.error(verifyLoginResult.errorMessage);
-            setFieldError('verificationCode', verifyLoginResult.errorMessage!.message);
+
+        if (!result.success) {
+            console.error(result.errorMessage);
+            setFieldError('verificationCode', result.errorMessage!.message);
             return;
         }
-
-        const userProfileResult = await userProfileService.HandleUserProfile(verifyLoginResult.data!.connectionId);
-
-        console.log('User profile result:', userProfileResult);
 
         userDispatch({
             type: UserActionType.Initialize,
             payload: new User(
-                userProfileResult!.id,
-                userProfileResult!.username,
-                userProfileResult!.userTag,
-                verifyLoginResult.data!.deviceId,
-                verifyLoginResult.data!.connectionId,
-                userProfileResult!.connectionIds,
-                userProfileResult!.avatarKey,
-                userProfileResult!.displayName,
+                result.data!.id,
+                result.data!.username,
+                result.data!.tag,
+                result.data!.deviceId,
+                result.data!.connectionId,
+                result.data!.externalConnectionIds,
+                result.data!.avatarKey,
+                result.data!.displayName,
             ),
         });
 

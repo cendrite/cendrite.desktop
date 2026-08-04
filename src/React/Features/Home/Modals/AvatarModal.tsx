@@ -4,23 +4,33 @@ import { PencilIcon, PhotoIcon } from '@heroicons/react/24/outline';
 import { MediaType } from '../../../../Electron/Application/Features/Files/Queries/GetMedia/GetMediaQuery.ts';
 import { useUser } from '../../../Context/User/UserContext.tsx';
 import { UserActionType } from '../../../Context/User/UserReducer.ts';
-import { AvatarService } from '../../../Common/Services/AvatarService.ts';
 import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
 import { Media } from '../../../Models/Media.ts';
 import { MediaService } from '../../../Common/Services/MediaService.ts';
 import { MediaItem } from '../Chat/MediaBox.tsx';
+import { Result } from '../../../../Shared/Result/Result.ts';
+import { UpdateAvatarCommand } from '../../../../Electron/Application/Features/User/Contracts/UpdateAvatar.ts';
 
 interface AvatarModelProps {
     isOpen: boolean;
     onClose: (shouldReopenParent: boolean) => void;
 }
 
+const updateAvatar = (avatar: Media): Promise<Result<string>> =>
+    window.electron.sendRequestAsync<Result<string>>(
+        new UpdateAvatarCommand(avatar.content, avatar.type, 'profilePicture.png'),
+    );
+
+const stockAvatarToMedia = async (imageUrl: string): Promise<Media> => {
+    const response = await fetch(imageUrl);
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    return new Media(imageUrl, 'image/png', bytes);
+};
+
 const AvatarModal: React.FC<AvatarModelProps> = ({ isOpen, onClose }) => {
     const { user, userDispatch } = useUser();
-    const [selectedAvatar, setSelectedProfilePicture] = useState<Media | string | null>(null);
-    const [isStock, setIsStock] = useState<boolean>(false);
+    const [selectedAvatar, setSelectedAvatar] = useState<Media | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
-    const avatarService = new AvatarService();
     const mediaService = new MediaService();
 
     const avatarModules = import.meta.glob('../../../Assets/StockProfilePictures/*.png', { eager: true });
@@ -29,7 +39,7 @@ const AvatarModal: React.FC<AvatarModelProps> = ({ isOpen, onClose }) => {
     const saveProfilePicture = async () => {
         try {
             setLoading(true);
-            const result = await avatarService.updateAvatar(selectedAvatar!, isStock);
+            const result = await updateAvatar(selectedAvatar!);
             if (result.success) {
                 userDispatch({ type: UserActionType.UpdateAvatar, payload: { AvatarKey: result.data } });
                 onClose(true);
@@ -45,8 +55,15 @@ const AvatarModal: React.FC<AvatarModelProps> = ({ isOpen, onClose }) => {
 
     const uploadProfilePicture = async () => {
         const media = await mediaService.getLocalMedia(MediaType.Image);
-        setSelectedProfilePicture(media![0]);
-        setIsStock(false);
+        setSelectedAvatar(media![0]);
+    };
+
+    const selectStockAvatar = async (imageUrl: string) => {
+        try {
+            setSelectedAvatar(await stockAvatarToMedia(imageUrl));
+        } catch (e) {
+            console.error(e);
+        }
     };
 
     return (
@@ -72,15 +89,7 @@ const AvatarModal: React.FC<AvatarModelProps> = ({ isOpen, onClose }) => {
                 <div className="flex flex-col items-center mt-8 mb-4">
                     {/* Show Selected Profile Picture */}
                     {selectedAvatar ? (
-                        selectedAvatar instanceof Media ? (
-                            <MediaItem media={selectedAvatar} className="w-20 h-20 rounded-full object-cover" />
-                        ) : (
-                            <img
-                                src={selectedAvatar}
-                                alt="avatar"
-                                className="w-20 h-20 rounded-full object-cover"
-                            />
-                        )
+                        <MediaItem media={selectedAvatar} className="w-20 h-20 rounded-full object-cover" />
                     ) : (
                         <Avatar
                             className="w-20 h-20"
@@ -113,10 +122,7 @@ const AvatarModal: React.FC<AvatarModelProps> = ({ isOpen, onClose }) => {
                         <button
                             key={index}
                             className="w-16 h-16 rounded-full border-2 border-transparent hover:border-blue-500"
-                            onClick={() => {
-                                setSelectedProfilePicture(avatar);
-                                setIsStock(true);
-                            }}
+                            onClick={() => selectStockAvatar(avatar)}
                             disabled={loading}
                         >
                             <img
@@ -133,8 +139,7 @@ const AvatarModal: React.FC<AvatarModelProps> = ({ isOpen, onClose }) => {
                     <button
                         onClick={() => {
                             onClose(true);
-                            setSelectedProfilePicture(null);
-                            setIsStock(false);
+                            setSelectedAvatar(null);
                         }}
                         className="text-[0.8rem] font-semibold bg-darkGray-200 rounded-full px-3.5 py-0.5 text-white hover:bg-darkGray-300"
                     >

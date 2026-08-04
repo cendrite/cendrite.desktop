@@ -1,8 +1,8 @@
 export class UpdateAvatarCommand implements MediatorRequest {
+    public readonly type = 'UpdateAvatarCommand';
     public readonly bytes: Uint8Array;
     public readonly mimeType: string;
     public readonly fileName: string;
-    public readonly type = 'UpdateAvatarCommand';
 
     constructor(bytes: Uint8Array, mimeType: string, fileName: string) {
         this.bytes = bytes;

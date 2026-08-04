@@ -7,11 +7,16 @@ import { DeviceRepository } from '../../../../Infrastructure/Persistence/Reposit
 import { IAuthenticationProvider } from '../../../Contracts/Providers/IAuthenticationProvider.js';
 import { IDeviceProvider } from '../../../Contracts/Providers/IDeviceProvider.js';
 import { Handler } from '../../../Mediator/Handler.js';
-import { VerifyLoginCommand, VerifyLoginResponse } from '../Contracts/VerifyLogin.js';
+import { VerifyLoginCommand } from '../Contracts/VerifyLogin.js';
 import { IKeyGenerator } from '../../../Services/Cryptography/KeyService.js';
 import { SignalManager } from '../../../../Infrastructure/Signal/SignalManager.js';
+import { IUserRepository } from '../../../Contracts/Repositories/IUserRepository.js';
+import { IUserProvider } from '../../../Contracts/Providers/IUserProvider.js';
+import { UserContract } from '../../../Contracts/Models/UserContract.js';
+import { User } from '../../../../Domain/Aggregates/User.js';
+import { UserConnectionId } from '../../../../Domain/Entities/UserConnectionId.js';
 
-export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, VerifyLoginResponse> {
+export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, UserContract> {
     constructor(
         private readonly authenticationProvider: IAuthenticationProvider,
         private readonly deviceProvider: IDeviceProvider,
@@ -20,61 +25,88 @@ export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, Ve
         private readonly tokenManager: TokenManager,
         private readonly keyGenerator: IKeyGenerator,
         private readonly signalManager: SignalManager,
+        private readonly userRepository: IUserRepository,
+        private readonly userProvider: IUserProvider,
     ) { }
 
-    public async handle(cmd: VerifyLoginCommand): Promise<Result<VerifyLoginResponse>> {
-        try {
-            const verifyLoginResult = await this.authenticationProvider.verifyLogin({
-                userId: cmd.userId,
-                loginVerificationCode: cmd.loginVerificationCode,
-            });
+    public async handle(cmd: VerifyLoginCommand): Promise<Result<UserContract>> {
+        const verifyLoginResult = await this.authenticationProvider.verifyLogin({
+            userId: cmd.userId,
+            loginVerificationCode: cmd.loginVerificationCode,
+        });
 
-            if (!verifyLoginResult.success) {
-                console.log('Login verification failed:', verifyLoginResult.errorMessage);
-                return Result.fail<VerifyLoginResponse>(
-                    new ErrorMessage(null, verifyLoginResult.errorMessage?.message || 'Failed to verify login'),
-                );
-            }
-
-            const devPk = this.nonceSigner.generateDeviceKeys();
-
-            const deviceRegistrationResult = await this.deviceProvider.createDevice({
-                userId: cmd.userId,
-                loginNonceId: verifyLoginResult.data!.nonceId,
-                loginNonce: verifyLoginResult.data!.nonce,
-                deviceAppVersion: '1.0', // Replace with actual app version
-                deviceType: 1, // Replace with actual device type
-                devicePlatform: 1, // Replace with actual platform
-                base64DevicePublicKey: devPk.publicKey,
-            });
-
-            if (!deviceRegistrationResult.success) {
-                console.log('Device registration failed:', deviceRegistrationResult.errorMessage);
-                return Result.fail<VerifyLoginResponse>(new ErrorMessage(null, 'Failed to register device'));
-            }
-
-            const device = new Device(
-                deviceRegistrationResult.data!.deviceId,
-                deviceRegistrationResult.data!.deviceConnectionId,
-                devPk.privateKey,
-                devPk.publicKey,
+        if (!verifyLoginResult.success) {
+            console.log('Login verification failed:', verifyLoginResult.errorMessage);
+            return Result.fail<UserContract>(
+                new ErrorMessage(null, verifyLoginResult.errorMessage?.message || 'Failed to verify login'),
             );
-
-            await this.deviceRepository.create(device);
-
-            await this.tokenManager.init(cmd.userId, device.id);
-
-            await this.keyGenerator.generateKeyBundle(device.connectionId);
-
-            await this.signalManager.connect();
-
-            return Result.success<VerifyLoginResponse>({
-                deviceId: device.id,
-                connectionId: device.connectionId,
-            });
-        } catch (error) {
-            console.error('Error verifying login:', error);
-            return Result.fail<VerifyLoginResponse>(new ErrorMessage(null, 'Error verifying login'));
         }
+
+        const devPk = this.nonceSigner.generateDeviceKeys();
+
+        const deviceRegistrationResult = await this.deviceProvider.createDevice({
+            userId: cmd.userId,
+            loginNonceId: verifyLoginResult.data!.nonceId,
+            loginNonce: verifyLoginResult.data!.nonce,
+            deviceAppVersion: '1.0', // Replace with actual app version
+            deviceType: 1, // Replace with actual device type
+            devicePlatform: 1, // Replace with actual platform
+            base64DevicePublicKey: devPk.publicKey,
+        });
+
+        if (!deviceRegistrationResult.success) {
+            console.log('Device registration failed:', deviceRegistrationResult.errorMessage);
+            return Result.fail<UserContract>(new ErrorMessage(null, 'Failed to register device'));
+        }
+
+        const device = new Device(
+            deviceRegistrationResult.data!.deviceId,
+            deviceRegistrationResult.data!.deviceConnectionId,
+            devPk.privateKey,
+            devPk.publicKey,
+        );
+
+        await this.deviceRepository.create(device);
+
+        await this.tokenManager.init(cmd.userId, device.id);
+
+        await this.keyGenerator.generateKeyBundle(device.connectionId);
+
+        await this.signalManager.connect();
+
+        const userProfileResponse = await this.userProvider.getUserProfile({
+            exclusiveConnectionId: device.connectionId,
+        });
+
+        if (!userProfileResponse) {
+            return Result.fail<UserContract>(new ErrorMessage(null, 'Failed to retrieve user profile from provider'));
+        }
+
+        const user = new User(
+            userProfileResponse.data!.id,
+            userProfileResponse.data!.username,
+            userProfileResponse.data!.userTag,
+            userProfileResponse.data!.avatarKey,
+            userProfileResponse.data!.displayName,
+        );
+
+        user.connectionIds = userProfileResponse.data!.connectionIds.map(
+            (connectionId) => new UserConnectionId(connectionId, user),
+        );
+
+        const savedUser = await this.userRepository.create(user);
+
+        const userContract = new UserContract(
+            savedUser.id,
+            savedUser.username,
+            savedUser.userTag,
+            device.id,
+            device.connectionId,
+            savedUser.connectionIds.map((conn) => conn.connectionId),
+            savedUser.avatarKey,
+            savedUser.displayName,
+        );
+
+        return Result.success<UserContract>(userContract);
     }
 }
