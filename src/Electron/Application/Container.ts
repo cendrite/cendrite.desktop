@@ -14,6 +14,7 @@ import { SendMessageCommandHandler } from './Features/Chat/Commands/SendMessageC
 import { AddMessageCommandHandler } from './Features/Chat/Commands/AddMessage/AddMessageCommandHandler.js';
 import { GetChatsQueryHandler } from './Features/Chat/Queries/GetChats/GetChatsQueryhandler.js';
 import { GetMessagesQueryHandler } from './Features/Chat/Queries/GetMessages/GetMessagesQueryHandler.js';
+import { UpdateAvatarCommandHandler } from './Features/User/Commands/UpdateAvatarCommandHandler.js';
 
 const services = {
     logoutManager: asValue(LogoutManager.getInstance()),
@@ -44,8 +45,13 @@ const chatHandlers = {
     getMessagesQueryHandler: asClass(GetMessagesQueryHandler, { lifetime: Lifetime.SINGLETON }),
 };
 
+const userHandlers = {
+    updateAvatarCommandHandler: asClass(UpdateAvatarCommandHandler, { lifetime: Lifetime.SINGLETON }),
+};
+
 export const applicationResolvers = {
     ...services,
+    ...userHandlers,
     ...tokenHandlers,
     ...authenticationHandlers,
     ...chatHandlers,

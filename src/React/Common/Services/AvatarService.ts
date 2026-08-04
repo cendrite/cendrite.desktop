@@ -1,41 +1,27 @@
 import { Result } from '../../../Shared/Result/Result';
-import { UpdateAvatarCommand } from '../../../Electron/Application/Features/User/Commands/Update/Avatar/UpdateAvatarCommand.ts';
-import { UpdateAvatarApi } from '../Api/UserProfile/UpdateAvatarApi.ts';
+import { UpdateAvatarCommand } from '../../../Electron/Application/Features/User/Contracts/UpdateAvatarCommand.ts';
 import { Media } from '../../Models/Media.ts';
 
 export class AvatarService {
-    private readonly updateAvatarApi = new UpdateAvatarApi();
-
     public async updateAvatar(avatar: Media | string, isStock: boolean): Promise<Result<string>> {
-        const file = isStock
-            ? await this.imagePathToBlob(avatar as string)
-            : this.mediaToFile(avatar as Media);
+        const { bytes, mimeType } = isStock
+            ? await this.imagePathToBytes(avatar as string)
+            : { bytes: (avatar as Media).content, mimeType: (avatar as Media).type };
 
-        const remoteUpdateResult = await this.updateAvatarApi.handle({ Avatar: file });
-
-        console.log('Remote update result:', remoteUpdateResult);
-        if (!remoteUpdateResult.success) {
-            return Result.fail<string>(remoteUpdateResult.errorMessage!);
-        }
-
-        const localUpdateResult = await window.electron.sendRequestAsync<Result>(
-            new UpdateAvatarCommand(remoteUpdateResult.data!.fileKey),
+        const localUpdateResult = await window.electron.sendRequestAsync<Result<string>>(
+            new UpdateAvatarCommand(bytes, mimeType, 'profilePicture.png'),
         );
 
         if (!localUpdateResult.success) {
             return Result.fail<string>(localUpdateResult.errorMessage!);
         }
 
-        return Result.success(remoteUpdateResult.data!.fileKey);
+        return Result.success(localUpdateResult.data!);
     }
 
-    private mediaToFile(media: Media): File {
-        return new File([media.content], 'profilePicture.png', { type: media.type });
-    }
-
-    private async imagePathToBlob(imageUrl: string): Promise<File> {
+    private async imagePathToBytes(imageUrl: string): Promise<{ bytes: Uint8Array; mimeType: string }> {
         const response = await fetch(imageUrl);
-        const blob = await response.blob();
-        return new File([blob], 'profilePicture.png', { type: 'image/png' });
+        const buffer = await response.arrayBuffer();
+        return { bytes: new Uint8Array(buffer), mimeType: 'image/png' };
     }
 }

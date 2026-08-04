@@ -47,8 +47,6 @@ import { UpdateDeliveryStatusCommand } from './Application/Features/Chat/Command
 import { UpdateDeliveryStatusCommandHandler } from './Application/Features/Chat/Commands/UpdateDeliveryStatus/UpdateDeliveryStatusCommandHandler.js';
 import { DeleteChatCommand } from './Application/Features/Chat/Commands/Delete/DeleteChatCommand.js';
 import { DeleteChatCommandHandler } from './Application/Features/Chat/Commands/Delete/DeleteChatCommandHandler.js';
-import { UpdateAvatarCommand } from './Application/Features/User/Commands/Update/Avatar/UpdateAvatarCommand.js';
-import { UpdateAvatarCommandHandler } from './Application/Features/User/Commands/Update/Avatar/UpdateAvatarCommandHandler.js';
 import { AwilixContainer } from 'awilix';
 import { Cradle } from './Container.js';
 
@@ -64,7 +62,6 @@ export function registerIpcHandlers(mainWindow: BrowserWindow, container: Awilix
 
     mediator.registerHandler('GetUserQuery', new GetUserQueryHandler());
     mediator.registerHandler('CreateUserCommand', new CreateUserCommandHandler());
-    mediator.registerHandler(UpdateAvatarCommand.name, new UpdateAvatarCommandHandler());
     mediator.registerHandler(AddUserConnectionIdCommand.name, new AddUserConnectionIdCommandHandler());
     mediator.registerHandler(RemoveUserConnectionIdCommand.name, new RemoveUserConnectionIdCommandHandler());
 
