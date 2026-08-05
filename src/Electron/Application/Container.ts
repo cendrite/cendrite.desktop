@@ -3,9 +3,6 @@ import { LogoutManager } from './Services/LogoutManager/LogoutManager.js';
 import { KeyGenerator } from './Services/Cryptography/KeyService.js';
 import { MediaService } from './Services/Media/MediaService.js';
 import { PurgeLocalDataService } from './Services/Data/PurgeLocalDataService.js';
-import { InitializeTokenManagerCommandHandler } from './Features/Tokens/Commands/Initialize/InitializeTokenCommandHandler.js';
-import { RefreshTokenCommandHandler } from './Features/Tokens/Commands/Refresh/RefreshTokenCommandHandler.js';
-import { GetTokenQueryHandler } from './Features/Tokens/Queries/GetTokenQueryHandler.js';
 import { LoginCommandHandler } from './Features/Authentication/Commands/LoginCommandHandler.js';
 import { LogoutCommandHandler } from './Features/Authentication/Commands/LogoutCommandHandler.js';
 import { VerifyLoginCommandHandler } from './Features/Authentication/Commands/VerifyLoginCommandHandler.js';
@@ -32,14 +29,6 @@ const services = {
     keyGenerator: asClass(KeyGenerator, { lifetime: Lifetime.SINGLETON }),
     mediaService: asClass(MediaService, { lifetime: Lifetime.SINGLETON }),
     purgeLocalDataService: asClass(PurgeLocalDataService, { lifetime: Lifetime.SINGLETON }),
-};
-
-const tokenHandlers = {
-    initializeTokenManagerCommandHandler: asClass(InitializeTokenManagerCommandHandler, {
-        lifetime: Lifetime.TRANSIENT,
-    }),
-    refreshTokenCommandHandler: asClass(RefreshTokenCommandHandler, { lifetime: Lifetime.SINGLETON }),
-    getTokenQueryHandler: asClass(GetTokenQueryHandler, { lifetime: Lifetime.SINGLETON }),
 };
 
 const authenticationHandlers = {
@@ -80,7 +69,6 @@ export const applicationResolvers = {
     ...services,
     ...userHandlers,
     ...friendHandlers,
-    ...tokenHandlers,
     ...authenticationHandlers,
     ...chatHandlers,
 };

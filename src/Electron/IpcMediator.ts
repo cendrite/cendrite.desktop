@@ -5,9 +5,7 @@ import { GetDeviceQueryHandler } from './Application/Features/Device/Queries/Get
 import { GenerateKeysRequestHandler } from './Application/Features/Device/Commands/GenerateKeys/GenerateKeysRequestHandler.js';
 import { CreateRefreshTokenRequestHandler } from './Application/Features/RefreshToken/Commands/Create/CreateRefreshTokenRequestHandler.js';
 import { GetUserQueryHandler } from './Application/Features/User/Queries/GetUserQueryHandler.js';
-import { GetMediaQueryHandler } from './Application/Features/Files/Queries/GetMedia/GetMediaQueryHandler.js';
 import { CreateFriendCommandHandler } from './Application/Features/Friends/Commands/Create/CreateFriendCommandHandler.js';
-import { GetFriendsQueryHandler } from './Application/Features/Friends/Queries/GetFriends/GetFriendsQueryHandler.js';
 import { GetRefreshTokenQueryHandler } from './Application/Features/RefreshToken/Queries/GetRefreshTokenQueryHandler.js';
 import { CreateChatCommandHandler } from './Application/Features/Chat/Commands/Create/CreateChatCommandHandler.js';
 import { UpdateFriendCommandHandler } from './Application/Features/Friends/Commands/Update/UpdateFriendCommandHandler.js';
@@ -62,10 +60,8 @@ export function registerIpcHandlers(mainWindow: BrowserWindow, container: Awilix
     mediator.registerHandler(AddUserConnectionIdCommand.name, new AddUserConnectionIdCommandHandler());
     mediator.registerHandler(RemoveUserConnectionIdCommand.name, new RemoveUserConnectionIdCommandHandler());
 
-    mediator.registerHandler('GetMediaQuery', new GetMediaQueryHandler(mainWindow));
 
     mediator.registerHandler('CreateFriendCommand', new CreateFriendCommandHandler());
-    mediator.registerHandler('GetFriendsQuery', new GetFriendsQueryHandler());
     mediator.registerHandler('UpdateFriendCommand', new UpdateFriendCommandHandler());
     mediator.registerHandler('RemoveConnectionIdCommand', new RemoveFriendConnectionIdCommandHandler());
     mediator.registerHandler('AddConnectionIdCommand', new AddFriendConnectionIdCommandHandler());
