@@ -9,6 +9,9 @@ import { LoginCommandHandler } from './Features/Authentication/Commands/LoginCom
 import { LogoutCommandHandler } from './Features/Authentication/Commands/LogoutCommandHandler.js';
 import { VerifyLoginCommandHandler } from './Features/Authentication/Commands/VerifyLoginCommandHandler.js';
 import { StartupCommandHandler } from './Features/Authentication/Commands/StartupCommandHandler.js';
+import { RegisterCommandHandler } from './Features/Authentication/Commands/RegisterCommandHandler.js';
+import { VerifyUserCommandHandler } from './Features/Authentication/Commands/VerifyUserCommandHandler.js';
+import { ResendVerificationCodeCommandHandler } from './Features/Authentication/Commands/ResendVerificationCodeCommandHandler.js';
 import { SignNonceRequestHandler } from './Features/Device/Commands/SignNonce/SignNonceRequestHandler.js';
 import { SendMessageCommandHandler } from './Features/Chat/Commands/SendMessageCommandHandler.js';
 import { AddMessageCommandHandler } from './Features/Chat/Commands/AddMessage/AddMessageCommandHandler.js';
@@ -42,6 +45,11 @@ const authenticationHandlers = {
     logoutCommandHandler: asClass(LogoutCommandHandler, { lifetime: Lifetime.SINGLETON }),
     verifyLoginCommandHandler: asClass(VerifyLoginCommandHandler, { lifetime: Lifetime.SINGLETON }),
     startupCommandHandler: asClass(StartupCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    registerCommandHandler: asClass(RegisterCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    verifyUserCommandHandler: asClass(VerifyUserCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    resendVerificationCodeCommandHandler: asClass(ResendVerificationCodeCommandHandler, {
+        lifetime: Lifetime.SINGLETON,
+    }),
     signNonceRequestHandler: asClass(SignNonceRequestHandler, { lifetime: Lifetime.SINGLETON }),
 };
 

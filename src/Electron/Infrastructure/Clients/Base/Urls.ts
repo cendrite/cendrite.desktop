@@ -16,6 +16,7 @@ export const API_URLS = {
         AUTH: 'https://conduit.xhykl49jkg.org/api/identity',
         DEVICE: 'https://identity.xhykl49jkg.org/api/User/device',
         USER: {
+            BASE: 'https://identity.xhykl49jkg.org/api/User',
             REGISTER: 'https://identity.xhykl49jkg.org/api/User',
             VERIFY_USER: 'https://identity.xhykl49jkg.org/api/User/verify',
             RESEND_VERIFICATION: 'https://identity.xhykl49jkg.org/api/User/resend-verification',

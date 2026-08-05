@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import React from 'react';
 import { Form, Formik, FormikHelpers } from 'formik';
 import { VerifyLoginValidationSchema } from './Validation/VerifyLoginValidationSchema';
-import { CodeType } from '../../Common/Api/Identity/User/ResendVerificationCodeApi.ts';
+import { CodeType } from '../../../Electron/Application/Contracts/Enums/CodeType.ts';
 import { useOnboarding } from '../../Context/OnboardingContext.tsx';
 import ErrorTooltip from '../../Common/Components/Utility/ErrorToolTip.tsx';
 import FormButton from '../../Common/Components/Form/FormButton.tsx';
