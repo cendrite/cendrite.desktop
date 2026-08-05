@@ -1,14 +1,26 @@
-import React, {useCallback, useEffect, useMemo} from "react";
-import { FriendSyncService } from '../../Common/Services/FriendSyncService';
+import React, {useCallback, useEffect} from "react";
 import { ContactActionType, contactReducer } from "./ContactReducer";
 import { ContactContext } from "./ContactContext";
 import { useUser } from "../User/UserContext";
 import { useContactEvents } from "./ContactEvents";
+import { Result } from "../../../Shared/Result/Result";
+import { Contact } from "../../Models/Contact";
+import { FriendDto } from "../../../Electron/Application/Features/Friends/Dto/FriendDto";
+import { SyncFriendsQuery } from "../../../Electron/Application/Features/Friends/Contracts/SyncFriends";
+
+const syncFriends = async (): Promise<Contact[]> => {
+    const result = await window.electron.sendRequestAsync<Result<FriendDto[]>>(new SyncFriendsQuery());
+
+    if (!result.success || !result.data) return [];
+
+    return result.data.map(
+        (friend) => new Contact(friend.id, friend.username, friend.displayName, friend.avatarKey, friend.connectionIds),
+    );
+};
 
 export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [contacts, contactDispatch] = React.useReducer(contactReducer, []);
     const {user} = useUser();
-    const friendSyncService = useMemo(() => new FriendSyncService(), []);
 
     const loadContacts = useCallback(async () => {
         if (!user) {
@@ -16,13 +28,13 @@ export const ContactProvider: React.FC<{ children: React.ReactNode }> = ({ child
             return;
         }
         try {
-            const loadedContacts = await friendSyncService.SyncFriends();
+            const loadedContacts = await syncFriends();
             contactDispatch({type: ContactActionType.Initialize, payload: loadedContacts});
             console.log("Contacts loaded from new provider:", loadedContacts);
         } catch (error) {
             console.error("Error loading contacts:", error);
         }
-    }, [user, friendSyncService, contactDispatch]);
+    }, [user, contactDispatch]);
 
     useEffect(() => {
         loadContacts();

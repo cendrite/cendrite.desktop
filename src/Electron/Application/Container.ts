@@ -15,6 +15,13 @@ import { AddMessageCommandHandler } from './Features/Chat/Commands/AddMessage/Ad
 import { GetChatsQueryHandler } from './Features/Chat/Queries/GetChats/GetChatsQueryhandler.js';
 import { GetMessagesQueryHandler } from './Features/Chat/Queries/GetMessages/GetMessagesQueryHandler.js';
 import { UpdateAvatarCommandHandler } from './Features/User/Commands/UpdateAvatarCommandHandler.js';
+import { SendFriendRequestCommandHandler } from './Features/Friends/Commands/SendFriendRequestCommandHandler.js';
+import { DeclineFriendRequestCommandHandler } from './Features/Friends/Commands/DeclineFriendRequestCommandHandler.js';
+import { AcceptFriendRequestCommandHandler } from './Features/Friends/Commands/AcceptFriendRequestCommandHandler.js';
+import { GetFriendRequestsQueryHandler } from './Features/Friends/Queries/GetFriendRequestsQueryHandler.js';
+import { DeleteFriendCommandHandler } from './Features/Friends/Commands/Delete/DeleteFriendCommandHandler.js';
+import { SyncFriendsQueryHandler } from './Features/Friends/Queries/SyncFriendsQueryHandler.js';
+import { GetProfileByTagQueryHandler } from './Features/Friends/Queries/GetProfileByTagQueryHandler.js';
 
 const services = {
     logoutManager: asValue(LogoutManager.getInstance()),
@@ -49,9 +56,20 @@ const userHandlers = {
     updateAvatarCommandHandler: asClass(UpdateAvatarCommandHandler, { lifetime: Lifetime.SINGLETON }),
 };
 
+const friendHandlers = {
+    sendFriendRequestCommandHandler: asClass(SendFriendRequestCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    declineFriendRequestCommandHandler: asClass(DeclineFriendRequestCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    acceptFriendRequestCommandHandler: asClass(AcceptFriendRequestCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    getFriendRequestsQueryHandler: asClass(GetFriendRequestsQueryHandler, { lifetime: Lifetime.SINGLETON }),
+    deleteFriendCommandHandler: asClass(DeleteFriendCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    syncFriendsQueryHandler: asClass(SyncFriendsQueryHandler, { lifetime: Lifetime.SINGLETON }),
+    getProfileByTagQueryHandler: asClass(GetProfileByTagQueryHandler, { lifetime: Lifetime.SINGLETON }),
+};
+
 export const applicationResolvers = {
     ...services,
     ...userHandlers,
+    ...friendHandlers,
     ...tokenHandlers,
     ...authenticationHandlers,
     ...chatHandlers,

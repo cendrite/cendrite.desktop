@@ -1,5 +1,10 @@
 import React, { useEffect } from 'react';
-import { FriendService } from '../../Common/Services/FriendService';
+import { Result } from '../../../Shared/Result/Result';
+import { PendingContact } from '../../Models/PendingContact';
+import {
+    FriendRequestDto,
+    GetFriendRequestsQuery,
+} from '../../../Electron/Application/Features/Friends/Contracts/GetFriendRequests';
 import { useNotifications } from '../Notification/NotificationContext';
 import { useUser } from '../User/UserContext';
 import { PendingContactContext } from './PendingContactContext';
@@ -7,9 +12,19 @@ import { PendingContactActionType, pendingContactReducer } from './PendingContac
 import { NotificationActionType } from '../Notification/NotificationReducer';
 import { usePendingContactEvents } from './PendingContactEvents';
 
+const getFriendRequests = async (): Promise<PendingContact[]> => {
+    const result = await window.electron.sendRequestAsync<Result<FriendRequestDto[]>>(new GetFriendRequestsQuery());
+
+    if (!result.success || !result.data) return [];
+
+    return result.data.map(
+        (request) =>
+            new PendingContact(request.userTag, request.username, false, request.displayName, request.avatarKey),
+    );
+};
+
 export const PendingContactProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [pendingContacts, pendingContactDispatch] = React.useReducer(pendingContactReducer, []);
-    const friendService = React.useMemo(() => new FriendService(), []);
     const { user } = useUser();
     const { notificationDispatch } = useNotifications();
 
@@ -20,7 +35,7 @@ export const PendingContactProvider: React.FC<{ children: React.ReactNode }> = (
         }
         async function load() {
             try {
-                const loadedRequests = await friendService.GetFriendRequests();
+                const loadedRequests = await getFriendRequests();
                 pendingContactDispatch({ type: PendingContactActionType.Initialize, payload: loadedRequests });
                 loadedRequests.forEach((r) =>
                     notificationDispatch({ type: NotificationActionType.AddFriendRequest, payload: { userTag: r.id } }),
@@ -32,7 +47,7 @@ export const PendingContactProvider: React.FC<{ children: React.ReactNode }> = (
         load().catch((err) => {
             console.log('Error loading pending contacts', err);
         });
-    }, [user, notificationDispatch, friendService]);
+    }, [user, notificationDispatch]);
 
     usePendingContactEvents(pendingContactDispatch, notificationDispatch);
 

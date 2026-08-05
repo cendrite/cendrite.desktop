@@ -48,12 +48,12 @@ export function useContactEvents(
     const handleContactDeletedEvent = useCallback(
         async (evt: ChangeEvent<FriendDeletedEvent>) => {
             if (user?.userTag === evt.data.tag) {
-                await window.electron.sendRequestAsync(new DeleteFriendCommand(evt.data.deletedBy));
+                await window.electron.sendRequestAsync(new DeleteFriendCommand(evt.data.deletedBy, true));
                 dispatch({ type: ContactActionType.Remove, payload: { id: evt.data.deletedBy } });
                 return;
             }
 
-            await window.electron.sendRequestAsync(new DeleteFriendCommand(evt.data.tag));
+            await window.electron.sendRequestAsync(new DeleteFriendCommand(evt.data.tag, true));
             dispatch({ type: ContactActionType.Remove, payload: { id: evt.data.tag } });
         },
         [user, dispatch],
