@@ -1,5 +1,7 @@
 ﻿import React, {useState} from "react";
-import {CodeType, ResendCodeApi} from "../../Api/Identity/User/ResendVerificationCodeApi.ts";
+import {CodeType} from "../../../../Electron/Application/Contracts/Enums/CodeType.ts";
+import {ResendVerificationCodeCommand} from "../../../../Electron/Application/Features/Authentication/Contracts/ResendVerificationCode.ts";
+import {Result} from "../../../../Shared/Result/Result.ts";
 
 interface ResendCodeButtonProps {
     userId: string;
@@ -8,7 +10,6 @@ interface ResendCodeButtonProps {
 const ResendCodeButton: React.FC<ResendCodeButtonProps> = ({userId, codeType}) => {
     const [isCooldown, setIsCooldown] = useState(false);
     const [, setCooldownTime] = useState(5);
-    const resendCodeApi = new ResendCodeApi();
 
     const handleResendCode = async () => {
         if (isCooldown) return;
@@ -16,10 +17,9 @@ const ResendCodeButton: React.FC<ResendCodeButtonProps> = ({userId, codeType}) =
         setIsCooldown(true);
         setCooldownTime(5);
 
-        const resendCodeResult = await resendCodeApi.resendCode({
-            userId: userId,
-            codeType: codeType,
-        });
+        const resendCodeResult = await window.electron.sendRequestAsync<Result>(
+            new ResendVerificationCodeCommand(userId, codeType),
+        );
 
         if (!resendCodeResult.success) {
             console.error(resendCodeResult.errorMessage);

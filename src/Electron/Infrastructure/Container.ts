@@ -63,6 +63,7 @@ const httpClients = {
     tokenApiClient: asFunction(() => new ApiClient(API_URLS.IDENTITY.AUTH, null)).singleton(),
     loginApiClient: asFunction(() => new ApiClient(API_URLS.IDENTITY.AUTH, null)).singleton(),
     verifyLoginApiClient: asFunction(() => new ApiClient(API_URLS.IDENTITY.AUTH, null)).singleton(),
+    identityUserApiClient: asFunction(() => new ApiClient(API_URLS.IDENTITY.USER.BASE, null)).singleton(),
 
     logoutApiClient: asFunction(
         (tokenManager: TokenManager) => new ApiClient(API_URLS.IDENTITY.AUTH, tokenManager),

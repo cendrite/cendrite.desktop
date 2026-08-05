@@ -1,4 +1,5 @@
 import { Result } from "../../../../Shared/Result/Result.js";
+import { CodeType } from "../Enums/CodeType.js";
 
 export interface LoginRequest {
     email: string;
@@ -20,8 +21,32 @@ export interface VerifyLoginResponse {
     nonce: string;
 }
 
+export interface RegisterRequest {
+    username: string;
+    email: string;
+    password: string;
+}
+
+export interface RegisterResponse {
+    email: string;
+    id: string;
+}
+
+export interface VerifyUserRequest {
+    userId: string;
+    verificationCode: string;
+}
+
+export interface ResendVerificationCodeRequest {
+    userId: string;
+    codeType: CodeType;
+}
+
 export interface IAuthenticationProvider {
     login(req: LoginRequest): Promise<Result<LoginResponse>>;
     verifyLogin(req: VerifyLoginRequest): Promise<Result<VerifyLoginResponse>>;
     logout(): Promise<Result<void>>;
+    register(req: RegisterRequest): Promise<Result<RegisterResponse>>;
+    verifyUser(req: VerifyUserRequest): Promise<Result>;
+    resendVerificationCode(req: ResendVerificationCodeRequest): Promise<Result>;
 }
