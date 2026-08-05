@@ -2,6 +2,7 @@ import { asClass, asValue, Lifetime } from 'awilix';
 import { LogoutManager } from './Services/LogoutManager/LogoutManager.js';
 import { KeyGenerator } from './Services/Cryptography/KeyService.js';
 import { MediaService } from './Services/Media/MediaService.js';
+import { PurgeLocalDataService } from './Services/Data/PurgeLocalDataService.js';
 import { InitializeTokenManagerCommandHandler } from './Features/Tokens/Commands/Initialize/InitializeTokenCommandHandler.js';
 import { RefreshTokenCommandHandler } from './Features/Tokens/Commands/Refresh/RefreshTokenCommandHandler.js';
 import { GetTokenQueryHandler } from './Features/Tokens/Queries/GetTokenQueryHandler.js';
@@ -30,6 +31,7 @@ const services = {
     logoutManager: asValue(LogoutManager.getInstance()),
     keyGenerator: asClass(KeyGenerator, { lifetime: Lifetime.SINGLETON }),
     mediaService: asClass(MediaService, { lifetime: Lifetime.SINGLETON }),
+    purgeLocalDataService: asClass(PurgeLocalDataService, { lifetime: Lifetime.SINGLETON }),
 };
 
 const tokenHandlers = {

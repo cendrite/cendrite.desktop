@@ -11,22 +11,30 @@ export class LogoutCommandHandler implements Handler<LogoutCommand, void> {
         private readonly authenticationProvider: IAuthenticationProvider,
         private readonly tokenManager: TokenManager,
         private readonly logoutManager: LogoutManager,
+        private readonly purgeLocalDataService: PurgeLocalDataService,
     ) { }
 
     public async handle(_cmd: LogoutCommand): Promise<Result<void>> {
+        if (this.logoutManager.IsLoggingOut) {
+            console.log('LogoutCommandHandler.handle: Logout already in progress, ignoring');
+            return Result.success();
+        }
 
         this.logoutManager.startLogout();
 
         console.log('LogoutCommandHandler.handle: Logging out user');
 
-        await this.authenticationProvider.logout();
+        try {
+            const remoteResult = await this.authenticationProvider.logout();
+            if (remoteResult.success === false)
+                console.error('LogoutCommandHandler.handle: Remote logout failed', remoteResult.errorMessage);
+        } finally {
+            await this.purgeLocalDataService.purgeLocalData();
 
-        const purger = new PurgeLocalDataService();
-        await purger.purgeLocalData();
+            this.tokenManager.disableAndClear();
 
-        this.tokenManager.disableAndClear();
-        
-        this.logoutManager.endLogout();
+            this.logoutManager.endLogout();
+        }
 
         console.log('LogoutCommandHandler.handle: User logged out successfully');
 

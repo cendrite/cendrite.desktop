@@ -46,7 +46,11 @@ export class ApiClient {
             (response) => response,
             async (error: AxiosError) => {
                 if (error.response?.status === 401) {
-                    console.warn('Token expired, refreshing token');
+                    console.warn(
+                        'Token expired, refreshing token:',
+                        error.config?.method,
+                        (error.config?.baseURL ?? '') + (error.config?.url ?? ''),
+                    );
                     try {
                         await this.tokenManager!.refreshTokens();
                         const newToken = this.tokenManager!.getJwt();
@@ -78,6 +82,13 @@ export class ApiClient {
             return Result.success(response.data.result!);
         } catch (error) {
             if (error instanceof AxiosError && error.response) {
+                console.error(
+                    'Api call failed:',
+                    error.config?.method,
+                    (error.config?.baseURL ?? '') + (error.config?.url ?? ''),
+                    error.response.status,
+                    JSON.stringify(error.response.data),
+                );
                 return Result.fail<T>(
                     ErrorMessage.fromApiResponse('ApiError', error.response.data?.errorMessage || 'An error occurred.' + error.code),
                 );
