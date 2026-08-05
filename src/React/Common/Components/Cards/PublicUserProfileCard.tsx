@@ -1,14 +1,19 @@
 ﻿import React, { useState } from 'react';
 import { CheckIcon, XMarkIcon, PlusIcon } from '@heroicons/react/24/outline';
-import { FriendService } from '../../Services/FriendService.ts';
-import { FriendshipStatus } from '../../../Enums/FriendshipStatus.ts';
-import { FriendshipDirection } from '../../../Enums/FriendshipDirection.ts';
+import { FriendshipStatus } from '../../../../Electron/Application/Contracts/Enums/FriendshipStatus.ts';
+import { FriendshipDirection } from '../../../../Electron/Application/Contracts/Enums/FriendshipDirection.ts';
 import { delay } from '../../../../Shared/HelperFunctions.ts';
 import ToolTip from '../Utility/ToolTip.tsx';
 import { useContacts } from '../../../Context/Contacts/ContactContext.tsx';
 import { ContactActionType } from '../../../Context/Contacts/ContactReducer.ts';
 import { useUser } from '../../../Context/User/UserContext.tsx';
 import Avatar from '../Avatar/Avatar.tsx';
+import { Result } from '../../../../Shared/Result/Result.ts';
+import { SendFriendRequestCommand } from '../../../../Electron/Application/Features/Friends/Contracts/SendFriendRequest.ts';
+import { DeclineFriendRequestCommand } from '../../../../Electron/Application/Features/Friends/Contracts/DeclineFriendRequest.ts';
+import { AcceptFriendRequestCommand } from '../../../../Electron/Application/Features/Friends/Contracts/AcceptFriendRequest.ts';
+import { FriendDto } from '../../../../Electron/Application/Features/Friends/Dto/FriendDto.ts';
+import { Contact } from '../../../Models/Contact.ts';
 
 interface PublicUserProfileCardProps {
     username: string;
@@ -28,7 +33,6 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
     friendshipDirection,
 }) => {
     const { user } = useUser();
-    const friendService = new FriendService();
     const [friendAdded, setFriendAdded] = useState<boolean>(false);
     const [currentFriendshipStatus, setCurrentFriendshipStatus] = useState<FriendshipStatus | undefined>(
         friendshipStatus,
@@ -41,7 +45,7 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
     const onAddFriend = async () => {
         if (friendAdded) return;
 
-        const result = await friendService.AddFriend(friendTag);
+        const result = await window.electron.sendRequestAsync<Result>(new SendFriendRequestCommand(friendTag));
         if (result.success) {
             setFriendAdded(true);
             setIsLoading(true);
@@ -52,12 +56,24 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
     };
 
     const onAcceptFriendRequest = async () => {
-        const result = await friendService.AcceptFriendship(friendTag);
-        if (result.success) {
+        const result = await window.electron.sendRequestAsync<Result<FriendDto>>(
+            new AcceptFriendRequestCommand(friendTag),
+        );
+        if (result.success && result.data) {
+            const friend = result.data;
             setCurrentFriendshipStatus(FriendshipStatus.Accepted);
             setCurrentFriendshipDirection(FriendshipDirection.None);
             setIsLoading(true);
-            contactDispatch({ type: ContactActionType.Add, payload: result.data! });
+            contactDispatch({
+                type: ContactActionType.Add,
+                payload: new Contact(
+                    friend.id,
+                    friend.username,
+                    friend.displayName,
+                    friend.avatarKey,
+                    friend.connectionIds,
+                ),
+            });
         }
 
         await delay(750);
@@ -66,7 +82,7 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
 
     const onDeclineFriendRequest = async () => {
         console.log(friendTag);
-        const result = await friendService.DeclineFriendRequest(friendTag);
+        const result = await window.electron.sendRequestAsync<Result>(new DeclineFriendRequestCommand(friendTag));
         if (result.success) {
             setFriendAdded(false);
             setCurrentFriendshipStatus(undefined);

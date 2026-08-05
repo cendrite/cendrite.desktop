@@ -20,6 +20,14 @@ export interface FriendRequestResponse {
 
 export interface FriendResponse {
     username: string;
+    userTag: string;
+    displayName: string | null;
+    avatarKey: string | null;
+    connectionIds: string[];
+}
+
+export interface AcceptFriendRequestResponse {
+    username: string;
     tag: string;
     displayName: string | null;
     profilePictureUrl?: string;
@@ -35,8 +43,8 @@ export interface IFriendProvider {
     sendFriendRequest(userTag: string): Promise<Result>;
     getFriendRequests(): Promise<Result<FriendRequestResponse[]>>;
     declineFriendRequest(userTag: string): Promise<Result>;
-    acceptFriendRequest(userTag: string): Promise<FriendResponse>;
+    acceptFriendRequest(userTag: string): Promise<Result<AcceptFriendRequestResponse>>;
     getFriends(): Promise<Result<FriendResponse[]>>;
     deleteFriend(userTag: string): Promise<Result>;
-    getProfile(userTag: string): Promise<Result<GetProfileResponse>>;
+    getProfile(userTag: string): Promise<Result<GetProfileResponse | void>>;
 }

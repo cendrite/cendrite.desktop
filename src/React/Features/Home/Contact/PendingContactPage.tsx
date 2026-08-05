@@ -1,13 +1,16 @@
-﻿import React, { useEffect, useMemo, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import ChevronLeftIcon from '@heroicons/react/24/outline/ChevronLeftIcon';
 import { CheckIcon, ExclamationTriangleIcon, NoSymbolIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { FriendService } from '../../../Common/Services/FriendService.ts';
 import { delay } from '../../../../Shared/HelperFunctions.ts';
 import ToolTip from '../../../Common/Components/Utility/ToolTip.tsx';
 import { PendingContact } from '../../../Models/PendingContact.ts';
 import { usePendingContacts } from '../../../Context/PendingContact/PendingContactContext.tsx';
 import { PendingContactActionType } from '../../../Context/PendingContact/PendingContactReducer.ts';
 import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
+import { Result } from '../../../../Shared/Result/Result.ts';
+import { FriendDto } from '../../../../Electron/Application/Features/Friends/Dto/FriendDto.ts';
+import { AcceptFriendRequestCommand } from '../../../../Electron/Application/Features/Friends/Contracts/AcceptFriendRequest.ts';
+import { DeclineFriendRequestCommand } from '../../../../Electron/Application/Features/Friends/Contracts/DeclineFriendRequest.ts';
 
 interface PendingContactPage {
     pendingContact: PendingContact;
@@ -18,7 +21,6 @@ type LoadingAction = 'accept' | 'decline' | 'block' | null;
 
 const PendingContactPage: React.FC<PendingContactPage> = ({ pendingContact, onClose }) => {
     const [slideClass, setSlideClass] = useState('translate-x-full');
-    const friendService = useMemo(() => new FriendService(), []);
     const [loadingAction, setLoadingAction] = useState<LoadingAction>(null);
     const { pendingContactDispatch } = usePendingContacts();
 
@@ -32,7 +34,9 @@ const PendingContactPage: React.FC<PendingContactPage> = ({ pendingContact, onCl
     };
 
     const handleAccept = async () => {
-        const result = await friendService.AcceptFriendship(pendingContact.id);
+        const result = await window.electron.sendRequestAsync<Result<FriendDto>>(
+            new AcceptFriendRequestCommand(pendingContact.id),
+        );
         if (result.success) {
             pendingContactDispatch({ type: PendingContactActionType.Remove, payload: { id: pendingContact.id } });
             setLoadingAction('accept');
@@ -43,7 +47,9 @@ const PendingContactPage: React.FC<PendingContactPage> = ({ pendingContact, onCl
     };
 
     const handleDecline = async () => {
-        const result = await friendService.DeclineFriendRequest(pendingContact.id);
+        const result = await window.electron.sendRequestAsync<Result>(
+            new DeclineFriendRequestCommand(pendingContact.id),
+        );
         if (result.success) {
             pendingContactDispatch({ type: PendingContactActionType.Remove, payload: { id: pendingContact.id } });
             setLoadingAction('decline');

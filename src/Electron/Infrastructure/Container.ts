@@ -22,6 +22,7 @@ import { TokenClient } from './Clients/TokenClient.js';
 import { AuthenticationClient } from './Clients/AuthenticationClient.js';
 import { MediaProvider } from './Clients/MediaProvider.js';
 import { UserClient } from './Clients/UserClient.js';
+import { FriendClient } from './Clients/FriendClient.js';
 
 const services = {
     tokenManager: asClass(TokenManager, { lifetime: Lifetime.SINGLETON }),
@@ -54,6 +55,7 @@ const providers = {
     keyStoreProvider: asClass(KeyStoreClient, { lifetime: Lifetime.SINGLETON }),
     mediaProvider: asClass(MediaProvider, { lifetime: Lifetime.SINGLETON }),
     userProvider: asClass(UserClient, { lifetime: Lifetime.SINGLETON }),
+    friendProvider: asClass(FriendClient, { lifetime: Lifetime.SINGLETON }),
 };
 
 const httpClients = {
@@ -75,6 +77,14 @@ const httpClients = {
     ).singleton(),
 
     userApiClient: asFunction((tokenManager: TokenManager) => new ApiClient(API_URLS.USER, tokenManager)).singleton(),
+
+    friendApiClient: asFunction(
+        (tokenManager: TokenManager) => new ApiClient(API_URLS.FRIEND.BASE, tokenManager),
+    ).singleton(),
+
+    friendshipApiClient: asFunction(
+        (tokenManager: TokenManager) => new ApiClient(API_URLS.FRIEND.FRIENDSHIP, tokenManager),
+    ).singleton(),
 };
 
 export const infrastructureResolvers = {

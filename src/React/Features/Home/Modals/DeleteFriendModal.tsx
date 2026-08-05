@@ -1,6 +1,7 @@
 ﻿import Modal from "react-modal";
 import React from "react";
-import { FriendService } from "../../../Common/Services/FriendService";
+import { Result } from "../../../../Shared/Result/Result.ts";
+import { DeleteFriendCommand } from "../../../../Electron/Application/Features/Friends/Commands/Delete/DeleteFriendCommand.ts";
 import {useHomePage} from "../../../Context/HomePage/HomePageContext.tsx";
 import {HomePageActionType} from "../../../Context/HomePage/HomePageReducer.ts";
 import { Contact } from "../../../Models/Contact.ts";
@@ -16,11 +17,10 @@ interface DeleteFriendModalProps {
 const DeleteFriendModal: React.FC<DeleteFriendModalProps> = ({isOpen, onClose, contact}) => {
     const {contactDispatch} = useContacts();
     const {homeDispatch} = useHomePage();
-    const friendService = new FriendService();
     console.log(contact);
 
     const handleDelete = () => {
-        friendService.DeleteFriend(contact.id).then((result) => {
+        window.electron.sendRequestAsync<Result>(new DeleteFriendCommand(contact.id)).then((result) => {
             if (result.success) {
                 contactDispatch({type: ContactActionType.Remove, payload: {id: contact.id}});
                 homeDispatch({type: HomePageActionType.Clear });

@@ -9,7 +9,6 @@ import { GetMediaQueryHandler } from './Application/Features/Files/Queries/GetMe
 import { CreateFriendCommandHandler } from './Application/Features/Friends/Commands/Create/CreateFriendCommandHandler.js';
 import { GetFriendsQueryHandler } from './Application/Features/Friends/Queries/GetFriends/GetFriendsQueryHandler.js';
 import { GetRefreshTokenQueryHandler } from './Application/Features/RefreshToken/Queries/GetRefreshTokenQueryHandler.js';
-import { DeleteFriendCommandHandler } from './Application/Features/Friends/Commands/Delete/DeleteFriendCommandHandler.js';
 import { CreateChatCommandHandler } from './Application/Features/Chat/Commands/Create/CreateChatCommandHandler.js';
 import { UpdateFriendCommandHandler } from './Application/Features/Friends/Commands/Update/UpdateFriendCommandHandler.js';
 import { GenerateKeyBundleCommandHandler } from './Application/Features/Encryption/Commands/Generate/GenerateKeyBundleCommandHandler.js';
@@ -67,7 +66,6 @@ export function registerIpcHandlers(mainWindow: BrowserWindow, container: Awilix
 
     mediator.registerHandler('CreateFriendCommand', new CreateFriendCommandHandler());
     mediator.registerHandler('GetFriendsQuery', new GetFriendsQueryHandler());
-    mediator.registerHandler('DeleteFriendCommand', new DeleteFriendCommandHandler());
     mediator.registerHandler('UpdateFriendCommand', new UpdateFriendCommandHandler());
     mediator.registerHandler('RemoveConnectionIdCommand', new RemoveFriendConnectionIdCommandHandler());
     mediator.registerHandler('AddConnectionIdCommand', new AddFriendConnectionIdCommandHandler());

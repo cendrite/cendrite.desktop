@@ -22,6 +22,10 @@ export const API_URLS = {
             GET_DEVICES: 'https://identity.xhykl49jkg.org/api/User/device',
         },
     },
+    FRIEND: {
+        BASE: 'https://conduit.xhykl49jkg.org/api/friend',
+        FRIENDSHIP: 'https://social.xhykl49jkg.org/api/UserProfile/friendship',
+    },
     KEYSTORE: {
         BASE: 'https://conduit.xhykl49jkg.org/api/keys',
         UPLOAD_OTPS: 'https://conduit.xhykl49jkg.org/api/keys/otps',

@@ -1,12 +1,13 @@
 ﻿import Modal from "react-modal";
 import React, {useEffect, useMemo, useState} from "react";
 import SearchBar from "../SearchBar.tsx";
-import {
-    GetUserProfileByTagApi,
-    GetUserProfileByTagResponse
-} from "../../../Common/Api/Friends/GetUserProfileByTagApi.ts";
 import PublicUserProfileCard from "../../../Common/Components/Cards/PublicUserProfileCard.tsx";
 import { useUser } from "../../../Context/User/UserContext.tsx";
+import { Result } from "../../../../Shared/Result/Result.ts";
+import {
+    GetProfileByTagQuery,
+    ProfileDto,
+} from "../../../../Electron/Application/Features/Friends/Contracts/GetProfileByTag.ts";
 
 interface SearchForUserModalProps {
     isOpen: boolean;
@@ -14,11 +15,10 @@ interface SearchForUserModalProps {
 }
 
 const SearchForUserModal: React.FC<SearchForUserModalProps> = ({isOpen, onClose}) => {
-    const api = useMemo(() => new GetUserProfileByTagApi(), []);
     const { user } = useUser();
     const userId = useMemo(() => user?.id, [user]);
     const [searchQuery, setSearchQuery] = useState<string>("");
-    const [searchResult, setSearchResult] = useState<GetUserProfileByTagResponse | null>(null);
+    const [searchResult, setSearchResult] = useState<ProfileDto | null>(null);
     const [isLoading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -48,7 +48,9 @@ const SearchForUserModal: React.FC<SearchForUserModalProps> = ({isOpen, onClose}
         setError(null); // Reset previous errors
 
         const fetchUserProfile = async () => {
-            const result = await api.getUserProfileByTag({ tag: searchQuery });
+            const result = await window.electron.sendRequestAsync<Result<ProfileDto | void>>(
+                new GetProfileByTagQuery(searchQuery),
+            );
 
             if (!result.success) {
                 setError("An error occurred while searching for the user");
@@ -71,7 +73,7 @@ const SearchForUserModal: React.FC<SearchForUserModalProps> = ({isOpen, onClose}
         }, 300); // 300ms debounce
 
         return () => clearTimeout(timeoutId);
-    }, [searchQuery, userId, api]);
+    }, [searchQuery, userId]);
 
     return (
         <>
@@ -111,8 +113,8 @@ const SearchForUserModal: React.FC<SearchForUserModalProps> = ({isOpen, onClose}
                                 friendTag={searchResult.userTag}
                                 displayName={searchResult.displayName}
                                 avatarKey={searchResult.avatarKey}
-                                friendshipStatus={searchResult.friendshipStatus.status ?? undefined}
-                                friendshipDirection={searchResult.friendshipStatus.direction}
+                                friendshipStatus={searchResult.friendshipStatus}
+                                friendshipDirection={searchResult.friendshipDirection}
                             />
                         )}
                     </div>
