@@ -10,7 +10,6 @@ import { StartupCommandHandler } from './Features/Authentication/Commands/Startu
 import { RegisterCommandHandler } from './Features/Authentication/Commands/RegisterCommandHandler.js';
 import { VerifyUserCommandHandler } from './Features/Authentication/Commands/VerifyUserCommandHandler.js';
 import { ResendVerificationCodeCommandHandler } from './Features/Authentication/Commands/ResendVerificationCodeCommandHandler.js';
-import { SignNonceRequestHandler } from './Features/Device/Commands/SignNonce/SignNonceRequestHandler.js';
 import { SendMessageCommandHandler } from './Features/Chat/Commands/SendMessageCommandHandler.js';
 import { AddMessageCommandHandler } from './Features/Chat/Commands/AddMessage/AddMessageCommandHandler.js';
 import { GetChatsQueryHandler } from './Features/Chat/Queries/GetChats/GetChatsQueryhandler.js';
@@ -23,6 +22,7 @@ import { GetFriendRequestsQueryHandler } from './Features/Friends/Queries/GetFri
 import { DeleteFriendCommandHandler } from './Features/Friends/Commands/Delete/DeleteFriendCommandHandler.js';
 import { SyncFriendsQueryHandler } from './Features/Friends/Queries/SyncFriendsQueryHandler.js';
 import { GetProfileByTagQueryHandler } from './Features/Friends/Queries/GetProfileByTagQueryHandler.js';
+import { GetMediaQueryHandler } from './Features/Files/Queries/GetMediaQueryHandler.js';
 
 const services = {
     logoutManager: asValue(LogoutManager.getInstance()),
@@ -41,7 +41,6 @@ const authenticationHandlers = {
     resendVerificationCodeCommandHandler: asClass(ResendVerificationCodeCommandHandler, {
         lifetime: Lifetime.SINGLETON,
     }),
-    signNonceRequestHandler: asClass(SignNonceRequestHandler, { lifetime: Lifetime.SINGLETON }),
 };
 
 const chatHandlers = {
@@ -53,6 +52,10 @@ const chatHandlers = {
 
 const userHandlers = {
     updateAvatarCommandHandler: asClass(UpdateAvatarCommandHandler, { lifetime: Lifetime.SINGLETON }),
+};
+
+const mediaHandlers = {
+    getMediaQueryHandler: asClass(GetMediaQueryHandler, { lifetime: Lifetime.SINGLETON }),
 };
 
 const friendHandlers = {
@@ -71,4 +74,5 @@ export const applicationResolvers = {
     ...friendHandlers,
     ...authenticationHandlers,
     ...chatHandlers,
+    ...mediaHandlers,
 };

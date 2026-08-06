@@ -1,12 +1,7 @@
 import { BrowserWindow, ipcMain } from 'electron';
 import { Mediator } from './Application/Mediator/Mediator.js';
-import { CreateDeviceCommandHandler } from './Application/Features/Device/Commands/CreateDevice/CreateDeviceHandler.js';
-import { GetDeviceQueryHandler } from './Application/Features/Device/Queries/GetDevice/GetDeviceQueryHandler.js';
-import { GenerateKeysRequestHandler } from './Application/Features/Device/Commands/GenerateKeys/GenerateKeysRequestHandler.js';
-import { CreateRefreshTokenRequestHandler } from './Application/Features/RefreshToken/Commands/Create/CreateRefreshTokenRequestHandler.js';
 import { GetUserQueryHandler } from './Application/Features/User/Queries/GetUserQueryHandler.js';
 import { CreateFriendCommandHandler } from './Application/Features/Friends/Commands/Create/CreateFriendCommandHandler.js';
-import { GetRefreshTokenQueryHandler } from './Application/Features/RefreshToken/Queries/GetRefreshTokenQueryHandler.js';
 import { CreateChatCommandHandler } from './Application/Features/Chat/Commands/Create/CreateChatCommandHandler.js';
 import { UpdateFriendCommandHandler } from './Application/Features/Friends/Commands/Update/UpdateFriendCommandHandler.js';
 import { RemoveFriendConnectionIdCommandHandler } from './Application/Features/Friends/Commands/RemoveConnectionId/RemoveFriendConnectionIdCommandHandler.js';
@@ -26,12 +21,6 @@ import { Cradle } from './Container.js';
 export function registerIpcHandlers(mainWindow: BrowserWindow, container: AwilixContainer<Cradle>) {
     const mediator = new Mediator(container);
 
-    mediator.registerHandler('CreateDeviceRequest', new CreateDeviceCommandHandler());
-    mediator.registerHandler('GenerateKeysRequest', new GenerateKeysRequestHandler());
-    mediator.registerHandler('GetDeviceQuery', new GetDeviceQueryHandler());
-
-    mediator.registerHandler('CreateRefreshTokenRequest', new CreateRefreshTokenRequestHandler());
-    mediator.registerHandler('GetRefreshTokenQuery', new GetRefreshTokenQueryHandler());
 
     mediator.registerHandler('GetUserQuery', new GetUserQueryHandler());
     mediator.registerHandler(AddUserConnectionIdCommand.name, new AddUserConnectionIdCommandHandler());
