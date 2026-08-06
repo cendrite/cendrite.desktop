@@ -2,7 +2,7 @@ import { ISessionManager } from '../../../Infrastructure/Interfaces/ISessionMana
 import { MediaPointer } from '../../../Infrastructure/Signal/Messaging/ServerMessage.js';
 import { Media } from '../../Contracts/Models/Media.js';
 import { IMediaProvider } from '../../Contracts/Providers/IMediaProvider.js';
-import { MediaType } from '../../Features/Files/Queries/GetMedia/GetMediaQuery.js';
+import { MediaType } from '../../Features/Files/Contracts/GetMedia.js';
 
 export interface IMediaService {
     getLocal(type: MediaType): Promise<Media[]>;

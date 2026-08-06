@@ -1,5 +1,5 @@
 import { MediaDto } from '../../../Electron/Application/Features/Chat/Dtos/MediaDto';
-import { GetMediaQuery, MediaType } from '../../../Electron/Application/Features/Files/Queries/GetMedia/GetMediaQuery';
+import { GetMediaQuery, MediaType } from '../../../Electron/Application/Features/Files/Contracts/GetMedia.ts';
 import { Result } from '../../../Shared/Result/Result';
 import { Media } from '../../Models/Media';
 

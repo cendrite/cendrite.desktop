@@ -1,11 +1,11 @@
-import { GetMediaQuery, MediaType } from './GetMediaQuery.js';
-import { Handler } from '../../../../Mediator/Handler.js';
-import { Result } from '../../../../../../Shared/Result/Result.js';
-import { ErrorMessage } from '../../../../../../Shared/Result/ErrorMessage.js';
-import { MediaDto } from '../../../Chat/Dtos/MediaDto.js';
 import * as fs from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import { dialog, BrowserWindow, app } from 'electron';
+import { Handler } from '../../../Mediator/Handler.js';
+import { GetMediaQuery, MediaType } from '../Contracts/GetMedia.js';
+import { MediaDto } from '../../Chat/Dtos/MediaDto.js';
+import { Result } from '../../../../../Shared/Result/Result.js';
+import { ErrorMessage } from '../../../../../Shared/Result/ErrorMessage.js';
 
 export class GetMediaQueryHandler implements Handler<GetMediaQuery, MediaDto[]> {
     private readonly mainWindow: BrowserWindow;

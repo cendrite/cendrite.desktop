@@ -1,7 +1,7 @@
 ﻿import { FaceSmileIcon, MicrophoneIcon, PaperClipIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import React, { useState } from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
-import { MediaType } from '../../../../Electron/Application/Features/Files/Queries/GetMedia/GetMediaQuery';
+import { MediaType } from '../../../../Electron/Application/Features/Files/Contracts/GetMedia.ts';
 import { ChatViewModel } from '../../../Models/ChatViewModel';
 import { Media } from '../../../Models/Media';
 import { useMessageService } from '../../../Common/Hooks/MessageService';

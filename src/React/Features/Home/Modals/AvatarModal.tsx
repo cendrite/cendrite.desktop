@@ -1,7 +1,7 @@
 ﻿import React, { useState } from 'react';
 import Modal from 'react-modal';
 import { PencilIcon, PhotoIcon } from '@heroicons/react/24/outline';
-import { MediaType } from '../../../../Electron/Application/Features/Files/Queries/GetMedia/GetMediaQuery.ts';
+import { MediaType } from '../../../../Electron/Application/Features/Files/Contracts/GetMedia.ts';
 import { useUser } from '../../../Context/User/UserContext.tsx';
 import { UserActionType } from '../../../Context/User/UserReducer.ts';
 import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
