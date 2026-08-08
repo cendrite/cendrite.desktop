@@ -16,7 +16,6 @@ import { SendFriendRequestCommandHandler } from './Features/Friends/Commands/Sen
 import { DeclineFriendRequestCommandHandler } from './Features/Friends/Commands/DeclineFriendRequestCommandHandler.js';
 import { AcceptFriendRequestCommandHandler } from './Features/Friends/Commands/AcceptFriendRequestCommandHandler.js';
 import { GetFriendRequestsQueryHandler } from './Features/Friends/Queries/GetFriendRequestsQueryHandler.js';
-import { DeleteFriendCommandHandler } from './Features/Friends/Commands/Delete/DeleteFriendCommandHandler.js';
 import { SyncFriendsQueryHandler } from './Features/Friends/Queries/SyncFriendsQueryHandler.js';
 import { GetProfileByTagQueryHandler } from './Features/Friends/Queries/GetProfileByTagQueryHandler.js';
 import { GetMediaQueryHandler } from './Features/Files/Queries/GetMediaQueryHandler.js';
@@ -26,6 +25,13 @@ import { AddMessageCommandHandler } from './Features/Chat/Commands/AddMessageCom
 import { UpdateDeliveryStatusCommandHandler } from './Features/Chat/Commands/UpdateDeliveryStatusCommandHandler.js';
 import { GetChatsQueryHandler } from './Features/Chat/Queries/GetChatsQueryhandler.js';
 import { GetMessagesQueryHandler } from './Features/Chat/Queries/GetMessagesQueryHandler.js';
+import { AddUserConnectionIdCommandHandler } from './Features/User/Commands/AddUserConnectionIdCommandHandler.js';
+import { RemoveUserConnectionIdCommandHandler } from './Features/User/Commands/RemoveUserConnectionIdCommandHandler.js';
+import { DeleteFriendCommandHandler } from './Features/Friends/Commands/DeleteFriendCommandHandler.js';
+import { AddFriendConnectionIdCommandHandler } from './Features/Friends/Commands/AddFriendConnectionIdCommandHandler.js';
+import { RemoveFriendConnectionIdCommandHandler } from './Features/Friends/Commands/RemoveFriendConnectionIdCommandHandler.js';
+import { UpdateFriendCommandHandler } from './Features/Friends/Commands/UpdateFriendCommandHandler.js';
+import { CreateFriendCommandHandler } from './Features/Friends/Commands/CreateFriendCommandHandler.js';
 
 const services = {
     logoutManager: asValue(LogoutManager.getInstance()),
@@ -58,6 +64,8 @@ const chatHandlers = {
 
 const userHandlers = {
     updateAvatarCommandHandler: asClass(UpdateAvatarCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    addUserConnectionIdCommandHandler: asClass(AddUserConnectionIdCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    removeUserConnectionIdCommandHandler: asClass(RemoveUserConnectionIdCommandHandler, { lifetime: Lifetime.SINGLETON }),
 };
 
 const mediaHandlers = {
@@ -72,6 +80,10 @@ const friendHandlers = {
     deleteFriendCommandHandler: asClass(DeleteFriendCommandHandler, { lifetime: Lifetime.SINGLETON }),
     syncFriendsQueryHandler: asClass(SyncFriendsQueryHandler, { lifetime: Lifetime.SINGLETON }),
     getProfileByTagQueryHandler: asClass(GetProfileByTagQueryHandler, { lifetime: Lifetime.SINGLETON }),
+    addFriendConnectionIdCommandHandler: asClass(AddFriendConnectionIdCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    removeFriendConnectionIdCommandHandler: asClass(RemoveFriendConnectionIdCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    updateFriendCommandHandler: asClass(UpdateFriendCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    createFriendCommandHandler: asClass(CreateFriendCommandHandler, { lifetime: Lifetime.SINGLETON }),
 };
 
 export const applicationResolvers = {

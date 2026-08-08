@@ -1,10 +1,10 @@
-import { DeleteFriendCommand } from './DeleteFriendCommand.js';
-import { Result } from '../../../../../../Shared/Result/Result.js';
-import { ErrorMessage } from '../../../../../../Shared/Result/ErrorMessage.js';
-import { Handler } from '../../../../Mediator/Handler.js';
-import { IFriendProvider } from '../../../../Contracts/Providers/IFriendProvider.js';
-import { IFriendRepository } from '../../../../Contracts/Repositories/IFriendRepository.js';
-import { IChatStore } from '../../../../Contracts/Repositories/IChatStore.js';
+import { ErrorMessage } from "../../../../../Shared/Result/ErrorMessage.js";
+import { Result } from "../../../../../Shared/Result/Result.js";
+import { IFriendProvider } from "../../../Contracts/Providers/IFriendProvider.js";
+import { IChatStore } from "../../../Contracts/Repositories/IChatStore.js";
+import { IFriendRepository } from "../../../Contracts/Repositories/IFriendRepository.js";
+import { Handler } from "../../../Mediator/Handler.js";
+import { DeleteFriendCommand } from "../Contracts/DeleteFriend.js";
 
 export class DeleteFriendCommandHandler implements Handler<DeleteFriendCommand> {
     constructor(

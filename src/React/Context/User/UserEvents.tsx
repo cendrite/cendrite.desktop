@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { User } from '../../Models/User';
-import { AddUserConnectionIdCommand } from '../../../Electron/Application/Features/User/Commands/Update/AddConnectionId/AddUserConnectionIdCommand';
-import { RemoveUserConnectionIdCommand } from '../../../Electron/Application/Features/User/Commands/Update/RemoveConnectionId/RemoveUserConnectionIdCommand';
+import { AddUserConnectionIdCommand } from '../../../Electron/Application/Features/User/Contracts/AddUserConnectionId.ts';
+import { RemoveUserConnectionIdCommand } from '../../../Electron/Application/Features/User/Contracts/RemoveUserConnectionId.ts';
 import { UserAction, UserActionType } from './UserReducer';
 import { AvatarUpdatedEvent, UserLoggedInEvent } from '../../../Electron/Infrastructure/Signal/ChangeEvent/EventData';
 import { ChangeEvent } from '../../../Electron/Infrastructure/Signal/ChangeEvent/ChangeEvent';

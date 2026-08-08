@@ -1,12 +1,12 @@
 import { useCallback } from 'react';
-import { CreateFriendCommand } from '../../../Electron/Application/Features/Friends/Commands/Create/CreateFriendCommand';
+import { CreateFriendCommand } from '../../../Electron/Application/Features/Friends/Contracts/CreateFriend.js';
 import { Contact } from '../../Models/Contact';
 import { User } from '../../Models/User';
 import { ContactAction, ContactActionType } from './ContactReducer';
 import { getById } from './ContactSelectors';
-import { DeleteFriendCommand } from '../../../Electron/Application/Features/Friends/Commands/Delete/DeleteFriendCommand';
-import { RemoveFriendConnectionIdCommand } from '../../../Electron/Application/Features/Friends/Commands/RemoveConnectionId/RemoveFriendConnectionIdCommand';
-import { AddFriendConnectionIdCommand } from '../../../Electron/Application/Features/Friends/Commands/AddConnectionId/AddFriendConnectionIdCommand';
+import { DeleteFriendCommand } from '../../../Electron/Application/Features/Friends/Contracts/DeleteFriend.js';
+import { RemoveFriendConnectionIdCommand } from '../../../Electron/Application/Features/Friends/Contracts/RemoveFriendConnectionId.js';
+import { AddFriendConnectionIdCommand } from '../../../Electron/Application/Features/Friends/Contracts/AddFriendConnectionId.js';
 import { ChangeEvent } from '../../../Electron/Infrastructure/Signal/ChangeEvent/ChangeEvent';
 import { FriendDeletedEvent, FriendRequestAcceptedEvent, UserLoggedInEvent, UserLoggedOutEvent } from '../../../Electron/Infrastructure/Signal/ChangeEvent/EventData';
 import { ChangeEventType } from '../../../Electron/Infrastructure/Signal/ChangeEvent/ChangeEventType';

@@ -4,7 +4,6 @@ import { app, BrowserWindow } from 'electron';
 import path from 'path';
 import { getPreloadPath, isDevelopment, isSpawnDevelopment } from './Utilities.js';
 import { LogoutManager } from './Application/Services/LogoutManager/LogoutManager.js';
-import { registerIpcHandlers as setupMediator } from './IpcMediator.js';
 import * as fs from 'node:fs';
 import { buildContainer } from './Container.js';
 import { initializeDatabase } from './Infrastructure/Persistence/Context/DatabaseContext.js';
@@ -46,7 +45,7 @@ app.on('ready', async () => {
     }
 
     const container = buildContainer(mainWindow);
-    setupMediator(mainWindow, container);
+
     container.resolve<IMessageReceiver>('messageReceiver').start();
 
     mainWindow.on('close', (event) => {
