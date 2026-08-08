@@ -1,13 +1,13 @@
 import { Result } from "../../../../../Shared/Result/Result.js";
 import { Chat } from "../../../../Domain/Aggregates/Chat.js";
 import { Message } from "../../../../Domain/Entities/Message.js";
+import { MediaContract } from "../../../Contracts/Models/MediaContract.js";
 import { IChatStore } from "../../../Contracts/Repositories/IChatStore.js";
 import { IMediaStore } from "../../../Contracts/Repositories/IMediaStore.js";
 import { Handler } from "../../../Mediator/Handler.js";
 import { GetChatsQuery } from "../Contracts/GetChats.js";
 import { ChatDto } from "../Dtos/ChatDto.js";
 import { ChatMemberDto } from "../Dtos/ChatMemberDto.js";
-import { MediaDto } from "../Dtos/MediaDto.js";
 import { MessageDto } from "../Dtos/MessageDto.js";
 
 export class GetChatsQueryHandler implements Handler<GetChatsQuery, ChatDto[]> {
@@ -60,10 +60,10 @@ export class GetChatsQueryHandler implements Handler<GetChatsQuery, ChatDto[]> {
 
     private async toMessageDto(message: Message): Promise<MessageDto> {
 
-        const mediaDtos: MediaDto[] = [];
+        const mediaDtos: MediaContract[] = [];
         for (const m of message.messageMedia ?? []) {
             const mediaContent = await this.mediaStore.get(m.id);
-            mediaDtos.push(MediaDto.fromMessageMedia(m, mediaContent));
+            mediaDtos.push(new MediaContract(m.id, m.type, mediaContent));
         }
 
         return MessageDto.fromMessage(message, mediaDtos);

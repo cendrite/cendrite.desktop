@@ -1,5 +1,5 @@
 import { DeliveryStatus } from "../../../../Domain/Enums/DeliveryStatus.js";
-import { MediaDto } from "../Dtos/MediaDto.js";
+import { MediaContract } from "../../../Contracts/Models/MediaContract.js";
 
 export class AddMessageCommand implements MediatorRequest {
     type: string = AddMessageCommand.name;
@@ -10,7 +10,7 @@ export class AddMessageCommand implements MediatorRequest {
     timestamp: Date;
     deliveryStatus: DeliveryStatus;
     content: string | null = null;
-    media: MediaDto[] | null = null; 
+    media: MediaContract[] | null = null; 
 
     constructor(
         chatId: string,
@@ -20,7 +20,7 @@ export class AddMessageCommand implements MediatorRequest {
         deliveryStatus: DeliveryStatus,
         messageToken: string | null = null,
         content: string | null = null,
-        media: MediaDto[] | null = null,
+        media: MediaContract[] | null = null,
     ) {
         this.chatId = chatId;
         this.messageId = messageId;

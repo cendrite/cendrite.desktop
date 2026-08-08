@@ -1,9 +1,9 @@
 import { Result } from "../../../../../Shared/Result/Result.js";
+import { MediaContract } from "../../../Contracts/Models/MediaContract.js";
 import { IChatStore } from "../../../Contracts/Repositories/IChatStore.js";
 import { IMediaStore } from "../../../Contracts/Repositories/IMediaStore.js";
 import { Handler } from "../../../Mediator/Handler.js";
 import { GetMessagesQuery } from "../Contracts/GetMessages.js";
-import { MediaDto } from "../Dtos/MediaDto.js";
 import { MessageDto } from "../Dtos/MessageDto.js";
 
 export class GetMessagesQueryHandler implements Handler<GetMessagesQuery, MessageDto[]> {
@@ -20,10 +20,10 @@ export class GetMessagesQueryHandler implements Handler<GetMessagesQuery, Messag
 
         const messageDtos = await Promise.all(
             messages.map(async (message) => {
-                const mediaDtos: MediaDto[] = [];
+                const mediaDtos: MediaContract[] = [];
                 for (const m of message.messageMedia ?? []) {
                     const mediaContent = await this.mediaStore.get(m.id);
-                    mediaDtos.push(MediaDto.fromMessageMedia(m, mediaContent));
+                    mediaDtos.push(new MediaContract(m.id, m.type, mediaContent));
                 }
                 return MessageDto.fromMessage(message, mediaDtos);
             }),
