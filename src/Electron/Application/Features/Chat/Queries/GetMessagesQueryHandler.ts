@@ -1,10 +1,10 @@
-import { Result } from '../../../../../../Shared/Result/Result.js';
-import { IChatStore } from '../../../../Contracts/Repositories/IChatStore.js';
-import { IMediaStore } from '../../../../Contracts/Repositories/IMediaStore.js';
-import { Handler } from '../../../../Mediator/Handler.js';
-import { MediaDto } from '../../Dtos/MediaDto.js';
-import { MessageDto } from '../../Dtos/MessageDto.js';
-import { GetMessagesQuery } from './GetMessagesQuery.js';
+import { Result } from "../../../../../Shared/Result/Result.js";
+import { IChatStore } from "../../../Contracts/Repositories/IChatStore.js";
+import { IMediaStore } from "../../../Contracts/Repositories/IMediaStore.js";
+import { Handler } from "../../../Mediator/Handler.js";
+import { GetMessagesQuery } from "../Contracts/GetMessages.js";
+import { MediaDto } from "../Dtos/MediaDto.js";
+import { MessageDto } from "../Dtos/MessageDto.js";
 
 export class GetMessagesQueryHandler implements Handler<GetMessagesQuery, MessageDto[]> {
     constructor(

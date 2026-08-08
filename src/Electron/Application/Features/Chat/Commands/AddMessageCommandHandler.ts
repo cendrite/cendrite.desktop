@@ -1,10 +1,10 @@
-import { Result } from '../../../../../../Shared/Result/Result.js';
-import { Message } from '../../../../../Domain/Entities/Message.js';
-import { MessageMedia } from '../../../../../Domain/Entities/MessageMedia.js';
-import { IChatStore } from '../../../../Contracts/Repositories/IChatStore.js';
-import { IMediaStore } from '../../../../Contracts/Repositories/IMediaStore.js';
-import { Handler } from '../../../../Mediator/Handler.js';
-import { AddMessageCommand } from './AddMessageCommand.js';
+import { Result } from "../../../../../Shared/Result/Result.js";
+import { Message } from "../../../../Domain/Entities/Message.js";
+import { MessageMedia } from "../../../../Domain/Entities/MessageMedia.js";
+import { IChatStore } from "../../../Contracts/Repositories/IChatStore.js";
+import { IMediaStore } from "../../../Contracts/Repositories/IMediaStore.js";
+import { Handler } from "../../../Mediator/Handler.js";
+import { AddMessageCommand } from "../Contracts/AddMessage.js";
 
 export class AddMessageCommandHandler implements Handler<AddMessageCommand> {
     constructor(

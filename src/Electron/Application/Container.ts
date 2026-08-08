@@ -11,9 +11,6 @@ import { RegisterCommandHandler } from './Features/Authentication/Commands/Regis
 import { VerifyUserCommandHandler } from './Features/Authentication/Commands/VerifyUserCommandHandler.js';
 import { ResendVerificationCodeCommandHandler } from './Features/Authentication/Commands/ResendVerificationCodeCommandHandler.js';
 import { SendMessageCommandHandler } from './Features/Chat/Commands/SendMessageCommandHandler.js';
-import { AddMessageCommandHandler } from './Features/Chat/Commands/AddMessage/AddMessageCommandHandler.js';
-import { GetChatsQueryHandler } from './Features/Chat/Queries/GetChats/GetChatsQueryhandler.js';
-import { GetMessagesQueryHandler } from './Features/Chat/Queries/GetMessages/GetMessagesQueryHandler.js';
 import { UpdateAvatarCommandHandler } from './Features/User/Commands/UpdateAvatarCommandHandler.js';
 import { SendFriendRequestCommandHandler } from './Features/Friends/Commands/SendFriendRequestCommandHandler.js';
 import { DeclineFriendRequestCommandHandler } from './Features/Friends/Commands/DeclineFriendRequestCommandHandler.js';
@@ -23,6 +20,12 @@ import { DeleteFriendCommandHandler } from './Features/Friends/Commands/Delete/D
 import { SyncFriendsQueryHandler } from './Features/Friends/Queries/SyncFriendsQueryHandler.js';
 import { GetProfileByTagQueryHandler } from './Features/Friends/Queries/GetProfileByTagQueryHandler.js';
 import { GetMediaQueryHandler } from './Features/Files/Queries/GetMediaQueryHandler.js';
+import { CreateChatCommandHandler } from './Features/Chat/Commands/CreateChatCommandHandler.js';
+import { DeleteChatCommandHandler } from './Features/Chat/Commands/DeleteChatCommandHandler.js';
+import { AddMessageCommandHandler } from './Features/Chat/Commands/AddMessageCommandHandler.js';
+import { UpdateDeliveryStatusCommandHandler } from './Features/Chat/Commands/UpdateDeliveryStatusCommandHandler.js';
+import { GetChatsQueryHandler } from './Features/Chat/Queries/GetChatsQueryhandler.js';
+import { GetMessagesQueryHandler } from './Features/Chat/Queries/GetMessagesQueryHandler.js';
 
 const services = {
     logoutManager: asValue(LogoutManager.getInstance()),
@@ -48,6 +51,9 @@ const chatHandlers = {
     addMessageCommandHandler: asClass(AddMessageCommandHandler, { lifetime: Lifetime.SINGLETON }),
     getChatsQueryHandler: asClass(GetChatsQueryHandler, { lifetime: Lifetime.SINGLETON }),
     getMessagesQueryHandler: asClass(GetMessagesQueryHandler, { lifetime: Lifetime.SINGLETON }),
+    createChatCommandHandler: asClass(CreateChatCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    deleteChatCommandHandler: asClass(DeleteChatCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    updateDeliveryStatusCommandHandler: asClass(UpdateDeliveryStatusCommandHandler, { lifetime: Lifetime.SINGLETON }),
 };
 
 const userHandlers = {
