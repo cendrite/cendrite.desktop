@@ -1,4 +1,4 @@
-export class Media {
+export class MediaContract {
     public readonly id: string;
     public readonly type: string;
     public readonly content: Uint8Array;

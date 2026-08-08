@@ -1,4 +1,4 @@
-import { Media } from '../../../Contracts/Models/Media.js';
+import { MediaContract } from "../../../Contracts/Models/MediaContract.js";
 
 export class SendMessageCommand implements MediatorRequest {
     type = 'SendMessageCommand';
@@ -8,7 +8,7 @@ export class SendMessageCommand implements MediatorRequest {
     public readonly connectionIds: string[];
     public readonly chatId: string;
     public readonly message: string;
-    public readonly media: Media[];
+    public readonly media: MediaContract[];
 
     constructor(
         chatId: string,
@@ -17,7 +17,7 @@ export class SendMessageCommand implements MediatorRequest {
         participants: string[],
         connectionIds: string[],
         message: string,
-        media: Media[] | null = null,
+        media: MediaContract[] | null = null,
     ) {
         this.messageId = messageId;
         this.userConnectionId = userConnectionId;

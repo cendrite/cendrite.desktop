@@ -3,18 +3,18 @@ import { randomUUID } from 'node:crypto';
 import { dialog, BrowserWindow, app } from 'electron';
 import { Handler } from '../../../Mediator/Handler.js';
 import { GetMediaQuery, MediaType } from '../Contracts/GetMedia.js';
-import { MediaDto } from '../../Chat/Dtos/MediaDto.js';
 import { Result } from '../../../../../Shared/Result/Result.js';
 import { ErrorMessage } from '../../../../../Shared/Result/ErrorMessage.js';
+import { MediaContract } from '../../../Contracts/Models/MediaContract.js';
 
-export class GetMediaQueryHandler implements Handler<GetMediaQuery, MediaDto[]> {
+export class GetMediaQueryHandler implements Handler<GetMediaQuery, MediaContract[]> {
     private readonly mainWindow: BrowserWindow;
 
     constructor(mainWindow: BrowserWindow) {
         this.mainWindow = mainWindow;
     }
 
-    public async handle(request: GetMediaQuery): Promise<Result<MediaDto[]>> {
+    public async handle(request: GetMediaQuery): Promise<Result<MediaContract[]>> {
         try {
             const { canceled, filePaths } = await dialog.showOpenDialog(this.mainWindow, {
                 title: 'Select a media file',
@@ -24,7 +24,7 @@ export class GetMediaQueryHandler implements Handler<GetMediaQuery, MediaDto[]> 
             });
 
             if (canceled || !filePaths || filePaths.length === 0) {
-                return Result.fail<MediaDto[]>(new ErrorMessage(null, 'No file selected'));
+                return Result.fail<MediaContract[]>(new ErrorMessage(null, 'No file selected'));
             }
 
             const media = filePaths.map((filePath) => this.ToMediaDto(filePath));
@@ -33,16 +33,16 @@ export class GetMediaQueryHandler implements Handler<GetMediaQuery, MediaDto[]> 
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
             console.error('GetMedia Failed:', errorMessage);
-            return Result.fail<MediaDto[]>(new ErrorMessage(null, 'GetMedia Failed'));
+            return Result.fail<MediaContract[]>(new ErrorMessage(null, 'GetMedia Failed'));
         }
     }
 
-    private ToMediaDto(filePath: string): MediaDto {
+    private ToMediaDto(filePath: string): MediaContract {
         const fileExtension = filePath.split('.').pop()?.toLowerCase() ?? '';
         const content = fs.readFileSync(filePath);
         const mime = this.MimeForExtension(fileExtension);
 
-        return new MediaDto(randomUUID(), mime, content);
+        return new MediaContract(randomUUID(), mime, content);
     }
 
     private SelectExtension(mediaType: MediaType): string[] {

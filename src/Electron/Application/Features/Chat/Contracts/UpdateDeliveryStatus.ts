@@ -1,4 +1,4 @@
-import { DeliveryStatus } from "../../../../../Domain/Enums/DeliveryStatus.js";
+import { DeliveryStatus } from "../../../../Domain/Enums/DeliveryStatus.js";
 
 export class UpdateDeliveryStatusCommand implements MediatorRequest {
     type = UpdateDeliveryStatusCommand.name;

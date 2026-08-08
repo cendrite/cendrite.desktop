@@ -1,6 +1,6 @@
 import { Message } from '../../../../Domain/Entities/Message.js';
 import { DeliveryStatus } from '../../../../Domain/Enums/DeliveryStatus.js';
-import { MediaDto } from './MediaDto.js';
+import { MediaContract } from '../../../Contracts/Models/MediaContract.js';
 
 export class MessageDto {
     id: string;
@@ -8,7 +8,7 @@ export class MessageDto {
     senderId: string;
     timestamp: Date;
     content: string;
-    media: MediaDto[];
+    media: MediaContract[];
     deliveryStatus: DeliveryStatus;
 
     constructor(
@@ -17,7 +17,7 @@ export class MessageDto {
         senderId: string,
         content: string,
         timestamp: Date,
-        media: MediaDto[],
+        media: MediaContract[],
         deliveryStatus: DeliveryStatus,
     ) {
         this.id = id;
@@ -29,7 +29,7 @@ export class MessageDto {
         this.deliveryStatus = deliveryStatus;
     }
 
-    public static fromMessage(message: Message, media: MediaDto[]): MessageDto {
+    public static fromMessage(message: Message, media: MediaContract[]): MessageDto {
         return new MessageDto(
             message.id,
             message.messageToken,

@@ -1,5 +1,5 @@
 import { DeliveryStatus } from "../../../Domain/Enums/DeliveryStatus.js";
-import { Media } from "./Media.js";
+import { MediaContract } from "./MediaContract.js";
 
 export class MessageContract {
     id: string;
@@ -7,7 +7,7 @@ export class MessageContract {
     messageToken: string | null = null;
     senderId: string;
     text: string;
-    media: Media[];
+    media: MediaContract[];
     date: Date;
     deliveryStatus: DeliveryStatus;
 
@@ -17,7 +17,7 @@ export class MessageContract {
         senderId: string,
         text: string,
         date: Date,
-        media: Media[],
+        media: MediaContract[],
         deliveryStatus: DeliveryStatus,
         messageToken: string | null = null,
     ) {
