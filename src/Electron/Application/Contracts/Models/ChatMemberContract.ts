@@ -1,21 +1,21 @@
-﻿export class ChatMemberDto {
+export class ChatMemberContract {
     id: string;
     friendId: string;
-    privilege: number;
+    privelege: number;
     displayName: string;
-    connectionIds!: string[];
-
+    connectionsIds: string[] | null;
+    
     constructor(
         id: string,
         friendId: string,
-        privilege: number,
+        privelege: number,
         displayName: string,
-        connectionIds: string[] | null = null,
+        connectionsIds: string[] | null = null
     ) {
         this.id = id;
         this.friendId = friendId;
-        this.privilege = privilege;
+        this.privelege = privelege;
         this.displayName = displayName;
-        this.connectionIds = connectionIds ?? [];
+        this.connectionsIds = connectionsIds;
     }
 }
