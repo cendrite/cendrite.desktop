@@ -1,7 +1,7 @@
 ﻿import Modal from "react-modal";
 import React from "react";
 import { Result } from "../../../../Shared/Result/Result.ts";
-import { DeleteFriendCommand } from "../../../../Electron/Application/Features/Friends/Commands/Delete/DeleteFriendCommand.ts";
+import { DeleteFriendCommand } from "../../../../Electron/Application/Features/Friends/Contracts/DeleteFriend.ts";
 import {useHomePage} from "../../../Context/HomePage/HomePageContext.tsx";
 import {HomePageActionType} from "../../../Context/HomePage/HomePageReducer.ts";
 import { Contact } from "../../../Models/Contact.ts";

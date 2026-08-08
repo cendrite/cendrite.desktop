@@ -5,11 +5,11 @@ import { useUser } from "../User/UserContext";
 import { useContactEvents } from "./ContactEvents";
 import { Result } from "../../../Shared/Result/Result";
 import { Contact } from "../../Models/Contact";
-import { FriendDto } from "../../../Electron/Application/Features/Friends/Dto/FriendDto";
+import { FriendContract } from "../../../Electron/Application/Contracts/Models/FriendContract";
 import { SyncFriendsQuery } from "../../../Electron/Application/Features/Friends/Contracts/SyncFriends";
 
 const syncFriends = async (): Promise<Contact[]> => {
-    const result = await window.electron.sendRequestAsync<Result<FriendDto[]>>(new SyncFriendsQuery());
+    const result = await window.electron.sendRequestAsync<Result<FriendContract[]>>(new SyncFriendsQuery());
 
     if (!result.success || !result.data) return [];
 

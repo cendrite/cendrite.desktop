@@ -12,7 +12,7 @@ import { Result } from '../../../../Shared/Result/Result.ts';
 import { SendFriendRequestCommand } from '../../../../Electron/Application/Features/Friends/Contracts/SendFriendRequest.ts';
 import { DeclineFriendRequestCommand } from '../../../../Electron/Application/Features/Friends/Contracts/DeclineFriendRequest.ts';
 import { AcceptFriendRequestCommand } from '../../../../Electron/Application/Features/Friends/Contracts/AcceptFriendRequest.ts';
-import { FriendDto } from '../../../../Electron/Application/Features/Friends/Dto/FriendDto.ts';
+import { FriendContract } from '../../../../Electron/Application/Contracts/Models/FriendContract.ts';
 import { Contact } from '../../../Models/Contact.ts';
 
 interface PublicUserProfileCardProps {
@@ -56,7 +56,7 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
     };
 
     const onAcceptFriendRequest = async () => {
-        const result = await window.electron.sendRequestAsync<Result<FriendDto>>(
+        const result = await window.electron.sendRequestAsync<Result<FriendContract>>(
             new AcceptFriendRequestCommand(friendTag),
         );
         if (result.success && result.data) {

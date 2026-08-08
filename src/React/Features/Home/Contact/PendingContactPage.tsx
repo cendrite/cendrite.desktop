@@ -8,7 +8,7 @@ import { usePendingContacts } from '../../../Context/PendingContact/PendingConta
 import { PendingContactActionType } from '../../../Context/PendingContact/PendingContactReducer.ts';
 import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
 import { Result } from '../../../../Shared/Result/Result.ts';
-import { FriendDto } from '../../../../Electron/Application/Features/Friends/Dto/FriendDto.ts';
+import { FriendContract } from '../../../../Electron/Application/Contracts/Models/FriendContract.ts';
 import { AcceptFriendRequestCommand } from '../../../../Electron/Application/Features/Friends/Contracts/AcceptFriendRequest.ts';
 import { DeclineFriendRequestCommand } from '../../../../Electron/Application/Features/Friends/Contracts/DeclineFriendRequest.ts';
 
@@ -34,7 +34,7 @@ const PendingContactPage: React.FC<PendingContactPage> = ({ pendingContact, onCl
     };
 
     const handleAccept = async () => {
-        const result = await window.electron.sendRequestAsync<Result<FriendDto>>(
+        const result = await window.electron.sendRequestAsync<Result<FriendContract>>(
             new AcceptFriendRequestCommand(pendingContact.id),
         );
         if (result.success) {

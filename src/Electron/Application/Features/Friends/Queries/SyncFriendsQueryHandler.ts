@@ -7,21 +7,21 @@ import { IChatStore } from '../../../Contracts/Repositories/IChatStore.js';
 import { IFriendRepository } from '../../../Contracts/Repositories/IFriendRepository.js';
 import { Handler } from '../../../Mediator/Handler.js';
 import { SyncFriendsQuery } from '../Contracts/SyncFriends.js';
-import { FriendDto } from '../Dto/FriendDto.js';
+import { FriendContract } from '../../../Contracts/Models/FriendContract.js';
 
-export class SyncFriendsQueryHandler implements Handler<SyncFriendsQuery, FriendDto[]> {
+export class SyncFriendsQueryHandler implements Handler<SyncFriendsQuery, FriendContract[]> {
     constructor(
         private readonly friendProvider: IFriendProvider,
         private readonly friendRepository: IFriendRepository,
         private readonly chatStore: IChatStore,
     ) { }
 
-    public async handle(_query: SyncFriendsQuery): Promise<Result<FriendDto[]>> {
+    public async handle(_query: SyncFriendsQuery): Promise<Result<FriendContract[]>> {
         const remoteResult = await this.friendProvider.getFriends();
 
         // Bail out rather than reconcile against an empty list, which would wipe every local friend.
         if (remoteResult.success === false || !remoteResult.data)
-            return Result.fail<FriendDto[]>(new ErrorMessage(null, 'Failed to load friends from remote server'));
+            return Result.fail<FriendContract[]>(new ErrorMessage(null, 'Failed to load friends from remote server'));
 
         const remoteFriends = remoteResult.data;
         const localFriends = await this.friendRepository.getAll();
@@ -47,7 +47,18 @@ export class SyncFriendsQueryHandler implements Handler<SyncFriendsQuery, Friend
             synced.push(friend);
         }
 
-        return Result.success(synced.map((friend) => FriendDto.MapFrom(friend)));
+        return Result.success(
+            synced.map(
+                (friend) =>
+                    new FriendContract(
+                        friend.id,
+                        friend.username,
+                        friend.displayName ?? null,
+                        friend.avatarKey,
+                        friend.connectionIds.map((c) => c.connectionId),
+                    ),
+            ),
+        );
     }
 
     private applyRemote(friend: Friend, remote: FriendResponse): Friend {
