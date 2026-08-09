@@ -1,6 +1,5 @@
 ﻿import { DeliveryStatus } from '../../Electron/Domain/Enums/DeliveryStatus.ts';
 import { v4 as uuid } from 'uuid';
-import { MessageDto } from '../../Electron/Application/Features/Chat/Dtos/MessageDto.ts';
 import { Media } from './Media.ts';
 import { MessageContract } from '../../Electron/Application/Contracts/Models/MessageContract.ts';
 
@@ -63,19 +62,6 @@ export class MessageViewModel {
             msg.media.map((m) => new Media(m.id, m.type, m.content)),
             msg.deliveryStatus,
             msg.messageToken,
-        );
-    }
-
-    public static mapFromDto(chatId: string, dto: MessageDto): MessageViewModel {
-        return new MessageViewModel(
-            dto.id,
-            chatId,
-            dto.senderId,
-            dto.content,
-            new Date(dto.timestamp),
-            dto.media.map((m) => new Media(m.id, m.type, m.content)),
-            dto.deliveryStatus,
-            dto.messageToken,
         );
     }
 }

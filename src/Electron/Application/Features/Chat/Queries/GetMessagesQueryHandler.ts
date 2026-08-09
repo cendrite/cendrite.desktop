@@ -1,18 +1,18 @@
 import { Result } from "../../../../../Shared/Result/Result.js";
 import { MediaContract } from "../../../Contracts/Models/MediaContract.js";
+import { MessageContract } from "../../../Contracts/Models/MessageContract.js";
 import { IChatStore } from "../../../Contracts/Repositories/IChatStore.js";
 import { IMediaStore } from "../../../Contracts/Repositories/IMediaStore.js";
 import { Handler } from "../../../Mediator/Handler.js";
 import { GetMessagesQuery } from "../Contracts/GetMessages.js";
-import { MessageDto } from "../Dtos/MessageDto.js";
 
-export class GetMessagesQueryHandler implements Handler<GetMessagesQuery, MessageDto[]> {
+export class GetMessagesQueryHandler implements Handler<GetMessagesQuery, MessageContract[]> {
     constructor(
         private readonly chatStore: IChatStore,
         private readonly mediaStore: IMediaStore,
     ) { }
 
-    public async handle(request: GetMessagesQuery): Promise<Result<MessageDto[]>> {
+    public async handle(request: GetMessagesQuery): Promise<Result<MessageContract[]>> {
 
         const messages = await this.chatStore.getMessages(request.chatId, request.offset, request.take);
 
@@ -25,7 +25,15 @@ export class GetMessagesQueryHandler implements Handler<GetMessagesQuery, Messag
                     const mediaContent = await this.mediaStore.get(m.id);
                     mediaDtos.push(new MediaContract(m.id, m.type, mediaContent));
                 }
-                return MessageDto.fromMessage(message, mediaDtos);
+                return new MessageContract(
+                    message.id,
+                    message.chatId,
+                    message.senderId,
+                    message.content,
+                    message.timestamp,
+                    mediaDtos,
+                    message.deliveryStatus,
+                );
             }),
         );
 

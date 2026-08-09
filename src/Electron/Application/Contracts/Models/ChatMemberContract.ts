@@ -1,7 +1,9 @@
+import { ChatPrivileges } from "../../../Domain/Enums/ChatPrivileges.js";
+
 export class ChatMemberContract {
     id: string;
     friendId: string;
-    privelege: number;
+    privelege: ChatPrivileges;
     displayName: string;
     connectionsIds: string[] | null;
     

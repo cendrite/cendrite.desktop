@@ -1,26 +1,24 @@
 ﻿import { ChatViewModel } from '../../Models/ChatViewModel.ts';
 import { Result } from '../../../Shared/Result/Result.ts';
-import { CreateChatDto, CreateChatCommand } from '../../../Electron/Application/Features/Chat/Contracts/CreateChat.ts';
+import { CreateChatCommand } from '../../../Electron/Application/Features/Chat/Contracts/CreateChat.ts';
+import { ChatContract } from '../../../Electron/Application/Contracts/Models/ChatContract.ts';
 import { DeleteChatCommand } from '../../../Electron/Application/Features/Chat/Contracts/DeleteChat.ts';
 import { v4 as uuid } from 'uuid';
 import { ChatPrivileges } from '../../../Electron/Domain/Enums/ChatPrivileges.ts';
 import { ChatMemberViewModel } from '../../Models/ChatMemberViewModel.ts';
 import { GetChatsQuery } from '../../../Electron/Application/Features/Chat/Contracts/GetChats.ts';
-import { ChatDto } from '../../../Electron/Application/Features/Chat/Dtos/ChatDto.ts';
 import { Contact } from '../../Models/Contact.ts';
 import { User } from '../../Models/User.ts';
 import { sha256 } from '../../../Shared/HelperFunctions.ts';
 import { MessageViewModel } from '../../Models/MessageViewModel.ts';
-import { UpdateDeliveryStatusCommand } from '../../../Electron/Application/Features/Chat/Contracts/UpdateDeliveryStatus.ts';
-import { MessageDto } from '../../../Electron/Application/Features/Chat/Dtos/MessageDto.ts';
 import { DeliveryStatus } from '../../../Electron/Domain/Enums/DeliveryStatus.ts';
 import { GetMessagesQuery } from '../../../Electron/Application/Features/Chat/Contracts/GetMessages.ts';
 import { Media } from '../../Models/Media.ts';
 import { SendMessageCommand } from '../../../Electron/Application/Features/Chat/Contracts/SendMessage.ts';
 import { MessageContract } from '../../../Electron/Application/Contracts/Models/MessageContract.ts';
+import { UpdateDeliveryStatusCommand } from '../../../Electron/Application/Features/Chat/Contracts/UpdateDeliveryStatus.ts';
 
 export class ChatService {
-
     public async sendMessage(
         user: User,
         connectionIds: string[],
@@ -92,20 +90,20 @@ export class ChatService {
 
     public async initializeChat(user: User, contact: Contact): Promise<ChatViewModel> {
         const chatId = await this.deriveChatId(user.userTag, contact.id);
-        const result = await window.electron.sendRequestAsync<Result<CreateChatDto>>(
+        const result = await window.electron.sendRequestAsync<Result<ChatContract>>(
             new CreateChatCommand(chatId, contact.id, uuid().toString(), ChatPrivileges.Admin),
         );
 
         if (!result.success) throw new Error('Failed to create chat');
 
-        const memberDto = result.data!.member;
-        const chatMember = new ChatMemberViewModel(memberDto.id, memberDto.privilege, memberDto.displayName, contact);
+        const memberDto = result.data!.members[0];
+        const chatMember = new ChatMemberViewModel(memberDto.id, memberDto.privelege, memberDto.displayName, contact);
 
         return new ChatViewModel(result.data!.id, [chatMember]);
     }
 
     public async getChats(contacts: Contact[]): Promise<ChatViewModel[]> {
-        const chatsResult = await window.electron.sendRequestAsync<Result<ChatDto[]>>(new GetChatsQuery(30, 20));
+        const chatsResult = await window.electron.sendRequestAsync<Result<ChatContract[]>>(new GetChatsQuery(30, 20));
 
         if (!chatsResult.success) {
             throw new Error('Failed to get chats');
@@ -116,10 +114,10 @@ export class ChatService {
                 const contact = contacts.find((c) => c.id === memberDto.friendId);
                 if (!contact) return [];
 
-                return [new ChatMemberViewModel(memberDto.id, memberDto.privilege, memberDto.displayName, contact)];
+                return [new ChatMemberViewModel(memberDto.id, memberDto.privelege, memberDto.displayName, contact)];
             });
 
-            const messages = chatDto.messages.map((msgDto) => MessageViewModel.mapFromDto(chatDto.id, msgDto));
+            const messages = chatDto.messages.map((msgDto) => MessageViewModel.mapFromContract(msgDto));
 
             return new ChatViewModel(
                 chatDto.id,
@@ -132,7 +130,7 @@ export class ChatService {
     }
 
     public async getMessages(chatId: string, offset: number, take: number): Promise<MessageViewModel[]> {
-        const messages = await window.electron.sendRequestAsync<Result<MessageDto[]>>(
+        const messages = await window.electron.sendRequestAsync<Result<MessageContract[]>>(
             new GetMessagesQuery(chatId, offset, take),
         );
 
@@ -141,7 +139,7 @@ export class ChatService {
         }
 
         console.log('Fetched messages:', messages.data);
-        return messages.data!.map((dto) => MessageViewModel.mapFromDto(chatId, dto));
+        return messages.data!.map((c) => MessageViewModel.mapFromContract(c));
     }
 
     public async deriveChatId(a: string, b: string): Promise<string> {

@@ -1,5 +1,5 @@
 ﻿export class AddFriendConnectionIdCommand implements MediatorRequest {
-    type = "AddConnectionIdCommand";
+    type = "AddFriendConnectionIdCommand";
     id: string;
     connectionId: string [];
 

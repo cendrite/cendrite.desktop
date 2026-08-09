@@ -8,6 +8,8 @@ import * as fs from 'node:fs';
 import { buildContainer } from './Container.js';
 import { initializeDatabase } from './Infrastructure/Persistence/Context/DatabaseContext.js';
 import { IMessageReceiver } from './Infrastructure/Signal/Messaging/MessageReceiver.js';
+import { Mediator } from './Application/Mediator/Mediator.js';
+import { ipcMain } from 'electron/main';
 
 if (process.env.ELECTRON_INSTANCE_ID) {
     console.log(`ELECTRON_INSTANCE_ID: ${process.env.ELECTRON_INSTANCE_ID}`);
@@ -45,6 +47,11 @@ app.on('ready', async () => {
     }
 
     const container = buildContainer(mainWindow);
+    const mediator = new Mediator(container);
+
+    ipcMain.handle('mediator:send', async (_event, request: MediatorRequest) => {
+        return await mediator.send(request);
+    });
 
     container.resolve<IMessageReceiver>('messageReceiver').start();
 
