@@ -1,13 +1,13 @@
-import { ChatMemberDto } from "./ChatMemberDto.js";
-import { MessageDto } from "./MessageDto.js";
+import { ChatMemberContract } from "./ChatMemberContract.js";
+import { MessageContract } from "./MessageContract.js";
 
-export class ChatDto {
+export class ChatContract {
     id: string;
     groupId: string | null;
     isGroup: boolean;
     groupName: string | null;
-    members: ChatMemberDto[];
-    messages: MessageDto[]
+    members: ChatMemberContract[];
+    messages: MessageContract[];
     messageTtl: number | null;
     muted: boolean;
     muteTimer: number | null;
@@ -17,20 +17,21 @@ export class ChatDto {
         groupId: string | null,
         isGroup: boolean,
         groupName: string | null,
-        members: ChatMemberDto[],
+        members: ChatMemberContract[],
         messageTtl: number | null,
         muted: boolean,
         muteTimer: number | null,
-        messages: MessageDto[]
+        messages: MessageContract[]
     ) {
         this.id = id;
         this.groupId = groupId;
         this.isGroup = isGroup;
         this.groupName = groupName;
         this.members = members;
+        this.messages = messages;
         this.messageTtl = messageTtl;
         this.muted = muted;
         this.muteTimer = muteTimer;
-        this.messages = messages;
     }
 }
+

@@ -1,21 +1,21 @@
 import { Result } from "../../../../../Shared/Result/Result.js";
 import { Chat } from "../../../../Domain/Aggregates/Chat.js";
 import { Message } from "../../../../Domain/Entities/Message.js";
+import { ChatContract } from "../../../Contracts/Models/ChatContract.js";
+import { ChatMemberContract } from "../../../Contracts/Models/ChatMemberContract.js";
 import { MediaContract } from "../../../Contracts/Models/MediaContract.js";
+import { MessageContract } from "../../../Contracts/Models/MessageContract.js";
 import { IChatStore } from "../../../Contracts/Repositories/IChatStore.js";
 import { IMediaStore } from "../../../Contracts/Repositories/IMediaStore.js";
 import { Handler } from "../../../Mediator/Handler.js";
 import { GetChatsQuery } from "../Contracts/GetChats.js";
-import { ChatDto } from "../Dtos/ChatDto.js";
-import { ChatMemberDto } from "../Dtos/ChatMemberDto.js";
-import { MessageDto } from "../Dtos/MessageDto.js";
 
-export class GetChatsQueryHandler implements Handler<GetChatsQuery, ChatDto[]> {
+export class GetChatsQueryHandler implements Handler<GetChatsQuery, ChatContract[]> {
     constructor(
         private readonly chatStore: IChatStore,
         private readonly mediaStore: IMediaStore,
     ) { }
-    public async handle(request: GetChatsQuery): Promise<Result<ChatDto[]>> {
+    public async handle(request: GetChatsQuery): Promise<Result<ChatContract[]>> {
 
         const chats = await this.chatStore.getChats(request.chatCount);
 
@@ -27,21 +27,21 @@ export class GetChatsQueryHandler implements Handler<GetChatsQuery, ChatDto[]> {
         );
 
         const chatDtos = await this.mapToDto(chats);
-        return Result.success<ChatDto[]>(chatDtos);
+        return Result.success<ChatContract[]>(chatDtos);
     }
 
-    private async mapToDto(chats: Chat[]): Promise<ChatDto[]> {
+    private async mapToDto(chats: Chat[]): Promise<ChatContract[]> {
         return Promise.all(
             chats.map(
                 async (chat) =>
-                    new ChatDto(
+                    new ChatContract(
                         chat.id,
                         chat.groupId,
                         chat.isGroup,
                         chat.groupName,
                         chat.members.map(
                             (member) =>
-                                new ChatMemberDto(
+                                new ChatMemberContract(
                                     member.id,
                                     member.friend.id,
                                     member.privilege,
@@ -52,13 +52,13 @@ export class GetChatsQueryHandler implements Handler<GetChatsQuery, ChatDto[]> {
                         chat.messageTtl,
                         chat.muted,
                         chat.muteTimer,
-                        await Promise.all(chat.messages.map((m) => this.toMessageDto(m))),
+                        await Promise.all(chat.messages.map((m) => this.toMessageContracts(m))),
                     ),
             ),
         );
     }
 
-    private async toMessageDto(message: Message): Promise<MessageDto> {
+    private async toMessageContracts(message: Message): Promise<MessageContract> {
 
         const mediaDtos: MediaContract[] = [];
         for (const m of message.messageMedia ?? []) {
@@ -66,6 +66,15 @@ export class GetChatsQueryHandler implements Handler<GetChatsQuery, ChatDto[]> {
             mediaDtos.push(new MediaContract(m.id, m.type, mediaContent));
         }
 
-        return MessageDto.fromMessage(message, mediaDtos);
+        return new MessageContract(
+            message.id,
+            message.chatId,
+            message.senderId,
+            message.content,
+            message.timestamp,
+            mediaDtos,
+            message.deliveryStatus,
+            message.messageToken
+        );
     }
 }

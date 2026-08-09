@@ -1,6 +1,6 @@
 ﻿
-export class RemoveFriendConnectionIdCommand {
-    type = "RemoveConnectionIdCommand";
+export class RemoveFriendConnectionIdCommand implements MediatorRequest {
+    type = "RemoveFriendConnectionIdCommand";
     id: string;
     connectionId: string[];
 
