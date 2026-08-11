@@ -70,7 +70,7 @@ export class MessageReceiver implements IMessageReceiver {
         );
 
         this.mainWindow.webContents.send(
-            'hubMessage',
+            'message',
             new MessageContract(
                 message.id,
                 message.ChatId,

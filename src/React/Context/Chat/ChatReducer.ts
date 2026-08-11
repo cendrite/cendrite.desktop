@@ -18,6 +18,7 @@ export enum ChatActionType {
     SetActiveChat = 10,
     ClearActiveChat = 11,
     PrependMessages = 12,
+    UpdateMessageDeliveryStatus = 13,
 }
 
 export type ChatAction =
@@ -34,7 +35,11 @@ export type ChatAction =
     | { type: ChatActionType.MarkAsRead; payload: { chatId: string; messagesIds: string[] } }
     | { type: ChatActionType.SetActiveChat; payload: { chatId: string } }
     | { type: ChatActionType.ClearActiveChat }
-    | { type: ChatActionType.Clear };
+    | { type: ChatActionType.Clear }
+    | {
+        type: ChatActionType.UpdateMessageDeliveryStatus;
+        payload: { chatId: string; messageId: string; status: DeliveryStatus };
+    };
 
 export const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
     switch (action.type) {
@@ -97,6 +102,31 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
                             DeliveryStatus.Read,
                         )
                         : msg;
+                });
+
+                return new ChatViewModel(chat.id, chat.chatMembers, updatedMessages);
+            });
+
+            return { ...state, chats };
+        }
+
+        case ChatActionType.UpdateMessageDeliveryStatus: {
+            const { chatId, messageId, status } = action.payload;
+            const chats = state.chats.map((chat) => {
+                if (chat.id !== chatId) return chat;
+
+                const updatedMessages = chat.messages.map((msg) => {
+                    if (msg.id !== messageId) return msg;
+
+                    return new MessageViewModel(
+                        msg.id,
+                        msg.chatId,
+                        msg.senderId,
+                        msg.text,
+                        msg.date,
+                        msg.media,
+                        status,
+                    );
                 });
 
                 return new ChatViewModel(chat.id, chat.chatMembers, updatedMessages);

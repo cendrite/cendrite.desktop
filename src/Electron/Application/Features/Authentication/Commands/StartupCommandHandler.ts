@@ -4,6 +4,7 @@ import { SignalManager } from '../../../../Infrastructure/Signal/SignalManager.j
 import { UserContract } from '../../../Contracts/Models/UserContract.js';
 import { IDeviceRepository } from '../../../Contracts/Repositories/IDeviceRepository.js';
 import { IUserRepository } from '../../../Contracts/Repositories/IUserRepository.js';
+import { IPump } from '../../../Contracts/Services/IPump.js';
 import { Handler } from '../../../Mediator/Handler.js';
 import { StartupCommand, StartupDto } from '../Contracts/Startup.js';
 
@@ -13,6 +14,7 @@ export class StartupCommandHandler implements Handler<StartupCommand, StartupDto
         private readonly userRepository: IUserRepository,
         private readonly tokenManager: TokenManager,
         private readonly signalManager: SignalManager,
+        private readonly messagePump: IPump,
     ) { }
 
     public async handle(_cmd: StartupCommand): Promise<Result<StartupDto>> {
@@ -41,6 +43,7 @@ export class StartupCommandHandler implements Handler<StartupCommand, StartupDto
 
         await this.tokenManager.init(returnUsr.id, returnUsr.deviceId);
         await this.signalManager.connect();
+        this.messagePump.start();
 
         return Result.success({
             user: returnUsr,

@@ -23,6 +23,7 @@ import { AuthenticationClient } from './Clients/AuthenticationClient.js';
 import { MediaProvider } from './Clients/MediaProvider.js';
 import { UserClient } from './Clients/UserClient.js';
 import { FriendClient } from './Clients/FriendClient.js';
+import { MessagePump } from './Jobs/MessagePump.js';
 
 const services = {
     tokenManager: asClass(TokenManager, { lifetime: Lifetime.SINGLETON }),
@@ -57,6 +58,10 @@ const providers = {
     userProvider: asClass(UserClient, { lifetime: Lifetime.SINGLETON }),
     friendProvider: asClass(FriendClient, { lifetime: Lifetime.SINGLETON }),
 };
+
+const jobs = {
+    messagePump: asClass(MessagePump, { lifetime: Lifetime.SINGLETON }),
+}
 
 const httpClients = {
     deviceApiClient: asFunction(() => new ApiClient(API_URLS.IDENTITY.DEVICE, null)).singleton(),
@@ -93,5 +98,6 @@ export const infrastructureResolvers = {
     ...persistence,
     ...signalR,
     ...providers,
+    ...jobs,
     ...httpClients,
 };

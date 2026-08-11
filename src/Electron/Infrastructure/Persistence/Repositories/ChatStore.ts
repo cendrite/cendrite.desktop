@@ -18,6 +18,22 @@ export class ChatStore implements IChatStore {
         this.messageRepository = dbContext.getRepository(Message);
     }
 
+    public async markMessage(messageId: string, status: DeliveryStatus): Promise<void> {
+        await this.messageRepository
+            .createQueryBuilder()
+            .update(Message)
+            .set({ deliveryStatus: status })
+            .where('id = :messageId', { messageId })
+            .execute();
+    }
+
+    public async getNextPendingMessage(): Promise<Message | null> {
+        return this.messageRepository.findOne({
+            where: { deliveryStatus: DeliveryStatus.Pending },
+            order: { timestamp: 'ASC' },
+        });
+    }
+
     public async storeMessage(message: Message) {
         await this.messageRepository.save(message);
     }

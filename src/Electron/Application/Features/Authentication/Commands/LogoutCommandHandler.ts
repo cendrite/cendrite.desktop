@@ -1,6 +1,7 @@
 import { Result } from '../../../../../Shared/Result/Result.js';
 import { TokenManager } from '../../../../Infrastructure/Services/TokenManager.js';
 import { IAuthenticationProvider } from '../../../Contracts/Providers/IAuthenticationProvider.js';
+import { IPump } from '../../../Contracts/Services/IPump.js';
 import { Handler } from '../../../Mediator/Handler.js';
 import { PurgeLocalDataService } from '../../../Services/Data/PurgeLocalDataService.js';
 import { LogoutManager } from '../../../Services/LogoutManager/LogoutManager.js';
@@ -12,6 +13,7 @@ export class LogoutCommandHandler implements Handler<LogoutCommand, void> {
         private readonly tokenManager: TokenManager,
         private readonly logoutManager: LogoutManager,
         private readonly purgeLocalDataService: PurgeLocalDataService,
+        private readonly messagePump: IPump,
     ) { }
 
     public async handle(_cmd: LogoutCommand): Promise<Result<void>> {
@@ -19,6 +21,8 @@ export class LogoutCommandHandler implements Handler<LogoutCommand, void> {
             console.log('LogoutCommandHandler.handle: Logout already in progress, ignoring');
             return Result.success();
         }
+
+        this.messagePump.stop();
 
         this.logoutManager.startLogout();
 
