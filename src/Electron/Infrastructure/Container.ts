@@ -24,6 +24,7 @@ import { MediaProvider } from './Clients/MediaProvider.js';
 import { UserClient } from './Clients/UserClient.js';
 import { FriendClient } from './Clients/FriendClient.js';
 import { MessagePump } from './Jobs/MessagePump.js';
+import { EventRepository } from './Persistence/Repositories/EventRepository.js';
 
 const services = {
     tokenManager: asClass(TokenManager, { lifetime: Lifetime.SINGLETON }),
@@ -40,6 +41,7 @@ const persistence = {
     userRepository: asClass(UserRepository, { lifetime: Lifetime.SINGLETON }),
     mediaStore: asClass(MediaStore, { lifetime: Lifetime.SINGLETON }),
     friendRepository: asClass(FriendRepository, { lifetime: Lifetime.SINGLETON }),
+    eventRepository: asClass(EventRepository, { lifetime: Lifetime.SINGLETON }),
 };
 
 const signalR = {
