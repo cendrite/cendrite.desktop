@@ -15,6 +15,7 @@ import { IdentityCacheSchema } from '../Schemas/IdentityCacheSchema.js';
 import { SignedPreKeySchema } from '../Schemas/SignedPreKeySchema.js';
 import { SessionRecordSchema } from '../Schemas/SessionRecordSchema.js';
 import { MessageMediaSchema } from '../Schemas/MessageMediaSchema.js';
+import { OutboxEventSchema } from '../Schemas/OutboxEventSchema.js';
 
 let dbContext: DataSource;
 
@@ -41,6 +42,7 @@ export async function initializeDatabase(dbPath: string | null = null): Promise<
             IdentityKeysSchema,
             IdentityCacheSchema,
             SignedPreKeySchema,
+            OutboxEventSchema
         ],
         migrations: [],
         synchronize: true,
