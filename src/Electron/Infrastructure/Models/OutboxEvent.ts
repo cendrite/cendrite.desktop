@@ -1,23 +1,21 @@
-export class PumpEvent {
-    id: number;
-    type: string;
-    content: string;
-    occuredOn: Date;
-    processedOn: Date | null;
-    error: string | null;
+export class OutboxEvent {
+    public readonly id!: number;
+    public readonly type: string;
+    public readonly content: string;
+    public readonly occurredOn: Date;
+    public readonly processedOn: Date | null;
+    public readonly error: string | null;
 
     constructor(
-        id: number,
         type: string,
         content: string,
         occuredOn: Date,
         processedOn: Date | null = null,
         error: string | null = null,
     ) {
-        this.id = id;
         this.type = type;
         this.content = content;
-        this.occuredOn = occuredOn;
+        this.occurredOn = occuredOn;
         this.processedOn = processedOn;
         this.error = error;
     }

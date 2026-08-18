@@ -1,6 +1,6 @@
-import { IDomainEvent } from "../../../Domain/Events/IEvent.js";
+import { DomainEvent } from "../../../Domain/Events/IDomainEvent.js";
 
 export interface IEventRepository {
-    appendEvent(event: IDomainEvent): Promise<void>;
-    getEvents(eventType: string, count: number): Promise<IDomainEvent[]>;
+    appendEvent(event: DomainEvent): Promise<void>;
+    getEvents(type: string, count: number): Promise<DomainEvent[]>;
 }
