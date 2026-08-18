@@ -1,12 +1,15 @@
+import { IEventRepository } from '../../Application/Contracts/Providers/IEventRepository.js';
 import { IChatStore } from '../../Application/Contracts/Repositories/IChatStore.js';
 import { IPump } from '../../Application/Contracts/Services/IPump.js';
 import { TransmitMessageCommand } from '../../Application/Features/Chat/Contracts/TransmitMessage.js';
 import { Mediator } from '../../Application/Mediator/Mediator.js';
 import { DeliveryStatus } from '../../Domain/Enums/DeliveryStatus.js';
+import { TransmitMessageEvent } from '../../Domain/Events/TransmitMessageEvent.js';
 
 export class MessagePump implements IPump {
     constructor(
         private readonly chatStore: IChatStore,
+        private readonly eventRepository: IEventRepository,
         private readonly mediator: Mediator,
         private readonly mainWindow: Electron.BrowserWindow,
     ) { }
@@ -27,6 +30,7 @@ export class MessagePump implements IPump {
 
     private async process(): Promise<void> {
         while (this.isRunning) {
+            const msgEvents = await this.eventRepository.getEvents(TransmitMessageEvent.type, 1);
             const pendingMessage = await this.chatStore.getNextPendingMessage();
 
             if (!pendingMessage) {

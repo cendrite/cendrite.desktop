@@ -1,4 +1,3 @@
-
 export abstract class DomainEvent {
     public readonly occurredOn: Date; 
     static readonly type: string;
@@ -17,7 +16,6 @@ const deserializerRegistry = new Map<string, Deserializer>();
 export function registerDomainEvent(type: string, ctor: DomainEventCtor, deserialize: Deserializer): void {
     registry.set(type, ctor);
     deserializerRegistry.set(type, deserialize);
-
 }
 
 export function resolveDeserializer(type: string): Deserializer | undefined {

@@ -2,7 +2,9 @@ import { Result } from '../../../../../Shared/Result/Result.js';
 import { Message } from '../../../../Domain/Entities/Message.js';
 import { MessageMedia } from '../../../../Domain/Entities/MessageMedia.js';
 import { DeliveryStatus } from '../../../../Domain/Enums/DeliveryStatus.js';
+import { TransmitMessageEvent } from '../../../../Domain/Events/TransmitMessageEvent.js';
 import { MessageContract } from '../../../Contracts/Models/MessageContract.js';
+import { IEventRepository } from '../../../Contracts/Providers/IEventRepository.js';
 import { IChatStore } from '../../../Contracts/Repositories/IChatStore.js';
 import { IMediaStore } from '../../../Contracts/Repositories/IMediaStore.js';
 import { IPump } from '../../../Contracts/Services/IPump.js';
@@ -12,9 +14,10 @@ import { v4 as uuid } from 'uuid';
 
 export class SendMessageV2CommandHandler implements Handler<SendMessageV2Command, MessageContract> {
     constructor(
+        private readonly eventRepository: IEventRepository,
         private readonly chatStore: IChatStore,
         private readonly mediaStore: IMediaStore,
-        private readonly messagePump: IPump,    
+        private readonly messagePump: IPump,
     ) { }
 
     async handle(cmd: SendMessageV2Command): Promise<Result<MessageContract>> {
@@ -45,6 +48,8 @@ export class SendMessageV2CommandHandler implements Handler<SendMessageV2Command
             message.deliveryStatus,
             message.messageToken,
         );
+
+        this.eventRepository.appendEvent(new TransmitMessageEvent(messageContract, cmd.connectionIds, new Date()));
 
         this.messagePump.notify();
 
