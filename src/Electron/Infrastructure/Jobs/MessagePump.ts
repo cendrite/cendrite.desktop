@@ -1,15 +1,15 @@
-import { IEventRepository } from '../../Application/Contracts/Providers/IEventRepository.js';
 import { IChatStore } from '../../Application/Contracts/Repositories/IChatStore.js';
 import { IPump } from '../../Application/Contracts/Services/IPump.js';
 import { TransmitMessageCommand } from '../../Application/Features/Chat/Contracts/TransmitMessage.js';
 import { Mediator } from '../../Application/Mediator/Mediator.js';
 import { DeliveryStatus } from '../../Domain/Enums/DeliveryStatus.js';
 import { TransmitMessageEvent } from '../../Domain/Events/TransmitMessageEvent.js';
+import { IOutboxRepository } from '../Interfaces/IOutboxRepository.js';
 
 export class MessagePump implements IPump {
     constructor(
         private readonly chatStore: IChatStore,
-        private readonly eventRepository: IEventRepository,
+        private readonly eventRepository: IOutboxRepository,
         private readonly mediator: Mediator,
         private readonly mainWindow: Electron.BrowserWindow,
     ) { }
@@ -32,10 +32,17 @@ export class MessagePump implements IPump {
     private async process(): Promise<void> {
         while (this.isRunning) {
             const msgEvent = await this.eventRepository.getEvent<TransmitMessageEvent>(TransmitMessageEvent.type);
-            const pendingMessage = await this.chatStore.getNextPendingMessage();
 
-            if (!msgEvent || !pendingMessage) {
+            if (!msgEvent) {
                 await this.sleep(1_000);
+                continue;
+            }
+
+            const pendingMessage = await this.chatStore.getMessage(msgEvent.message.chatId, msgEvent.message.id);
+
+            if (!pendingMessage) {
+                console.error(`MessagePump: Message with ID ${msgEvent.message.id} not found in chat ${msgEvent.message.chatId}`);
+                await this.eventRepository.markAsFailed(msgEvent.id, `Message with ID ${msgEvent.message.id} not found in chat ${msgEvent.message.chatId}`);
                 continue;
             }
 

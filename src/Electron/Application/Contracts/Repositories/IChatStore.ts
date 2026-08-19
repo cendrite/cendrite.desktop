@@ -24,6 +24,11 @@ export interface IChatStore {
     getChats(limit: number): Promise<Chat[]>;
 
     /**
+     * Get a message by its ID
+     **/
+    getMessage(chatId: string, messageId: string): Promise<Message | null>;
+
+    /**
      * Get all messages for a chat, with pagination support
      **/
     getMessages(chatId: string, skip: number, take: number): Promise<Message[]>;
