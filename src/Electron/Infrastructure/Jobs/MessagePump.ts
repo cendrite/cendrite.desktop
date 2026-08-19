@@ -15,6 +15,7 @@ export class MessagePump implements IPump {
     ) { }
     private isRunning: boolean = false;
     private wake: (() => void) | null = null;
+    private wakePending: boolean = false;
 
     start(): void {
         if (!this.isRunning) {
@@ -25,21 +26,23 @@ export class MessagePump implements IPump {
 
     stop(): void {
         this.isRunning = false;
-        this.wake?.();
+        this.notify();
     }
 
     private async process(): Promise<void> {
         while (this.isRunning) {
-            const msgEvents = await this.eventRepository.getEvents(TransmitMessageEvent.type, 1);
+            const msgEvent = await this.eventRepository.getEvent<TransmitMessageEvent>(TransmitMessageEvent.type);
             const pendingMessage = await this.chatStore.getNextPendingMessage();
 
-            if (!pendingMessage) {
-                await this.sleep(30_000);
+            if (!msgEvent || !pendingMessage) {
+                await this.sleep(1_000);
                 continue;
             }
 
+            console.log(`MessagePump: Processing message ${pendingMessage.id} for chat ${pendingMessage.chatId}`);
+
             const result = await this.mediator.send<TransmitMessageCommand, DeliveryStatus>(
-                new TransmitMessageCommand(pendingMessage),
+                new TransmitMessageCommand(msgEvent.message, msgEvent.connectionIds),
             );
 
             let deliveryStatus: DeliveryStatus;
@@ -50,6 +53,7 @@ export class MessagePump implements IPump {
             }
 
             await this.chatStore.markMessage(pendingMessage.id, deliveryStatus);
+            await this.eventRepository.markEventAsProcessed(msgEvent.id);
 
             this.mainWindow.webContents.send('messageEdit', {
                 kind: 'deliveryStatus',
@@ -57,17 +61,26 @@ export class MessagePump implements IPump {
                 messageId: pendingMessage.id,
                 status: deliveryStatus,
             });
-
-            await this.sleep(30_000);
         }
     }
 
     public notify(): void {
-        this.wake?.();
+        console.log('MessagePump: notify called');
+        if (this.wake) {
+            this.wake();
+        } else {
+            this.wakePending = true;
+        }
     }
 
     private sleep(timeoutMs: number): Promise<void> {
         return new Promise<void>((resolve) => {
+            if (this.wakePending) {
+                this.wakePending = false;
+                resolve();
+                return;
+            }
+
             const done = () => {
                 clearTimeout(timer);
                 this.wake = null;

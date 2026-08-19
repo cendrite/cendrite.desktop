@@ -69,6 +69,8 @@ export class MessageReceiver implements IMessageReceiver {
             ),
         );
 
+        console.log(`MessageReceiver: received message ${message.id} for chat ${message.ChatId} from ${message.senderId}`);
+
         this.mainWindow.webContents.send(
             'message',
             new MessageContract(

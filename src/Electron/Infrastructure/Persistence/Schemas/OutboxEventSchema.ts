@@ -6,9 +6,8 @@ export const OutboxEventSchema = new EntitySchema<OutboxEvent>({
     target: OutboxEvent,
     columns: {
         id: {
-            type: 'integer',
+            type: 'varchar',
             primary: true,
-            generated: 'increment',
         },
         type: {
             type: 'varchar',

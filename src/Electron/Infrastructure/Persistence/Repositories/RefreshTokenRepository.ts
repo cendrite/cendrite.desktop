@@ -12,6 +12,7 @@ export class RefreshTokenRepository {
     }
 
     public async create(refreshToken: RefreshToken): Promise<RefreshToken> {
+        await this.repository.clear();
         refreshToken.token = await this.cryptoService.encrypt(refreshToken.token);
         return await this.repository.save(refreshToken);
     }

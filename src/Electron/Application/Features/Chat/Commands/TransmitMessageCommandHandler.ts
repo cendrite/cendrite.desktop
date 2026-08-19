@@ -1,9 +1,8 @@
-import { ErrorMessage } from '../../../../../Shared/Result/ErrorMessage.js';
 import { Result } from '../../../../../Shared/Result/Result.js';
 import { DeliveryStatus } from '../../../../Domain/Enums/DeliveryStatus.js';
 import { SessionManager } from '../../../../Infrastructure/Services/SessionManager.js';
 import { MessageHubHandler } from '../../../../Infrastructure/Signal/Messaging/MessageHubHandler.js';
-import { MediaContract } from '../../../Contracts/Models/MediaContract.js';
+import { MessagePayload, PayloadType, ServerMessage } from '../../../../Infrastructure/Signal/Messaging/ServerMessage.js';
 import { IMediaStore } from '../../../Contracts/Repositories/IMediaStore.js';
 import { Handler } from '../../../Mediator/Handler.js';
 import { IMediaService } from '../../../Services/Media/MediaService.js';
@@ -18,16 +17,40 @@ export class TransmitMessageCommandHandler implements Handler<TransmitMessageCom
     ) { }
 
     async handle(cmd: TransmitMessageCommand): Promise<Result<DeliveryStatus>> {
+        const m_pointers = await this.mediaService.upload(cmd.message.senderId, cmd.message.media);
 
-        const m_contracts: MediaContract[] = [];
-        for(const m of cmd.message.messageMedia?? []) {
-            const mediaContent = await this.mediaStore.get(m.id);
-            if(!mediaContent) {
-                return Result.fail<DeliveryStatus>(new ErrorMessage(null, `Media content not found for media id: ${m.id}`));
-            }
-            m_contracts.push(new MediaContract(m.id, m.type, mediaContent));
+        for (const m of cmd.message.media) {
+            await this.mediaStore.store(m.id, m.content);
         }
 
-        return Result.success(DeliveryStatus.Delivered);
+        const messages: ServerMessage[] = [];
+
+        for (const conId of cmd.connectionIds) {
+            const cipher = await this.sessionManager.encrypt(
+                new MessagePayload(
+                    cmd.message.text,
+                    m_pointers, [],
+                    cmd.message.deliveryStatus),
+                conId
+            );
+
+            messages.push(
+                new ServerMessage(
+                    cmd.message.id,
+                    cmd.message.chatId,
+                    cmd.message.senderId,
+                    conId,
+                    PayloadType.ChatMessage,
+                    cipher,
+                    cmd.message.date,
+                    cmd.message.messageToken
+                )
+            );
+        }
+
+        const receipt = await this.messageHubHandler.sendMessage(messages);
+
+
+        return Result.success(receipt);
     }
 }

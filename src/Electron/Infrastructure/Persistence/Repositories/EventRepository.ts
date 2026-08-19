@@ -1,13 +1,16 @@
+import { IsNull } from "typeorm";
 import { IEventRepository } from "../../../Application/Contracts/Providers/IEventRepository.js";
 import { DomainEvent, resolveDeserializer } from "../../../Domain/Events/IDomainEvent.js";
 import { OutboxEvent } from "../../Models/OutboxEvent.js";
 import { getDbContext } from "../Context/DatabaseContext.js";
 
 export class EventRepository implements IEventRepository {
+
     private readonly ctx = getDbContext().getRepository(OutboxEvent);
 
     public async appendEvent(event: DomainEvent): Promise<void> {
         const outboxEvent = new OutboxEvent(
+            event.id,
             (event.constructor as typeof DomainEvent).type,
             JSON.stringify(event),
             event.occurredOn,
@@ -16,14 +19,14 @@ export class EventRepository implements IEventRepository {
         await this.ctx.save(outboxEvent);
     }
 
-    public async getEvents(type: string, count: number): Promise<DomainEvent[]> {
+    public async getEvents<T extends DomainEvent>(type: string, count: number): Promise<T[]> {
         const events = await this.ctx.find({
             order: {
                 occurredOn: 'ASC',
             },
             take: count,
             where: {
-                processedOn: undefined,
+                processedOn: IsNull(),
                 type: type,
             },
         });
@@ -33,7 +36,33 @@ export class EventRepository implements IEventRepository {
             if (!deserializer) {
                 throw new Error(`No registered deserializer for type: ${event.type}`);
             }
-            return deserializer(JSON.parse(event.content), event.occurredOn);
+            return deserializer(JSON.parse(event.content), event.occurredOn) as T;
         });
+    }
+
+    public async getEvent<T extends DomainEvent>(type: string): Promise<T | null> {
+        const event = await this.ctx.findOne({
+            order: {
+                occurredOn: 'ASC',
+            },
+            where: {
+                processedOn: IsNull(),
+                type: type,
+            },
+        });
+
+        if (!event) {
+            return null;
+        }
+
+        const deserializer = resolveDeserializer(event.type);
+        if (!deserializer) {
+            throw new Error(`No registered deserializer for type: ${event.type}`);
+        }
+        return deserializer(JSON.parse(event.content), event.occurredOn) as T;
+    }
+
+    public async markEventAsProcessed(id: string): Promise<void> {
+        await this.ctx.update({ id }, { processedOn: new Date() });
     }
 }

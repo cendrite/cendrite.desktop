@@ -49,7 +49,7 @@ export class SendMessageV2CommandHandler implements Handler<SendMessageV2Command
             message.messageToken,
         );
 
-        this.eventRepository.appendEvent(new TransmitMessageEvent(messageContract, cmd.connectionIds, new Date()));
+        await this.eventRepository.appendEvent(new TransmitMessageEvent(uuid().toString(), messageContract, cmd.connectionIds, new Date()));
 
         this.messagePump.notify();
 
