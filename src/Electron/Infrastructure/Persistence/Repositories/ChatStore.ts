@@ -18,6 +18,13 @@ export class ChatStore implements IChatStore {
         this.messageRepository = dbContext.getRepository(Message);
     }
 
+    getMessage(chatId: string, messageId: string): Promise<Message | null> {
+        return this.messageRepository.findOne({
+            where: { id: messageId, chat: { id: chatId } },
+            relations: { messageMedia: true },
+        });
+    }
+
     public async markMessage(messageId: string, status: DeliveryStatus): Promise<void> {
         await this.messageRepository
             .createQueryBuilder()

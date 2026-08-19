@@ -3,8 +3,10 @@ import { IEventRepository } from "../../../Application/Contracts/Providers/IEven
 import { DomainEvent, resolveDeserializer } from "../../../Domain/Events/IDomainEvent.js";
 import { OutboxEvent } from "../../Models/OutboxEvent.js";
 import { getDbContext } from "../Context/DatabaseContext.js";
+import { IOutboxRepository } from "../../Interfaces/IOutboxRepository.js";
 
-export class EventRepository implements IEventRepository {
+export class EventRepository implements IEventRepository, IOutboxRepository {
+
 
     private readonly ctx = getDbContext().getRepository(OutboxEvent);
 
@@ -64,5 +66,9 @@ export class EventRepository implements IEventRepository {
 
     public async markEventAsProcessed(id: string): Promise<void> {
         await this.ctx.update({ id }, { processedOn: new Date() });
+    }
+
+    public async markAsFailed(id: string, error: string): Promise<void> {
+        await this.ctx.update({ id }, { error });
     }
 }
