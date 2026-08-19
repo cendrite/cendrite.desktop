@@ -10,7 +10,6 @@ import { StartupCommandHandler } from './Features/Authentication/Commands/Startu
 import { RegisterCommandHandler } from './Features/Authentication/Commands/RegisterCommandHandler.js';
 import { VerifyUserCommandHandler } from './Features/Authentication/Commands/VerifyUserCommandHandler.js';
 import { ResendVerificationCodeCommandHandler } from './Features/Authentication/Commands/ResendVerificationCodeCommandHandler.js';
-import { SendMessageCommandHandler } from './Features/Chat/Commands/SendMessageCommandHandler.js';
 import { UpdateAvatarCommandHandler } from './Features/User/Commands/UpdateAvatarCommandHandler.js';
 import { SendFriendRequestCommandHandler } from './Features/Friends/Commands/SendFriendRequestCommandHandler.js';
 import { DeclineFriendRequestCommandHandler } from './Features/Friends/Commands/DeclineFriendRequestCommandHandler.js';
@@ -32,7 +31,7 @@ import { AddFriendConnectionIdCommandHandler } from './Features/Friends/Commands
 import { RemoveFriendConnectionIdCommandHandler } from './Features/Friends/Commands/RemoveFriendConnectionIdCommandHandler.js';
 import { UpdateFriendCommandHandler } from './Features/Friends/Commands/UpdateFriendCommandHandler.js';
 import { CreateFriendCommandHandler } from './Features/Friends/Commands/CreateFriendCommandHandler.js';
-import { SendMessageV2CommandHandler } from './Features/Chat/Commands/SendMessageV2CommandHandler.js';
+import { SendMessageCommandHandler } from './Features/Chat/Commands/SendMessageCommandHandler.js';
 import { TransmitMessageCommandHandler } from './Features/Chat/Commands/TransmitMessageCommandHandler.js';
 
 const services = {
@@ -55,14 +54,13 @@ const authenticationHandlers = {
 };
 
 const chatHandlers = {
-    sendMessageCommandHandler: asClass(SendMessageCommandHandler, { lifetime: Lifetime.SINGLETON }),
     addMessageCommandHandler: asClass(AddMessageCommandHandler, { lifetime: Lifetime.SINGLETON }),
     getChatsQueryHandler: asClass(GetChatsQueryHandler, { lifetime: Lifetime.SINGLETON }),
     getMessagesQueryHandler: asClass(GetMessagesQueryHandler, { lifetime: Lifetime.SINGLETON }),
     createChatCommandHandler: asClass(CreateChatCommandHandler, { lifetime: Lifetime.SINGLETON }),
     deleteChatCommandHandler: asClass(DeleteChatCommandHandler, { lifetime: Lifetime.SINGLETON }),
     updateDeliveryStatusCommandHandler: asClass(UpdateDeliveryStatusCommandHandler, { lifetime: Lifetime.SINGLETON }),
-    sendMessageV2CommandHandler: asClass(SendMessageV2CommandHandler, { lifetime: Lifetime.SINGLETON }),
+    sendMessageCommandHandler: asClass(SendMessageCommandHandler, { lifetime: Lifetime.SINGLETON }),
     transmitMessageCommandHandler: asClass(TransmitMessageCommandHandler, { lifetime: Lifetime.SINGLETON }),
 };
 
