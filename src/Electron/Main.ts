@@ -47,7 +47,7 @@ app.on('ready', async () => {
     }
 
     const container = buildContainer(mainWindow);
-    const mediator = new Mediator(container);
+    const mediator = container.resolve<Mediator>('mediator');
 
     ipcMain.handle('mediator:send', async (_event, request: MediatorRequest) => {
         return await mediator.send(request);
@@ -64,4 +64,3 @@ app.on('ready', async () => {
         mainWindow.webContents.send('app-close');
     });
 });
-

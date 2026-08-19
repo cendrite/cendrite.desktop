@@ -3,7 +3,7 @@ const electron = require('electron');
 
 // Runtime whitelist — types are erased in .cts, so this can't come from AppEventMap.
 // Keep in sync with the AppEventMap keys in Types.d.ts.
-const ALLOWED_EVENTS: AppEvent[] = ['changeEvent', 'hubMessage', 'connectionState'];
+const ALLOWED_EVENTS: AppEvent[] = ['changeEvent', 'message', 'messageEdit', 'connectionState'];
 
 electron.contextBridge.exposeInMainWorld('electron', {
     sendRequestAsync: async <TResponse,>(request: MediatorRequest): Promise<TResponse> => {

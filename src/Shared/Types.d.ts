@@ -1,5 +1,6 @@
 import { MessageContract } from '../Electron/Application/Contracts/Models/MessageContract';
 import { ChangeEvent } from '../Electron/Infrastructure/Signal/ChangeEvent/ChangeEvent.ts';
+import { DeliveryStatus } from '../Electron/Domain/Enums/DeliveryStatus.ts';
 
 declare global {
     type ConnectionState = 'connected' | 'disconnected' | 'connecting';
@@ -8,10 +9,16 @@ declare global {
         type: string;
     };
 
+    type MessageEdit =
+        | { kind: 'deliveryStatus'; chatId: string; messageId: string; status: DeliveryStatus }
+        | { kind: 'textEdit'; messageId: string; newText: string }
+        | { kind: 'delete'; messageId: string };
+
     interface AppEventMap {
         changeEvent: ChangeEvent;
-        hubMessage: MessageContract;
+        message: MessageContract;
         connectionState: ConnectionState;
+        messageEdit: MessageEdit;
     }
     type AppEvent = keyof AppEventMap;
 

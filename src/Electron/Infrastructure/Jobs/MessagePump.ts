@@ -1,0 +1,94 @@
+import { IEventRepository } from '../../Application/Contracts/Providers/IEventRepository.js';
+import { IChatStore } from '../../Application/Contracts/Repositories/IChatStore.js';
+import { IPump } from '../../Application/Contracts/Services/IPump.js';
+import { TransmitMessageCommand } from '../../Application/Features/Chat/Contracts/TransmitMessage.js';
+import { Mediator } from '../../Application/Mediator/Mediator.js';
+import { DeliveryStatus } from '../../Domain/Enums/DeliveryStatus.js';
+import { TransmitMessageEvent } from '../../Domain/Events/TransmitMessageEvent.js';
+
+export class MessagePump implements IPump {
+    constructor(
+        private readonly chatStore: IChatStore,
+        private readonly eventRepository: IEventRepository,
+        private readonly mediator: Mediator,
+        private readonly mainWindow: Electron.BrowserWindow,
+    ) { }
+    private isRunning: boolean = false;
+    private wake: (() => void) | null = null;
+    private wakePending: boolean = false;
+
+    start(): void {
+        if (!this.isRunning) {
+            this.isRunning = true;
+            this.process();
+        }
+    }
+
+    stop(): void {
+        this.isRunning = false;
+        this.notify();
+    }
+
+    private async process(): Promise<void> {
+        while (this.isRunning) {
+            const msgEvent = await this.eventRepository.getEvent<TransmitMessageEvent>(TransmitMessageEvent.type);
+            const pendingMessage = await this.chatStore.getNextPendingMessage();
+
+            if (!msgEvent || !pendingMessage) {
+                await this.sleep(1_000);
+                continue;
+            }
+
+            console.log(`MessagePump: Processing message ${pendingMessage.id} for chat ${pendingMessage.chatId}`);
+
+            const result = await this.mediator.send<TransmitMessageCommand, DeliveryStatus>(
+                new TransmitMessageCommand(msgEvent.message, msgEvent.connectionIds),
+            );
+
+            let deliveryStatus: DeliveryStatus;
+            if (result.success) {
+                deliveryStatus = result.data!;
+            } else {
+                deliveryStatus = DeliveryStatus.Failed;
+            }
+
+            await this.chatStore.markMessage(pendingMessage.id, deliveryStatus);
+            await this.eventRepository.markEventAsProcessed(msgEvent.id);
+
+            this.mainWindow.webContents.send('messageEdit', {
+                kind: 'deliveryStatus',
+                chatId: pendingMessage.chatId,
+                messageId: pendingMessage.id,
+                status: deliveryStatus,
+            });
+        }
+    }
+
+    public notify(): void {
+        console.log('MessagePump: notify called');
+        if (this.wake) {
+            this.wake();
+        } else {
+            this.wakePending = true;
+        }
+    }
+
+    private sleep(timeoutMs: number): Promise<void> {
+        return new Promise<void>((resolve) => {
+            if (this.wakePending) {
+                this.wakePending = false;
+                resolve();
+                return;
+            }
+
+            const done = () => {
+                clearTimeout(timer);
+                this.wake = null;
+                resolve();
+            };
+
+            const timer = setTimeout(done, timeoutMs);
+            this.wake = done;
+        });
+    }
+}

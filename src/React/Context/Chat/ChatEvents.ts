@@ -14,7 +14,7 @@ import { MessageViewModel } from '../../Models/MessageViewModel';
 import { ChangeEvent } from '../../../Electron/Infrastructure/Signal/ChangeEvent/ChangeEvent';
 import { FriendDeletedEvent } from '../../../Electron/Infrastructure/Signal/ChangeEvent/EventData';
 import { ChangeEventType } from '../../../Electron/Infrastructure/Signal/ChangeEvent/ChangeEventType';
-import { useSignalEvent } from '../../Common/Utilities';
+import { useMessageEdit, useSignalEvent } from '../../Common/Utilities';
 
 export function useChatEvents(
     chats: ChatViewModel[],
@@ -27,6 +27,7 @@ export function useChatEvents(
     const { user } = useUser();
     const chatService = React.useMemo(() => new ChatService(), []);
 
+    // TODO: should put this into the useMessageEdit and rename useMessageEdit to useMessageEvent or something like that
     const handleReceiveMessage = useCallback(
         async (msg: MessageContract) => {
             let chat = getChat(chats, msg.chatId);
@@ -54,7 +55,7 @@ export function useChatEvents(
     handlerRef.current = handleReceiveMessage;
 
     useEffect(() => {
-        return window.electron.on('hubMessage', (msg) => {
+        return window.electron.on('message', (msg) => {
             void handlerRef.current(msg);
         });
     }, []);
@@ -70,5 +71,16 @@ export function useChatEvents(
         [chats, user, chatDispatch, homeDispatch],
     );
 
+    const handleDeliveryStatusUpdate = useCallback(
+        (evt: Extract<MessageEdit, { kind: 'deliveryStatus' }>) => {
+            chatDispatch({
+                type: ChatActionType.UpdateMessageDeliveryStatus,
+                payload: { chatId: evt.chatId, messageId: evt.messageId, status: evt.status },
+            });
+        },
+        [chatDispatch],
+    );
+
+    useMessageEdit('deliveryStatus', handleDeliveryStatusUpdate);
     useSignalEvent<FriendDeletedEvent>(ChangeEventType.FriendRemoved, handleFriendDeleted);
 }

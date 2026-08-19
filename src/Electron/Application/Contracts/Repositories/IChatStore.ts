@@ -44,7 +44,17 @@ export interface IChatStore {
     deleteByFriendId(friendId: string): Promise<void>;
 
     /**
+     * Get next pending message for any chat,
+     **/
+    getNextPendingMessage(): Promise<Message | null>;
+
+    /**
      * Clear all chats and messages from the store
      **/
     clear(): Promise<void>;
+
+    /**
+        * Mark delivery status for message
+    **/
+    markMessage(messageId: string, status: DeliveryStatus): Promise<void>;
 }
