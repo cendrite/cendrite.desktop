@@ -14,7 +14,7 @@ import { MessageViewModel } from '../../Models/MessageViewModel.ts';
 import { DeliveryStatus } from '../../../Electron/Domain/Enums/DeliveryStatus.ts';
 import { GetMessagesQuery } from '../../../Electron/Application/Features/Chat/Contracts/GetMessages.ts';
 import { Media } from '../../Models/Media.ts';
-import { SendMessageV2Command } from '../../../Electron/Application/Features/Chat/Contracts/SendMessage.ts';
+import { SendMessageCommand } from '../../../Electron/Application/Features/Chat/Contracts/SendMessage.ts';
 import { MessageContract } from '../../../Electron/Application/Contracts/Models/MessageContract.ts';
 import { UpdateDeliveryStatusCommand } from '../../../Electron/Application/Features/Chat/Contracts/UpdateDeliveryStatus.ts';
 
@@ -30,7 +30,7 @@ export class ChatService {
         if (!text && !media) return null;
 
         const messageResult = await window.electron.sendRequestAsync<Result<MessageContract>>(
-            new SendMessageV2Command(
+            new SendMessageCommand(
                 chatId,
                 uuid().toString(),
                 user.connectionId,
