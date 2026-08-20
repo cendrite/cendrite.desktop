@@ -5,6 +5,7 @@ import { ChangeEventHubHandler } from './ChangeEvent/ChangeEventHubHandler.js';
 import { MessageHubHandler } from './Messaging/MessageHubHandler.js';
 import { TokenManager } from '../Services/TokenManager.js';
 import { BrowserWindow } from 'electron';
+import { InfiniteRetryPolicy } from './RetryPolicy.js';
 
 export class SignalManager {
     private readonly tokenManager: TokenManager;
@@ -30,10 +31,10 @@ export class SignalManager {
                 .withUrl(hubPath, {
                     accessTokenFactory: () => this.tokenManager.getJwt(),
                 })
-                .withAutomaticReconnect()
+                .withAutomaticReconnect(new InfiniteRetryPolicy(5000))
                 .build();
 
-            connection.onreconnected(() => this.mainWindow.webContents.send('connectionState', 'connecting'));
+            connection.onreconnecting(() => this.mainWindow.webContents.send('connectionState', 'connecting'));
             connection.onreconnected(() => this.mainWindow.webContents.send('connectionState', 'connected'));
             connection.onclose(() => this.mainWindow.webContents.send('connectionState', 'disconnected'));
 
@@ -69,6 +70,11 @@ export class SignalManager {
 
     public getConnection(hubPath: HubKey): HubConnection | undefined {
         return this._connections.get(hubPath);
+    }
+
+    public isConnected(hubPath: HubKey): boolean {
+        const connection = this._connections.get(hubPath);
+        return connection?.state === 'Connected';
     }
 
     public getHandler<T extends IHubHandler>(key: HubKey): T {
