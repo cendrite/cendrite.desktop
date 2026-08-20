@@ -48,7 +48,7 @@ export class ServerMessage {
 
 export enum PayloadType {
     ChatMessage = 0,
-    DeliveryStatusUpdate = 1,
+    DeliveryStatus = 1,
     SettingsUpdate = 2,
     DeleteMessage = 3,
     EditMessage = 4,
@@ -64,6 +64,16 @@ export class MessagePayload extends Payload {
         public media: MediaPointer[], 
         public participants: string[],
         public deliveryStatus: DeliveryStatus,
+    ) {
+        super(participants);
+    }
+}
+
+export class DeliveryStatusPayload extends Payload {
+    constructor(
+        public messageId: string,
+        public deliveryStatus: DeliveryStatus,
+        public participants: string[],
     ) {
         super(participants);
     }
