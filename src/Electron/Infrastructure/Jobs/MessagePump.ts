@@ -5,6 +5,7 @@ import { Mediator } from '../../Application/Mediator/Mediator.js';
 import { DeliveryStatus } from '../../Domain/Enums/DeliveryStatus.js';
 import { TransmitMessageEvent } from '../../Domain/Events/TransmitMessageEvent.js';
 import { IOutboxRepository } from '../Interfaces/IOutboxRepository.js';
+import { SignalManager } from '../Signal/SignalManager.js';
 
 export class MessagePump implements IPump {
     constructor(
@@ -12,6 +13,7 @@ export class MessagePump implements IPump {
         private readonly eventRepository: IOutboxRepository,
         private readonly mediator: Mediator,
         private readonly mainWindow: Electron.BrowserWindow,
+        private readonly signalManager: SignalManager,
     ) { }
     private isRunning: boolean = false;
     private wake: (() => void) | null = null;
@@ -31,6 +33,12 @@ export class MessagePump implements IPump {
 
     private async process(): Promise<void> {
         while (this.isRunning) {
+            if(!this.signalManager.isConnected('Messaging')) {
+                console.log('MessagePump: Messaging hub is not connected, waiting...');
+                await this.sleep(5_000);
+                continue;
+            }
+
             const msgEvent = await this.eventRepository.getEvent<TransmitMessageEvent>(TransmitMessageEvent.type);
 
             if (!msgEvent) {
