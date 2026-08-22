@@ -66,7 +66,7 @@ export class MessageReceiver implements IMessageReceiver {
             `MessageReceiver: received delivery status update for chat ${message.ChatId} from ${message.senderId}`,
         );
 
-        this.mainWindow.webContents.send('messageEdit', {
+        this.mainWindow.webContents.send('eventMessage', {
             kind: 'deliveryStatus',
             chatId: message.ChatId,
             messageIds: payload.messageIds,
@@ -102,9 +102,9 @@ export class MessageReceiver implements IMessageReceiver {
             `MessageReceiver: received message ${message.id} for chat ${message.ChatId} from ${message.senderId}`,
         );
 
-        this.mainWindow.webContents.send(
-            'message',
-            new MessageContract(
+        this.mainWindow.webContents.send('eventMessage', {
+            kind: 'message',
+            message: new MessageContract(
                 message.id,
                 message.ChatId,
                 message.senderId,
@@ -114,7 +114,7 @@ export class MessageReceiver implements IMessageReceiver {
                 DeliveryStatus.Received,
                 message.messageToken,
             ),
-        );
+        });
     }
 
     private async ensureChat(chatId: string, payload: MessagePayload): Promise<void> {

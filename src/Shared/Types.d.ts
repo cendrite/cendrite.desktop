@@ -9,17 +9,18 @@ declare global {
         type: string;
     };
 
-    type MessageEdit =
+    type EventMessage =
+        | { kind: 'message'; message: MessageContract }
         | { kind: 'deliveryStatus'; chatId: string; messageIds: string[]; status: DeliveryStatus }
         | { kind: 'textEdit'; messageId: string; newText: string }
         | { kind: 'delete'; messageId: string };
 
     interface AppEventMap {
         changeEvent: ChangeEvent;
-        message: MessageContract;
         connectionState: ConnectionState;
-        messageEdit: MessageEdit;
+        eventMessage: EventMessage;
     }
+
     type AppEvent = keyof AppEventMap;
 
     interface Window {

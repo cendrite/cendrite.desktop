@@ -21,7 +21,6 @@ export class MessagePump extends Pump {
     protected async process(): Promise<void> {
         while (this.isRunning) {
             if (!this.signalManager.isConnected('Messaging')) {
-                console.log('MessagePump: Messaging hub is not connected, waiting...');
                 await this.sleep(5_000);
                 continue;
             }
@@ -46,7 +45,6 @@ export class MessagePump extends Pump {
                 continue;
             }
 
-            console.log(`MessagePump: Processing message ${pendingMessage.id} for chat ${pendingMessage.chatId}`);
 
             const result = await this.mediator.send<TransmitMessageCommand, DeliveryStatus>(
                 new TransmitMessageCommand(msgEvent.message, msgEvent.connectionIds, msgEvent.participants),
@@ -62,7 +60,7 @@ export class MessagePump extends Pump {
             await this.chatStore.markMessage(pendingMessage.id, deliveryStatus);
             await this.eventRepository.markEventAsProcessed(msgEvent.id);
 
-            this.mainWindow.webContents.send('messageEdit', {
+            this.mainWindow.webContents.send('eventMessage', {
                 kind: 'deliveryStatus',
                 chatId: pendingMessage.chatId,
                 messageIds: [pendingMessage.id],
