@@ -49,7 +49,7 @@ export class MessagePump extends Pump {
             console.log(`MessagePump: Processing message ${pendingMessage.id} for chat ${pendingMessage.chatId}`);
 
             const result = await this.mediator.send<TransmitMessageCommand, DeliveryStatus>(
-                new TransmitMessageCommand(msgEvent.message, msgEvent.connectionIds),
+                new TransmitMessageCommand(msgEvent.message, msgEvent.connectionIds, msgEvent.participants),
             );
 
             let deliveryStatus: DeliveryStatus;
@@ -65,7 +65,7 @@ export class MessagePump extends Pump {
             this.mainWindow.webContents.send('messageEdit', {
                 kind: 'deliveryStatus',
                 chatId: pendingMessage.chatId,
-                messageId: pendingMessage.id,
+                messageIds: [pendingMessage.id],
                 status: deliveryStatus,
             });
         }

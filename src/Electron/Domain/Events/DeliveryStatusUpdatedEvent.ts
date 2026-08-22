@@ -1,5 +1,5 @@
 import { DeliveryStatus } from '../Enums/DeliveryStatus.js';
-import { DomainEvent } from './IDomainEvent.js';
+import { DomainEvent, registerDomainEvent } from './IDomainEvent.js';
 
 export class DeliveryStatusUpdatedEvent extends DomainEvent {
     static readonly type = 'DeliveryStatusUpdateEvent';
@@ -17,3 +17,16 @@ export class DeliveryStatusUpdatedEvent extends DomainEvent {
         super(id, occurredOn);
     }
 }
+
+registerDomainEvent(DeliveryStatusUpdatedEvent.type, DeliveryStatusUpdatedEvent, (raw: any, occurredOn: Date) => {
+    return new DeliveryStatusUpdatedEvent(
+        raw.id,
+        raw.senderId,
+        occurredOn,
+        raw.chatId,
+        raw.messageIds,
+        raw.deliveryStatus,
+        raw.participants,
+        raw.connectionIds,
+    );
+});

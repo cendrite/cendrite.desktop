@@ -25,6 +25,7 @@ import { UserClient } from './Clients/UserClient.js';
 import { FriendClient } from './Clients/FriendClient.js';
 import { EventRepository } from './Persistence/Repositories/EventRepository.js';
 import { MessagePump } from './Pumps/MessagePump.js';
+import { DeliveryStatusUpdatePump } from './Pumps/DeliveryUpdatePump.js';
 
 const services = {
     tokenManager: asClass(TokenManager, { lifetime: Lifetime.SINGLETON }),
@@ -63,6 +64,7 @@ const providers = {
 
 const jobs = {
     messagePump: asClass(MessagePump, { lifetime: Lifetime.SINGLETON }),
+    deliveryStatusUpdatePump: asClass(DeliveryStatusUpdatePump, { lifetime: Lifetime.SINGLETON }),
 }
 
 const httpClients = {

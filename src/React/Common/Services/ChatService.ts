@@ -60,6 +60,7 @@ export class ChatService {
             .filter(
                 (m) =>
                     m.deliveryStatus !== DeliveryStatus.Read &&
+                    m.deliveryStatus === DeliveryStatus.Received &&
                     m.senderId !== user.connectionId &&
                     !user.externalConnectionIds.includes(m.senderId),
             )
@@ -67,7 +68,16 @@ export class ChatService {
 
         if (messageIds.length === 0) return [];
 
-        await window.electron.sendRequestAsync(new UpdateDeliveryStatusCommand(chat.id, messageIds, deliveryStatus));
+        await window.electron.sendRequestAsync(
+            new UpdateDeliveryStatusCommand(
+                chat.id,
+                user.connectionId,
+                messageIds,
+                chat.chatMembers.map((m) => m.contact.connectionIds).flat(),
+                chat.chatMembers.map((m) => m.contact.id),
+                deliveryStatus,
+            ),
+        );
 
         return messageIds;
     }

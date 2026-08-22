@@ -38,7 +38,7 @@ export type ChatAction =
     | { type: ChatActionType.Clear }
     | {
         type: ChatActionType.UpdateMessageDeliveryStatus;
-        payload: { chatId: string; messageId: string; status: DeliveryStatus };
+        payload: { chatId: string; messageIds: string[]; status: DeliveryStatus };
     };
 
 export const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
@@ -111,12 +111,12 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
         }
 
         case ChatActionType.UpdateMessageDeliveryStatus: {
-            const { chatId, messageId, status } = action.payload;
+            const { chatId, messageIds, status } = action.payload;
             const chats = state.chats.map((chat) => {
                 if (chat.id !== chatId) return chat;
 
                 const updatedMessages = chat.messages.map((msg) => {
-                    if (msg.id !== messageId) return msg;
+                    if (!messageIds.includes(msg.id)) return msg;
 
                     return new MessageViewModel(
                         msg.id,

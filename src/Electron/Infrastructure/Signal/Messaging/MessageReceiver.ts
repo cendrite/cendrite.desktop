@@ -4,7 +4,7 @@ import { ISessionManager } from '../../Interfaces/ISessionManager.js';
 import { IChatStore } from '../../../Application/Contracts/Repositories/IChatStore.js';
 import { IMediaStore } from '../../../Application/Contracts/Repositories/IMediaStore.js';
 import { IMediaService } from '../../../Application/Services/Media/MediaService.js';
-import { MessagePayload, PayloadType, ServerMessage } from './ServerMessage.js';
+import { DeliveryStatusPayload, MessagePayload, PayloadType, ServerMessage } from './ServerMessage.js';
 import { Message } from '../../../Domain/Entities/Message.js';
 import { MessageMedia } from '../../../Domain/Entities/MessageMedia.js';
 import { DeliveryStatus } from '../../../Domain/Enums/DeliveryStatus.js';
@@ -38,14 +38,43 @@ export class MessageReceiver implements IMessageReceiver {
         this.messageHubHandler.subscribe(PayloadType.ChatMessage, (message: ServerMessage) => {
             this.handle(message);
         });
+        this.messageHubHandler.subscribe(PayloadType.DeliveryStatus, (message: ServerMessage) => {
+            this.handle(message);
+        });
     }
 
     public async handle(message: ServerMessage): Promise<void> {
-        if (message.payloadType !== PayloadType.ChatMessage) {
-            console.warn(`Unhandled payload type ${message.payloadType}`);
-            return;
+        switch (message.payloadType) {
+            case PayloadType.ChatMessage:
+                await this.handleChatMessage(message);
+                break;
+            case PayloadType.DeliveryStatus:
+                await this.handleDeliveryStatusUpdate(message);
+                break;
+            default:
+                console.warn(`Unhandled payload type ${message.payloadType}`);
+                break;
         }
+    }
 
+    private async handleDeliveryStatusUpdate(message: ServerMessage): Promise<void> {
+        const payload = await this.sessionManager.decrypt<DeliveryStatusPayload>(message.payload, message.senderId);
+
+        await this.chatStore.updateDeliveryStatus(message.ChatId, payload.messageIds, payload.deliveryStatus);
+
+        console.log(
+            `MessageReceiver: received delivery status update for chat ${message.ChatId} from ${message.senderId}`,
+        );
+
+        this.mainWindow.webContents.send('messageEdit', {
+            kind: 'deliveryStatus',
+            chatId: message.ChatId,
+            messageIds: payload.messageIds,
+            status: payload.deliveryStatus,
+        });
+    }
+
+    private async handleChatMessage(message: ServerMessage): Promise<void> {
         const payload = await this.sessionManager.decrypt<MessagePayload>(message.payload, message.senderId);
 
         const media = await this.mediaService.get(payload.media);
@@ -69,7 +98,9 @@ export class MessageReceiver implements IMessageReceiver {
             ),
         );
 
-        console.log(`MessageReceiver: received message ${message.id} for chat ${message.ChatId} from ${message.senderId}`);
+        console.log(
+            `MessageReceiver: received message ${message.id} for chat ${message.ChatId} from ${message.senderId}`,
+        );
 
         this.mainWindow.webContents.send(
             'message',

@@ -1,13 +1,11 @@
-import { IsNull } from "typeorm";
-import { IEventRepository } from "../../../Application/Contracts/Providers/IEventRepository.js";
-import { DomainEvent, resolveDeserializer } from "../../../Domain/Events/IDomainEvent.js";
-import { OutboxEvent } from "../../Models/OutboxEvent.js";
-import { getDbContext } from "../Context/DatabaseContext.js";
-import { IOutboxRepository } from "../../Interfaces/IOutboxRepository.js";
+import { IsNull } from 'typeorm';
+import { IEventRepository } from '../../../Application/Contracts/Providers/IEventRepository.js';
+import { DomainEvent, resolveDeserializer } from '../../../Domain/Events/IDomainEvent.js';
+import { OutboxEvent } from '../../Models/OutboxEvent.js';
+import { getDbContext } from '../Context/DatabaseContext.js';
+import { IOutboxRepository } from '../../Interfaces/IOutboxRepository.js';
 
 export class EventRepository implements IEventRepository, IOutboxRepository {
-
-
     private readonly ctx = getDbContext().getRepository(OutboxEvent);
 
     public async appendEvent(event: DomainEvent): Promise<void> {
@@ -69,6 +67,6 @@ export class EventRepository implements IEventRepository, IOutboxRepository {
     }
 
     public async markAsFailed(id: string, error: string): Promise<void> {
-        await this.ctx.update({ id }, { error });
+        await this.ctx.update({ id }, { error, processedOn: new Date() });
     }
 }

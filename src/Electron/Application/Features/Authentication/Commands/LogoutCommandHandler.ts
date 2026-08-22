@@ -14,6 +14,7 @@ export class LogoutCommandHandler implements Handler<LogoutCommand, void> {
         private readonly logoutManager: LogoutManager,
         private readonly purgeLocalDataService: PurgeLocalDataService,
         private readonly messagePump: IPump,
+        private readonly deliveryStatusUpdatePump: IPump,
     ) { }
 
     public async handle(_cmd: LogoutCommand): Promise<Result<void>> {
@@ -23,6 +24,7 @@ export class LogoutCommandHandler implements Handler<LogoutCommand, void> {
         }
 
         this.messagePump.stop();
+        this.deliveryStatusUpdatePump.stop();
 
         this.logoutManager.startLogout();
 

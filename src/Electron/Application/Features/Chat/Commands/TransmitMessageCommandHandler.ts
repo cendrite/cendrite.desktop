@@ -29,7 +29,8 @@ export class TransmitMessageCommandHandler implements Handler<TransmitMessageCom
             const cipher = await this.sessionManager.encrypt(
                 new MessagePayload(
                     cmd.message.text,
-                    m_pointers, [],
+                    m_pointers,
+                    cmd.participants,
                     cmd.message.deliveryStatus),
                 conId
             );

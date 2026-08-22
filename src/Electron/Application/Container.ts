@@ -33,6 +33,7 @@ import { UpdateFriendCommandHandler } from './Features/Friends/Commands/UpdateFr
 import { CreateFriendCommandHandler } from './Features/Friends/Commands/CreateFriendCommandHandler.js';
 import { SendMessageCommandHandler } from './Features/Chat/Commands/SendMessageCommandHandler.js';
 import { TransmitMessageCommandHandler } from './Features/Chat/Commands/TransmitMessageCommandHandler.js';
+import { DeliveryStatusUpdatedCommandHandler } from './Features/Chat/Commands/DeliveryStatusUpdatedCommandHandler.js';
 
 const services = {
     logoutManager: asValue(LogoutManager.getInstance()),
@@ -60,6 +61,7 @@ const chatHandlers = {
     createChatCommandHandler: asClass(CreateChatCommandHandler, { lifetime: Lifetime.SINGLETON }),
     deleteChatCommandHandler: asClass(DeleteChatCommandHandler, { lifetime: Lifetime.SINGLETON }),
     updateDeliveryStatusCommandHandler: asClass(UpdateDeliveryStatusCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    deliveryStatusUpdatedCommandHandler: asClass(DeliveryStatusUpdatedCommandHandler, { lifetime: Lifetime.SINGLETON }),
     sendMessageCommandHandler: asClass(SendMessageCommandHandler, { lifetime: Lifetime.SINGLETON }),
     transmitMessageCommandHandler: asClass(TransmitMessageCommandHandler, { lifetime: Lifetime.SINGLETON }),
 };
