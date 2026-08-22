@@ -51,18 +51,6 @@ export class ChatService {
         return message;
     }
 
-    public async setDeliveryStatusOnReceipt(
-        msg: MessageViewModel,
-        receipt: DeliveryStatus | null | undefined,
-    ): Promise<MessageViewModel> {
-        console.log('Message delivery receipt:', receipt);
-        msg.deliveryStatus = receipt ?? DeliveryStatus.Failed;
-        await window.electron.sendRequestAsync(
-            new UpdateDeliveryStatusCommand(msg.chatId, [msg.id], msg.deliveryStatus),
-        );
-        return msg;
-    }
-
     public async updateDeliveryStatus(
         user: User,
         chat: ChatViewModel,

@@ -14,7 +14,9 @@ export class MessagePump extends Pump {
         private readonly mediator: Mediator,
         private readonly mainWindow: Electron.BrowserWindow,
         private readonly signalManager: SignalManager,
-    ) { super(); }
+    ) {
+        super();
+    }
 
     protected async process(): Promise<void> {
         while (this.isRunning) {
@@ -34,8 +36,13 @@ export class MessagePump extends Pump {
             const pendingMessage = await this.chatStore.getMessage(msgEvent.message.chatId, msgEvent.message.id);
 
             if (!pendingMessage) {
-                console.error(`MessagePump: Message with ID ${msgEvent.message.id} not found in chat ${msgEvent.message.chatId}`);
-                await this.eventRepository.markAsFailed(msgEvent.id, `Message with ID ${msgEvent.message.id} not found in chat ${msgEvent.message.chatId}`);
+                console.error(
+                    `MessagePump: Message with ID ${msgEvent.message.id} not found in chat ${msgEvent.message.chatId}`,
+                );
+                await this.eventRepository.markAsFailed(
+                    msgEvent.id,
+                    `Message with ID ${msgEvent.message.id} not found in chat ${msgEvent.message.chatId}`,
+                );
                 continue;
             }
 
