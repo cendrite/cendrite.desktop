@@ -7,7 +7,6 @@ export abstract class DomainEvent {
         this.id = id;
         this.occurredOn = occurredOn; 
     }
-
 }
 
 type DomainEventCtor = new (...args: any[]) => DomainEvent;

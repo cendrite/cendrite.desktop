@@ -15,6 +15,7 @@ export class StartupCommandHandler implements Handler<StartupCommand, StartupDto
         private readonly tokenManager: TokenManager,
         private readonly signalManager: SignalManager,
         private readonly messagePump: IPump,
+        private readonly deliveryStatusUpdatePump: IPump,
     ) { }
 
     public async handle(_cmd: StartupCommand): Promise<Result<StartupDto>> {
@@ -44,6 +45,7 @@ export class StartupCommandHandler implements Handler<StartupCommand, StartupDto
         await this.tokenManager.init(returnUsr.id, returnUsr.deviceId);
         await this.signalManager.connect();
         this.messagePump.start();
+        this.deliveryStatusUpdatePump.start();
 
         return Result.success({
             user: returnUsr,

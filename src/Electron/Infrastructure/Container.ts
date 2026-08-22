@@ -23,8 +23,9 @@ import { AuthenticationClient } from './Clients/AuthenticationClient.js';
 import { MediaProvider } from './Clients/MediaProvider.js';
 import { UserClient } from './Clients/UserClient.js';
 import { FriendClient } from './Clients/FriendClient.js';
-import { MessagePump } from './Jobs/MessagePump.js';
 import { EventRepository } from './Persistence/Repositories/EventRepository.js';
+import { MessagePump } from './Pumps/MessagePump.js';
+import { DeliveryStatusUpdatePump } from './Pumps/DeliveryUpdatePump.js';
 
 const services = {
     tokenManager: asClass(TokenManager, { lifetime: Lifetime.SINGLETON }),
@@ -63,6 +64,7 @@ const providers = {
 
 const jobs = {
     messagePump: asClass(MessagePump, { lifetime: Lifetime.SINGLETON }),
+    deliveryStatusUpdatePump: asClass(DeliveryStatusUpdatePump, { lifetime: Lifetime.SINGLETON }),
 }
 
 const httpClients = {

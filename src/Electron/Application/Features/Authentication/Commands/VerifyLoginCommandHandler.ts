@@ -15,6 +15,7 @@ import { IUserProvider } from '../../../Contracts/Providers/IUserProvider.js';
 import { UserContract } from '../../../Contracts/Models/UserContract.js';
 import { User } from '../../../../Domain/Aggregates/User.js';
 import { UserConnectionId } from '../../../../Domain/Entities/UserConnectionId.js';
+import { IPump } from '../../../Contracts/Services/IPump.js';
 
 export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, UserContract> {
     constructor(
@@ -27,6 +28,8 @@ export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, Us
         private readonly signalManager: SignalManager,
         private readonly userRepository: IUserRepository,
         private readonly userProvider: IUserProvider,
+        private readonly messagePump: IPump,
+        private readonly deliveryStatusUpdatePump: IPump,
     ) { }
 
     public async handle(cmd: VerifyLoginCommand): Promise<Result<UserContract>> {
@@ -106,6 +109,9 @@ export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, Us
             savedUser.avatarKey,
             savedUser.displayName,
         );
+
+        this.messagePump.start();
+        this.deliveryStatusUpdatePump.start();
 
         return Result.success<UserContract>(userContract);
     }

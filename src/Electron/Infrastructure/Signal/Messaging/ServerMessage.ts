@@ -1,4 +1,4 @@
-﻿import { DeliveryStatus } from "../../../Domain/Enums/DeliveryStatus.js";
+﻿import { DeliveryStatus } from '../../../Domain/Enums/DeliveryStatus.js';
 
 export type ServerMessageDto = {
     id: string;
@@ -48,7 +48,7 @@ export class ServerMessage {
 
 export enum PayloadType {
     ChatMessage = 0,
-    DeliveryStatusUpdate = 1,
+    DeliveryStatus = 1,
     SettingsUpdate = 2,
     DeleteMessage = 3,
     EditMessage = 4,
@@ -61,9 +61,19 @@ export abstract class Payload {
 export class MessagePayload extends Payload {
     constructor(
         public text: string,
-        public media: MediaPointer[], 
+        public media: MediaPointer[],
         public participants: string[],
         public deliveryStatus: DeliveryStatus,
+    ) {
+        super(participants);
+    }
+}
+
+export class DeliveryStatusPayload extends Payload {
+    constructor(
+        public messageIds: string[],
+        public deliveryStatus: DeliveryStatus,
+        public participants: string[],
     ) {
         super(participants);
     }

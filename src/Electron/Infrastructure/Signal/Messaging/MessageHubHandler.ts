@@ -50,8 +50,8 @@ export class MessageHubHandler implements IHubHandler {
         if (!this.isInitialized || !this.connection) {
             return Promise.reject(new Error('MessageReceiver is not initialized'));
         }
-        if (messages.some((m) => m.messageToken === null)) {
-            throw new Error('Cannot send message without a token');
+        if (messages.some((m) => m.messageToken === null && m.payloadType === PayloadType.ChatMessage)) {
+            throw new Error('Cannot send chat message without a token');
         }
         try {
             const receipt = await this.connection.invoke<DeliveryStatus>(HubMethods.SendMessage, messages);

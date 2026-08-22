@@ -51,18 +51,6 @@ export class ChatService {
         return message;
     }
 
-    public async setDeliveryStatusOnReceipt(
-        msg: MessageViewModel,
-        receipt: DeliveryStatus | null | undefined,
-    ): Promise<MessageViewModel> {
-        console.log('Message delivery receipt:', receipt);
-        msg.deliveryStatus = receipt ?? DeliveryStatus.Failed;
-        await window.electron.sendRequestAsync(
-            new UpdateDeliveryStatusCommand(msg.chatId, [msg.id], msg.deliveryStatus),
-        );
-        return msg;
-    }
-
     public async updateDeliveryStatus(
         user: User,
         chat: ChatViewModel,
@@ -72,6 +60,7 @@ export class ChatService {
             .filter(
                 (m) =>
                     m.deliveryStatus !== DeliveryStatus.Read &&
+                    m.deliveryStatus === DeliveryStatus.Received &&
                     m.senderId !== user.connectionId &&
                     !user.externalConnectionIds.includes(m.senderId),
             )
@@ -79,7 +68,16 @@ export class ChatService {
 
         if (messageIds.length === 0) return [];
 
-        await window.electron.sendRequestAsync(new UpdateDeliveryStatusCommand(chat.id, messageIds, deliveryStatus));
+        await window.electron.sendRequestAsync(
+            new UpdateDeliveryStatusCommand(
+                chat.id,
+                user.connectionId,
+                messageIds,
+                chat.chatMembers.map((m) => m.contact.connectionIds).flat(),
+                chat.chatMembers.map((m) => m.contact.id),
+                deliveryStatus,
+            ),
+        );
 
         return messageIds;
     }

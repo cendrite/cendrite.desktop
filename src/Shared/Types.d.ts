@@ -10,7 +10,7 @@ declare global {
     };
 
     type MessageEdit =
-        | { kind: 'deliveryStatus'; chatId: string; messageId: string; status: DeliveryStatus }
+        | { kind: 'deliveryStatus'; chatId: string; messageIds: string[]; status: DeliveryStatus }
         | { kind: 'textEdit'; messageId: string; newText: string }
         | { kind: 'delete'; messageId: string };
 

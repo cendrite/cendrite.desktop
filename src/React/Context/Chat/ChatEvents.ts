@@ -73,9 +73,10 @@ export function useChatEvents(
 
     const handleDeliveryStatusUpdate = useCallback(
         (evt: Extract<MessageEdit, { kind: 'deliveryStatus' }>) => {
+            console.log('Received delivery status update:', evt);
             chatDispatch({
                 type: ChatActionType.UpdateMessageDeliveryStatus,
-                payload: { chatId: evt.chatId, messageId: evt.messageId, status: evt.status },
+                payload: { chatId: evt.chatId, messageIds: evt.messageIds, status: evt.status },
             });
         },
         [chatDispatch],
