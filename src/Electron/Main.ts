@@ -7,7 +7,6 @@ import { LogoutManager } from './Application/Services/LogoutManager/LogoutManage
 import * as fs from 'node:fs';
 import { buildContainer } from './Container.js';
 import { initializeDatabase } from './Infrastructure/Persistence/Context/DatabaseContext.js';
-import { IMessageReceiver } from './Infrastructure/Signal/Messaging/MessageReceiver.js';
 import { Mediator } from './Application/Mediator/Mediator.js';
 import { ipcMain } from 'electron/main';
 
@@ -52,8 +51,6 @@ app.on('ready', async () => {
     ipcMain.handle('mediator:send', async (_event, request: MediatorRequest) => {
         return await mediator.send(request);
     });
-
-    container.resolve<IMessageReceiver>('messageReceiver').start();
 
     mainWindow.on('close', (event) => {
         if (logoutManager.IsLoggingOut) {
