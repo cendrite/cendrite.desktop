@@ -1,5 +1,6 @@
 import { Result } from '../../../../../Shared/Result/Result.js';
 import { TokenManager } from '../../../../Infrastructure/Services/TokenManager.js';
+import { SignalManager } from '../../../../Infrastructure/Signal/SignalManager.js';
 import { IAuthenticationProvider } from '../../../Contracts/Providers/IAuthenticationProvider.js';
 import { IPump } from '../../../Contracts/Services/IPump.js';
 import { Handler } from '../../../Mediator/Handler.js';
@@ -15,6 +16,7 @@ export class LogoutCommandHandler implements Handler<LogoutCommand, void> {
         private readonly purgeLocalDataService: PurgeLocalDataService,
         private readonly messagePump: IPump,
         private readonly deliveryStatusUpdatePump: IPump,
+        private readonly signalManager: SignalManager
     ) { }
 
     public async handle(_cmd: LogoutCommand): Promise<Result<void>> {
@@ -37,8 +39,8 @@ export class LogoutCommandHandler implements Handler<LogoutCommand, void> {
         } finally {
             await this.purgeLocalDataService.purgeLocalData();
 
+            this.signalManager.disconnect();
             this.tokenManager.disableAndClear();
-
             this.logoutManager.endLogout();
         }
 
