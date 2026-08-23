@@ -2,7 +2,7 @@ import { Result } from '../../../../../Shared/Result/Result.js';
 import { Message } from '../../../../Domain/Entities/Message.js';
 import { MessageMedia } from '../../../../Domain/Entities/MessageMedia.js';
 import { DeliveryStatus } from '../../../../Domain/Enums/DeliveryStatus.js';
-import { TransmitMessageEvent } from '../../../../Domain/Events/TransmitMessageEvent.js';
+import { MessageSentEvent } from '../../../../Domain/Events/MessageSentEvent.js';
 import { MessageContract } from '../../../Contracts/Models/MessageContract.js';
 import { IEventRepository } from '../../../Contracts/Providers/IEventRepository.js';
 import { IChatStore } from '../../../Contracts/Repositories/IChatStore.js';
@@ -49,7 +49,7 @@ export class SendMessageCommandHandler implements Handler<SendMessageCommand, Me
             message.messageToken,
         );
 
-        await this.eventRepository.appendEvent(new TransmitMessageEvent(uuid().toString(), messageContract, cmd.connectionIds, cmd.participants, new Date()));
+        await this.eventRepository.appendEvent(new MessageSentEvent(uuid().toString(), messageContract, cmd.connectionIds, cmd.participants, new Date()));
 
         this.messagePump.notify();
 

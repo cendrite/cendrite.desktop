@@ -1,8 +1,8 @@
 import { IChatStore } from '../../Application/Contracts/Repositories/IChatStore.js';
-import { TransmitMessageCommand } from '../../Application/Features/Chat/Contracts/TransmitMessage.js';
+import { MessageSentCommand } from '../../Application/Features/Chat/Contracts/SendMessage.js';
 import { Mediator } from '../../Application/Mediator/Mediator.js';
 import { DeliveryStatus } from '../../Domain/Enums/DeliveryStatus.js';
-import { TransmitMessageEvent } from '../../Domain/Events/TransmitMessageEvent.js';
+import { MessageSentEvent } from '../../Domain/Events/MessageSentEvent.js';
 import { IOutboxRepository } from '../Interfaces/IOutboxRepository.js';
 import { SignalManager } from '../Signal/SignalManager.js';
 import { Pump } from './Pump.js';
@@ -25,7 +25,7 @@ export class MessagePump extends Pump {
                 continue;
             }
 
-            const msgEvent = await this.eventRepository.getEvent<TransmitMessageEvent>(TransmitMessageEvent.type);
+            const msgEvent = await this.eventRepository.getEvent<MessageSentEvent>(MessageSentEvent.type);
 
             if (!msgEvent) {
                 await this.sleep(1_000);
@@ -45,9 +45,8 @@ export class MessagePump extends Pump {
                 continue;
             }
 
-
-            const result = await this.mediator.send<TransmitMessageCommand, DeliveryStatus>(
-                new TransmitMessageCommand(msgEvent.message, msgEvent.connectionIds, msgEvent.participants),
+            const result = await this.mediator.send<MessageSentCommand, DeliveryStatus>(
+                new MessageSentCommand(msgEvent.message, msgEvent.connectionIds, msgEvent.participants),
             );
 
             let deliveryStatus: DeliveryStatus;

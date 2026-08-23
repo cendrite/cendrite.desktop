@@ -21,7 +21,6 @@ import { GetMediaQueryHandler } from './Features/Files/Queries/GetMediaQueryHand
 import { CreateChatCommandHandler } from './Features/Chat/Commands/CreateChatCommandHandler.js';
 import { DeleteChatCommandHandler } from './Features/Chat/Commands/DeleteChatCommandHandler.js';
 import { AddMessageCommandHandler } from './Features/Chat/Commands/AddMessageCommandHandler.js';
-import { UpdateDeliveryStatusCommandHandler } from './Features/Chat/Commands/UpdateDeliveryStatusCommandHandler.js';
 import { GetChatsQueryHandler } from './Features/Chat/Queries/GetChatsQueryhandler.js';
 import { GetMessagesQueryHandler } from './Features/Chat/Queries/GetMessagesQueryHandler.js';
 import { AddUserConnectionIdCommandHandler } from './Features/User/Commands/AddUserConnectionIdCommandHandler.js';
@@ -32,8 +31,9 @@ import { RemoveFriendConnectionIdCommandHandler } from './Features/Friends/Comma
 import { UpdateFriendCommandHandler } from './Features/Friends/Commands/UpdateFriendCommandHandler.js';
 import { CreateFriendCommandHandler } from './Features/Friends/Commands/CreateFriendCommandHandler.js';
 import { SendMessageCommandHandler } from './Features/Chat/Commands/SendMessageCommandHandler.js';
-import { TransmitMessageCommandHandler } from './Features/Chat/Commands/TransmitMessageCommandHandler.js';
 import { DeliveryStatusUpdatedCommandHandler } from './Features/Chat/Commands/DeliveryStatusUpdatedCommandHandler.js';
+import { UpdateDeliveryStatusCommandHandler } from './Features/Chat/Events/UpdateDeliveryStatusEventHandler.js';
+import { MessageSentCommandHandler } from './Features/Chat/Events/MessageSentEventHandler.js';
 
 const services = {
     logoutManager: asValue(LogoutManager.getInstance()),
@@ -63,7 +63,7 @@ const chatHandlers = {
     updateDeliveryStatusCommandHandler: asClass(UpdateDeliveryStatusCommandHandler, { lifetime: Lifetime.SINGLETON }),
     deliveryStatusUpdatedCommandHandler: asClass(DeliveryStatusUpdatedCommandHandler, { lifetime: Lifetime.SINGLETON }),
     sendMessageCommandHandler: asClass(SendMessageCommandHandler, { lifetime: Lifetime.SINGLETON }),
-    transmitMessageCommandHandler: asClass(TransmitMessageCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    messageSentCommandHandler: asClass(MessageSentCommandHandler, { lifetime: Lifetime.SINGLETON }),
 };
 
 const userHandlers = {
