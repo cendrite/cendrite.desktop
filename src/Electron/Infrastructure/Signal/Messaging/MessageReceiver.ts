@@ -1,5 +1,4 @@
 import { BrowserWindow } from 'electron';
-import { MessageHubHandler } from './MessageHubHandler.js';
 import { ISessionManager } from '../../Interfaces/ISessionManager.js';
 import { IChatStore } from '../../../Application/Contracts/Repositories/IChatStore.js';
 import { IMediaStore } from '../../../Application/Contracts/Repositories/IMediaStore.js';
@@ -18,13 +17,10 @@ import { v4 as uuid } from 'uuid';
 
 export interface IMessageReceiver {
     handle(message: ServerMessage): void;
-    start(): void;
 }
 
 export class MessageReceiver implements IMessageReceiver {
     constructor(
-        // see if we can standardize subscribe methods on event handlers and messagehubhandler so we can have subscribe on IHubHandler and inject that instead of the concrete type
-        private readonly messageHubHandler: MessageHubHandler,
         private readonly sessionManager: ISessionManager,
         private readonly chatStore: IChatStore,
         private readonly mediaStore: IMediaStore,
@@ -34,32 +30,24 @@ export class MessageReceiver implements IMessageReceiver {
         private readonly mainWindow: BrowserWindow,
     ) { }
 
-    public start(): void {
-        this.messageHubHandler.subscribe(PayloadType.ChatMessage, (message: ServerMessage) => {
-            this.handle(message);
-        });
-        this.messageHubHandler.subscribe(PayloadType.DeliveryStatus, (message: ServerMessage) => {
-            this.handle(message);
-        });
-    }
 
     public async handle(message: ServerMessage): Promise<void> {
-        switch (message.payloadType) {
+        const envelope = await this.sessionManager.decrypt(message.payload, message.senderId);
+
+        switch (envelope.payloadType) {
             case PayloadType.ChatMessage:
-                await this.handleChatMessage(message);
+                await this.handleChatMessage(message, envelope.payload as MessagePayload);
                 break;
             case PayloadType.DeliveryStatus:
-                await this.handleDeliveryStatusUpdate(message);
+                await this.handleDeliveryStatusUpdate(message, envelope.payload as DeliveryStatusPayload);
                 break;
             default:
-                console.warn(`Unhandled payload type ${message.payloadType}`);
+                console.warn(`Unhandled payload type ${envelope.payloadType}`);
                 break;
         }
     }
 
-    private async handleDeliveryStatusUpdate(message: ServerMessage): Promise<void> {
-        const payload = await this.sessionManager.decrypt<DeliveryStatusPayload>(message.payload, message.senderId);
-
+    private async handleDeliveryStatusUpdate(message: ServerMessage, payload: DeliveryStatusPayload): Promise<void> {
         await this.chatStore.updateDeliveryStatus(message.ChatId, payload.messageIds, payload.deliveryStatus);
 
         console.log(
@@ -74,9 +62,7 @@ export class MessageReceiver implements IMessageReceiver {
         });
     }
 
-    private async handleChatMessage(message: ServerMessage): Promise<void> {
-        const payload = await this.sessionManager.decrypt<MessagePayload>(message.payload, message.senderId);
-
+    private async handleChatMessage(message: ServerMessage, payload: MessagePayload): Promise<void> {
         const media = await this.mediaService.get(payload.media);
 
         for (const m of media) {

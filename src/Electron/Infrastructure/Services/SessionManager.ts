@@ -3,7 +3,7 @@ import { ISessionManager } from '../Interfaces/ISessionManager.js';
 import * as libsignal from '@privacyresearch/libsignal-protocol-typescript';
 import { KeyService } from './KeyStore.js';
 import { mapBundleToDevice } from '../Mappers/KeyMapper.js';
-import { Payload } from '../Signal/Messaging/ServerMessage.js';
+import { Envelope, Payload } from '../Signal/Messaging/ServerMessage.js';
 
 export class SessionManager implements ISessionManager {
     private readonly keyService: KeyService;
@@ -47,16 +47,16 @@ export class SessionManager implements ISessionManager {
     }
 
     /**
-     * Encrypts a payload object into a ciphertext string.
-     * @param payload The payload object to encrypt.
+     * Encrypts an envelope (payload type + payload) into a ciphertext string.
+     * @param envelope The envelope to encrypt.
      * @returns A promise that resolves to the encrypted ciphertext string.
      */
-    public async encrypt(payload: Payload, connectionId: string): Promise<string> {
+    public async encrypt(envelope: Envelope<Payload>, connectionId: string): Promise<string> {
         await this.ensureSession(connectionId);
 
         const sessionCipher = new libsignal.SessionCipher(this.keyService, this.address(connectionId));
 
-        const plainTextStr = JSON.stringify(payload);
+        const plainTextStr = JSON.stringify(envelope);
 
         const messageBuffer = SessionManager.convertToBuffer(plainTextStr);
 
@@ -69,11 +69,12 @@ export class SessionManager implements ISessionManager {
     }
 
     /**
-     * Decrypts a ciphertext string into a payload object.
+     * Decrypts a ciphertext string into an envelope. The caller must switch on
+     * envelope.payloadType before trusting the shape of envelope.payload.
      * @param ciphertext The ciphertext string to decrypt.
-     * @returns A promise that resolves to the decrypted payload object.
+     * @returns A promise that resolves to the decrypted envelope.
      */
-    public async decrypt<T extends Payload>(ciphertext: string, connectionId: string): Promise<T> {
+    public async decrypt(ciphertext: string, connectionId: string): Promise<Envelope<Payload>> {
         const { type, body } = JSON.parse(ciphertext);
 
         const cipher = new libsignal.SessionCipher(this.keyService, this.address(connectionId));
