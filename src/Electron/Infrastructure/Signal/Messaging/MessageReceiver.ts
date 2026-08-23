@@ -1,5 +1,4 @@
 import { BrowserWindow } from 'electron';
-import { MessageHubHandler } from './MessageHubHandler.js';
 import { ISessionManager } from '../../Interfaces/ISessionManager.js';
 import { IChatStore } from '../../../Application/Contracts/Repositories/IChatStore.js';
 import { IMediaStore } from '../../../Application/Contracts/Repositories/IMediaStore.js';
