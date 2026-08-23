@@ -5,7 +5,6 @@ export type ServerMessageDto = {
     chatId: string | null;
     senderId: string;
     recipientId: string;
-    payloadType: number;
     payload: string;
     timestamp: Date;
     messageToken: string | null;
@@ -14,10 +13,9 @@ export type ServerMessageDto = {
 export class ServerMessage {
     constructor(
         public readonly id: string,
-        private readonly chatId: string | null = null,
+        public readonly chatId: string | null = null,
         public readonly senderId: string,
         public readonly recipientId: string,
-        public readonly payloadType: number,
         public readonly payload: string,
         public readonly timestamp: Date,
         public readonly messageToken: string | null = null,
@@ -38,7 +36,6 @@ export class ServerMessage {
             dto.chatId,
             dto.senderId,
             dto.recipientId,
-            dto.payloadType,
             dto.payload,
             dto.timestamp,
             dto.messageToken,
@@ -54,8 +51,15 @@ export enum PayloadType {
     EditMessage = 4,
 }
 
+export class Envelope<T extends Payload> {
+    constructor(
+        public readonly payloadType: PayloadType,
+        public readonly payload: T,
+    ) { }
+}
+
 export abstract class Payload {
-    constructor(public participants: string[]) { }
+    constructor(public readonly participants: string[]) { }
 }
 
 export class MessagePayload extends Payload {
