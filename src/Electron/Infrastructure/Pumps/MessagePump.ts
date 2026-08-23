@@ -1,8 +1,8 @@
 import { IChatStore } from '../../Application/Contracts/Repositories/IChatStore.js';
-import { TransmitMessageCommand } from '../../Application/Features/Chat/Contracts/TransmitMessage.js';
+import { MessageSentCommand } from '../../Application/Features/Chat/Contracts/SendMessage.js';
 import { Mediator } from '../../Application/Mediator/Mediator.js';
 import { DeliveryStatus } from '../../Domain/Enums/DeliveryStatus.js';
-import { TransmitMessageEvent } from '../../Domain/Events/TransmitMessageEvent.js';
+import { MessageSentEvent } from '../../Domain/Events/MessageSentEvent.js';
 import { IOutboxRepository } from '../Interfaces/IOutboxRepository.js';
 import { SignalManager } from '../Signal/SignalManager.js';
 import { Pump } from './Pump.js';
@@ -21,12 +21,11 @@ export class MessagePump extends Pump {
     protected async process(): Promise<void> {
         while (this.isRunning) {
             if (!this.signalManager.isConnected('Messaging')) {
-                console.log('MessagePump: Messaging hub is not connected, waiting...');
                 await this.sleep(5_000);
                 continue;
             }
 
-            const msgEvent = await this.eventRepository.getEvent<TransmitMessageEvent>(TransmitMessageEvent.type);
+            const msgEvent = await this.eventRepository.getEvent<MessageSentEvent>(MessageSentEvent.type);
 
             if (!msgEvent) {
                 await this.sleep(1_000);
@@ -46,10 +45,8 @@ export class MessagePump extends Pump {
                 continue;
             }
 
-            console.log(`MessagePump: Processing message ${pendingMessage.id} for chat ${pendingMessage.chatId}`);
-
-            const result = await this.mediator.send<TransmitMessageCommand, DeliveryStatus>(
-                new TransmitMessageCommand(msgEvent.message, msgEvent.connectionIds, msgEvent.participants),
+            const result = await this.mediator.send<MessageSentCommand, DeliveryStatus>(
+                new MessageSentCommand(msgEvent.message, msgEvent.connectionIds, msgEvent.participants),
             );
 
             let deliveryStatus: DeliveryStatus;
@@ -62,7 +59,7 @@ export class MessagePump extends Pump {
             await this.chatStore.markMessage(pendingMessage.id, deliveryStatus);
             await this.eventRepository.markEventAsProcessed(msgEvent.id);
 
-            this.mainWindow.webContents.send('messageEdit', {
+            this.mainWindow.webContents.send('eventMessage', {
                 kind: 'deliveryStatus',
                 chatId: pendingMessage.chatId,
                 messageIds: [pendingMessage.id],

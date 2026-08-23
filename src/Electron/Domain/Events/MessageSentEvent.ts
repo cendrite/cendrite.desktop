@@ -1,8 +1,8 @@
 import { MessageContract } from '../../Application/Contracts/Models/MessageContract.js';
 import { DomainEvent, registerDomainEvent } from './IDomainEvent.js';
 
-export class TransmitMessageEvent extends DomainEvent {
-    static readonly type = 'TransmitMessageEvent';
+export class MessageSentEvent extends DomainEvent {
+    static readonly type = MessageSentEvent.name;
     public readonly message: MessageContract;
     public readonly connectionIds: string[];
     public readonly participants: string[];
@@ -21,6 +21,6 @@ export class TransmitMessageEvent extends DomainEvent {
     }
 }
 
-registerDomainEvent(TransmitMessageEvent.type, TransmitMessageEvent, (raw: any, occurredOn: Date) => {
-    return new TransmitMessageEvent(raw.id, raw.message, raw.connectionIds, raw.participants, occurredOn);
+registerDomainEvent(MessageSentEvent.type, MessageSentEvent, (raw: any, occurredOn: Date) => {
+    return new MessageSentEvent(raw.id, raw.message, raw.connectionIds, raw.participants, occurredOn);
 });

@@ -14,17 +14,17 @@ export function useSignalEvent<T>(type: ChangeEventType, handler: (event: Change
     }, [type]);
 }
 
-export function useMessageEdit<K extends MessageEdit['kind']>(
+export function useMessageEdit<K extends EventMessage['kind']>(
     kind: K,
-    handler: (event: Extract<MessageEdit, { kind: K }>) => void,
+    handler: (event: Extract<EventMessage, { kind: K }>) => void,
 ) {
     const handlerRef = useRef(handler);
     handlerRef.current = handler;
 
     useEffect(() => {
-        return window.electron.on('messageEdit', (evt) => {
+        return window.electron.on('eventMessage', (evt) => {
             if (evt.kind !== kind) return;
-            handlerRef.current(evt as Extract<MessageEdit, { kind: K }>);
+            handlerRef.current(evt as Extract<EventMessage, { kind: K }>);
         });
     }, [kind]);
 }

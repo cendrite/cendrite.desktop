@@ -6,9 +6,9 @@ import { MessagePayload, PayloadType, ServerMessage } from '../../../../Infrastr
 import { IMediaStore } from '../../../Contracts/Repositories/IMediaStore.js';
 import { Handler } from '../../../Mediator/Handler.js';
 import { IMediaService } from '../../../Services/Media/MediaService.js';
-import { TransmitMessageCommand } from '../Contracts/TransmitMessage.js';
+import { MessageSentCommand } from '../Contracts/SendMessage.js';
 
-export class TransmitMessageCommandHandler implements Handler<TransmitMessageCommand, DeliveryStatus> {
+export class MessageSentCommandHandler implements Handler<MessageSentCommand, DeliveryStatus> {
     constructor(
         private readonly sessionManager: SessionManager,
         private readonly messageHubHandler: MessageHubHandler,
@@ -16,7 +16,7 @@ export class TransmitMessageCommandHandler implements Handler<TransmitMessageCom
         private readonly mediaStore: IMediaStore,
     ) { }
 
-    async handle(cmd: TransmitMessageCommand): Promise<Result<DeliveryStatus>> {
+    async handle(cmd: MessageSentCommand): Promise<Result<DeliveryStatus>> {
         const m_pointers = await this.mediaService.upload(cmd.message.senderId, cmd.message.media);
 
         for (const m of cmd.message.media) {
@@ -50,7 +50,6 @@ export class TransmitMessageCommandHandler implements Handler<TransmitMessageCom
         }
 
         const receipt = await this.messageHubHandler.sendMessage(messages);
-
 
         return Result.success(receipt);
     }

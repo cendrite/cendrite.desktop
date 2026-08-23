@@ -1,4 +1,5 @@
 import { MediaContract } from "../../../Contracts/Models/MediaContract.js";
+import { MessageContract } from "../../../Contracts/Models/MessageContract.js";
 
 export class SendMessageCommand implements MediatorRequest {
     type = 'SendMessageCommand';
@@ -26,5 +27,18 @@ export class SendMessageCommand implements MediatorRequest {
         this.chatId = chatId;
         this.message = message;
         this.media = media ?? [];
+    }
+}
+
+export class MessageSentCommand implements MediatorRequest {
+    type = MessageSentCommand.name;
+    public readonly message: MessageContract;
+    public readonly connectionIds: string[];
+    public readonly participants: string[];
+
+    public constructor(message: MessageContract, connectionIds: string[], participants: string[]) {
+        this.message = message;
+        this.connectionIds = connectionIds;
+        this.participants = participants;
     }
 }
