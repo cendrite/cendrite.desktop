@@ -31,7 +31,7 @@ export class SendMessageCommand implements MediatorRequest {
 }
 
 export class MessageSentCommand implements MediatorRequest {
-    type = 'TransmitMessageCommand';
+    type = MessageSentCommand.name;
     public readonly message: MessageContract;
     public readonly connectionIds: string[];
     public readonly participants: string[];
