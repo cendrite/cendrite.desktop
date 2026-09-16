@@ -9,10 +9,12 @@ import React from 'react';
 import { DeliveryStatus } from '../../../Electron/Domain/Enums/DeliveryStatus.ts';
 import { ChatService } from '../Services/ChatService.ts';
 import { Media } from '../../Models/Media.ts';
+import { MessageViewModel } from '../../Models/MessageViewModel.ts';
 
 export function useMessageService() {
     const { chatDispatch } = useChatContext();
     const { user } = useUser();
+    const { getChatById } = useChatContext();
     const { notificationDispatch } = useNotifications();
     const chatService = React.useMemo(() => new ChatService(), []);
 
@@ -45,9 +47,30 @@ export function useMessageService() {
         [chatDispatch, user, chatService],
     );
 
-    const loadMessages = useCallback(async (chatId: string, offset: number, take: number) => {
-        return await chatService.getMessages(chatId, offset, take);
-    }, [chatService]);
+    const resendMessage = useCallback(
+        async (message: MessageViewModel) => {
+            const chat = getChatById(message.chatId);
+            if (!chat) {
+                console.error('Chat not found for message:', message);
+                return;
+            }
 
-    return { markMessagesAsRead, sendMessage, loadMessages };
+            await chatService.resendMessage(
+                chat.id,
+                message.id,
+                chat.chatMembers.map((m) => m.contact.connectionIds).flat(),
+                chat.chatMembers.map((m) => m.contact.id),
+            );
+        },
+        [chatService],
+    );
+
+    const loadMessages = useCallback(
+        async (chatId: string, offset: number, take: number) => {
+            return await chatService.getMessages(chatId, offset, take);
+        },
+        [chatService],
+    );
+
+    return { markMessagesAsRead, sendMessage, resendMessage, loadMessages };
 }

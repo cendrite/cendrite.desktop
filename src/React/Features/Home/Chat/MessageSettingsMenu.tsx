@@ -1,5 +1,6 @@
 import React from 'react';
 import { MessageViewModel } from '../../../Models/MessageViewModel';
+import { useMessageService } from '../../../Common/Hooks/MessageService';
 
 const menuButtonClass = 'w-full text-left px-3 py-2 text-sm text-gray-200 hover:bg-darkGray-300 rounded-md';
 
@@ -7,10 +8,12 @@ export interface MessageSettingsProps {
     message: MessageViewModel;
     isOpen: boolean;
     isMine: boolean;
+    isFailed: boolean;
     onClose: () => void;
 }
 
-export const MessageSettingsMenu: React.FC<MessageSettingsProps> = ({ message, isOpen, isMine, onClose }) => {
+export const MessageSettingsMenu: React.FC<MessageSettingsProps> = ({ message, isOpen, isMine, isFailed, onClose }) => {
+    const { resendMessage } = useMessageService();
     if (!isOpen) return null;
 
     const Backdrop = () => (
@@ -50,6 +53,12 @@ export const MessageSettingsMenu: React.FC<MessageSettingsProps> = ({ message, i
                 <button className={`${menuButtonClass} text-red-300 hover:text-red-200 hover:bg-red-500/20`}>
                     Delete message
                 </button>
+
+                {isFailed === true && (
+                    <button className={menuButtonClass} onClick={() => resendMessage(message)}>
+                        Resend message
+                    </button>
+                )}
             </div>
         </>
     );
