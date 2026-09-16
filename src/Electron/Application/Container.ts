@@ -34,6 +34,7 @@ import { SendMessageCommandHandler } from './Features/Chat/Commands/SendMessageC
 import { DeliveryStatusUpdatedCommandHandler } from './Features/Chat/Commands/DeliveryStatusUpdatedCommandHandler.js';
 import { UpdateDeliveryStatusCommandHandler } from './Features/Chat/Events/UpdateDeliveryStatusEventHandler.js';
 import { MessageSentCommandHandler } from './Features/Chat/Events/MessageSentEventHandler.js';
+import { ResendMessageCommandHandler } from './Features/Chat/Commands/ResendMessageCommandHandler.js';
 
 const services = {
     logoutManager: asValue(LogoutManager.getInstance()),
@@ -64,6 +65,7 @@ const chatHandlers = {
     deliveryStatusUpdatedCommandHandler: asClass(DeliveryStatusUpdatedCommandHandler, { lifetime: Lifetime.SINGLETON }),
     sendMessageCommandHandler: asClass(SendMessageCommandHandler, { lifetime: Lifetime.SINGLETON }),
     messageSentCommandHandler: asClass(MessageSentCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    resendMessageCommandHandler: asClass(ResendMessageCommandHandler, { lifetime: Lifetime.SINGLETON }),
 };
 
 const userHandlers = {

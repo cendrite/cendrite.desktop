@@ -80,6 +80,7 @@ export const MessageBubble: React.FC<ChatBubbleProps> = ({ message, showStatus }
                         message={message}
                         isOpen={menuOpen}
                         isMine={isMine}
+                        isFailed={message.deliveryStatus === DeliveryStatus.Failed}
                         onClose={() => setMenuOpen(false)}
                     />
                 </div>

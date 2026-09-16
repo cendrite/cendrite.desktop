@@ -15,6 +15,7 @@ import { DeliveryStatus } from '../../../Electron/Domain/Enums/DeliveryStatus.ts
 import { GetMessagesQuery } from '../../../Electron/Application/Features/Chat/Contracts/GetMessages.ts';
 import { Media } from '../../Models/Media.ts';
 import { SendMessageCommand } from '../../../Electron/Application/Features/Chat/Contracts/SendMessage.ts';
+import { ResendMessageCommand } from '../../../Electron/Application/Features/Chat/Contracts/ResendMessage.ts';
 import { MessageContract } from '../../../Electron/Application/Contracts/Models/MessageContract.ts';
 import { UpdateDeliveryStatusCommand } from '../../../Electron/Application/Features/Chat/Contracts/UpdateDeliveryStatus.ts';
 
@@ -49,6 +50,16 @@ export class ChatService {
         const message = MessageViewModel.mapFromContract(messageResult.data!);
 
         return message;
+    }
+
+    public async resendMessage(chatId: string, messageId: string, connectionIds: string[], recipientTags: string[]) {
+        const result = await window.electron.sendRequestAsync<Result<void>>(
+            new ResendMessageCommand(chatId, messageId, connectionIds, recipientTags),
+        );
+
+        if (!result.success) {
+            console.error('Failed to resend message:', result.errorMessage);
+        }
     }
 
     public async updateDeliveryStatus(
