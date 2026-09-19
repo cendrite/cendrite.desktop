@@ -1,49 +1,76 @@
+import {
+    CiphertextMessageType,
+    PreKeySignalMessage,
+    processPreKeyBundle,
+    ProtocolAddress,
+    signalDecrypt,
+    signalDecryptPreKey,
+    signalEncrypt,
+    SignalMessage,
+} from '@signalapp/libsignal-client';
 import { IKeyStoreProvider } from '../../Application/Contracts/Providers/IKeyStoreProvider.js';
+import { IDeviceRepository } from '../../Application/Contracts/Repositories/IDeviceRepository.js';
 import { ISessionManager } from '../Interfaces/ISessionManager.js';
-import * as libsignal from '@privacyresearch/libsignal-protocol-typescript';
-import { KeyService } from './KeyStore.js';
-import { mapBundleToDevice } from '../Mappers/KeyMapper.js';
+import { SignalProtocolStore } from './SignalProtocolStore.js';
+import { mapToPreKeyBundle } from '../Mappers/KeyMapper.js';
 import { Envelope, Payload } from '../Signal/Messaging/ServerMessage.js';
 
-export class SessionManager implements ISessionManager {
-    private readonly keyService: KeyService;
-    private readonly keyProvider: IKeyStoreProvider;
+/**
+ * Every client has exactly one device per connectionId, so the libsignal device id is fixed.
+ */
+const DEVICE_ID = 1;
 
-    constructor(keyService: KeyService, keyStoreProvider: IKeyStoreProvider) {
-        this.keyService = keyService;
+export class SessionManager implements ISessionManager {
+    private readonly store: SignalProtocolStore;
+    private readonly keyProvider: IKeyStoreProvider;
+    private readonly deviceRepository: IDeviceRepository;
+
+    /**
+     * Per-address operation chains. Ratchet state is read-modify-write through the async store,
+     * so operations on the same session must not interleave.
+     */
+    private readonly queues = new Map<string, Promise<unknown>>();
+
+    constructor(
+        signalProtocolStore: SignalProtocolStore,
+        keyStoreProvider: IKeyStoreProvider,
+        deviceRepository: IDeviceRepository,
+    ) {
+        this.store = signalProtocolStore;
         this.keyProvider = keyStoreProvider;
+        this.deviceRepository = deviceRepository;
     }
 
-    private address(connectionId: string): libsignal.SignalProtocolAddress {
-        return new libsignal.SignalProtocolAddress(
-            connectionId,
-            SessionManager.generateAddressId(connectionId),
-        );
+    private address(connectionId: string): ProtocolAddress {
+        return ProtocolAddress.new(connectionId, DEVICE_ID);
+    }
+
+    private async localAddress(): Promise<ProtocolAddress> {
+        const device = await this.deviceRepository.get();
+        if (!device) {
+            throw new Error('No local device registered');
+        }
+        return this.address(device.connectionId);
     }
 
     /**
-     * Ensures that a session exists for the given connectionId. If no session exists, it retrieves the pre-key bundle
-     * from the KeyService and processes it to establish a new session.
+     * Ensures that a session exists for the given address. If no usable session exists, it retrieves the
+     * pre-key bundle from the keystore and processes it to establish a new session.
      */
-    private async ensureSession(connectionId: string): Promise<void> {
-        const session = await this.keyService.loadSession(this.address.toString());
-        if (session) {
+    private async ensureSession(address: ProtocolAddress, localAddress: ProtocolAddress): Promise<void> {
+        const session = await this.store.getSession(address);
+        if (session?.hasCurrentState()) {
             return;
         }
 
-        const preKeyBundleResult = await this.keyProvider.getPreKeyBundle(connectionId);
+        const preKeyBundleResult = await this.keyProvider.getPreKeyBundle(address.name());
         if (!preKeyBundleResult.success) {
-            throw new Error('Failed to retrieve pre-key bundle: ' + preKeyBundleResult.errorMessage);
+            throw new Error('Failed to retrieve pre-key bundle: ' + preKeyBundleResult.errorMessage?.message);
         }
 
-        const preKeyBundle = preKeyBundleResult.data!;
+        const bundle = mapToPreKeyBundle(preKeyBundleResult.data!, DEVICE_ID);
 
-        const builder = new libsignal.SessionBuilder(this.keyService, this.address(connectionId));
-
-        const mappedBundle = mapBundleToDevice(preKeyBundle);
-
-        console.log(mappedBundle);
-        await builder.processPreKey(mappedBundle);
+        await processPreKeyBundle(bundle, address, localAddress, this.store, this.store);
     }
 
     /**
@@ -52,19 +79,19 @@ export class SessionManager implements ISessionManager {
      * @returns A promise that resolves to the encrypted ciphertext string.
      */
     public async encrypt(envelope: Envelope<Payload>, connectionId: string): Promise<string> {
-        await this.ensureSession(connectionId);
+        const address = this.address(connectionId);
 
-        const sessionCipher = new libsignal.SessionCipher(this.keyService, this.address(connectionId));
+        return this.runExclusive(address, async () => {
+            const localAddress = await this.localAddress();
+            await this.ensureSession(address, localAddress);
 
-        const plainTextStr = JSON.stringify(envelope);
+            const plaintext = new TextEncoder().encode(JSON.stringify(envelope));
+            const ciphertext = await signalEncrypt(plaintext, address, localAddress, this.store, this.store);
 
-        const messageBuffer = SessionManager.convertToBuffer(plainTextStr);
-
-        const ciphertext = await sessionCipher.encrypt(messageBuffer);
-
-        return JSON.stringify({
-            type: ciphertext.type,
-            body: ciphertext.body ? btoa(ciphertext.body) : '',
+            return JSON.stringify({
+                type: ciphertext.type(),
+                body: Buffer.from(ciphertext.serialize()).toString('base64'),
+            });
         });
     }
 
@@ -76,21 +103,29 @@ export class SessionManager implements ISessionManager {
      */
     public async decrypt(ciphertext: string, connectionId: string): Promise<Envelope<Payload>> {
         const { type, body } = JSON.parse(ciphertext);
+        const address = this.address(connectionId);
+        const bodyBytes = SessionManager.fromBase64(body ?? '');
 
-        const cipher = new libsignal.SessionCipher(this.keyService, this.address(connectionId));
+        const plaintext = await this.runExclusive(address, async () => {
+            const localAddress = await this.localAddress();
 
-        const bodyBuffer = body ? Uint8Array.from(atob(body), (c) => c.charCodeAt(0)).buffer : new ArrayBuffer(0);
+            if (type === CiphertextMessageType.PreKey) {
+                return signalDecryptPreKey(
+                    PreKeySignalMessage.deserialize(bodyBytes),
+                    address,
+                    localAddress,
+                    this.store,
+                    this.store,
+                    this.store,
+                    this.store,
+                    this.store,
+                );
+            }
 
-        let plaintextBuffer: ArrayBuffer;
+            return signalDecrypt(SignalMessage.deserialize(bodyBytes), address, localAddress, this.store, this.store);
+        });
 
-        if (type === 3) {
-            plaintextBuffer = await cipher.decryptPreKeyWhisperMessage(bodyBuffer, 'binary');
-        } else {
-            plaintextBuffer = await cipher.decryptWhisperMessage(bodyBuffer, 'binary');
-        }
-
-        const decryptedMsg = new TextDecoder().decode(plaintextBuffer);
-        return JSON.parse(decryptedMsg);
+        return JSON.parse(new TextDecoder().decode(plaintext));
     }
 
     /**
@@ -103,7 +138,7 @@ export class SessionManager implements ISessionManager {
         const iv = crypto.getRandomValues(new Uint8Array(12));
 
         const key = await crypto.subtle.importKey('raw', rawKey, 'AES-GCM', false, ['encrypt']);
-        const cipher = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, bytes);
+        const cipher = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, bytes as Uint8Array<ArrayBuffer>);
 
         return {
             cipher: new Uint8Array(cipher),
@@ -123,30 +158,35 @@ export class SessionManager implements ISessionManager {
         const plaintext = await crypto.subtle.decrypt(
             { name: 'AES-GCM', iv: SessionManager.fromBase64(iv) },
             cryptoKey,
-            cipherBytes,
+            cipherBytes as Uint8Array<ArrayBuffer>,
         );
 
         return new Uint8Array(plaintext);
     }
 
+    /**
+     * Runs fn after every earlier operation queued for the same address has settled.
+     */
+    private runExclusive<T>(address: ProtocolAddress, fn: () => Promise<T>): Promise<T> {
+        const key = address.toString();
+        const previous = this.queues.get(key) ?? Promise.resolve();
+        const next = previous.catch(() => undefined).then(fn);
+
+        this.queues.set(key, next);
+        next.catch(() => undefined).finally(() => {
+            if (this.queues.get(key) === next) {
+                this.queues.delete(key);
+            }
+        });
+
+        return next;
+    }
+
     private static toBase64(bytes: Uint8Array): string {
-        return btoa(String.fromCharCode(...bytes));
+        return Buffer.from(bytes).toString('base64');
     }
 
-    private static fromBase64(value: string): Uint8Array {
-        return Uint8Array.from(atob(value), (c) => c.charCodeAt(0));
-    }
-
-    private static generateAddressId(connectionId: string): number {
-        let h = 0;
-        for (let i = 0; i < connectionId.length; i++) {
-            h = (h * 31 + connectionId.charCodeAt(i)) | 0;
-        }
-        return Math.abs(h);
-    }
-
-    private static convertToBuffer(str: string): ArrayBuffer {
-        const encoder = new TextEncoder();
-        return encoder.encode(str).buffer;
+    private static fromBase64(value: string) {
+        return new Uint8Array(Buffer.from(value, 'base64'));
     }
 }

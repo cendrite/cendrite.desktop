@@ -1,6 +1,6 @@
 import { Result } from '../../../../../Shared/Result/Result.js';
 import { DeliveryStatus } from '../../../../Domain/Enums/DeliveryStatus.js';
-import { SessionManager } from '../../../../Infrastructure/Services/SessionManager.js';
+import { ISessionManager } from '../../../../Infrastructure/Interfaces/ISessionManager.js';
 import { MessageHubHandler } from '../../../../Infrastructure/Signal/Messaging/MessageHubHandler.js';
 import {
     Envelope,
@@ -14,7 +14,7 @@ import { MessageSentCommand } from '../Contracts/SendMessage.js';
 
 export class MessageSentCommandHandler implements Handler<MessageSentCommand, DeliveryStatus> {
     constructor(
-        private readonly sessionManager: SessionManager,
+        private readonly sessionManager: ISessionManager,
         private readonly messageHubHandler: MessageHubHandler,
         private readonly mediaService: IMediaService,
     ) { }

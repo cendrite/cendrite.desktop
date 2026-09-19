@@ -18,7 +18,7 @@ export class UserClient implements IUserProvider {
 
     public updateAvatar(req: UpdateAvatarRequest): Promise<Result<UpdateAvatarResponse>> {
         const formData = new FormData();
-        formData.append("Avatar", new Blob([req.bytes], { type: req.mimeType }), req.fileName);
+        formData.append("Avatar", new Blob([req.bytes as Uint8Array<ArrayBuffer>], { type: req.mimeType }), req.fileName);
 
         return this.userClient.handleConduit<UpdateAvatarResponse>({
             method: 'PUT',

@@ -1,0 +1,108 @@
+import { randomInt } from 'node:crypto';
+import { IdentityKeyPair, KEMKeyPair, KyberPreKeyRecord, PrivateKey } from '@signalapp/libsignal-client';
+import { IKeyStoreProvider } from '../../Contracts/Providers/IKeyStoreProvider.js';
+import { ProtocolStore } from '../../../Infrastructure/Persistence/Repositories/ProtocolStore.js';
+import { IdentityKeys } from '../../../Domain/Encryption/IdentityKeys.js';
+import { EcPreKey } from '../../../Domain/Encryption/EcPreKey.js';
+import { SignedPreKey } from '../../../Domain/Encryption/SignedPreKey.js';
+import { KyberPreKey } from '../../../Domain/Encryption/KyberPreKey.js';
+
+export interface IKeyGenerator {
+    generateKeyBundle(connectionId: string): Promise<void>;
+}
+
+export class KeyGenerator implements IKeyGenerator {
+    private readonly keyStoreProvider: IKeyStoreProvider;
+    private readonly ProtocolStore: ProtocolStore;
+
+    constructor(keyStoreProvider: IKeyStoreProvider, protocolStore: ProtocolStore) {
+        this.keyStoreProvider = keyStoreProvider;
+        this.ProtocolStore = protocolStore;
+    }
+
+    public async generateKeyBundle(connectionId: string): Promise<void> {
+        // Signal registration ids are 14-bit and must be non-zero.
+        const registrationId = randomInt(1, 16381);
+
+        const identityKeyPair = IdentityKeyPair.generate();
+
+        const baseKeyId = this.generateNumberId();
+        const signedPreKeyTimestamp = new Date();
+
+        const signedPreKeyPrivate = PrivateKey.generate();
+        const signedPreKeyPublic = signedPreKeyPrivate.getPublicKey();
+        const signedPreKeySignature = identityKeyPair.privateKey.sign(signedPreKeyPublic.serialize());
+
+        const ecPreKeys: EcPreKey[] = [];
+        for (let i = 1; i <= 100; i++) {
+            const preKeyPrivate = PrivateKey.generate();
+            ecPreKeys.push(
+                new EcPreKey(
+                    baseKeyId + i,
+                    Buffer.from(preKeyPrivate.serialize()),
+                    Buffer.from(preKeyPrivate.getPublicKey().serialize()),
+                ),
+            );
+        }
+
+        // Last-resort Kyber prekey for PQXDH; the server hands it out with every bundle.
+        const kyberKeyPair = KEMKeyPair.generate();
+        const kyberPreKeySignature = identityKeyPair.privateKey.sign(kyberKeyPair.getPublicKey().serialize());
+        const kyberPreKey = KyberPreKeyRecord.new(
+            baseKeyId,
+            signedPreKeyTimestamp.getTime(),
+            kyberKeyPair,
+            kyberPreKeySignature,
+        );
+
+        const uploadResult = await this.keyStoreProvider.createKeyBundle({
+            accessKey: connectionId,
+            identityKey: this.b64Encode(identityKeyPair.publicKey.serialize()),
+            registrationId: registrationId,
+            signedPreKeyId: baseKeyId,
+            signedPreKeyPublic: this.b64Encode(signedPreKeyPublic.serialize()),
+            signedPreKeySignature: this.b64Encode(signedPreKeySignature),
+            signedPreKeyTimestamp: signedPreKeyTimestamp,
+            preKeys: ecPreKeys.map((preKey) => ({
+                keyId: preKey.id,
+                publicKey: preKey.publicKey.toString('base64'),
+            })),
+            kyberPreKeyId: kyberPreKey.id(),
+            kyberPreKeyPublic: this.b64Encode(kyberPreKey.publicKey().serialize()),
+            kyberPreKeySignature: this.b64Encode(kyberPreKeySignature),
+        });
+
+        if (!uploadResult.success) {
+            throw new Error('Failed to upload key bundle: ' + uploadResult.errorMessage?.message);
+        }
+
+        await this.ProtocolStore.createKeyBundle(
+            new IdentityKeys(
+                1,
+                registrationId,
+                Buffer.from(identityKeyPair.publicKey.serialize()),
+                Buffer.from(identityKeyPair.privateKey.serialize()),
+            ),
+            new SignedPreKey(
+                baseKeyId,
+                Buffer.from(signedPreKeyPublic.serialize()),
+                Buffer.from(signedPreKeyPrivate.serialize()),
+                Buffer.from(signedPreKeySignature),
+                signedPreKeyTimestamp,
+            ),
+            ecPreKeys,
+            new KyberPreKey(kyberPreKey.id(), Buffer.from(kyberPreKey.serialize())),
+        );
+    }
+
+    /**
+     * Must be > 0: the keystore rejects a signed/Kyber prekey id of 0.
+     */
+    private generateNumberId(): number {
+        return randomInt(1, 1000000);
+    }
+
+    private b64Encode(bytes: Uint8Array): string {
+        return Buffer.from(bytes).toString('base64');
+    }
+}

@@ -12,7 +12,8 @@ export const SessionRecordSchema = new EntitySchema<SessionRecord>({
       primary: true,
     },
     record: {
-      type: String, 
+      type: "blob",
+      nullable: false,
     },
   },
 });

@@ -8,7 +8,6 @@ export class LoginCommandHandler implements Handler<LoginCommand, LoginResponse>
     constructor(private readonly authenticationProvider: IAuthenticationProvider) { }
 
     handle(cmd: LoginCommand): Promise<Result<LoginResponse>> {
-        console.log('LoginCommandHandler.handle: ', cmd.email, cmd.password);
         return this.authenticationProvider.login({
             email: cmd.email,
             password: cmd.password,
