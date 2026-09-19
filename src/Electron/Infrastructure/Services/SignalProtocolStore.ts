@@ -15,7 +15,7 @@ import {
     SignedPreKeyRecord,
     SignedPreKeyStore,
 } from '@signalapp/libsignal-client';
-import { ProtocolStore } from '../Persistence/Repositories/ProtocolStore.js';
+import { IProtocolStore } from '../Interfaces/IProtocolStore.js';
 import { IdentityCache } from '../../Domain/Encryption/IdentityCache.js';
 import { EcPreKey } from '../../Domain/Encryption/EcPreKey.js';
 import { SignedPreKey } from '../../Domain/Encryption/SignedPreKey.js';
@@ -28,9 +28,9 @@ import { SessionRecord as SessionRecordEntity } from '../../Domain/Encryption/Se
 export class SignalProtocolStore
     implements SessionStore, IdentityKeyStore, PreKeyStore, SignedPreKeyStore, KyberPreKeyStore
 {
-    private readonly procolStore: ProtocolStore;
+    private readonly procolStore: IProtocolStore;
 
-    constructor(protocolStore: ProtocolStore) {
+    constructor(protocolStore: IProtocolStore) {
         this.procolStore = protocolStore;
     }
 

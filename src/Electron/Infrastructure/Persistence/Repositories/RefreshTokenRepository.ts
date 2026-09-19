@@ -2,8 +2,9 @@ import { Repository } from "typeorm/repository/Repository.js";
 import { getDbContext} from "../Context/DatabaseContext.js";
 import { CryptographyService } from "../Encryption/CryptographyService.js";
 import { RefreshToken } from "../../../Domain/Entities/RefreshToken.js";
+import { IRefreshTokenRepository } from "../../Interfaces/IRefreshTokenRepository.js";
 
-export class RefreshTokenRepository {
+export class RefreshTokenRepository implements IRefreshTokenRepository {
     private repository: Repository<RefreshToken>;
     private readonly cryptoService = CryptographyService.getInstance();
 

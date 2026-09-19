@@ -4,10 +4,11 @@ import { IHubHandler } from './IHubHandler.js';
 import { ChangeEventHubHandler } from './ChangeEvent/ChangeEventHubHandler.js';
 import { MessageHubHandler } from './Messaging/MessageHubHandler.js';
 import { TokenManager } from '../Services/TokenManager.js';
+import { ISignalManager } from '../../Application/Contracts/Services/ISignalManager.js';
 import { BrowserWindow } from 'electron';
 import { InfiniteRetryPolicy } from './RetryPolicy.js';
 
-export class SignalManager {
+export class SignalManager implements ISignalManager {
     private readonly tokenManager: TokenManager;
     private readonly mainWindow: BrowserWindow;
     private _connections: Map<HubKey, HubConnection> = new Map();

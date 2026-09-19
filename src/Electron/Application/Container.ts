@@ -1,7 +1,6 @@
 import { asClass, asValue, Lifetime } from 'awilix';
 import { LogoutManager } from './Services/LogoutManager/LogoutManager.js';
 import { MediaService } from './Services/Media/MediaService.js';
-import { PurgeLocalDataService } from './Services/Data/PurgeLocalDataService.js';
 import { LoginCommandHandler } from './Features/Authentication/Commands/LoginCommandHandler.js';
 import { LogoutCommandHandler } from './Features/Authentication/Commands/LogoutCommandHandler.js';
 import { VerifyLoginCommandHandler } from './Features/Authentication/Commands/VerifyLoginCommandHandler.js';
@@ -38,7 +37,6 @@ import { ResendMessageCommandHandler } from './Features/Chat/Commands/ResendMess
 const services = {
     logoutManager: asValue(LogoutManager.getInstance()),
     mediaService: asClass(MediaService, { lifetime: Lifetime.SINGLETON }),
-    purgeLocalDataService: asClass(PurgeLocalDataService, { lifetime: Lifetime.SINGLETON }),
 };
 
 const authenticationHandlers = {

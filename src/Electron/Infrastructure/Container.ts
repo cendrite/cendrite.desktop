@@ -16,6 +16,7 @@ import { TokenManager } from './Services/TokenManager.js';
 import { NonceSigner } from './Services/NonceSigner.js';
 import { SignalProtocolStore } from './Services/SignalProtocolStore.js';
 import { KeyGenerator } from './Services/KeyGenerator.js';
+import { PurgeLocalDataService } from './Services/PurgeLocalDataService.js';
 import { SessionManager } from './Services/SessionManager.js';
 import { KeyStoreClient } from './Clients/KeyStoreClient.js';
 import { DeviceClient } from './Clients/DeviceClient.js';
@@ -33,6 +34,7 @@ const services = {
     nonceSigner: asClass(NonceSigner, { lifetime: Lifetime.SINGLETON }),
     signalProtocolStore: asClass(SignalProtocolStore, { lifetime: Lifetime.SINGLETON }),
     keyGenerator: asClass(KeyGenerator, { lifetime: Lifetime.SINGLETON }),
+    purgeLocalDataService: asClass(PurgeLocalDataService, { lifetime: Lifetime.SINGLETON }),
     sessionManager: asClass(SessionManager, { lifetime: Lifetime.SINGLETON }),
 };
 

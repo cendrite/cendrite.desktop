@@ -1,15 +1,15 @@
 import { ErrorMessage } from '../../../../../Shared/Result/ErrorMessage.js';
 import { Result } from '../../../../../Shared/Result/Result.js';
 import { Device } from '../../../../Domain/Entities/Device.js';
-import { INonceSigner } from '../../../../Infrastructure/Interfaces/INonceSigner.js';
-import { TokenManager } from '../../../../Infrastructure/Services/TokenManager.js';
-import { DeviceRepository } from '../../../../Infrastructure/Persistence/Repositories/DeviceRepository.js';
+import { INonceSigner } from '../../../Contracts/Services/INonceSigner.js';
+import { ITokenManager } from '../../../Contracts/Services/ITokenManager.js';
+import { IDeviceRepository } from '../../../Contracts/Repositories/IDeviceRepository.js';
 import { IAuthenticationProvider } from '../../../Contracts/Providers/IAuthenticationProvider.js';
 import { IDeviceProvider } from '../../../Contracts/Providers/IDeviceProvider.js';
 import { Handler } from '../../../Mediator/Handler.js';
 import { VerifyLoginCommand } from '../Contracts/VerifyLogin.js';
 import { IKeyGenerator } from '../../../Contracts/Services/IKeyGenerator.js';
-import { SignalManager } from '../../../../Infrastructure/Signal/SignalManager.js';
+import { ISignalManager } from '../../../Contracts/Services/ISignalManager.js';
 import { IUserRepository } from '../../../Contracts/Repositories/IUserRepository.js';
 import { IUserProvider } from '../../../Contracts/Providers/IUserProvider.js';
 import { UserContract } from '../../../Contracts/Models/UserContract.js';
@@ -22,10 +22,10 @@ export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, Us
         private readonly authenticationProvider: IAuthenticationProvider,
         private readonly deviceProvider: IDeviceProvider,
         private readonly nonceSigner: INonceSigner,
-        private readonly deviceRepository: DeviceRepository,
-        private readonly tokenManager: TokenManager,
+        private readonly deviceRepository: IDeviceRepository,
+        private readonly tokenManager: ITokenManager,
         private readonly keyGenerator: IKeyGenerator,
-        private readonly signalManager: SignalManager,
+        private readonly signalManager: ISignalManager,
         private readonly userRepository: IUserRepository,
         private readonly userProvider: IUserProvider,
         private readonly messagePump: IPump,
