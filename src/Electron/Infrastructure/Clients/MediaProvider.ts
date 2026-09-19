@@ -9,11 +9,11 @@ export class MediaProvider implements IMediaProvider {
         this.client = mediaApiClient;
     }
 
-    public async upload(id: string, senderId: string, cipher: Uint8Array): Promise<Result> {
+    public async upload(id: string, cipher: Uint8Array): Promise<Result> {
         return this.client.handle({
             url: 'upload',
             method: 'POST',
-            params: { mediaId: id, senderId },
+            params: { mediaId: id },
             data: cipher,
             headers: {
                 'Content-Type': 'application/octet-stream',
@@ -32,11 +32,10 @@ export class MediaProvider implements IMediaProvider {
         return Result.success(new Uint8Array(result.data!));
     }
 
-    public async ack(id: string, senderId: string): Promise<Result> {
+    public async ack(id: string): Promise<Result> {
         return this.client.handle({
             url: `${id}/ack`,
             method: 'POST',
-            params: { senderId },
         });
     }
 }

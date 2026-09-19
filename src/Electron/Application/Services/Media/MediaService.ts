@@ -7,7 +7,7 @@ import { MediaType } from '../../Features/Files/Contracts/GetMedia.js';
 export interface IMediaService {
     getLocal(type: MediaType): Promise<MediaContract[]>;
     get(mediaPointers: MediaPointer[]): Promise<MediaContract[]>;
-    upload(senderId: string, media: MediaContract[]): Promise<MediaPointer[]>;
+    upload(media: MediaContract[]): Promise<MediaPointer[]>;
 }
 
 export class MediaService implements IMediaService {
@@ -33,11 +33,11 @@ export class MediaService implements IMediaService {
         return media;
     }
 
-    public async upload(senderId: string, media: MediaContract[]): Promise<MediaPointer[]> {
+    public async upload(media: MediaContract[]): Promise<MediaPointer[]> {
         const mediaPointers: MediaPointer[] = [];
         for (const m of media) {
             const { cipher, key, iv } = await this.sessionManager.encryptBlob(m.content);
-            await this.mediaProvider.upload(m.id, senderId, cipher);
+            await this.mediaProvider.upload(m.id, cipher);
             mediaPointers.push(new MediaPointer(m.id, m.type, iv, key));
         }
         return mediaPointers;
