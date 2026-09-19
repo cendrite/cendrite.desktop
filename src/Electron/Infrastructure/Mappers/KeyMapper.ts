@@ -1,52 +1,26 @@
-import { DeviceType, KeyPairType } from '@privacyresearch/libsignal-protocol-typescript';
-import { KeyPair, PreKeyBundle } from '../Models/KeyModels.js';
+import { KEMPublicKey, PreKeyBundle as SignalPreKeyBundle, PublicKey } from '@signalapp/libsignal-client';
+import { PreKeyBundle } from '../../Application/Contracts/Providers/IKeyStoreProvider.js';
 
-export function mapBundleToDevice(keyBundle: PreKeyBundle): DeviceType<ArrayBuffer> {
-    return {
-        registrationId: keyBundle.registrationId,
-        identityKey: Uint8Array.from(atob(keyBundle.identityKey), (c) => c.charCodeAt(0)).buffer,
-        signedPreKey: {
-            keyId: keyBundle.signedPrekeyId,
-            publicKey: Uint8Array.from(atob(keyBundle.signedPreKeyPublic), (c) => c.charCodeAt(0)).buffer,
-            signature: Uint8Array.from(atob(keyBundle.signedPreKeySignature), (c) => c.charCodeAt(0)).buffer,
-        },
-        preKey: keyBundle.preKey
-            ? {
-                keyId: keyBundle.preKey.keyId,
-                publicKey: Uint8Array.from(atob(keyBundle.preKey.publicKey), (c) => c.charCodeAt(0)).buffer,
-            }
-            : undefined,
-    };
+/**
+ * Maps a pre-key bundle fetched from the keystore (base64 fields) to a libsignal PreKeyBundle.
+ * @param deviceId libsignal device id of the remote address the bundle belongs to.
+ */
+export function mapToPreKeyBundle(keyBundle: PreKeyBundle, deviceId: number): SignalPreKeyBundle {
+    return SignalPreKeyBundle.new(
+        keyBundle.registrationId,
+        deviceId,
+        keyBundle.preKey ? keyBundle.preKey.keyId : null,
+        keyBundle.preKey ? PublicKey.deserialize(fromBase64(keyBundle.preKey.publicKey)) : null,
+        keyBundle.signedPrekeyId,
+        PublicKey.deserialize(fromBase64(keyBundle.signedPreKeyPublic)),
+        fromBase64(keyBundle.signedPreKeySignature),
+        PublicKey.deserialize(fromBase64(keyBundle.identityKey)),
+        keyBundle.kyberPreKeyId,
+        KEMPublicKey.deserialize(fromBase64(keyBundle.kyberPreKeyPublic)),
+        fromBase64(keyBundle.kyberPreKeySignature),
+    );
 }
 
-export function mapFromSignalKeyPair(keyPair: KeyPairType<ArrayBuffer>): KeyPair {
-    return new KeyPair(Buffer.from(new Uint8Array(keyPair.pubKey)), Buffer.from(new Uint8Array(keyPair.privKey)));
-}
-
-export function mapToSignalKeyPair(keyPair: KeyPair): KeyPairType<ArrayBuffer> {
-    const pub = toArrayBuffer(keyPair.publicKey as any);
-    const priv = toArrayBuffer(keyPair.privateKey as any);
-
-    return {
-        pubKey: pub,
-        privKey: priv,
-    };
-}
-
-function toArrayBuffer(src: Buffer | Uint8Array | ArrayBuffer | { type: string; data: number[] }): ArrayBuffer {
-    if (src instanceof ArrayBuffer) {
-        return src;
-    }
-
-    if (src instanceof Uint8Array) {
-        return src.buffer.slice(src.byteOffset, src.byteOffset + src.byteLength);
-    }
-
-    const anySrc: any = src;
-    if (anySrc && anySrc.type === 'Buffer' && Array.isArray(anySrc.data)) {
-        const u8 = Uint8Array.from(anySrc.data);
-        return u8.buffer;
-    }
-
-    throw new Error('Unsupported key buffer format in mapToSignalKeyPair');
+function fromBase64(value: string) {
+    return new Uint8Array(Buffer.from(value, 'base64'));
 }
