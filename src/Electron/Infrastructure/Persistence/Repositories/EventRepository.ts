@@ -5,6 +5,28 @@ import { OutboxEvent } from '../../Models/OutboxEvent.js';
 import { getDbContext } from '../Context/DatabaseContext.js';
 import { IOutboxRepository } from '../../Interfaces/IOutboxRepository.js';
 
+const UINT8_MARKER = '__uint8array_b64';
+
+// JSON.stringify turns a Uint8Array into { "0": .., "1": .. }, which JSON.parse can't restore.
+export function serializeEvent(event: DomainEvent): string {
+    return JSON.stringify(event, function (key, value) {
+        const raw = this[key];
+        if (raw instanceof Uint8Array) {
+            return { [UINT8_MARKER]: Buffer.from(raw).toString('base64') };
+        }
+        return value;
+    });
+}
+
+export function parseEventContent(content: string): unknown {
+    return JSON.parse(content, (_key, value) => {
+        if (value && typeof value === 'object' && typeof value[UINT8_MARKER] === 'string') {
+            return new Uint8Array(Buffer.from(value[UINT8_MARKER], 'base64'));
+        }
+        return value;
+    });
+}
+
 export class EventRepository implements IEventRepository, IOutboxRepository {
     private readonly ctx = getDbContext().getRepository(OutboxEvent);
 
@@ -12,7 +34,7 @@ export class EventRepository implements IEventRepository, IOutboxRepository {
         const outboxEvent = new OutboxEvent(
             event.id,
             (event.constructor as typeof DomainEvent).type,
-            JSON.stringify(event),
+            serializeEvent(event),
             event.occurredOn,
         );
 
@@ -36,7 +58,7 @@ export class EventRepository implements IEventRepository, IOutboxRepository {
             if (!deserializer) {
                 throw new Error(`No registered deserializer for type: ${event.type}`);
             }
-            return deserializer(JSON.parse(event.content), event.occurredOn) as T;
+            return deserializer(parseEventContent(event.content), event.occurredOn) as T;
         });
     }
 
@@ -59,7 +81,7 @@ export class EventRepository implements IEventRepository, IOutboxRepository {
         if (!deserializer) {
             throw new Error(`No registered deserializer for type: ${event.type}`);
         }
-        return deserializer(JSON.parse(event.content), event.occurredOn) as T;
+        return deserializer(parseEventContent(event.content), event.occurredOn) as T;
     }
 
     public async markEventAsProcessed(id: string): Promise<void> {
