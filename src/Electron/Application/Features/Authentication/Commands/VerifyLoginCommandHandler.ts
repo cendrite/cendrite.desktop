@@ -8,7 +8,7 @@ import { IAuthenticationProvider } from '../../../Contracts/Providers/IAuthentic
 import { IDeviceProvider } from '../../../Contracts/Providers/IDeviceProvider.js';
 import { Handler } from '../../../Mediator/Handler.js';
 import { VerifyLoginCommand } from '../Contracts/VerifyLogin.js';
-import { IKeyGenerator } from '../../../Services/Cryptography/KeyGenerator.js';
+import { IKeyGenerator } from '../../../Contracts/Services/IKeyGenerator.js';
 import { SignalManager } from '../../../../Infrastructure/Signal/SignalManager.js';
 import { IUserRepository } from '../../../Contracts/Repositories/IUserRepository.js';
 import { IUserProvider } from '../../../Contracts/Providers/IUserProvider.js';

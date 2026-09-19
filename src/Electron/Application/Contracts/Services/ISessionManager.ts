@@ -1,4 +1,4 @@
-import { Envelope, Payload } from "../Signal/Messaging/ServerMessage.js";
+import { Envelope, Payload } from "../Messaging/Envelope.js";
 
 export interface ISessionManager {
     encrypt(envelope: Envelope<Payload>, connectionId: string): Promise<string>;
