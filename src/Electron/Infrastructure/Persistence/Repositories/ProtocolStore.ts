@@ -4,28 +4,33 @@ import { IdentityKeys } from '../../../Domain/Encryption/IdentityKeys.js';
 import { IdentityCache } from '../../../Domain/Encryption/IdentityCache.js';
 import { getDbContext } from '../Context/DatabaseContext.js';
 import { SessionRecord } from '../../../Domain/Encryption/SessionRecord.js';
+import { KyberPreKey } from '../../../Domain/Encryption/KyberPreKey.js';
 
 export class ProtocolStore {
     private readonly signedPreKeysRepository = getDbContext().getRepository(SignedPreKey);
     private readonly ecPreKeyRepository = getDbContext().getRepository(EcPreKey);
+    private readonly kyberPreKeyRepository = getDbContext().getRepository(KyberPreKey);
     private readonly sessionRepository = getDbContext().getRepository(SessionRecord);
     private readonly identityKeysRepository = getDbContext().getRepository(IdentityKeys);
     private readonly identityCacheRepository = getDbContext().getRepository(IdentityCache);
 
     /**
-     * Save a new key bundle consisting of identity keys, a signed prekey, and EC prekeys.
+     * Save a new key bundle consisting of identity keys, a signed prekey, EC prekeys and a last-resort Kyber prekey.
      * @param identityKeys Identity keys to store.
      * @param signedPrekey Signed prekey to store.
      * @param ecPreKeys Array of EC prekeys to store.
+     * @param kyberPreKey Last-resort Kyber prekey to store.
      */
     public async createKeyBundle(
         identityKeys: IdentityKeys,
         signedPrekey: SignedPreKey,
         ecPreKeys: EcPreKey[],
+        kyberPreKey: KyberPreKey,
     ): Promise<void> {
         await this.identityKeysRepository.save(identityKeys);
         await this.signedPreKeysRepository.save(signedPrekey);
         await this.ecPreKeyRepository.save(ecPreKeys);
+        await this.kyberPreKeyRepository.save(kyberPreKey);
     }
 
     public async getRegistrationId(): Promise<number> {
@@ -80,14 +85,23 @@ export class ProtocolStore {
         await this.ecPreKeyRepository.delete({ id });
     }
 
+    public async storeKyberPreKey(kyberPreKey: KyberPreKey): Promise<void> {
+        await this.kyberPreKeyRepository.save(kyberPreKey);
+    }
+
+    public async getKyberPreKey(id: number): Promise<KyberPreKey | null> {
+        return await this.kyberPreKeyRepository.findOne({ where: { id } });
+    }
+
     /**
      * Clear all stored cryptographic data: signed prekeys,
-     * EC prekeys, sender keys, session records,
+     * EC prekeys, Kyber prekeys, session records,
      * identity keys, and identity cache.
      * */
     public async deleteAll(): Promise<void> {
         await this.signedPreKeysRepository.clear();
         await this.ecPreKeyRepository.clear();
+        await this.kyberPreKeyRepository.clear();
         await this.sessionRepository.clear();
         await this.identityKeysRepository.clear();
         await this.identityCacheRepository.clear();

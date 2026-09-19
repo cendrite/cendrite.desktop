@@ -7,6 +7,9 @@ export interface PreKeyBundle {
     signedPreKeyPublic: string;
     signedPreKeySignature: string;
     preKey: { keyId: number; publicKey: string } | null;
+    kyberPreKeyId: number;
+    kyberPreKeyPublic: string;
+    kyberPreKeySignature: string;
 }
 
 export interface CreatePreKeyBundleRequest {
@@ -18,6 +21,9 @@ export interface CreatePreKeyBundleRequest {
     signedPreKeySignature: string;
     signedPreKeyTimestamp: Date;
     preKeys: { keyId: number; publicKey: string }[];
+    kyberPreKeyId: number;
+    kyberPreKeyPublic: string;
+    kyberPreKeySignature: string;
 }
 
 export interface IKeyStoreProvider {

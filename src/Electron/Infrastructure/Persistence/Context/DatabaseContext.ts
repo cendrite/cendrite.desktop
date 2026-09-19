@@ -16,6 +16,7 @@ import { SignedPreKeySchema } from '../Schemas/SignedPreKeySchema.js';
 import { SessionRecordSchema } from '../Schemas/SessionRecordSchema.js';
 import { MessageMediaSchema } from '../Schemas/MessageMediaSchema.js';
 import { OutboxEventSchema } from '../Schemas/OutboxEventSchema.js';
+import { KyberPreKeySchema } from '../Schemas/KyberPreKeySchema.js';
 
 let dbContext: DataSource;
 
@@ -42,6 +43,7 @@ export async function initializeDatabase(dbPath: string | null = null): Promise<
             IdentityKeysSchema,
             IdentityCacheSchema,
             SignedPreKeySchema,
+            KyberPreKeySchema,
             OutboxEventSchema
         ],
         migrations: [],

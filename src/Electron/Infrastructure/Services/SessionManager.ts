@@ -1,16 +1,16 @@
 import { IKeyStoreProvider } from '../../Application/Contracts/Providers/IKeyStoreProvider.js';
 import { ISessionManager } from '../Interfaces/ISessionManager.js';
 import * as libsignal from '@privacyresearch/libsignal-protocol-typescript';
-import { KeyService } from './KeyStore.js';
+import { SignalProtocolStore } from './SignalProtocolStore.js';
 import { mapBundleToDevice } from '../Mappers/KeyMapper.js';
 import { Envelope, Payload } from '../Signal/Messaging/ServerMessage.js';
 
 export class SessionManager implements ISessionManager {
-    private readonly keyService: KeyService;
+    private readonly keyService: SignalProtocolStore;
     private readonly keyProvider: IKeyStoreProvider;
 
-    constructor(keyService: KeyService, keyStoreProvider: IKeyStoreProvider) {
-        this.keyService = keyService;
+    constructor(signalProtocolStore: SignalProtocolStore, keyStoreProvider: IKeyStoreProvider) {
+        this.keyService = signalProtocolStore;
         this.keyProvider = keyStoreProvider;
     }
 

@@ -14,7 +14,7 @@ import { ApiClient } from './Clients/Base/ApiClient.js';
 import { API_URLS } from './Clients/Base/Urls.js';
 import { TokenManager } from './Services/TokenManager.js';
 import { NonceSigner } from './Services/NonceSigner.js';
-import { KeyService } from './Services/KeyStore.js';
+import { SignalProtocolStore } from './Services/SignalProtocolStore.js';
 import { SessionManager } from './Services/SessionManager.js';
 import { KeyStoreClient } from './Clients/KeyStoreClient.js';
 import { DeviceClient } from './Clients/DeviceClient.js';
@@ -30,7 +30,7 @@ import { DeliveryStatusUpdatePump } from './Pumps/DeliveryUpdatePump.js';
 const services = {
     tokenManager: asClass(TokenManager, { lifetime: Lifetime.SINGLETON }),
     nonceSigner: asClass(NonceSigner, { lifetime: Lifetime.SINGLETON }),
-    keyService: asClass(KeyService, { lifetime: Lifetime.SINGLETON }),
+    signalProtocolStore: asClass(SignalProtocolStore, { lifetime: Lifetime.SINGLETON }),
     sessionManager: asClass(SessionManager, { lifetime: Lifetime.SINGLETON }),
 };
 

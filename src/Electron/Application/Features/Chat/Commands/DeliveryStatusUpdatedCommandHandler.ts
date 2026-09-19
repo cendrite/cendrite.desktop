@@ -1,5 +1,5 @@
 import { Result } from "../../../../../Shared/Result/Result.js";
-import { SessionManager } from "../../../../Infrastructure/Services/SessionManager.js";
+import { ISessionManager } from "../../../../Infrastructure/Interfaces/ISessionManager.js";
 import { MessageHubHandler } from "../../../../Infrastructure/Signal/Messaging/MessageHubHandler.js";
 import { DeliveryStatusPayload, Envelope, PayloadType, ServerMessage } from "../../../../Infrastructure/Signal/Messaging/ServerMessage.js";
 import { Handler } from "../../../Mediator/Handler.js";
@@ -8,7 +8,7 @@ import { v4 as uuid } from 'uuid';
 
 export class DeliveryStatusUpdatedCommandHandler implements Handler<DeliveryStatusUpdatedCommand> {
     constructor(
-        private readonly sessionManager: SessionManager,
+        private readonly sessionManager: ISessionManager,
         private readonly messageHubHandler: MessageHubHandler) { }
 
     async handle(cmd: DeliveryStatusUpdatedCommand): Promise<Result<void>> {

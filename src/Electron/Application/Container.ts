@@ -1,6 +1,6 @@
 import { asClass, asValue, Lifetime } from 'awilix';
 import { LogoutManager } from './Services/LogoutManager/LogoutManager.js';
-import { KeyGenerator } from './Services/Cryptography/KeyService.js';
+import { KeyGenerator } from './Services/Cryptography/KeyGenerator.js';
 import { MediaService } from './Services/Media/MediaService.js';
 import { PurgeLocalDataService } from './Services/Data/PurgeLocalDataService.js';
 import { LoginCommandHandler } from './Features/Authentication/Commands/LoginCommandHandler.js';
