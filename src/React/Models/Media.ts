@@ -10,7 +10,7 @@ export class Media {
     }
 
     public getBlob():  Blob {
-        const blob = new Blob([this.content], { type: this.type });
+        const blob = new Blob([this.content as Uint8Array<ArrayBuffer>], { type: this.type });
         return blob;
     }
 }
