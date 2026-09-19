@@ -1,13 +1,9 @@
 import { Result } from '../../../../../Shared/Result/Result.js';
 import { DeliveryStatus } from '../../../../Domain/Enums/DeliveryStatus.js';
-import { ISessionManager } from '../../../../Infrastructure/Interfaces/ISessionManager.js';
-import { MessageHubHandler } from '../../../../Infrastructure/Signal/Messaging/MessageHubHandler.js';
-import {
-    Envelope,
-    MessagePayload,
-    PayloadType,
-    ServerMessage,
-} from '../../../../Infrastructure/Signal/Messaging/ServerMessage.js';
+import { ISessionManager } from '../../../Contracts/Services/ISessionManager.js';
+import { IMessageHubHandler } from '../../../Contracts/Services/IMessageHubHandler.js';
+import { ServerMessage } from '../../../Contracts/Messaging/ServerMessage.js';
+import { Envelope, MessagePayload, PayloadType } from '../../../Contracts/Messaging/Envelope.js';
 import { Handler } from '../../../Mediator/Handler.js';
 import { IMediaService } from '../../../Services/Media/MediaService.js';
 import { MessageSentCommand } from '../Contracts/SendMessage.js';
@@ -15,7 +11,7 @@ import { MessageSentCommand } from '../Contracts/SendMessage.js';
 export class MessageSentCommandHandler implements Handler<MessageSentCommand, DeliveryStatus> {
     constructor(
         private readonly sessionManager: ISessionManager,
-        private readonly messageHubHandler: MessageHubHandler,
+        private readonly messageHubHandler: IMessageHubHandler,
         private readonly mediaService: IMediaService,
     ) { }
 

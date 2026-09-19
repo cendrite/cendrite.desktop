@@ -26,7 +26,6 @@ app.on('ready', async () => {
     await initializeDatabase(dbPath);
 
     const logoutManager = LogoutManager.getInstance();
-    await logoutManager.recoverIfNeeded();
 
     const mainWindow = new BrowserWindow({
         width: 1000,
@@ -47,6 +46,8 @@ app.on('ready', async () => {
 
     const container = buildContainer(mainWindow);
     const mediator = container.resolve<Mediator>('mediator');
+
+    await logoutManager.recoverIfNeeded(container.resolve('purgeLocalDataService'));
 
     ipcMain.handle('mediator:send', async (_event, request: MediatorRequest) => {
         return await mediator.send(request);

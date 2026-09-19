@@ -1,22 +1,22 @@
 import { Result } from '../../../../../Shared/Result/Result.js';
-import { TokenManager } from '../../../../Infrastructure/Services/TokenManager.js';
-import { SignalManager } from '../../../../Infrastructure/Signal/SignalManager.js';
+import { ITokenManager } from '../../../Contracts/Services/ITokenManager.js';
+import { ISignalManager } from '../../../Contracts/Services/ISignalManager.js';
 import { IAuthenticationProvider } from '../../../Contracts/Providers/IAuthenticationProvider.js';
 import { IPump } from '../../../Contracts/Services/IPump.js';
 import { Handler } from '../../../Mediator/Handler.js';
-import { PurgeLocalDataService } from '../../../Services/Data/PurgeLocalDataService.js';
+import { IPurgeLocalData } from '../../../Contracts/Services/IPurgeLocalData.js';
 import { LogoutManager } from '../../../Services/LogoutManager/LogoutManager.js';
 import { LogoutCommand } from '../Contracts/Logout.js';
 
 export class LogoutCommandHandler implements Handler<LogoutCommand, void> {
     constructor(
         private readonly authenticationProvider: IAuthenticationProvider,
-        private readonly tokenManager: TokenManager,
+        private readonly tokenManager: ITokenManager,
         private readonly logoutManager: LogoutManager,
-        private readonly purgeLocalDataService: PurgeLocalDataService,
+        private readonly purgeLocalDataService: IPurgeLocalData,
         private readonly messagePump: IPump,
         private readonly deliveryStatusUpdatePump: IPump,
-        private readonly signalManager: SignalManager
+        private readonly signalManager: ISignalManager
     ) { }
 
     public async handle(_cmd: LogoutCommand): Promise<Result<void>> {

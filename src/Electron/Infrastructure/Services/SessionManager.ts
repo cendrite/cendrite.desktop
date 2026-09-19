@@ -10,10 +10,10 @@ import {
 } from '@signalapp/libsignal-client';
 import { IKeyStoreProvider } from '../../Application/Contracts/Providers/IKeyStoreProvider.js';
 import { IDeviceRepository } from '../../Application/Contracts/Repositories/IDeviceRepository.js';
-import { ISessionManager } from '../Interfaces/ISessionManager.js';
+import { ISessionManager } from '../../Application/Contracts/Services/ISessionManager.js';
 import { SignalProtocolStore } from './SignalProtocolStore.js';
 import { mapToPreKeyBundle } from '../Mappers/KeyMapper.js';
-import { Envelope, Payload } from '../Signal/Messaging/ServerMessage.js';
+import { Envelope, Payload } from '../../Application/Contracts/Messaging/Envelope.js';
 
 /**
  * Every client has exactly one device per connectionId, so the libsignal device id is fixed.

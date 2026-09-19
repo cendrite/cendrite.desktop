@@ -1,6 +1,6 @@
 import { Result } from '../../../../../Shared/Result/Result.js';
-import { TokenManager } from '../../../../Infrastructure/Services/TokenManager.js';
-import { SignalManager } from '../../../../Infrastructure/Signal/SignalManager.js';
+import { ITokenManager } from '../../../Contracts/Services/ITokenManager.js';
+import { ISignalManager } from '../../../Contracts/Services/ISignalManager.js';
 import { UserContract } from '../../../Contracts/Models/UserContract.js';
 import { IDeviceRepository } from '../../../Contracts/Repositories/IDeviceRepository.js';
 import { IUserRepository } from '../../../Contracts/Repositories/IUserRepository.js';
@@ -12,8 +12,8 @@ export class StartupCommandHandler implements Handler<StartupCommand, StartupDto
     constructor(
         private readonly deviceRepository: IDeviceRepository,
         private readonly userRepository: IUserRepository,
-        private readonly tokenManager: TokenManager,
-        private readonly signalManager: SignalManager,
+        private readonly tokenManager: ITokenManager,
+        private readonly signalManager: ISignalManager,
         private readonly messagePump: IPump,
         private readonly deliveryStatusUpdatePump: IPump,
     ) { }

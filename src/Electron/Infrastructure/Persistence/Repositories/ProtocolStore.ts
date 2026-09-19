@@ -5,8 +5,9 @@ import { IdentityCache } from '../../../Domain/Encryption/IdentityCache.js';
 import { getDbContext } from '../Context/DatabaseContext.js';
 import { SessionRecord } from '../../../Domain/Encryption/SessionRecord.js';
 import { KyberPreKey } from '../../../Domain/Encryption/KyberPreKey.js';
+import { IProtocolStore } from '../../Interfaces/IProtocolStore.js';
 
-export class ProtocolStore {
+export class ProtocolStore implements IProtocolStore {
     private readonly signedPreKeysRepository = getDbContext().getRepository(SignedPreKey);
     private readonly ecPreKeyRepository = getDbContext().getRepository(EcPreKey);
     private readonly kyberPreKeyRepository = getDbContext().getRepository(KyberPreKey);

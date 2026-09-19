@@ -1,21 +1,18 @@
 import { randomInt } from 'node:crypto';
 import { IdentityKeyPair, KEMKeyPair, KyberPreKeyRecord, PrivateKey } from '@signalapp/libsignal-client';
-import { IKeyStoreProvider } from '../../Contracts/Providers/IKeyStoreProvider.js';
-import { ProtocolStore } from '../../../Infrastructure/Persistence/Repositories/ProtocolStore.js';
-import { IdentityKeys } from '../../../Domain/Encryption/IdentityKeys.js';
-import { EcPreKey } from '../../../Domain/Encryption/EcPreKey.js';
-import { SignedPreKey } from '../../../Domain/Encryption/SignedPreKey.js';
-import { KyberPreKey } from '../../../Domain/Encryption/KyberPreKey.js';
-
-export interface IKeyGenerator {
-    generateKeyBundle(connectionId: string): Promise<void>;
-}
+import { IKeyStoreProvider } from '../../Application/Contracts/Providers/IKeyStoreProvider.js';
+import { IKeyGenerator } from '../../Application/Contracts/Services/IKeyGenerator.js';
+import { IProtocolStore } from '../Interfaces/IProtocolStore.js';
+import { IdentityKeys } from '../../Domain/Encryption/IdentityKeys.js';
+import { EcPreKey } from '../../Domain/Encryption/EcPreKey.js';
+import { SignedPreKey } from '../../Domain/Encryption/SignedPreKey.js';
+import { KyberPreKey } from '../../Domain/Encryption/KyberPreKey.js';
 
 export class KeyGenerator implements IKeyGenerator {
     private readonly keyStoreProvider: IKeyStoreProvider;
-    private readonly ProtocolStore: ProtocolStore;
+    private readonly ProtocolStore: IProtocolStore;
 
-    constructor(keyStoreProvider: IKeyStoreProvider, protocolStore: ProtocolStore) {
+    constructor(keyStoreProvider: IKeyStoreProvider, protocolStore: IProtocolStore) {
         this.keyStoreProvider = keyStoreProvider;
         this.ProtocolStore = protocolStore;
     }

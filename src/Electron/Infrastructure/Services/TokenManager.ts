@@ -1,7 +1,8 @@
 import { ITokenProvider } from '../../Application/Contracts/Providers/ITokenProvider.js';
+import { ITokenManager } from '../../Application/Contracts/Services/ITokenManager.js';
 import { RefreshToken } from '../../Domain/Entities/RefreshToken.js';
-import { RefreshTokenRepository } from '../Persistence/Repositories/RefreshTokenRepository.js';
-import { INonceSigner } from '../Interfaces/INonceSigner.js';
+import { IRefreshTokenRepository } from '../Interfaces/IRefreshTokenRepository.js';
+import { INonceSigner } from '../../Application/Contracts/Services/INonceSigner.js';
 import { NonceSigner } from './NonceSigner.js';
 
 export interface Tokens {
@@ -10,7 +11,7 @@ export interface Tokens {
     expiresAt: string | null;
 }
 
-export class TokenManager {
+export class TokenManager implements ITokenManager {
     private userId: string | null = null;
     private deviceId: string | null = null;
     private tokens: Tokens;
@@ -20,12 +21,12 @@ export class TokenManager {
 
     private readonly tokenProvider: ITokenProvider;
     private readonly nonceSigner: INonceSigner;
-    private readonly refreshTokenRepository: RefreshTokenRepository;
+    private readonly refreshTokenRepository: IRefreshTokenRepository;
 
     public constructor(
         tokenProvider: ITokenProvider,
         nonceSigner: NonceSigner,
-        refreshTokenRepository: RefreshTokenRepository,
+        refreshTokenRepository: IRefreshTokenRepository,
     ) {
         this.tokenProvider = tokenProvider;
         this.nonceSigner = nonceSigner;
