@@ -10,6 +10,7 @@ import UserModal from '../Modals/UserModal.tsx';
 import NotificationBadge from '../../../Context/Notification/NotificationBadge.tsx';
 import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
 import { useUser } from '../../../Context/User/UserContext.tsx';
+import SettingsModal from '../../Settings/SettingsModal.tsx';
 
 export interface SidePanelProps {
     onHide: () => void;
@@ -18,7 +19,8 @@ export interface SidePanelProps {
 }
 
 export const SidePanel: React.FC<SidePanelProps> = ({ onHide, setPaneType, paneType }) => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isUserModalOpen, setUserModalOpen] = useState(false);
+    const [isSettingsModalOpen, setSettingsModalOpen] = useState(false);
     const { user } = useUser();
 
     return (
@@ -56,10 +58,8 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onHide, setPaneType, paneT
 
                 {/* Bottom Icons: User Profile and Settings */}
                 <div className="flex flex-col items-center space-y-8 mb-2">
-                    <Cog6ToothIcon className="w-6 h-6 cursor-pointer hover:text-gray-300" />
-
                     <PanelButton
-                        onClick={() => setIsModalOpen(true)}
+                        onClick={() => setUserModalOpen(true)}
                         icon={
                             <Avatar
                                 className="w-8 h-8"
@@ -74,11 +74,18 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onHide, setPaneType, paneT
                                 Username={user?.displayName ?? user?.username ?? '?'}
                             />
                         }
-                        isActive={isModalOpen}
+                        isActive={isUserModalOpen}
+                    />
+                    <PanelButton
+                        onClick={() => setSettingsModalOpen(true)}
+                        icon={<Cog6ToothIcon className="w-5 h-5" />}
+                        activeIcon={<Cog6ToothIcon className="w-5 h-5 text-gray-300" />}
+                        isActive={isSettingsModalOpen}
                     />
                 </div>
             </div>
-            <UserModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+            <UserModal isOpen={isUserModalOpen} onClose={() => setUserModalOpen(false)} />
+            <SettingsModal isOpen={isSettingsModalOpen} onClose={() => setSettingsModalOpen(false)} />
         </>
     );
 };
