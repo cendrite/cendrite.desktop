@@ -1,9 +1,11 @@
-﻿import React, { useState } from 'react';
-import Modal from 'react-modal';
+import React, { useState } from 'react';
+import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 import LogoutModal from './LogoutModal.tsx';
 import { useUser } from '../../../Context/User/UserContext.tsx';
 import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
 import AvatarModal from './AvatarModal.tsx';
+import Button from '../../../Common/Components/Button/Button.tsx';
 
 interface UserModalProps {
     isOpen: boolean;
@@ -15,34 +17,34 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose }) => {
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
     const [isProfilePictureModalOpen, setIsProfilePictureModalOpen] = useState(false);
 
+    // Stay closed while a child modal is up so the two panels never stack; reopens by itself
+    // once the child closes, which is why neither child needs to report back.
+    const isChildOpen = isLogoutModalOpen || isProfilePictureModalOpen;
+
     return (
         <>
-            {!isLogoutModalOpen && !isProfilePictureModalOpen && (
-                <Modal
-                    isOpen={isOpen}
-                    onRequestClose={onClose}
-                    className="p-4 bg-surface text-fg rounded-xl shadow-lg w-[350px] h-[550px] max-auto relative"
-                    overlayClassName="fixed inset-0 bg-scrim/80 flex justify-center items-center"
-                    contentLabel="User Details"
-                >
-                    <div className="relative h-full flex flex-col">
-                        {/* Close Button */}
-                        <button onClick={onClose} className="absolute top-1 right-1 text-fg-subtle hover:text-fg-muted">
-                            ✕
+            <Dialog open={isOpen && !isChildOpen} onClose={onClose} className="relative z-[1000]">
+                <DialogBackdrop className="fixed inset-0 bg-scrim/80" />
+
+                <div className="fixed inset-0 flex items-center justify-center p-4">
+                    <DialogPanel className="relative flex h-[550px] w-[350px] flex-col rounded-xl bg-surface p-4 text-fg shadow-lg">
+                        <button
+                            onClick={onClose}
+                            aria-label="Close"
+                            className="absolute right-3 top-3 text-fg-subtle hover:text-fg-muted"
+                        >
+                            <XMarkIcon className="h-4 w-4" />
                         </button>
 
-                        <h3 className="absolute top-1 left-1 text-m text-fg">Profile</h3>
+                        <DialogTitle className="text-sm text-fg">Profile</DialogTitle>
 
-                        {/* Profile Section */}
-                        <div className="flex flex-col items-center mt-8">
-                            {/* Profile Picture */}
+                        <div className="mt-6 flex flex-col items-center">
                             <Avatar
                                 className="w-20 h-20"
                                 AvatarKey={user?.avatarKey ?? null}
                                 Username={user?.username ?? '?'}
                             />
 
-                            {/* Edit Button */}
                             <button
                                 className="text-sm text-link font-semibold hover:underline mt-2"
                                 onClick={() => setIsProfilePictureModalOpen(true)}
@@ -50,12 +52,10 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose }) => {
                                 Change Picture
                             </button>
 
-                            {/* User Details */}
                             <h2 className="text-lg font-semibold">{user?.displayName || user?.username}</h2>
                             <p className="text-sm text-fg-subtle mt-1">{user?.userTag}</p>
                         </div>
 
-                        {/* About Section */}
                         <div className="mt-6">
                             <h3 className="text-sm text-fg-faint mb-1">Om</h3>
                             <p className="text-sm text-fg-subtle">
@@ -64,7 +64,6 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose }) => {
                             </p>
                         </div>
 
-                        {/* Username Section */}
                         <div className="mt-6">
                             <h3 className="text-sm text-fg-faint mb-1">Brugernavn</h3>
                             <p className="text-sm text-fg-subtle">
@@ -73,40 +72,16 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose }) => {
                             </p>
                         </div>
 
-                        {/* Logout Section */}
-                        <div className="flex justify-center items-center mt-auto">
-                            <button
-                                onClick={() => setIsLogoutModalOpen(true)}
-                                className="text-[0.8rem] font-semibold bg-overlay rounded-full px-3.5 py-0.5 text-fg hover:bg-surface-hover"
-                            >
-                                Logout
-                            </button>
+                        <div className="mt-auto flex items-center justify-center">
+                            <Button onClick={() => setIsLogoutModalOpen(true)}>Logout</Button>
                         </div>
-                    </div>
-                </Modal>
-            )}
+                    </DialogPanel>
+                </div>
+            </Dialog>
 
-            <LogoutModal
-                isOpen={isLogoutModalOpen}
-                onClose={(shouldReopenParent) => {
-                    setIsLogoutModalOpen(false);
-                    if (shouldReopenParent) {
-                        return;
-                    }
-                    onClose();
-                }}
-            />
+            <LogoutModal isOpen={isLogoutModalOpen} onClose={() => setIsLogoutModalOpen(false)} />
 
-            <AvatarModal
-                isOpen={isProfilePictureModalOpen}
-                onClose={(shouldReopenParent) => {
-                    setIsProfilePictureModalOpen(false);
-                    if (shouldReopenParent) {
-                        return;
-                    }
-                    onClose();
-                }}
-            />
+            <AvatarModal isOpen={isProfilePictureModalOpen} onClose={() => setIsProfilePictureModalOpen(false)} />
         </>
     );
 };

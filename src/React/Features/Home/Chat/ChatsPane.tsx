@@ -1,23 +1,15 @@
 import React from 'react';
 import { PlusIcon } from '@heroicons/react/24/outline';
-import SidePanelToggle from '../SidePanel/SidePanelToggle';
 import { useChatContext } from '../../../Context/Chat/ChatContext.tsx';
 import { ChatCard } from './ChatCard.tsx';
 import { ChatViewModel } from '../../../Models/ChatViewModel.ts';
 
-interface ChatsPaneProps {
-    isSidePanelVisible: boolean;
-    toggleSidePanel: () => void;
-}
-
-export const ChatsPane: React.FC<ChatsPaneProps> = ({ isSidePanelVisible, toggleSidePanel }) => {
+export const ChatsPane: React.FC = () => {
     const { chatState } = useChatContext();
 
     return (
         <div className="text-fg p-2 relative">
             <div className="flex items-center justify-between mb-4">
-                {!isSidePanelVisible && <SidePanelToggle onClick={toggleSidePanel} />}
-
                 <div className="flex-grow text-center">
                     <h2 className="text-lg font-bold">Chats</h2>
                 </div>

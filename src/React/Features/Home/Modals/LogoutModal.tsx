@@ -1,52 +1,43 @@
-﻿import Modal from "react-modal";
-import React from "react";
-import {useNavigate} from "react-router-dom";
+import React from 'react';
+import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
+import { useNavigate } from 'react-router-dom';
+import Button from '../../../Common/Components/Button/Button.tsx';
 
 interface LogoutModalProps {
     isOpen: boolean;
-    onClose: (shouldReopenParent: boolean) => void;
+    onClose: () => void;
 }
 
-const LogoutModal: React.FC<LogoutModalProps> = ({isOpen, onClose }) => {
+const LogoutModal: React.FC<LogoutModalProps> = ({ isOpen, onClose }) => {
     const navigate = useNavigate();
+
     const handleLogout = () => {
-        navigate("/logout");
-    }
-    return(
-        <Modal
-            isOpen = {isOpen}
-            onRequestClose = {()=> onClose(false)}
-            className= "px-2 py-0.5 bg-surface text-fg rounded-xl shadow-lg w-[350px] h-[200px] max-auto relative"
-            overlayClassName="fixed inset-0 bg-scrim/80 flex justify-center items-center"
-            contentLabel="User Details">
-            <div className="relative h-full flex flex-col">
+        navigate('/logout');
+    };
 
-                {/* Confirmation Text */}
-                <div className="text-center mt-10">
-                    <h2 className="text-lg font-semibold">Confirm logout</h2>
-                    <p className="text-sm text-fg-subtle mt-2">
-                        Logging out will disconnect your account from this device.
-                    </p>
-                </div>
+    return (
+        <Dialog open={isOpen} onClose={onClose} className="relative z-[1010]">
+            <DialogBackdrop className="fixed inset-0 bg-scrim/80" />
 
-                {/* Buttons */}
-                <div className="flex justify-center mt-8 space-x-4">
-                    <button
-                        onClick={()=> onClose(true)}
-                        className="text-[0.8rem] font-semibold bg-overlay rounded-full px-3.5 py-0.5 text-fg hover:bg-surface-hover"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        onClick={()=> handleLogout()}
-                        className="text-[0.8rem] font-semibold bg-overlay rounded-full px-3.5 py-0.5 text-fg hover:bg-surface-hover"
-                    >
-                        Logout
-                    </button>
-                </div>
+            <div className="fixed inset-0 flex items-center justify-center p-4">
+                <DialogPanel className="w-[350px] rounded-xl bg-surface px-6 py-8 text-fg shadow-lg">
+                    <div className="text-center">
+                        <DialogTitle className="text-lg font-semibold">Confirm logout</DialogTitle>
+                        <p className="mt-2 text-sm text-fg-subtle">
+                            Logging out will disconnect your account from this device.
+                        </p>
+                    </div>
+
+                    <div className="mt-8 flex justify-center space-x-4">
+                        <Button onClick={onClose}>Cancel</Button>
+                        <Button variant="danger" onClick={handleLogout}>
+                            Logout
+                        </Button>
+                    </div>
+                </DialogPanel>
             </div>
-        </Modal>
-    )
-}
+        </Dialog>
+    );
+};
 
 export default LogoutModal;

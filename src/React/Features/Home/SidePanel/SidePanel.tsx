@@ -13,12 +13,12 @@ import { useUser } from '../../../Context/User/UserContext.tsx';
 import SettingsModal from '../../Settings/SettingsModal.tsx';
 
 export interface SidePanelProps {
-    onHide: () => void;
+    onTogglePane: () => void;
     setPaneType: (type: 'chats' | 'contacts') => void;
     paneType: 'chats' | 'contacts';
 }
 
-export const SidePanel: React.FC<SidePanelProps> = ({ onHide, setPaneType, paneType }) => {
+export const SidePanel: React.FC<SidePanelProps> = ({ onTogglePane, setPaneType, paneType }) => {
     const [isUserModalOpen, setUserModalOpen] = useState(false);
     const [isSettingsModalOpen, setSettingsModalOpen] = useState(false);
     const { user } = useUser();
@@ -29,7 +29,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onHide, setPaneType, paneT
                 {/* Top Icons: SidePanelToggle, Chat, Contacts */}
                 <div className="flex flex-col items-center space-y-4">
                     {/* SidePanelToggle */}
-                    <SidePanelToggle onClick={onHide} />
+                    <SidePanelToggle onClick={onTogglePane} />
 
                     {/* Chat button */}
                     <div className="relative">
@@ -57,7 +57,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onHide, setPaneType, paneT
                 </div>
 
                 {/* Bottom Icons: User Profile and Settings */}
-                <div className="flex flex-col items-center space-y-8 mb-2">
+                <div className="flex flex-col items-center space-y-4">
                     <PanelButton
                         onClick={() => setUserModalOpen(true)}
                         icon={

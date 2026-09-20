@@ -1,113 +1,110 @@
-﻿import Modal from "react-modal";
-import React, {useEffect, useMemo, useState} from "react";
-import SearchBar from "../SearchBar.tsx";
-import PublicUserProfileCard from "../../../Common/Components/Cards/PublicUserProfileCard.tsx";
-import { useUser } from "../../../Context/User/UserContext.tsx";
-import { Result } from "../../../../Shared/Result/Result.ts";
+import React, { useEffect, useMemo, useState } from 'react';
+import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
+import { XMarkIcon } from '@heroicons/react/24/outline';
+import SearchBar from '../SearchBar.tsx';
+import PublicUserProfileCard from '../../../Common/Components/Cards/PublicUserProfileCard.tsx';
+import { useUser } from '../../../Context/User/UserContext.tsx';
+import { Result } from '../../../../Shared/Result/Result.ts';
 import {
     GetProfileByTagQuery,
     ProfileDto,
-} from "../../../../Electron/Application/Features/Friends/Contracts/GetProfileByTag.ts";
+} from '../../../../Electron/Application/Features/Friends/Contracts/GetProfileByTag.ts';
 
 interface SearchForUserModalProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
-const SearchForUserModal: React.FC<SearchForUserModalProps> = ({isOpen, onClose}) => {
+const SearchForUserModal: React.FC<SearchForUserModalProps> = ({ isOpen, onClose }) => {
     const { user } = useUser();
     const userId = useMemo(() => user?.id, [user]);
-    const [searchQuery, setSearchQuery] = useState<string>("");
+    const [searchQuery, setSearchQuery] = useState<string>('');
     const [searchResult, setSearchResult] = useState<ProfileDto | null>(null);
     const [isLoading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
     const handleOnClose = () => {
-        setSearchQuery("");
+        setSearchQuery('');
         setSearchResult(null);
         setError(null);
         onClose();
-    }
-
-    useEffect(() => {
-        if (!isOpen) {
-            setSearchQuery("");
-            setSearchResult(null);
-        }
-    }, [isOpen]);
+    };
 
     useEffect(() => {
         if (searchQuery.length === 0) {
             setSearchResult(null);
             setLoading(false);
-            setError(null); // Reset error when search is cleared
+            setError(null);
             return;
         }
 
         setLoading(true);
-        setError(null); // Reset previous errors
+        setError(null);
 
-        const fetchUserProfile = async () => {
+        // Guards against an earlier request resolving after a later one and overwriting it.
+        let cancelled = false;
+
+        const timeoutId = setTimeout(async () => {
             const result = await window.electron.sendRequestAsync<Result<ProfileDto | void>>(
                 new GetProfileByTagQuery(searchQuery),
             );
 
-            if (!result.success) {
-                setError("An error occurred while searching for the user");
-                setSearchResult(null);
+            if (cancelled) {
                 return;
             }
-            console.log(result.data);
-            if (result.data) {
+
+            if (!result.success) {
+                setSearchResult(null);
+                setError('Something went wrong while searching');
+            } else if (result.data) {
                 setSearchResult(result.data);
             } else {
                 setSearchResult(null);
-                setError("No user found");
+                setError('No user found');
             }
 
             setLoading(false);
+        }, 300);
+
+        return () => {
+            cancelled = true;
+            clearTimeout(timeoutId);
         };
-
-        const timeoutId = setTimeout(async() => {
-            await fetchUserProfile();
-        }, 300); // 300ms debounce
-
-        return () => clearTimeout(timeoutId);
     }, [searchQuery, userId]);
 
     return (
-        <>
-            <Modal
-                isOpen={isOpen}
-                onRequestClose={handleOnClose}
-                className="p-4 bg-surface text-fg rounded-xl shadow-lg w-[350px] h-[175px] max-auto relative"
-                overlayClassName="fixed inset-0 bg-scrim/80 flex justify-center items-center"
-                contentLabel="User Details">
-                <div className="relative h-full flex flex-col">
-                    {/* Close Button */}
+        <Dialog open={isOpen} onClose={handleOnClose} className="relative z-[1000]">
+            <DialogBackdrop className="fixed inset-0 bg-scrim/80" />
+
+            <div className="fixed inset-0 flex items-center justify-center p-4">
+                <DialogPanel className="relative w-[360px] rounded-xl bg-surface p-4 text-fg shadow-lg">
                     <button
                         onClick={handleOnClose}
-                        className="absolute right-0.5 text-fg-subtle hover:text-fg-muted text-xs"
+                        aria-label="Close"
+                        className="absolute right-3 top-3 text-fg-subtle hover:text-fg-muted"
                     >
-                        ✕
+                        <XMarkIcon className="h-4 w-4" />
                     </button>
 
-                    <div className="p-4 justify-center">
-                        {/* Search Bar */}
-                        <SearchBar
-                            placeHolder={"Search for user"}
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e)}
-                        />
+                    <DialogTitle className="mb-3 text-sm font-medium text-fg-muted">Find a user</DialogTitle>
 
-                        {/* Loading Indicator */}
-                        {isLoading && <div className="mt-2 text-sm text-center text-fg-subtle">Loading...</div>}
+                    <SearchBar
+                        autoFocus
+                        placeHolder="Search by user tag"
+                        value={searchQuery}
+                        onChange={setSearchQuery}
+                    />
 
-                        {/* Error Message */}
-                        {error && <div className="mt-2 text-sm text-center text-fg-subtle">{error}</div>}
+                    <div className="mt-3 min-h-[84px]">
+                        {isLoading && (
+                            <div className="flex h-[84px] items-center justify-center">
+                                <div className="h-5 w-5 animate-spin rounded-full border-2 border-line-strong border-t-transparent" />
+                            </div>
+                        )}
 
-                        {/* Display Profile Card if a User is Found */}
-                        {!isLoading && searchResult && (
+                        {!isLoading && error && <p className="pt-6 text-center text-sm text-fg-subtle">{error}</p>}
+
+                        {!isLoading && !error && searchResult && (
                             <PublicUserProfileCard
                                 username={searchResult.username}
                                 friendTag={searchResult.userTag}
@@ -117,11 +114,17 @@ const SearchForUserModal: React.FC<SearchForUserModalProps> = ({isOpen, onClose}
                                 friendshipDirection={searchResult.friendshipDirection}
                             />
                         )}
+
+                        {!isLoading && !error && !searchResult && (
+                            <p className="pt-6 text-center text-sm text-fg-faint">
+                                Search by user tag to add a contact
+                            </p>
+                        )}
                     </div>
-                </div>
-            </Modal>
-        </>
-    )
-}
+                </DialogPanel>
+            </div>
+        </Dialog>
+    );
+};
 
 export default SearchForUserModal;
