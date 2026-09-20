@@ -1,5 +1,5 @@
-import { SettingsSection } from '../../Contracts/Settings/SettingsSection.js';
-import { defaultAppearanceSettings } from './Appearance/AppearanceSettings.js';
+import { SettingsSection } from '../../Contracts/Enums/SettingsSection.js';
+import { defaultAppearanceSettings } from './AppearanceSettings.js';
 
 export type SettingsDocument = Record<string, unknown>;
 
@@ -11,7 +11,6 @@ export function parseSettings(section: SettingsSection, stored: string | null): 
     return { ...settingsDefaults[section], ...safeParse(stored) };
 }
 
-// A missing, corrupt or newer-shaped row degrades to defaults rather than failing the read.
 function safeParse(stored: string | null): SettingsDocument {
     if (!stored) {
         return {};

@@ -17,7 +17,7 @@ import { SessionRecordSchema } from '../Schemas/SessionRecordSchema.js';
 import { MessageMediaSchema } from '../Schemas/MessageMediaSchema.js';
 import { OutboxEventSchema } from '../Schemas/OutboxEventSchema.js';
 import { KyberPreKeySchema } from '../Schemas/KyberPreKeySchema.js';
-import { AppearanceSettingsSchema } from '../Schemas/Settings/AppearanceSettingsSchema.js';
+import { AppearanceSettingsSchema } from '../Schemas/AppearanceSettingsSchema.js';
 
 let dbContext: DataSource;
 

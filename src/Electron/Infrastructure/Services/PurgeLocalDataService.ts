@@ -5,7 +5,7 @@ import { IFriendRepository } from '../../Application/Contracts/Repositories/IFri
 import { IUserRepository } from '../../Application/Contracts/Repositories/IUserRepository.js';
 import { IProtocolStore } from '../Interfaces/IProtocolStore.js';
 import { IRefreshTokenRepository } from '../Interfaces/IRefreshTokenRepository.js';
-import { ISettingsRegistry } from '../../Application/Contracts/Settings/ISettingsRegistry.js';
+import { ISettingsRegistry } from '../../Application/Contracts/Services/ISettingsRegistry.js';
 
 export class PurgeLocalDataService implements IPurgeLocalData {
     constructor(

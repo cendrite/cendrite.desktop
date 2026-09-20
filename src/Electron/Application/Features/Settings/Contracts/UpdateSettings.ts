@@ -1,4 +1,4 @@
-import { SettingsSection } from '../../../Contracts/Settings/SettingsSection.js';
+import { SettingsSection } from '../../../Contracts/Enums/SettingsSection.js';
 import { SettingsDocument } from '../SettingsDocument.js';
 
 export class UpdateSettingsCommand implements MediatorRequest {

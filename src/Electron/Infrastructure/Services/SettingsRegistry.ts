@@ -1,7 +1,7 @@
-import { ISettingsRegistry } from '../../../../Application/Contracts/Settings/ISettingsRegistry.js';
-import { ISettingsRepository } from '../../../../Application/Contracts/Repositories/ISettingsRepository.js';
-import { SettingsSection, settingsScopes } from '../../../../Application/Contracts/Settings/SettingsSection.js';
-import { AppearanceSettingsRepository } from './AppearanceSettingsRepository.js';
+import { ISettingsRegistry } from '../../Application/Contracts/Services/ISettingsRegistry.js';
+import { ISettingsRepository } from '../../Application/Contracts/Repositories/ISettingsRepository.js';
+import { SettingsSection, settingsScopes } from '../../Application/Contracts/Enums/SettingsSection.js';
+import { AppearanceSettingsRepository } from '../Persistence/Repositories/AppearanceSettingsRepository.js';
 
 export class SettingsRegistry implements ISettingsRegistry {
     private readonly repositories: Record<SettingsSection, ISettingsRepository>;

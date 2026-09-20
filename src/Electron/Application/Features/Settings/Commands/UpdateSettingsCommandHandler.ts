@@ -1,6 +1,6 @@
 import { Handler } from '../../../Mediator/Handler.js';
 import { Result } from '../../../../../Shared/Result/Result.js';
-import { ISettingsRegistry } from '../../../Contracts/Settings/ISettingsRegistry.js';
+import { ISettingsRegistry } from '../../../Contracts/Services/ISettingsRegistry.js';
 import { UpdateSettingsCommand } from '../Contracts/UpdateSettings.js';
 import { parseSettings, SettingsDocument } from '../SettingsDocument.js';
 
