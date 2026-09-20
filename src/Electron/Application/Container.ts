@@ -33,6 +33,8 @@ import { DeliveryStatusUpdatedCommandHandler } from './Features/Chat/Commands/De
 import { UpdateDeliveryStatusCommandHandler } from './Features/Chat/Events/UpdateDeliveryStatusEventHandler.js';
 import { MessageSentCommandHandler } from './Features/Chat/Events/MessageSentEventHandler.js';
 import { ResendMessageCommandHandler } from './Features/Chat/Commands/ResendMessageCommandHandler.js';
+import { GetSettingsQueryHandler } from './Features/Settings/Queries/GetSettingsQueryHandler.js';
+import { UpdateSettingsCommandHandler } from './Features/Settings/Commands/UpdateSettingsCommandHandler.js';
 
 const services = {
     logoutManager: asValue(LogoutManager.getInstance()),
@@ -88,6 +90,11 @@ const friendHandlers = {
     createFriendCommandHandler: asClass(CreateFriendCommandHandler, { lifetime: Lifetime.SINGLETON }),
 };
 
+const settingsHandlers = {
+    getSettingsQueryHandler: asClass(GetSettingsQueryHandler, { lifetime: Lifetime.SINGLETON }),
+    updateSettingsCommandHandler: asClass(UpdateSettingsCommandHandler, { lifetime: Lifetime.SINGLETON }),
+};
+
 export const applicationResolvers = {
     ...services,
     ...userHandlers,
@@ -95,4 +102,5 @@ export const applicationResolvers = {
     ...authenticationHandlers,
     ...chatHandlers,
     ...mediaHandlers,
+    ...settingsHandlers,
 };
