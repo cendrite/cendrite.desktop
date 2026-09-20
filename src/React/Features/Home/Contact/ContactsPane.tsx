@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { BellAlertIcon, UserPlusIcon } from '@heroicons/react/24/outline';
 import { BellAlertIcon as BellAlertIconFilled } from '@heroicons/react/24/solid';
-import SidePanelToggle from '../SidePanel/SidePanelToggle';
 import SearchForUserModal from '../Modals/SearchForUserModal.tsx';
 import ContactCard from './ContactCard.tsx';
 import PendingContactCard from './PendingContactCard.tsx';
@@ -10,12 +9,7 @@ import { useContacts } from '../../../Context/Contacts/ContactContext.tsx';
 import { Contact } from '../../../Models/Contact.ts';
 import { usePendingContacts } from '../../../Context/PendingContact/PendingContactContext.tsx';
 
-interface ContactsPaneProps {
-    isSidePanelVisible: boolean;
-    toggleSidePanel: () => void;
-}
-
-export const ContactsPane: React.FC<ContactsPaneProps> = ({ isSidePanelVisible, toggleSidePanel }) => {
+export const ContactsPane: React.FC = () => {
     const { contacts } = useContacts();
     console.log(contacts.length);
     const { pendingContacts } = usePendingContacts();
@@ -26,14 +20,9 @@ export const ContactsPane: React.FC<ContactsPaneProps> = ({ isSidePanelVisible, 
         <>
             <div className="text-fg p-2 relative">
                 {/* Title and Top Buttons */}
-                <div className="relative flex items-center justify-between mb-4">
-                    {/* Left side (optional toggle) */}
-                    <div className="flex items-center mr-6">
-                        {!isSidePanelVisible && <SidePanelToggle onClick={toggleSidePanel} />}
-                    </div>
-
+                <div className="relative flex items-center justify-end mb-4">
                     {/* Center title */}
-                    <h2 className="absolute left-1/2 transform -translate-x-12 text-lg font-bold">
+                    <h2 className="absolute left-1/2 -translate-x-1/2 text-lg font-bold">
                         {isRequestListSelected ? 'Requests' : 'Contacts'}
                     </h2>
 

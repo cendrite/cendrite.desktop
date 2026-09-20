@@ -8,12 +8,17 @@ import { Contact } from '../../Models/Contact.ts';
 
 const HomePage: React.FC = () => {
     const { selectedItem, homeDispatch } = useHomePage();
-    const [isSidePanelVisible, setIsSidePanelVisible] = useState(true);
+    const [isPaneVisible, setIsPaneVisible] = useState(true);
     const [paneType, setPaneType] = useState<'chats' | 'contacts'>('chats');
     const [savedContact, setSavedContact] = useState<Contact | null>(null);
 
-    const toggleSidePanel = () => {
-        setIsSidePanelVisible((prev) => !prev);
+    const togglePane = () => {
+        setIsPaneVisible((prev) => !prev);
+    };
+
+    const selectPane = (type: 'chats' | 'contacts') => {
+        setPaneType(type);
+        setIsPaneVisible(true);
     };
 
     useEffect(() => {
@@ -31,17 +36,9 @@ const HomePage: React.FC = () => {
 
     return (
         <div className="flex h-screen w-scree bg-canvas overflow-x-hidden">
-            {isSidePanelVisible && (
-                <div className="w-16 bg-surface">
-                    <SidePanel
-                        onHide={() => setIsSidePanelVisible(false)}
-                        paneType={paneType}
-                        setPaneType={setPaneType}
-                    />
-                </div>
-            )}
+            <SidePanel onTogglePane={togglePane} paneType={paneType} setPaneType={selectPane} />
 
-            <ParentPane paneType={paneType} isSidePanelVisible={isSidePanelVisible} toggleSidePanel={toggleSidePanel} />
+            {isPaneVisible && <ParentPane paneType={paneType} />}
 
             <div className="flex-1 bg-canvas relative">
                 <MainContent />
