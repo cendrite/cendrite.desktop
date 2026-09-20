@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useReducer } from 'react';
 import { ThemeContext } from './ThemeContext.tsx';
 import { initialThemeState, resolveTheme, ThemeActionType, themeReducer, ThemeState } from './ThemeReducer.ts';
-import { Theme } from '../../../Shared/Theme.ts';
+import { Theme, THEME_APPEARANCE } from '../../../Shared/Theme.ts';
 import { UpdateSettingsCommand } from '../../../Electron/Application/Features/Settings/Contracts/UpdateSettings.ts';
 
 const SYSTEM_DARK_QUERY = '(prefers-color-scheme: dark)';
@@ -19,7 +19,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', resolvedTheme);
-        document.documentElement.style.colorScheme = resolvedTheme;
+        document.documentElement.style.colorScheme = THEME_APPEARANCE[resolvedTheme];
     }, [resolvedTheme]);
 
     useEffect(() => {

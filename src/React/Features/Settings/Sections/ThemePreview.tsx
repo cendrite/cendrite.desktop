@@ -1,13 +1,13 @@
 import React from 'react';
-import { Theme } from '../../../../Shared/Theme.ts';
+import { ResolvedTheme, Theme } from '../../../../Shared/Theme.ts';
 
 interface ThemePreviewProps {
     theme: Theme;
 }
 
 // Re-declaring data-theme on a wrapper re-resolves the tokens for its subtree,
-// so a light preview renders correctly inside a dark app.
-const Plate: React.FC<{ appearance: 'light' | 'dark' }> = ({ appearance }) => (
+// so each preview renders in its own theme regardless of the active one.
+const Plate: React.FC<{ appearance: ResolvedTheme }> = ({ appearance }) => (
     <div data-theme={appearance} className="flex h-full w-full bg-canvas">
         <div className="w-3 shrink-0 bg-surface" />
 

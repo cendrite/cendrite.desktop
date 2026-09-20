@@ -51,19 +51,19 @@
     }
 
     [data-theme='light'] {
-        --color-canvas: 255 255 255;
-        --color-canvas-hover: 244 244 245;
-        --color-surface: 244 244 245;
-        --color-surface-hover: 228 228 231;
-        --color-overlay: 255 255 255;
-        --color-overlay-hover: 244 244 245;
-        --color-field: 255 255 255;
+        --color-canvas: 244 243 239;
+        --color-canvas-hover: 237 236 231;
+        --color-surface: 236 234 229;
+        --color-surface-hover: 223 221 214;
+        --color-overlay: 252 251 248;
+        --color-overlay-hover: 243 242 237;
+        --color-field: 252 251 248;
         --color-scrim: 113 113 122;
-        --color-scrollbar: 161 161 170;
-        --color-scrollbar-hover: 113 113 122;
+        --color-scrollbar: 177 173 163;
+        --color-scrollbar-hover: 137 133 124;
 
-        --color-line: 212 212 216;
-        --color-line-strong: 161 161 170;
+        --color-line: 212 209 201;
+        --color-line-strong: 174 170 160;
 
         --color-fg: 24 24 27;
         --color-fg-muted: 63 63 70;
@@ -74,8 +74,8 @@
 
         --color-inverted: 39 39 42;
         --color-inverted-hover: 24 24 27;
-        --color-media: 212 212 216;
-        --color-bubble-in: 228 228 231;
+        --color-media: 212 209 201;
+        --color-bubble-in: 225 223 216;
         --color-bubble-in-fg: 24 24 27;
 
         --color-accent: 37 99 235;
@@ -90,6 +90,90 @@
 
         --color-success: 21 128 61;
         --color-warning: 161 98 7;
+    }
+
+    [data-theme='gruvbox'] {
+        --color-canvas: 29 32 33;
+        --color-canvas-hover: 40 40 40;
+        --color-surface: 40 40 40;
+        --color-surface-hover: 60 56 54;
+        --color-overlay: 80 73 69;
+        --color-overlay-hover: 102 92 84;
+        --color-field: 50 48 47;
+        --color-scrim: 0 0 0;
+        --color-scrollbar: 80 73 69;
+        --color-scrollbar-hover: 102 92 84;
+
+        --color-line: 60 56 54;
+        --color-line-strong: 80 73 69;
+
+        --color-fg: 235 219 178;
+        --color-fg-muted: 213 196 161;
+        --color-fg-subtle: 189 174 147;
+        --color-fg-faint: 168 153 132;
+        --color-fg-inverted: 29 32 33;
+        --color-fg-on-accent: 251 241 199;
+
+        --color-inverted: 235 219 178;
+        --color-inverted-hover: 251 241 199;
+        --color-media: 213 196 161;
+        --color-bubble-in: 60 56 54;
+        --color-bubble-in-fg: 235 219 178;
+
+        --color-accent: 69 133 136;
+        --color-accent-hover: 131 165 152;
+        --color-accent-soft: 60 56 54;
+        --color-accent-soft-fg: 131 165 152;
+
+        --color-danger: 204 36 29;
+        --color-danger-hover: 157 0 6;
+        --color-danger-fg: 251 73 52;
+        --color-danger-fg-hover: 253 140 125;
+
+        --color-success: 152 151 26;
+        --color-warning: 250 189 47;
+    }
+
+    [data-theme='kanagawa'] {
+        --color-canvas: 22 22 29;
+        --color-canvas-hover: 26 26 34;
+        --color-surface: 31 31 40;
+        --color-surface-hover: 42 42 55;
+        --color-overlay: 54 54 70;
+        --color-overlay-hover: 84 84 109;
+        --color-field: 26 26 34;
+        --color-scrim: 0 0 0;
+        --color-scrollbar: 54 54 70;
+        --color-scrollbar-hover: 84 84 109;
+
+        --color-line: 42 42 55;
+        --color-line-strong: 84 84 109;
+
+        --color-fg: 220 215 186;
+        --color-fg-muted: 200 192 147;
+        --color-fg-subtle: 150 146 125;
+        --color-fg-faint: 114 113 105;
+        --color-fg-inverted: 22 22 29;
+        --color-fg-on-accent: 22 22 29;
+
+        --color-inverted: 220 215 186;
+        --color-inverted-hover: 200 192 147;
+        --color-media: 200 192 147;
+        --color-bubble-in: 45 79 103;
+        --color-bubble-in-fg: 220 215 186;
+
+        --color-accent: 126 156 216;
+        --color-accent-hover: 127 180 202;
+        --color-accent-soft: 34 50 73;
+        --color-accent-soft-fg: 126 156 216;
+
+        --color-danger: 195 64 67;
+        --color-danger-hover: 232 36 36;
+        --color-danger-fg: 232 36 36;
+        --color-danger-fg-hover: 255 118 120;
+
+        --color-success: 118 148 106;
+        --color-warning: 255 158 59;
     }
 
     html,

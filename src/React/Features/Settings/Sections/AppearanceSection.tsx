@@ -9,6 +9,8 @@ const themeOptions: { id: Theme; label: string; description: string }[] = [
     { id: 'system', label: 'System', description: 'Match your operating system' },
     { id: 'light', label: 'Light', description: 'Always light' },
     { id: 'dark', label: 'Dark', description: 'Always dark' },
+    { id: 'gruvbox', label: 'Gruvbox', description: 'Warm retro palette' },
+    { id: 'kanagawa', label: 'Kanagawa', description: 'Muted ink and blue' },
 ];
 
 const AppearanceSection: React.FC = () => {
