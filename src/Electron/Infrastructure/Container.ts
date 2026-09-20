@@ -26,6 +26,8 @@ import { MediaProvider } from './Clients/MediaProvider.js';
 import { UserClient } from './Clients/UserClient.js';
 import { FriendClient } from './Clients/FriendClient.js';
 import { EventRepository } from './Persistence/Repositories/EventRepository.js';
+import { AppearanceSettingsRepository } from './Persistence/Repositories/AppearanceSettingsRepository.js';
+import { SettingsRegistry } from './Services/SettingsRegistry.js';
 import { MessagePump } from './Pumps/MessagePump.js';
 import { DeliveryStatusUpdatePump } from './Pumps/DeliveryUpdatePump.js';
 
@@ -36,6 +38,7 @@ const services = {
     keyGenerator: asClass(KeyGenerator, { lifetime: Lifetime.SINGLETON }),
     purgeLocalDataService: asClass(PurgeLocalDataService, { lifetime: Lifetime.SINGLETON }),
     sessionManager: asClass(SessionManager, { lifetime: Lifetime.SINGLETON }),
+    settingsRegistry: asClass(SettingsRegistry, { lifetime: Lifetime.SINGLETON }),
 };
 
 const persistence = {
@@ -47,6 +50,7 @@ const persistence = {
     mediaStore: asClass(MediaStore, { lifetime: Lifetime.SINGLETON }),
     friendRepository: asClass(FriendRepository, { lifetime: Lifetime.SINGLETON }),
     eventRepository: asClass(EventRepository, { lifetime: Lifetime.SINGLETON }),
+    appearanceSettingsRepository: asClass(AppearanceSettingsRepository, { lifetime: Lifetime.SINGLETON }),
 };
 
 const signalR = {
