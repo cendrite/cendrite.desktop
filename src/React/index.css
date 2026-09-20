@@ -9,37 +9,38 @@
 @layer base {
     /* Channel triplets, not rgb() — Tailwind needs them bare to support bg-surface/80 and friends. */
     [data-theme='dark'] {
-        --color-canvas: 9 9 11;
-        --color-canvas-hover: 26 26 26;
-        --color-surface: 46 46 46;
-        --color-surface-hover: 66 66 66;
-        --color-overlay: 81 81 81;
-        --color-overlay-hover: 98 98 98;
-        --color-field: 39 39 42;
+        --color-canvas: 0 0 0;
+        --color-canvas-hover: 16 16 18;
+        --color-surface: 24 24 27;
+        --color-surface-hover: 39 39 42;
+        --color-overlay: 63 63 70;
+        --color-overlay-hover: 82 82 91;
+        --color-field: 16 16 18;
         --color-scrim: 0 0 0;
-        --color-scrollbar: 81 81 81;
-        --color-scrollbar-hover: 98 98 98;
+        --color-scrollbar: 63 63 70;
+        --color-scrollbar-hover: 82 82 91;
 
-        --color-line: 63 63 70;
-        --color-line-strong: 75 85 99;
+        --color-line: 39 39 42;
+        --color-line-strong: 63 63 70;
 
         --color-fg: 255 255 255;
         --color-fg-muted: 229 231 235;
         --color-fg-subtle: 156 163 175;
-        --color-fg-faint: 107 114 128;
+        --color-fg-faint: 113 118 132;
         --color-fg-inverted: 3 7 18;
         --color-fg-on-accent: 255 255 255;
 
         --color-inverted: 209 213 219;
         --color-inverted-hover: 249 250 251;
         --color-media: 243 244 246;
-        --color-bubble-in: 229 231 235;
-        --color-bubble-in-fg: 0 0 0;
+        --color-bubble-in: 39 39 42;
+        --color-bubble-in-fg: 255 255 255;
 
+        --color-link: 96 165 250;
         --color-accent: 59 130 246;
         --color-accent-hover: 37 99 235;
-        --color-accent-soft: 191 219 254;
-        --color-accent-soft-fg: 30 58 138;
+        --color-accent-soft: 30 58 138;
+        --color-accent-soft-fg: 191 219 254;
 
         --color-danger: 220 38 38;
         --color-danger-hover: 153 27 27;
@@ -78,6 +79,7 @@
         --color-bubble-in: 225 223 216;
         --color-bubble-in-fg: 24 24 27;
 
+        --color-link: 29 78 216;
         --color-accent: 37 99 235;
         --color-accent-hover: 29 78 216;
         --color-accent-soft: 219 234 254;
@@ -120,6 +122,7 @@
         --color-bubble-in: 60 56 54;
         --color-bubble-in-fg: 235 219 178;
 
+        --color-link: 131 165 152;
         --color-accent: 69 133 136;
         --color-accent-hover: 131 165 152;
         --color-accent-soft: 60 56 54;
@@ -130,7 +133,7 @@
         --color-danger-fg: 251 73 52;
         --color-danger-fg-hover: 253 140 125;
 
-        --color-success: 152 151 26;
+        --color-success: 121 116 14;
         --color-warning: 250 189 47;
     }
 
@@ -162,18 +165,106 @@
         --color-bubble-in: 45 79 103;
         --color-bubble-in-fg: 220 215 186;
 
+        --color-link: 126 156 216;
         --color-accent: 126 156 216;
         --color-accent-hover: 127 180 202;
         --color-accent-soft: 34 50 73;
         --color-accent-soft-fg: 126 156 216;
 
-        --color-danger: 195 64 67;
+        --color-danger: 228 104 118;
         --color-danger-hover: 232 36 36;
         --color-danger-fg: 232 36 36;
         --color-danger-fg-hover: 255 118 120;
 
         --color-success: 118 148 106;
         --color-warning: 255 158 59;
+    }
+
+
+    [data-theme='gruvbox-light'] {
+        --color-canvas: 251 241 199;
+        --color-canvas-hover: 242 229 188;
+        --color-surface: 235 219 178;
+        --color-surface-hover: 213 196 161;
+        --color-overlay: 249 245 215;
+        --color-overlay-hover: 235 219 178;
+        --color-field: 249 245 215;
+        --color-scrim: 124 111 100;
+        --color-scrollbar: 189 174 147;
+        --color-scrollbar-hover: 168 153 132;
+
+        --color-line: 213 196 161;
+        --color-line-strong: 189 174 147;
+
+        --color-fg: 40 40 40;
+        --color-fg-muted: 60 56 54;
+        --color-fg-subtle: 80 73 69;
+        --color-fg-faint: 124 111 100;
+        --color-fg-inverted: 251 241 199;
+        --color-fg-on-accent: 251 241 199;
+
+        --color-inverted: 60 56 54;
+        --color-inverted-hover: 40 40 40;
+        --color-media: 213 196 161;
+        --color-bubble-in: 235 219 178;
+        --color-bubble-in-fg: 40 40 40;
+
+        --color-link: 7 102 120;
+        --color-accent: 7 102 120;
+        --color-accent-hover: 69 133 136;
+        --color-accent-soft: 213 196 161;
+        --color-accent-soft-fg: 7 102 120;
+
+        --color-danger: 157 0 6;
+        --color-danger-hover: 204 36 29;
+        --color-danger-fg: 157 0 6;
+        --color-danger-fg-hover: 204 36 29;
+
+        --color-success: 121 116 14;
+        --color-warning: 181 118 20;
+    }
+
+    [data-theme='rose-pine'] {
+        --color-canvas: 25 23 36;
+        --color-canvas-hover: 33 32 46;
+        --color-surface: 31 29 46;
+        --color-surface-hover: 64 61 82;
+        --color-overlay: 38 35 58;
+        --color-overlay-hover: 82 79 103;
+        --color-field: 33 32 46;
+        --color-scrim: 0 0 0;
+        --color-scrollbar: 64 61 82;
+        --color-scrollbar-hover: 82 79 103;
+
+        --color-line: 64 61 82;
+        --color-line-strong: 82 79 103;
+
+        --color-fg: 224 222 244;
+        --color-fg-muted: 205 202 224;
+        --color-fg-subtle: 144 140 170;
+        --color-fg-faint: 110 106 134;
+        --color-fg-inverted: 25 23 36;
+        --color-fg-on-accent: 224 222 244;
+
+        --color-inverted: 224 222 244;
+        --color-inverted-hover: 242 240 255;
+        --color-media: 144 140 170;
+        --color-bubble-in: 38 35 58;
+        --color-bubble-in-fg: 224 222 244;
+
+        --color-link: 156 207 216;
+        --color-accent: 49 116 143;
+        --color-accent-hover: 62 143 174;
+        --color-accent-soft: 38 35 58;
+        --color-accent-soft-fg: 156 207 216;
+
+        --color-danger: 143 74 96;
+        --color-danger-hover: 235 111 146;
+        --color-danger-fg: 235 111 146;
+        --color-danger-fg-hover: 240 160 180;
+
+        --color-success: 49 116 143;
+        --color-warning: 246 193 119;
     }
 
     html,

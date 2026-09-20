@@ -8,9 +8,11 @@ import ThemePreview from './ThemePreview.tsx';
 const themeOptions: { id: Theme; label: string; description: string }[] = [
     { id: 'system', label: 'System', description: 'Match your operating system' },
     { id: 'light', label: 'Light', description: 'Always light' },
-    { id: 'dark', label: 'Dark', description: 'Always dark' },
+    { id: 'dark', label: 'Dark', description: 'True black' },
     { id: 'gruvbox', label: 'Gruvbox', description: 'Warm retro palette' },
+    { id: 'gruvbox-light', label: 'Gruvbox Light', description: 'Cream and warm' },
     { id: 'kanagawa', label: 'Kanagawa', description: 'Muted ink and blue' },
+    { id: 'rose-pine', label: 'Rosé Pine', description: 'Soft mauve and pine' },
 ];
 
 const AppearanceSection: React.FC = () => {

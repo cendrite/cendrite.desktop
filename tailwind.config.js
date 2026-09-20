@@ -34,6 +34,8 @@ export const theme = {
       'bubble-in': token('bubble-in'),
       'bubble-in-fg': token('bubble-in-fg'),
 
+      link: token('link'),
+
       accent: token('accent'),
       'accent-hover': token('accent-hover'),
       'accent-soft': token('accent-soft'),

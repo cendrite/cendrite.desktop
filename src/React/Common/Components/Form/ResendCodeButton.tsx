@@ -44,7 +44,7 @@ const ResendCodeButton: React.FC<ResendCodeButtonProps> = ({userId, codeType}) =
             <p>
                 Didn't receive the code?{" "}
                 <span
-                    className={`text-accent cursor-pointer ${
+                    className={`text-link cursor-pointer ${
                         isCooldown ? "opacity-50 cursor-not-allowed" : "hover:underline"
                     }`}
                     onClick={handleResendCode}>
