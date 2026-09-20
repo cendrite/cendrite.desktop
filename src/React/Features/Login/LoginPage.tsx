@@ -90,7 +90,7 @@ const LoginPage: React.FC = () => {
                     <p>
                         Don't have an account?{' '}
                         <span
-                            className="text-accent cursor-pointer hover:underline"
+                            className="text-link cursor-pointer hover:underline"
                             onClick={() => navigate('/register')}
                         >
                             Sign up here

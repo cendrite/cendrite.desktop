@@ -44,7 +44,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose }) => {
 
                             {/* Edit Button */}
                             <button
-                                className="text-sm text-accent font-semibold hover:underline mt-2"
+                                className="text-sm text-link font-semibold hover:underline mt-2"
                                 onClick={() => setIsProfilePictureModalOpen(true)}
                             >
                                 Change Picture

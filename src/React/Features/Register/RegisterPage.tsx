@@ -114,7 +114,7 @@ const RegisterPage: React.FC = () => {
                 <div className="mt-4">
                     <p>
                         Already have an account?{" "}
-                        <span className="text-accent cursor-pointer hover:underline"
+                        <span className="text-link cursor-pointer hover:underline"
                               onClick={() => navigate("/login")}>
               login
             </span>
