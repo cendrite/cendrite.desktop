@@ -57,7 +57,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onHide, setPaneType, paneT
                 </div>
 
                 {/* Bottom Icons: User Profile and Settings */}
-                <div className="flex flex-col items-center space-y-8 mb-2">
+                <div className="flex flex-col items-center space-y-4">
                     <PanelButton
                         onClick={() => setUserModalOpen(true)}
                         icon={
