@@ -30,9 +30,9 @@ const HomePage: React.FC = () => {
     }, [paneType]);
 
     return (
-        <div className="flex h-screen w-scree bg-zinc-900 overflow-x-hidden">
+        <div className="flex h-screen w-scree bg-canvas overflow-x-hidden">
             {isSidePanelVisible && (
-                <div className="w-16 bg-darkGray-500">
+                <div className="w-16 bg-surface">
                     <SidePanel
                         onHide={() => setIsSidePanelVisible(false)}
                         paneType={paneType}
@@ -43,7 +43,7 @@ const HomePage: React.FC = () => {
 
             <ParentPane paneType={paneType} isSidePanelVisible={isSidePanelVisible} toggleSidePanel={toggleSidePanel} />
 
-            <div className="flex-1 bg-zinc-950 relative">
+            <div className="flex-1 bg-canvas relative">
                 <MainContent />
             </div>
         </div>

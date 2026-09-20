@@ -2,7 +2,7 @@ import React from 'react';
 import { MessageViewModel } from '../../../Models/MessageViewModel';
 import { useMessageService } from '../../../Common/Hooks/MessageService';
 
-const menuButtonClass = 'w-full text-left px-3 py-2 text-sm text-gray-200 hover:bg-darkGray-300 rounded-md';
+const menuButtonClass = 'w-full text-left px-3 py-2 text-sm text-fg-muted hover:bg-surface-hover rounded-md';
 
 export interface MessageSettingsProps {
     message: MessageViewModel;
@@ -34,7 +34,7 @@ export const MessageSettingsMenu: React.FC<MessageSettingsProps> = ({ message, i
             <div
                 className={`
                     absolute top-full mt-2 z-[1100]
-                    w-56 rounded-xl bg-darkGray-200 shadow-lg ring-1 ring-black/20 p-2
+                    w-56 rounded-xl bg-overlay shadow-lg ring-1 ring-line p-2
                     ${isMine ? 'right-0' : 'left-0'}
                 `}
             >
@@ -48,9 +48,9 @@ export const MessageSettingsMenu: React.FC<MessageSettingsProps> = ({ message, i
                     Edit
                 </button>
 
-                <div className="my-1 h-px bg-white/10" />
+                <div className="my-1 h-px bg-line" />
 
-                <button className={`${menuButtonClass} text-red-300 hover:text-red-200 hover:bg-red-500/20`}>
+                <button className={`${menuButtonClass} text-danger-fg hover:text-danger-fg-hover hover:bg-danger/20`}>
                     Delete message
                 </button>
 

@@ -6,6 +6,186 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+    /* Channel triplets, not rgb() — Tailwind needs them bare to support bg-surface/80 and friends. */
+    [data-theme='dark'] {
+        --color-canvas: 9 9 11;
+        --color-canvas-hover: 26 26 26;
+        --color-surface: 46 46 46;
+        --color-surface-hover: 66 66 66;
+        --color-overlay: 81 81 81;
+        --color-overlay-hover: 98 98 98;
+        --color-field: 39 39 42;
+        --color-scrim: 0 0 0;
+        --color-scrollbar: 81 81 81;
+        --color-scrollbar-hover: 98 98 98;
+
+        --color-line: 63 63 70;
+        --color-line-strong: 75 85 99;
+
+        --color-fg: 255 255 255;
+        --color-fg-muted: 229 231 235;
+        --color-fg-subtle: 156 163 175;
+        --color-fg-faint: 107 114 128;
+        --color-fg-inverted: 3 7 18;
+        --color-fg-on-accent: 255 255 255;
+
+        --color-inverted: 209 213 219;
+        --color-inverted-hover: 249 250 251;
+        --color-media: 243 244 246;
+        --color-bubble-in: 229 231 235;
+        --color-bubble-in-fg: 0 0 0;
+
+        --color-accent: 59 130 246;
+        --color-accent-hover: 37 99 235;
+        --color-accent-soft: 191 219 254;
+        --color-accent-soft-fg: 30 58 138;
+
+        --color-danger: 220 38 38;
+        --color-danger-hover: 153 27 27;
+        --color-danger-fg: 239 68 68;
+        --color-danger-fg-hover: 254 202 202;
+
+        --color-success: 22 163 74;
+        --color-warning: 250 204 21;
+    }
+
+    [data-theme='light'] {
+        --color-canvas: 244 243 239;
+        --color-canvas-hover: 237 236 231;
+        --color-surface: 236 234 229;
+        --color-surface-hover: 223 221 214;
+        --color-overlay: 252 251 248;
+        --color-overlay-hover: 243 242 237;
+        --color-field: 252 251 248;
+        --color-scrim: 113 113 122;
+        --color-scrollbar: 177 173 163;
+        --color-scrollbar-hover: 137 133 124;
+
+        --color-line: 212 209 201;
+        --color-line-strong: 174 170 160;
+
+        --color-fg: 24 24 27;
+        --color-fg-muted: 63 63 70;
+        --color-fg-subtle: 82 82 91;
+        --color-fg-faint: 113 113 122;
+        --color-fg-inverted: 250 250 250;
+        --color-fg-on-accent: 255 255 255;
+
+        --color-inverted: 39 39 42;
+        --color-inverted-hover: 24 24 27;
+        --color-media: 212 209 201;
+        --color-bubble-in: 225 223 216;
+        --color-bubble-in-fg: 24 24 27;
+
+        --color-accent: 37 99 235;
+        --color-accent-hover: 29 78 216;
+        --color-accent-soft: 219 234 254;
+        --color-accent-soft-fg: 30 64 175;
+
+        --color-danger: 220 38 38;
+        --color-danger-hover: 185 28 28;
+        --color-danger-fg: 185 28 28;
+        --color-danger-fg-hover: 153 27 27;
+
+        --color-success: 21 128 61;
+        --color-warning: 161 98 7;
+    }
+
+    [data-theme='gruvbox'] {
+        --color-canvas: 29 32 33;
+        --color-canvas-hover: 40 40 40;
+        --color-surface: 40 40 40;
+        --color-surface-hover: 60 56 54;
+        --color-overlay: 80 73 69;
+        --color-overlay-hover: 102 92 84;
+        --color-field: 50 48 47;
+        --color-scrim: 0 0 0;
+        --color-scrollbar: 80 73 69;
+        --color-scrollbar-hover: 102 92 84;
+
+        --color-line: 60 56 54;
+        --color-line-strong: 80 73 69;
+
+        --color-fg: 235 219 178;
+        --color-fg-muted: 213 196 161;
+        --color-fg-subtle: 189 174 147;
+        --color-fg-faint: 168 153 132;
+        --color-fg-inverted: 29 32 33;
+        --color-fg-on-accent: 251 241 199;
+
+        --color-inverted: 235 219 178;
+        --color-inverted-hover: 251 241 199;
+        --color-media: 213 196 161;
+        --color-bubble-in: 60 56 54;
+        --color-bubble-in-fg: 235 219 178;
+
+        --color-accent: 69 133 136;
+        --color-accent-hover: 131 165 152;
+        --color-accent-soft: 60 56 54;
+        --color-accent-soft-fg: 131 165 152;
+
+        --color-danger: 204 36 29;
+        --color-danger-hover: 157 0 6;
+        --color-danger-fg: 251 73 52;
+        --color-danger-fg-hover: 253 140 125;
+
+        --color-success: 152 151 26;
+        --color-warning: 250 189 47;
+    }
+
+    [data-theme='kanagawa'] {
+        --color-canvas: 22 22 29;
+        --color-canvas-hover: 26 26 34;
+        --color-surface: 31 31 40;
+        --color-surface-hover: 42 42 55;
+        --color-overlay: 54 54 70;
+        --color-overlay-hover: 84 84 109;
+        --color-field: 26 26 34;
+        --color-scrim: 0 0 0;
+        --color-scrollbar: 54 54 70;
+        --color-scrollbar-hover: 84 84 109;
+
+        --color-line: 42 42 55;
+        --color-line-strong: 84 84 109;
+
+        --color-fg: 220 215 186;
+        --color-fg-muted: 200 192 147;
+        --color-fg-subtle: 150 146 125;
+        --color-fg-faint: 114 113 105;
+        --color-fg-inverted: 22 22 29;
+        --color-fg-on-accent: 22 22 29;
+
+        --color-inverted: 220 215 186;
+        --color-inverted-hover: 200 192 147;
+        --color-media: 200 192 147;
+        --color-bubble-in: 45 79 103;
+        --color-bubble-in-fg: 220 215 186;
+
+        --color-accent: 126 156 216;
+        --color-accent-hover: 127 180 202;
+        --color-accent-soft: 34 50 73;
+        --color-accent-soft-fg: 126 156 216;
+
+        --color-danger: 195 64 67;
+        --color-danger-hover: 232 36 36;
+        --color-danger-fg: 232 36 36;
+        --color-danger-fg-hover: 255 118 120;
+
+        --color-success: 118 148 106;
+        --color-warning: 255 158 59;
+    }
+
+    html,
+    body,
+    #root {
+        height: 100%;
+    }
+
+    body {
+        @apply bg-canvas text-fg;
+    }
+}
 
 /* width */
 ::-webkit-scrollbar {
@@ -14,11 +194,11 @@
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-    background: #515151;
+    background: rgb(var(--color-scrollbar));
     border-radius: 5px;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-    background: #757575;
+    background: rgb(var(--color-scrollbar-hover));
 }

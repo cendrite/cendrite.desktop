@@ -14,7 +14,7 @@ export const ChatsPane: React.FC<ChatsPaneProps> = ({ isSidePanelVisible, toggle
     const { chatState } = useChatContext();
 
     return (
-        <div className="text-white p-2 relative">
+        <div className="text-fg p-2 relative">
             <div className="flex items-center justify-between mb-4">
                 {!isSidePanelVisible && <SidePanelToggle onClick={toggleSidePanel} />}
 
@@ -22,7 +22,7 @@ export const ChatsPane: React.FC<ChatsPaneProps> = ({ isSidePanelVisible, toggle
                     <h2 className="text-lg font-bold">Chats</h2>
                 </div>
 
-                <button className="p-2 rounded-md text-white hover:bg-zinc-600">
+                <button className="p-2 rounded-md text-fg hover:bg-surface-hover">
                     <PlusIcon className="w-5 h-5" />
                 </button>
             </div>

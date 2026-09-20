@@ -18,7 +18,7 @@ const Avatar: React.FC<AvatarProps> = ({ className, AvatarKey, Username }) => {
     ) : (
         <div
             className={clsx(
-                'rounded-full bg-blue-200 flex items-center justify-center text-2xl font-extralight text-blue-900',
+                'rounded-full bg-accent-soft flex items-center justify-center text-2xl font-extralight text-accent-soft-fg',
                 className,
             )}
         >

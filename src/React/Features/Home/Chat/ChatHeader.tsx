@@ -17,11 +17,11 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ chat, onClose }) => {
     return (
         <div className="flex items-center justify-between p-3 w-full">
             <div className="flex items-center">
-                <button className="text-gray-400 hover:text-gray-300" onClick={onClose}>
+                <button className="text-fg-subtle hover:text-fg-muted" onClick={onClose}>
                     <ChevronLeftIcon className="w-6 h-6" />
                 </button>
 
-                <div className="w-7 h-7 rounded-full flex items-center justify-center overflow-hidden bg-gray-100 ml-3">
+                <div className="w-7 h-7 rounded-full flex items-center justify-center overflow-hidden bg-media ml-3">
                     <Avatar
                         className="w-11 h-11"
                         AvatarKey={chatMember?.contact.avatarKey}
@@ -29,7 +29,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ chat, onClose }) => {
                     />
                 </div>
 
-                <span className="text-white text-sm ml-3">
+                <span className="text-fg text-sm ml-3">
                     {chatMember.displayName || chatMember.contact.displayName}
                 </span>
             </div>

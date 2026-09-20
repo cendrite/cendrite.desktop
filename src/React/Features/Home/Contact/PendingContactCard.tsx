@@ -18,7 +18,7 @@ const PendingContactCard: React.FC<PendingContactCardProps> = ({ contact }) => {
     const { notificationDispatch } = useNotifications();
 
     const cardClasses = `flex items-center py-2 px-2 rounded-md cursor-pointer relative
-    ${isSelected ? 'bg-darkGray-300' : 'hover:bg-darkGray-300'}`;
+    ${isSelected ? 'bg-surface-hover' : 'hover:bg-surface-hover'}`;
 
     const onHandleClick = () => {
         if (isSelected) {
@@ -36,12 +36,12 @@ const PendingContactCard: React.FC<PendingContactCardProps> = ({ contact }) => {
         <div className={cardClasses} onClick={onHandleClick}>
             <NotificationBadge section="requests" itemId={contact.id} />
             <Avatar
-                className="w-11 h-11 rounded-full flex items-center justify-center overflow-hidden bg-gray-100 relative"
+                className="w-11 h-11 rounded-full flex items-center justify-center overflow-hidden bg-media relative"
                 AvatarKey={contact.avatarKey}
                 Username={name}
             />
             <div className="ml-3">
-                <div className="text-white font-semibold">{name}</div>
+                <div className="text-fg font-semibold">{name}</div>
             </div>
         </div>
     );

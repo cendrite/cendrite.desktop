@@ -20,15 +20,15 @@ export interface ChatBubbleProps {
 function determineStatusIcon(status: DeliveryStatus): ReactNode {
     switch (status) {
         case DeliveryStatus.Pending:
-            return <IconCircleDashed className="w-3.5 h-3.5 text-gray-300" />;
+            return <IconCircleDashed className="w-3.5 h-3.5 text-fg-muted" />;
         case DeliveryStatus.Sent:
-            return <IconCircleChevronRight className="w-3.5 h-3.5 text-gray-400" />;
+            return <IconCircleChevronRight className="w-3.5 h-3.5 text-fg-subtle" />;
         case DeliveryStatus.Delivered:
-            return <IconCircleChevronsRight className="w-3.5 h-3.5 text-gray-300" />;
+            return <IconCircleChevronsRight className="w-3.5 h-3.5 text-fg-muted" />;
         case DeliveryStatus.Read:
-            return <IconCircleChevronsRightFilled className="w-3.5 h-3.5 text-gray-200" />;
+            return <IconCircleChevronsRightFilled className="w-3.5 h-3.5 text-fg-muted" />;
         case DeliveryStatus.Failed:
-            return <IconCircleX className="w-3.5 h-3.5 text-red-500" />;
+            return <IconCircleX className="w-3.5 h-3.5 text-danger-fg" />;
         case DeliveryStatus.Received:
             return null;
         default: {
@@ -69,7 +69,7 @@ export const MessageBubble: React.FC<ChatBubbleProps> = ({ message, showStatus }
                         onClick={handleToggleInfo}
                         className={`
                             break-words whitespace-pre-wrap px-4 py-2 rounded-2xl text-sm cursor-pointer
-                            ${isMine ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'}
+                            ${isMine ? 'bg-accent text-fg-on-accent' : 'bg-bubble-in text-bubble-in-fg'}
                         `}
                     >
                         <MediaBox media={message.media} />
@@ -89,7 +89,7 @@ export const MessageBubble: React.FC<ChatBubbleProps> = ({ message, showStatus }
                 {(showInfo || statusIcon) && (
                     <div
                         className={`mt-1 text-xs flex items-center gap-2 
-                            ${isMine ? 'mr-2 justify-end text-gray-400' : 'ml-3 text-gray-500'}`}
+                            ${isMine ? 'mr-2 justify-end text-fg-subtle' : 'ml-3 text-fg-faint'}`}
                     >
                         {showInfo && <span>{formattedDate}</span>}
                         {determineStatusIcon(message.deliveryStatus)}

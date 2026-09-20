@@ -20,7 +20,7 @@ const StartupPage: React.FC = () => {
     }, [sessionId, loading, navigate]);
 
     return (
-        <div className="flex items-center justify-center h-screen bg-zinc-950">
+        <div className="flex items-center justify-center h-screen bg-canvas">
             <div>
                 <Lottie animationData={boxAnimation}/>
             </div>

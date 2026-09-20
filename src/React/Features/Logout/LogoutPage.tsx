@@ -74,10 +74,10 @@ const LogoutPage: React.FC = () => {
     ]);
 
     return (
-        <div className="flex items-center justify-center h-screen bg-zinc-950">
+        <div className="flex items-center justify-center h-screen bg-canvas">
             <div>
                 <Lottie animationData={boxAnimation} />
-                <h1 className="text-white text-center">Please wait while we log you out</h1>
+                <h1 className="text-fg text-center">Please wait while we log you out</h1>
             </div>
         </div>
     );

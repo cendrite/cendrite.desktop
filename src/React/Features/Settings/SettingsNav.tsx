@@ -9,8 +9,8 @@ interface SettingsNavProps {
 
 const SettingsNav: React.FC<SettingsNavProps> = ({ active, onSelect }) => {
     return (
-        <nav className="w-[200px] shrink-0 border-r border-zinc-600 p-3">
-            <DialogTitle className="px-3 py-2 text-sm text-gray-500">Settings</DialogTitle>
+        <nav className="w-[200px] shrink-0 border-r border-line p-3">
+            <DialogTitle className="px-3 py-2 text-sm text-fg-faint">Settings</DialogTitle>
 
             <ul className="mt-1 space-y-1">
                 {settingsSections.map((section) => (
@@ -19,8 +19,8 @@ const SettingsNav: React.FC<SettingsNavProps> = ({ active, onSelect }) => {
                             onClick={() => onSelect(section.id)}
                             className={`w-full rounded-md px-3 py-2 text-left text-sm ${
                                 active === section.id
-                                    ? 'bg-darkGray-300 text-white'
-                                    : 'text-gray-400 hover:bg-darkGray-300 hover:text-gray-200'
+                                    ? 'bg-surface-hover text-fg'
+                                    : 'text-fg-subtle hover:bg-surface-hover hover:text-fg-muted'
                             }`}
                         >
                             {section.label}

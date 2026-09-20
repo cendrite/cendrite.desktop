@@ -72,19 +72,19 @@ const AvatarModal: React.FC<AvatarModelProps> = ({ isOpen, onClose }) => {
             onRequestClose={() => onClose(false)}
             shouldCloseOnEsc={!loading}
             shouldCloseOnOverlayClick={!loading}
-            className="p-4 bg-darkGray-500 text-white rounded-xl shadow-lg w-[350px] h-[550px] max-auto relative"
-            overlayClassName="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center"
+            className="p-4 bg-surface text-fg rounded-xl shadow-lg w-[350px] h-[550px] max-auto relative"
+            overlayClassName="fixed inset-0 bg-scrim/80 flex justify-center items-center"
             contentLabel="User Details"
         >
             <div className="relative h-full flex flex-col">
                 <button
                     onClick={() => onClose(true)}
-                    className="absolute top-1 right-1 text-gray-400 hover:text-gray-300 text-xs"
+                    className="absolute top-1 right-1 text-fg-subtle hover:text-fg-muted text-xs"
                 >
                     ✕
                 </button>
 
-                <h3 className="absolute top-1 left-1 text-m text-gray-50">Avatar</h3>
+                <h3 className="absolute top-1 left-1 text-m text-fg">Avatar</h3>
 
                 <div className="flex flex-col items-center mt-8 mb-4">
                     {/* Show Selected Profile Picture */}
@@ -102,17 +102,17 @@ const AvatarModal: React.FC<AvatarModelProps> = ({ isOpen, onClose }) => {
                 <div className="flex justify-center items-center space-x-4 mb-8">
                     {/* Upload Image Option */}
                     <button
-                        className="flex flex-col items-center justify-center bg-darkGray-200 hover:bg-darkGray-300 px-1.5 py-1 rounded-lg"
+                        className="flex flex-col items-center justify-center bg-overlay hover:bg-surface-hover px-1.5 py-1 rounded-lg"
                         onClick={() => uploadProfilePicture()}
                         disabled={loading}
                     >
-                        <PhotoIcon className="w-4 h-4 text-gray-200" />
+                        <PhotoIcon className="w-4 h-4 text-fg-muted" />
                         <h3 className="font-extralight text-[0.6rem]">image</h3>
                     </button>
 
                     {/* Text (Initials) Option */}
-                    <button className="flex flex-col items-center justify-center bg-darkGray-200 hover:bg-darkGray-300 px-2.5 py-1 rounded-lg">
-                        <PencilIcon className="w-4 h-4 text-gray-200" />
+                    <button className="flex flex-col items-center justify-center bg-overlay hover:bg-surface-hover px-2.5 py-1 rounded-lg">
+                        <PencilIcon className="w-4 h-4 text-fg-muted" />
                         <h3 className="font-extralight text-[0.6rem]">text</h3>
                     </button>
                 </div>
@@ -121,7 +121,7 @@ const AvatarModal: React.FC<AvatarModelProps> = ({ isOpen, onClose }) => {
                     {predefinedProfilePictures.map((avatar, index) => (
                         <button
                             key={index}
-                            className="w-16 h-16 rounded-full border-2 border-transparent hover:border-blue-500"
+                            className="w-16 h-16 rounded-full border-2 border-transparent hover:border-accent"
                             onClick={() => selectStockAvatar(avatar)}
                             disabled={loading}
                         >
@@ -141,7 +141,7 @@ const AvatarModal: React.FC<AvatarModelProps> = ({ isOpen, onClose }) => {
                             onClose(true);
                             setSelectedAvatar(null);
                         }}
-                        className="text-[0.8rem] font-semibold bg-darkGray-200 rounded-full px-3.5 py-0.5 text-white hover:bg-darkGray-300"
+                        className="text-[0.8rem] font-semibold bg-overlay rounded-full px-3.5 py-0.5 text-fg hover:bg-surface-hover"
                     >
                         Cancel
                     </button>
@@ -149,8 +149,8 @@ const AvatarModal: React.FC<AvatarModelProps> = ({ isOpen, onClose }) => {
                         onClick={() => saveProfilePicture()}
                         disabled={!selectedAvatar || loading}
                         className={`text-[0.8rem] font-semibold rounded-full px-5 py-0.5 ${!selectedAvatar
-                                ? 'bg-darkGray-200 text-gray-400 cursor-not-allowed'
-                                : 'bg-darkGray-200 text-white hover:bg-darkGray-300'
+                                ? 'bg-overlay text-fg-subtle cursor-not-allowed'
+                                : 'bg-overlay text-fg hover:bg-surface-hover'
                             }
                                 ${loading ? 'cursor-wait' : ''}`}
                     >

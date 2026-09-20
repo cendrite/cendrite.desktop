@@ -25,14 +25,14 @@ const ContactCard: React.FC<ContactCardProps> = ({ contact }) => {
     };
 
     const cardClasses = `flex items-center py-2 px-2 rounded-md cursor-pointer 
-    ${isSelected ? 'bg-darkGray-300' : 'hover:bg-darkGray-300'}`;
+    ${isSelected ? 'bg-surface-hover' : 'hover:bg-surface-hover'}`;
 
     return (
         <div className={cardClasses} onClick={onHandleClick}>
-            <div className="w-11 h-11 rounded-full flex items-center justify-center overflow-hidden bg-gray-100">
+            <div className="w-11 h-11 rounded-full flex items-center justify-center overflow-hidden bg-media">
                 <Avatar className="w-11 h-11" AvatarKey={contact.avatarKey} Username={contact.username} />
             </div>
-            <span className="text-white ml-3">{name}</span>
+            <span className="text-fg ml-3">{name}</span>
         </div>
     );
 };

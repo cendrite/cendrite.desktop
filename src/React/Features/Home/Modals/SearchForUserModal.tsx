@@ -80,14 +80,14 @@ const SearchForUserModal: React.FC<SearchForUserModalProps> = ({isOpen, onClose}
             <Modal
                 isOpen={isOpen}
                 onRequestClose={handleOnClose}
-                className="p-4 bg-darkGray-500 text-white rounded-xl shadow-lg w-[350px] h-[175px] max-auto relative"
-                overlayClassName="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center"
+                className="p-4 bg-surface text-fg rounded-xl shadow-lg w-[350px] h-[175px] max-auto relative"
+                overlayClassName="fixed inset-0 bg-scrim/80 flex justify-center items-center"
                 contentLabel="User Details">
                 <div className="relative h-full flex flex-col">
                     {/* Close Button */}
                     <button
                         onClick={handleOnClose}
-                        className="absolute right-0.5 text-gray-400 hover:text-gray-300 text-xs"
+                        className="absolute right-0.5 text-fg-subtle hover:text-fg-muted text-xs"
                     >
                         ✕
                     </button>
@@ -101,10 +101,10 @@ const SearchForUserModal: React.FC<SearchForUserModalProps> = ({isOpen, onClose}
                         />
 
                         {/* Loading Indicator */}
-                        {isLoading && <div className="mt-2 text-sm text-center text-gray-400">Loading...</div>}
+                        {isLoading && <div className="mt-2 text-sm text-center text-fg-subtle">Loading...</div>}
 
                         {/* Error Message */}
-                        {error && <div className="mt-2 text-sm text-center text-gray-400">{error}</div>}
+                        {error && <div className="mt-2 text-sm text-center text-fg-subtle">{error}</div>}
 
                         {/* Display Profile Card if a User is Found */}
                         {!isLoading && searchResult && (

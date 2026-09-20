@@ -6,7 +6,7 @@ interface SidePanelToggleProps {
 }
 
 const SidePanelToggle: React.FC<SidePanelToggleProps> = ({ onClick }) => (
-  <button onClick={onClick} className="p-2 text-white hover:bg-zinc-600 rounded-md">
+  <button onClick={onClick} className="p-2 text-fg hover:bg-surface-hover rounded-md">
     <Bars3Icon className="w-5 h-5" />
   </button>
 );

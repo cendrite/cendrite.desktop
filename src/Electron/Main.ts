@@ -1,6 +1,6 @@
 // noinspection ES6MissingAwait
 import 'reflect-metadata';
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, nativeTheme } from 'electron';
 import path from 'path';
 import { getPreloadPath, isDevelopment, isSpawnDevelopment } from './Utilities.js';
 import { LogoutManager } from './Application/Services/LogoutManager/LogoutManager.js';
@@ -9,6 +9,10 @@ import { buildContainer } from './Container.js';
 import { initializeDatabase } from './Infrastructure/Persistence/Context/DatabaseContext.js';
 import { Mediator } from './Application/Mediator/Mediator.js';
 import { ipcMain } from 'electron/main';
+import { AppearanceSettingsRepository } from './Infrastructure/Persistence/Repositories/AppearanceSettingsRepository.js';
+import { parseSettings } from './Application/Features/Settings/SettingsDocument.js';
+import { AppearanceSettings } from './Application/Features/Settings/AppearanceSettings.js';
+import { ResolvedTheme, Theme, WINDOW_BACKGROUND } from '../Shared/Theme.js';
 
 if (process.env.ELECTRON_INSTANCE_ID) {
     console.log(`ELECTRON_INSTANCE_ID: ${process.env.ELECTRON_INSTANCE_ID}`);
@@ -27,16 +31,29 @@ app.on('ready', async () => {
 
     const logoutManager = LogoutManager.getInstance();
 
+    const storedAppearance = parseSettings(
+        'appearance',
+        await new AppearanceSettingsRepository().get(),
+    ) as AppearanceSettings;
+    const initialTheme: Theme = storedAppearance.theme;
+    const resolvedTheme: ResolvedTheme =
+        initialTheme === 'system' ? (nativeTheme.shouldUseDarkColors ? 'dark' : 'light') : initialTheme;
+
     const mainWindow = new BrowserWindow({
         width: 1000,
         height: 800,
+        show: false,
+        backgroundColor: WINDOW_BACKGROUND[resolvedTheme],
 
         webPreferences: {
             nodeIntegration: false,
             preload: path.join(getPreloadPath()),
             contextIsolation: true,
+            additionalArguments: [`--initial-theme=${initialTheme}`],
         },
     });
+
+    mainWindow.once('ready-to-show', () => mainWindow.show());
     if (isDevelopment() || isSpawnDevelopment()) {
         const port = process.env.VITE_PORT || '8080';
         mainWindow.loadURL('http://localhost:' + port);

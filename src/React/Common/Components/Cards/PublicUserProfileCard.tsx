@@ -99,7 +99,7 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
             return (
                 <ToolTip content="Processing...">
                     <button className="p-1 flex items-center justify-center">
-                        <div className="animate-spin h-6 w-6 border-2 border-t-transparent border-white rounded-full" />
+                        <div className="animate-spin h-6 w-6 border-2 border-t-transparent border-fg rounded-full" />
                     </button>
                 </ToolTip>
             );
@@ -109,8 +109,8 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
         if (currentFriendshipStatus === FriendshipStatus.Accepted) {
             return (
                 <ToolTip content={'already friends'}>
-                    <button className="p-2 mr-2 bg-green-600 rounded-full cursor-default">
-                        <CheckIcon className="h-3 w-3 text-white" />
+                    <button className="p-2 mr-2 bg-success rounded-full cursor-default">
+                        <CheckIcon className="h-3 w-3 text-fg-on-accent" />
                     </button>
                 </ToolTip>
             );
@@ -125,17 +125,17 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
                     <ToolTip content="Decline friend request">
                         <button
                             onClick={onDeclineFriendRequest}
-                            className="p-2 bg-darkGray-300 hover:bg-darkGray-100 rounded-full cursor-pointer transition-colors"
+                            className="p-2 bg-surface-hover hover:bg-overlay-hover rounded-full cursor-pointer transition-colors"
                         >
-                            <XMarkIcon className="h-3 w-3 text-white" />
+                            <XMarkIcon className="h-3 w-3 text-fg" />
                         </button>
                     </ToolTip>
                     <ToolTip content="Accept friend request">
                         <button
                             onClick={onAcceptFriendRequest}
-                            className="p-2 bg-blue-500 hover:bg-blue-600 rounded-full cursor-pointer transition-colors"
+                            className="p-2 bg-accent hover:bg-accent-hover rounded-full cursor-pointer transition-colors"
                         >
-                            <CheckIcon className="h-3 w-3 text-white" />
+                            <CheckIcon className="h-3 w-3 text-fg-on-accent" />
                         </button>
                     </ToolTip>
                 </>
@@ -151,9 +151,9 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
                 <ToolTip content="Cancel friend request">
                     <button
                         onClick={onDeclineFriendRequest}
-                        className="p-2 bg-darkGray-300 hover:bg-darkGray-100 rounded-full cursor-pointer transition-colors"
+                        className="p-2 bg-surface-hover hover:bg-overlay-hover rounded-full cursor-pointer transition-colors"
                     >
-                        <XMarkIcon className="h-3 w-3 text-white" />
+                        <XMarkIcon className="h-3 w-3 text-fg" />
                     </button>
                 </ToolTip>
             );
@@ -162,21 +162,21 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
             <ToolTip content="Send friend request">
                 <button
                     onClick={onAddFriend}
-                    className="p-2 bg-darkGray-300 hover:bg-darkGray-100 rounded-full cursor-pointer transition-colors"
+                    className="p-2 bg-surface-hover hover:bg-overlay-hover rounded-full cursor-pointer transition-colors"
                 >
-                    <PlusIcon className="h-3 w-3 text-white" />
+                    <PlusIcon className="h-3 w-3 text-fg" />
                 </button>
             </ToolTip>
         );
     };
 
     return (
-        <div className="flex items-center justify-between p-3 bg-darkGray-600 rounded-lg shadow-lg w-full">
+        <div className="flex items-center justify-between p-3 bg-field rounded-lg shadow-lg w-full">
             <div className="flex items-center">
                 <Avatar className="w-11 h-11" AvatarKey={avatarKey ?? null} Username={username ?? '?'} />
                 <div className="ml-3">
-                    <div className="text-white font-semibold">{displayName || username}</div>
-                    <div className="text-gray-400 text-sm">@{friendTag}</div>
+                    <div className="text-fg font-semibold">{displayName || username}</div>
+                    <div className="text-fg-subtle text-sm">@{friendTag}</div>
                 </div>
             </div>
 

@@ -24,7 +24,7 @@ export const ContactsPane: React.FC<ContactsPaneProps> = ({ isSidePanelVisible, 
 
     return (
         <>
-            <div className="text-white p-2 relative">
+            <div className="text-fg p-2 relative">
                 {/* Title and Top Buttons */}
                 <div className="relative flex items-center justify-between mb-4">
                     {/* Left side (optional toggle) */}
@@ -41,7 +41,7 @@ export const ContactsPane: React.FC<ContactsPaneProps> = ({ isSidePanelVisible, 
                     <div className="flex items-center">
                         <div className="relative">
                             <button
-                                className={`p-2 rounded-md text-white hover:bg-darkGray-300 ${isRequestListSelected ? 'bg-darkGray-300' : ''
+                                className={`p-2 rounded-md text-fg hover:bg-surface-hover ${isRequestListSelected ? 'bg-surface-hover' : ''
                                     }`}
                                 onClick={() => setIsRequestListSelected(!isRequestListSelected)}
                             >
@@ -57,7 +57,7 @@ export const ContactsPane: React.FC<ContactsPaneProps> = ({ isSidePanelVisible, 
                         </div>
 
                         <button
-                            className="p-2 rounded-md text-white hover:bg-darkGray-300"
+                            className="p-2 rounded-md text-fg hover:bg-surface-hover"
                             onClick={() => setIsSearchUserModalOpen(true)}
                         >
                             <UserPlusIcon className="w-5 h-5" />

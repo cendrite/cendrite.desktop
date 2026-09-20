@@ -39,7 +39,7 @@ const MainContent: React.FC = () => {
             content = <div className="p-4" />;
     }
 
-    return <div className="flex-1 bg-zinc-950">{content}</div>;
+    return <div className="flex-1 bg-canvas">{content}</div>;
 };
 
 export default MainContent;

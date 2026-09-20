@@ -21,17 +21,17 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose }) => {
                 <Modal
                     isOpen={isOpen}
                     onRequestClose={onClose}
-                    className="p-4 bg-darkGray-500 text-white rounded-xl shadow-lg w-[350px] h-[550px] max-auto relative"
-                    overlayClassName="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center"
+                    className="p-4 bg-surface text-fg rounded-xl shadow-lg w-[350px] h-[550px] max-auto relative"
+                    overlayClassName="fixed inset-0 bg-scrim/80 flex justify-center items-center"
                     contentLabel="User Details"
                 >
                     <div className="relative h-full flex flex-col">
                         {/* Close Button */}
-                        <button onClick={onClose} className="absolute top-1 right-1 text-gray-400 hover:text-gray-300">
+                        <button onClick={onClose} className="absolute top-1 right-1 text-fg-subtle hover:text-fg-muted">
                             ✕
                         </button>
 
-                        <h3 className="absolute top-1 left-1 text-m text-gray-50">Profile</h3>
+                        <h3 className="absolute top-1 left-1 text-m text-fg">Profile</h3>
 
                         {/* Profile Section */}
                         <div className="flex flex-col items-center mt-8">
@@ -44,7 +44,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose }) => {
 
                             {/* Edit Button */}
                             <button
-                                className="text-sm text-blue-500 font-semibold hover:underline mt-2"
+                                className="text-sm text-accent font-semibold hover:underline mt-2"
                                 onClick={() => setIsProfilePictureModalOpen(true)}
                             >
                                 Change Picture
@@ -52,13 +52,13 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose }) => {
 
                             {/* User Details */}
                             <h2 className="text-lg font-semibold">{user?.displayName || user?.username}</h2>
-                            <p className="text-sm text-gray-400 mt-1">{user?.userTag}</p>
+                            <p className="text-sm text-fg-subtle mt-1">{user?.userTag}</p>
                         </div>
 
                         {/* About Section */}
                         <div className="mt-6">
-                            <h3 className="text-sm text-gray-500 mb-1">Om</h3>
-                            <p className="text-sm text-gray-400">
+                            <h3 className="text-sm text-fg-faint mb-1">Om</h3>
+                            <p className="text-sm text-fg-subtle">
                                 Din profil og ændringerne vil være synlige for folk, du skriver til, kontakter og
                                 grupper.
                             </p>
@@ -66,8 +66,8 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose }) => {
 
                         {/* Username Section */}
                         <div className="mt-6">
-                            <h3 className="text-sm text-gray-500 mb-1">Brugernavn</h3>
-                            <p className="text-sm text-gray-400">
+                            <h3 className="text-sm text-fg-faint mb-1">Brugernavn</h3>
+                            <p className="text-sm text-fg-subtle">
                                 Folk kan nu sende dig beskeder ved hjælp af dit valgfrie brugernavn, så du ikke behøver
                                 at dele dit telefonnummer.
                             </p>
@@ -77,7 +77,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose }) => {
                         <div className="flex justify-center items-center mt-auto">
                             <button
                                 onClick={() => setIsLogoutModalOpen(true)}
-                                className="text-[0.8rem] font-semibold bg-darkGray-200 rounded-full px-3.5 py-0.5 text-white hover:bg-darkGray-300"
+                                className="text-[0.8rem] font-semibold bg-overlay rounded-full px-3.5 py-0.5 text-fg hover:bg-surface-hover"
                             >
                                 Logout
                             </button>

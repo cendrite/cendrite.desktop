@@ -5,7 +5,13 @@ const electron = require('electron');
 // Keep in sync with the AppEventMap keys in Types.d.ts.
 const ALLOWED_EVENTS: AppEvent[] = ['changeEvent',  'eventMessage', 'connectionState'];
 
+const THEME_ARG = '--initial-theme=';
+const initialTheme = (process.argv.find((a) => a.startsWith(THEME_ARG))?.slice(THEME_ARG.length) ??
+    'dark') as Theme;
+
 electron.contextBridge.exposeInMainWorld('electron', {
+    initialTheme: initialTheme,
+
     sendRequestAsync: async <TResponse,>(request: MediatorRequest): Promise<TResponse> => {
         return await electron.ipcRenderer.invoke('mediator:send', request);
     },

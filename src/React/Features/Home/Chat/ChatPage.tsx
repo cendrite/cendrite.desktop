@@ -49,13 +49,13 @@ const ChatPage: React.FC<ChatPageProps> = ({ chatId, onClose }) => {
 
     return (
         <>
-            <div className={`absolute inset-0  text-white shadow-lg transition-transform duration-300 ${slideClass}`}>
+            <div className={`absolute inset-0  text-fg shadow-lg transition-transform duration-300 ${slideClass}`}>
                 <div className="flex flex-col h-full">
                     <ChatHeader chat={currentChat} onClose={() => handleSlide()} />
 
                     <MessageList key={currentChat.id} chat={currentChat} />
 
-                    <div className="sticky bottom-0 bg-zinc-950">
+                    <div className="sticky bottom-0 bg-canvas">
                         <ChatBar chat={currentChat} />
                     </div>
                 </div>

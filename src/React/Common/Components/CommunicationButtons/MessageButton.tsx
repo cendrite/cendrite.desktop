@@ -32,10 +32,10 @@ const MessageButton: React.FC<MessageButtonProps> = ({contact}) => {
 
     return (
         <button
-            className="flex flex-col items-center justify-center hover:bg-darkGray-300 px-1.5 py-1 rounded-lg"
+            className="flex flex-col items-center justify-center hover:bg-surface-hover px-1.5 py-1 rounded-lg"
             onClick={handleMessage}
         >
-            <ChatBubbleOvalLeftIcon className="w-5 h-5 text-gray-200"/>
+            <ChatBubbleOvalLeftIcon className="w-5 h-5 text-fg-muted"/>
             <h3 className="font-extralight text-[0.6rem]">Message</h3>
         </button>
     );

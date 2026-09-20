@@ -8,7 +8,7 @@ interface ChatSettingsMenu {
     chat: ChatViewModel;
 }
 
-const menuButtonClass = 'w-full text-left px-3 py-2 text-sm text-gray-200 hover:bg-darkGray-300 rounded-md';
+const menuButtonClass = 'w-full text-left px-3 py-2 text-sm text-fg-muted hover:bg-surface-hover rounded-md';
 
 const ChatSettingsMenu: React.FC<ChatSettingsMenu> = ({ chat }) => {
     const { deleteChat } = useChatSettings();
@@ -19,7 +19,7 @@ const ChatSettingsMenu: React.FC<ChatSettingsMenu> = ({ chat }) => {
                 <>
                     {open && (
                         <div
-                            className="fixed inset-0 z-[900] bg-black/20 backdrop-blur-sm"
+                            className="fixed inset-0 z-[900] bg-scrim/20 backdrop-blur-sm"
                             onClick={close}
                             aria-hidden="true"
                         />
@@ -27,10 +27,10 @@ const ChatSettingsMenu: React.FC<ChatSettingsMenu> = ({ chat }) => {
 
                     <div className="relative z-[1100]">
                         <MenuButton
-                            className="flex items-center justify-center hover:bg-darkGray-300 rounded-lg p-2"
+                            className="flex items-center justify-center hover:bg-surface-hover rounded-lg p-2"
                             aria-label="Chat settings"
                         >
-                            <EllipsisHorizontalIcon className="w-5 h-5 text-gray-200" />
+                            <EllipsisHorizontalIcon className="w-5 h-5 text-fg-muted" />
                         </MenuButton>
 
                         <Transition
@@ -42,11 +42,11 @@ const ChatSettingsMenu: React.FC<ChatSettingsMenu> = ({ chat }) => {
                             leaveFrom="transform opacity-100 scale-100"
                             leaveTo="transform opacity-0 scale-95"
                         >
-                            <MenuItems className="absolute right-0 mt-2 w-56 origin-top-right rounded-xl bg-darkGray-200 shadow-lg ring-1 ring-black/20 focus:outline-none p-2 z-[1100]">
+                            <MenuItems className="absolute right-0 mt-2 w-56 origin-top-right rounded-xl bg-overlay shadow-lg ring-1 ring-line focus:outline-none p-2 z-[1100]">
                                 <MenuItem>
                                     {({ focus }) => (
                                         <button
-                                            className={`${menuButtonClass} ${focus ? 'bg-darkGray-300' : ''}`}
+                                            className={`${menuButtonClass} ${focus ? 'bg-surface-hover' : ''}`}
                                             onClick={() => {
                                                 close();
                                                 console.log('Archive', chat.id);
@@ -60,7 +60,7 @@ const ChatSettingsMenu: React.FC<ChatSettingsMenu> = ({ chat }) => {
                                 <MenuItem>
                                     {({ focus }) => (
                                         <button
-                                            className={`${menuButtonClass} ${focus ? 'bg-darkGray-300' : ''}`}
+                                            className={`${menuButtonClass} ${focus ? 'bg-surface-hover' : ''}`}
                                             onClick={() => {
                                                 close();
                                                 console.log('Mute', chat.id);
@@ -71,12 +71,12 @@ const ChatSettingsMenu: React.FC<ChatSettingsMenu> = ({ chat }) => {
                                     )}
                                 </MenuItem>
 
-                                <div className="my-1 h-px bg-white/10" />
+                                <div className="my-1 h-px bg-line" />
 
                                 <MenuItem>
                                     {({ focus }) => (
                                         <button
-                                            className={`${menuButtonClass} ${focus ? 'bg-red-500/20' : ''} text-red-300 hover:text-red-200`}
+                                            className={`${menuButtonClass} ${focus ? 'bg-danger/20' : ''} text-danger-fg hover:text-danger-fg-hover`}
                                             onClick={async () => {
                                                 close();
                                                 await deleteChat(chat);

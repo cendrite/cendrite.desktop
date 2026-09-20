@@ -55,7 +55,7 @@ const VerifyLoginPage: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col justify-center items-center h-screen bg-zinc-950 text-white">
+        <div className="flex flex-col justify-center items-center h-screen bg-canvas text-fg">
             <div className="flex flex-col items-center w-full max-w-xs">
                 <Formik
                     initialValues={{ verificationCode: '' }} // Single string to handle all 6 characters
@@ -65,7 +65,7 @@ const VerifyLoginPage: React.FC = () => {
                     {({ values, errors, touched, handleChange, isSubmitting }) => (
                         <Form className="flex flex-col items-center w-full">
                             <h1 className="text-2xl font-bold text-center underline">verify device</h1>
-                            <h2 className="text font-semibold mb-12 text-center text-gray-200">
+                            <h2 className="text font-semibold mb-12 text-center text-fg-muted">
                                 This is a new device. Please verify your login, by entering the verification code sent
                                 to your email.
                             </h2>
@@ -86,7 +86,7 @@ const VerifyLoginPage: React.FC = () => {
                                     placeholder="Enter verification code"
                                     value={values.verificationCode}
                                     onChange={handleChange}
-                                    className="w-80 h-10 bg-zinc-800 text-white border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-white focus:border-gray-700 text-center"
+                                    className="w-80 h-10 bg-field text-fg border border-line-strong rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-fg focus:border-line-strong text-center"
                                     maxLength={6}
                                     onFocus={(e) => (e.target.placeholder = '')}
                                     onBlur={(e) =>
