@@ -7,6 +7,7 @@ import { HomePageActionType } from '../../../Context/HomePage/HomePageReducer.ts
 import { Contact } from '../../../Models/Contact.ts';
 import { useContacts } from '../../../Context/Contacts/ContactContext.tsx';
 import { ContactActionType } from '../../../Context/Contacts/ContactReducer.ts';
+import Button from '../../../Common/Components/Button/Button.tsx';
 
 interface DeleteFriendModalProps {
     contact: Contact;
@@ -44,18 +45,10 @@ const DeleteFriendModal: React.FC<DeleteFriendModalProps> = ({ isOpen, onClose, 
                     </div>
 
                     <div className="mt-8 flex justify-center space-x-4">
-                        <button
-                            onClick={onClose}
-                            className="text-[0.8rem] font-semibold bg-overlay rounded-full px-3.5 py-0.5 text-fg hover:bg-surface-hover"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={handleDelete}
-                            className="text-[0.8rem] font-semibold bg-danger rounded-full px-3.5 py-0.5 text-fg-on-accent hover:bg-danger-hover"
-                        >
+                        <Button onClick={onClose}>Cancel</Button>
+                        <Button variant="danger" onClick={handleDelete}>
                             Delete
-                        </button>
+                        </Button>
                     </div>
                 </DialogPanel>
             </div>

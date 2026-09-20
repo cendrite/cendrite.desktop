@@ -1,6 +1,7 @@
 import React from 'react';
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 import { useNavigate } from 'react-router-dom';
+import Button from '../../../Common/Components/Button/Button.tsx';
 
 interface LogoutModalProps {
     isOpen: boolean;
@@ -28,18 +29,10 @@ const LogoutModal: React.FC<LogoutModalProps> = ({ isOpen, onClose }) => {
                     </div>
 
                     <div className="mt-8 flex justify-center space-x-4">
-                        <button
-                            onClick={onClose}
-                            className="text-[0.8rem] font-semibold bg-overlay rounded-full px-3.5 py-0.5 text-fg hover:bg-surface-hover"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={handleLogout}
-                            className="text-[0.8rem] font-semibold bg-danger rounded-full px-3.5 py-0.5 text-fg-on-accent hover:bg-danger-hover"
-                        >
+                        <Button onClick={onClose}>Cancel</Button>
+                        <Button variant="danger" onClick={handleLogout}>
                             Logout
-                        </button>
+                        </Button>
                     </div>
                 </DialogPanel>
             </div>

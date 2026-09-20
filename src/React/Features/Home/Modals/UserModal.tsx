@@ -5,6 +5,7 @@ import LogoutModal from './LogoutModal.tsx';
 import { useUser } from '../../../Context/User/UserContext.tsx';
 import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
 import AvatarModal from './AvatarModal.tsx';
+import Button from '../../../Common/Components/Button/Button.tsx';
 
 interface UserModalProps {
     isOpen: boolean;
@@ -72,12 +73,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose }) => {
                         </div>
 
                         <div className="mt-auto flex items-center justify-center">
-                            <button
-                                onClick={() => setIsLogoutModalOpen(true)}
-                                className="text-[0.8rem] font-semibold bg-overlay rounded-full px-3.5 py-0.5 text-fg hover:bg-surface-hover"
-                            >
-                                Logout
-                            </button>
+                            <Button onClick={() => setIsLogoutModalOpen(true)}>Logout</Button>
                         </div>
                     </DialogPanel>
                 </div>

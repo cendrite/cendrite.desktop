@@ -10,6 +10,7 @@ import { MediaService } from '../../../Common/Services/MediaService.ts';
 import { MediaItem } from '../Chat/MediaBox.tsx';
 import { Result } from '../../../../Shared/Result/Result.ts';
 import { UpdateAvatarCommand } from '../../../../Electron/Application/Features/User/Contracts/UpdateAvatar.ts';
+import Button from '../../../Common/Components/Button/Button.tsx';
 
 interface AvatarModelProps {
     isOpen: boolean;
@@ -141,23 +142,15 @@ const AvatarModal: React.FC<AvatarModelProps> = ({ isOpen, onClose }) => {
                     </div>
 
                     <div className="mt-auto flex justify-center space-x-4">
-                        <button
-                            onClick={close}
-                            className="text-[0.8rem] font-semibold bg-overlay rounded-full px-3.5 py-0.5 text-fg hover:bg-surface-hover"
-                        >
-                            Cancel
-                        </button>
-                        <button
+                        <Button onClick={close}>Cancel</Button>
+                        <Button
+                            variant="primary"
                             onClick={() => saveProfilePicture()}
                             disabled={!selectedAvatar || loading}
-                            className={`text-[0.8rem] font-semibold rounded-full px-5 py-0.5 ${
-                                !selectedAvatar
-                                    ? 'bg-overlay text-fg-subtle cursor-not-allowed'
-                                    : 'bg-accent text-fg-on-accent hover:bg-accent-hover'
-                            } ${loading ? 'cursor-wait' : ''}`}
+                            className={loading ? 'cursor-wait' : undefined}
                         >
                             Save
-                        </button>
+                        </Button>
                     </div>
                 </DialogPanel>
             </div>
