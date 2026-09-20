@@ -16,10 +16,10 @@ const VoiceCallButton: React.FC<VoiceCallButtonProps> = ({contact, withText, cla
     return (
         <button
             onClick={handleVoiceCall}
-            className={["flex items-center justify-center hover:bg-darkGray-300 rounded-lg",
+            className={["flex items-center justify-center hover:bg-surface-hover rounded-lg",
                 withText ? "flex-col px-2.5 py-1" : "p-2", className].join(" ")}
         >
-            <PhoneIcon className="w-5 h-5 text-gray-200"/>
+            <PhoneIcon className="w-5 h-5 text-fg-muted"/>
             {withText && (
                 <span className="font-extralight text-[0.6rem] leading-none mt-0.5">
           Call

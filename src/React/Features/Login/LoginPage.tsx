@@ -41,7 +41,7 @@ const LoginPage: React.FC = () => {
         ) : null;
 
     return (
-        <div className="flex flex-col justify-center items-center h-screen bg-zinc-950 text-white">
+        <div className="flex flex-col justify-center items-center h-screen bg-canvas text-fg">
             <div className="flex flex-col items-center w-full max-w-xs">
                 <Formik
                     initialValues={InitialFormValues} // Match the LoginFormValues shape
@@ -90,7 +90,7 @@ const LoginPage: React.FC = () => {
                     <p>
                         Don't have an account?{' '}
                         <span
-                            className="text-blue-400 cursor-pointer hover:underline"
+                            className="text-accent cursor-pointer hover:underline"
                             onClick={() => navigate('/register')}
                         >
                             Sign up here

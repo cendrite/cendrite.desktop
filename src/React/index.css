@@ -17,6 +17,8 @@
         --color-overlay-hover: 98 98 98;
         --color-field: 39 39 42;
         --color-scrim: 0 0 0;
+        --color-scrollbar: 81 81 81;
+        --color-scrollbar-hover: 98 98 98;
 
         --color-line: 63 63 70;
         --color-line-strong: 75 85 99;
@@ -50,28 +52,30 @@
 
     [data-theme='light'] {
         --color-canvas: 255 255 255;
-        --color-canvas-hover: 250 250 250;
+        --color-canvas-hover: 244 244 245;
         --color-surface: 244 244 245;
         --color-surface-hover: 228 228 231;
         --color-overlay: 255 255 255;
         --color-overlay-hover: 244 244 245;
         --color-field: 255 255 255;
-        --color-scrim: 0 0 0;
+        --color-scrim: 113 113 122;
+        --color-scrollbar: 161 161 170;
+        --color-scrollbar-hover: 113 113 122;
 
-        --color-line: 228 228 231;
-        --color-line-strong: 212 212 216;
+        --color-line: 212 212 216;
+        --color-line-strong: 161 161 170;
 
         --color-fg: 24 24 27;
         --color-fg-muted: 63 63 70;
-        --color-fg-subtle: 113 113 122;
-        --color-fg-faint: 161 161 170;
+        --color-fg-subtle: 82 82 91;
+        --color-fg-faint: 113 113 122;
         --color-fg-inverted: 250 250 250;
         --color-fg-on-accent: 255 255 255;
 
         --color-inverted: 39 39 42;
         --color-inverted-hover: 24 24 27;
-        --color-media: 228 228 231;
-        --color-bubble-in: 244 244 245;
+        --color-media: 212 212 216;
+        --color-bubble-in: 228 228 231;
         --color-bubble-in-fg: 24 24 27;
 
         --color-accent: 37 99 235;
@@ -84,8 +88,8 @@
         --color-danger-fg: 185 28 28;
         --color-danger-fg-hover: 153 27 27;
 
-        --color-success: 22 163 74;
-        --color-warning: 202 138 4;
+        --color-success: 21 128 61;
+        --color-warning: 161 98 7;
     }
 
     html,
@@ -106,11 +110,11 @@
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-    background: rgb(var(--color-overlay));
+    background: rgb(var(--color-scrollbar));
     border-radius: 5px;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-    background: rgb(var(--color-overlay-hover));
+    background: rgb(var(--color-scrollbar-hover));
 }

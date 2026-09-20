@@ -25,7 +25,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onHide, setPaneType, paneT
 
     return (
         <>
-            <div className="bg-darkGray-500 text-white w-[60px] h-screen flex flex-col justify-between py-2 border-r border-zinc-600">
+            <div className="bg-surface text-fg w-[60px] h-screen flex flex-col justify-between py-2 border-r border-line">
                 {/* Top Icons: SidePanelToggle, Chat, Contacts */}
                 <div className="flex flex-col items-center space-y-4">
                     {/* SidePanelToggle */}
@@ -35,9 +35,9 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onHide, setPaneType, paneT
                     <div className="relative">
                         <PanelButton
                             onClick={() => setPaneType('chats')}
-                            icon={<ChatBubbleOvalLeftIcon className="w-5 h-5 cursor-pointer hover:text-gray-300" />}
+                            icon={<ChatBubbleOvalLeftIcon className="w-5 h-5 cursor-pointer hover:text-fg-muted" />}
                             activeIcon={
-                                <ChatBubbleOvalLeftIconFilled className="w-5 h-5 cursor-pointer text-gray-300" />
+                                <ChatBubbleOvalLeftIconFilled className="w-5 h-5 cursor-pointer text-fg-muted" />
                             }
                             isActive={paneType === 'chats'}
                         />
@@ -49,7 +49,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onHide, setPaneType, paneT
                         <PanelButton
                             onClick={() => setPaneType('contacts')}
                             icon={<UserGroupIcon className="w-5 h-5" />}
-                            activeIcon={<UserGroupIconFilled className="w-5 h-5 text-gray-300" />}
+                            activeIcon={<UserGroupIconFilled className="w-5 h-5 text-fg-muted" />}
                             isActive={paneType === 'contacts'}
                         />
                         {paneType !== 'contacts' && <NotificationBadge section="contacts" />}
@@ -79,7 +79,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onHide, setPaneType, paneT
                     <PanelButton
                         onClick={() => setSettingsModalOpen(true)}
                         icon={<Cog6ToothIcon className="w-5 h-5" />}
-                        activeIcon={<Cog6ToothIcon className="w-5 h-5 text-gray-300" />}
+                        activeIcon={<Cog6ToothIcon className="w-5 h-5 text-fg-muted" />}
                         isActive={isSettingsModalOpen}
                     />
                 </div>

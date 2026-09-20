@@ -34,14 +34,14 @@ const DeleteFriendModal: React.FC<DeleteFriendModalProps> = ({isOpen, onClose, c
     return(
         <Modal
             isOpen = {isOpen}
-            className= "px-2 py-0.5 bg-darkGray-500 text-white rounded-xl shadow-lg w-[350px] h-[200px] max-auto relative"
-            overlayClassName="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center">
+            className= "px-2 py-0.5 bg-surface text-fg rounded-xl shadow-lg w-[350px] h-[200px] max-auto relative"
+            overlayClassName="fixed inset-0 bg-scrim/80 flex justify-center items-center">
             <div className="relative h-full flex flex-col">
 
                 {/* Confirmation Text */}
                 <div className="text-center mt-10">
                     <h2 className="text-lg font-semibold">Delete friend</h2>
-                    <p className="text-sm text-gray-400 mt-2">
+                    <p className="text-sm text-fg-subtle mt-2">
                         Deleting this user will remove all chat history between you and this user.
                     </p>
                 </div>
@@ -50,13 +50,13 @@ const DeleteFriendModal: React.FC<DeleteFriendModalProps> = ({isOpen, onClose, c
                 <div className="flex justify-center mt-8 space-x-4">
                     <button
                         onClick={()=> onClose()}
-                        className="text-[0.8rem] font-semibold bg-darkGray-200 rounded-full px-3.5 py-0.5 text-white hover:bg-darkGray-300"
+                        className="text-[0.8rem] font-semibold bg-overlay rounded-full px-3.5 py-0.5 text-fg hover:bg-surface-hover"
                     >
                         Cancel
                     </button>
                     <button
                         onClick={()=> handleDelete()}
-                        className="text-[0.8rem] font-semibold bg-red-600 rounded-full px-3.5 py-0.5 text-white hover:bg-red-800"
+                        className="text-[0.8rem] font-semibold bg-danger rounded-full px-3.5 py-0.5 text-fg-on-accent hover:bg-danger-hover"
                     >
                         Delete
                     </button>

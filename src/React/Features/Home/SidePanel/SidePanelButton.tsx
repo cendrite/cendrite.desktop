@@ -8,7 +8,7 @@ interface PanelButtonProps {
 }
 
 const PanelButton: React.FC<PanelButtonProps> = ({ onClick, icon, activeIcon, isActive }) => (
-  <button onClick={onClick} className={`p-2 rounded-md text-white hover:bg-zinc-600 ${isActive ? "bg-zinc-700" : ""}`}>
+  <button onClick={onClick} className={`p-2 rounded-md text-fg hover:bg-surface-hover ${isActive ? "bg-surface-hover" : ""}`}>
     {isActive ? activeIcon : icon}
   </button>
 );

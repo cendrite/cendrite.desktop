@@ -40,7 +40,7 @@ const RegisterPage: React.FC = () => {
         ) : null;
 
     return (
-        <div className="flex flex-col justify-center items-center h-screen bg-zinc-950 text-white">
+        <div className="flex flex-col justify-center items-center h-screen bg-canvas text-fg">
             <div className="flex flex-col items-center w-full max-w-xs">
                 <Formik
                     initialValues={initialRegisterValues}
@@ -114,7 +114,7 @@ const RegisterPage: React.FC = () => {
                 <div className="mt-4">
                     <p>
                         Already have an account?{" "}
-                        <span className="text-blue-400 cursor-pointer hover:underline"
+                        <span className="text-accent cursor-pointer hover:underline"
                               onClick={() => navigate("/login")}>
               login
             </span>

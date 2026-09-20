@@ -129,13 +129,13 @@ function useChatScroll(chat: ChatViewModel): ChatScroll {
 const JumpToLatestButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
     <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 h-6 w-6">
         {/* Pulsating ring behind the button */}
-        <span className="absolute inset-0 rounded-full bg-gray-500/60 animate-ping [animation-duration:2s]" />
+        <span className="absolute inset-0 rounded-full bg-fg-subtle/60 animate-ping [animation-duration:2s]" />
         <button
             type="button"
             onClick={onClick}
             aria-label="Scroll to latest messages"
             className="relative flex h-6 w-6 items-center justify-center rounded-full
-                bg-gray-700/90 text-white shadow-lg backdrop-blur transition hover:bg-gray-600"
+                bg-overlay/90 text-fg shadow-lg backdrop-blur transition hover:bg-overlay-hover"
         >
             <IconChevronDown className="h-3 w-3" stroke={2.5} />
         </button>

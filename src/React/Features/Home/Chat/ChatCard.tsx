@@ -29,11 +29,11 @@ export const ChatCard: React.FC<ChatCardProps> = ({ chat }) => {
     };
 
     const cardClasses = `flex items-center py-2 px-2 rounded-md cursor-pointer 
-    ${isSelected ? 'bg-darkGray-300' : 'hover:bg-darkGray-300'}`;
+    ${isSelected ? 'bg-surface-hover' : 'hover:bg-surface-hover'}`;
 
     return (
         <div className={cardClasses} onClick={onHandleClick}>
-            <div className="w-11 h-11 rounded-full flex items-center justify-center overflow-hidden bg-gray-100">
+            <div className="w-11 h-11 rounded-full flex items-center justify-center overflow-hidden bg-media">
                     <Avatar
                         className="w-11 h-11"
                         AvatarKey={chat.chatMembers[0]?.contact.avatarKey}
@@ -42,16 +42,16 @@ export const ChatCard: React.FC<ChatCardProps> = ({ chat }) => {
             </div>
             <div className="ml-3 flex flex-col overflow-hidden">
                 <div className="flex items-center">
-                    <span className="text-sm text-white font-medium truncate max-w-[180px]">{name}</span>
+                    <span className="text-sm text-fg font-medium truncate max-w-[180px]">{name}</span>
                     {unreadMessages.length> 0 && !isSelected && (
-                        <span className="ml-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                        <span className="ml-2 bg-danger text-fg-on-accent text-xs px-2 py-0.5 rounded-full">
                             {unreadMessages.length}
                         </span>
                     )}
                 </div>
                 <span
                     className={`text-xs truncate max-w-[220px] mt-0.5 
-                ${chat.getUnreadMessagesCount(user!.connectionId) > 0 ? 'text-white' : 'text-gray-400'}
+                ${chat.getUnreadMessagesCount(user!.connectionId) > 0 ? 'text-fg' : 'text-fg-subtle'}
                 ${lastMessage?.text ? 'font-normal' : 'italic'}`}
                 >
                     {lastMessage?.text ?? 'draft..'}
