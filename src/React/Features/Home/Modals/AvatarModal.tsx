@@ -1,6 +1,6 @@
-﻿import React, { useState } from 'react';
-import Modal from 'react-modal';
-import { PencilIcon, PhotoIcon } from '@heroicons/react/24/outline';
+import React, { useState } from 'react';
+import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
+import { PencilIcon, PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { MediaType } from '../../../../Electron/Application/Features/Files/Contracts/GetMedia.ts';
 import { useUser } from '../../../Context/User/UserContext.tsx';
 import { UserActionType } from '../../../Context/User/UserReducer.ts';
@@ -13,7 +13,7 @@ import { UpdateAvatarCommand } from '../../../../Electron/Application/Features/U
 
 interface AvatarModelProps {
     isOpen: boolean;
-    onClose: (shouldReopenParent: boolean) => void;
+    onClose: () => void;
 }
 
 const updateAvatar = (avatar: Media): Promise<Result<string>> =>
@@ -36,13 +36,18 @@ const AvatarModal: React.FC<AvatarModelProps> = ({ isOpen, onClose }) => {
     const avatarModules = import.meta.glob('../../../Assets/StockProfilePictures/*.png', { eager: true });
     const predefinedProfilePictures = Object.values(avatarModules).map((mod: any) => mod.default);
 
+    const close = () => {
+        setSelectedAvatar(null);
+        onClose();
+    };
+
     const saveProfilePicture = async () => {
         try {
             setLoading(true);
             const result = await updateAvatar(selectedAvatar!);
             if (result.success) {
                 userDispatch({ type: UserActionType.UpdateAvatar, payload: { AvatarKey: result.data } });
-                onClose(true);
+                close();
             } else {
                 console.error(result.errorMessage);
             }
@@ -67,98 +72,96 @@ const AvatarModal: React.FC<AvatarModelProps> = ({ isOpen, onClose }) => {
     };
 
     return (
-        <Modal
-            isOpen={isOpen}
-            onRequestClose={() => onClose(false)}
-            shouldCloseOnEsc={!loading}
-            shouldCloseOnOverlayClick={!loading}
-            className="p-4 bg-surface text-fg rounded-xl shadow-lg w-[350px] h-[550px] max-auto relative"
-            overlayClassName="fixed inset-0 bg-scrim/80 flex justify-center items-center"
-            contentLabel="User Details"
+        <Dialog
+            open={isOpen}
+            onClose={() => {
+                if (!loading) {
+                    close();
+                }
+            }}
+            className="relative z-[1010]"
         >
-            <div className="relative h-full flex flex-col">
-                <button
-                    onClick={() => onClose(true)}
-                    className="absolute top-1 right-1 text-fg-subtle hover:text-fg-muted text-xs"
-                >
-                    ✕
-                </button>
+            <DialogBackdrop className="fixed inset-0 bg-scrim/80" />
 
-                <h3 className="absolute top-1 left-1 text-m text-fg">Avatar</h3>
-
-                <div className="flex flex-col items-center mt-8 mb-4">
-                    {/* Show Selected Profile Picture */}
-                    {selectedAvatar ? (
-                        <MediaItem media={selectedAvatar} className="w-20 h-20 rounded-full object-cover" />
-                    ) : (
-                        <Avatar
-                            className="w-20 h-20"
-                            AvatarKey={user?.avatarKey ?? null}
-                            Username={user?.username ?? '?'}
-                        />
-                    )}
-                </div>
-
-                <div className="flex justify-center items-center space-x-4 mb-8">
-                    {/* Upload Image Option */}
+            <div className="fixed inset-0 flex items-center justify-center p-4">
+                <DialogPanel className="relative flex h-[550px] w-[350px] flex-col rounded-xl bg-surface p-4 text-fg shadow-lg">
                     <button
-                        className="flex flex-col items-center justify-center bg-overlay hover:bg-surface-hover px-1.5 py-1 rounded-lg"
-                        onClick={() => uploadProfilePicture()}
-                        disabled={loading}
+                        onClick={close}
+                        aria-label="Close"
+                        className="absolute right-3 top-3 text-fg-subtle hover:text-fg-muted"
                     >
-                        <PhotoIcon className="w-4 h-4 text-fg-muted" />
-                        <h3 className="font-extralight text-[0.6rem]">image</h3>
+                        <XMarkIcon className="h-4 w-4" />
                     </button>
 
-                    {/* Text (Initials) Option */}
-                    <button className="flex flex-col items-center justify-center bg-overlay hover:bg-surface-hover px-2.5 py-1 rounded-lg">
-                        <PencilIcon className="w-4 h-4 text-fg-muted" />
-                        <h3 className="font-extralight text-[0.6rem]">text</h3>
-                    </button>
-                </div>
+                    <DialogTitle className="text-sm text-fg">Avatar</DialogTitle>
 
-                <div className="grid grid-cols-3 justify-center items-center gap-6 mx-auto">
-                    {predefinedProfilePictures.map((avatar, index) => (
+                    <div className="mt-6 mb-4 flex flex-col items-center">
+                        {selectedAvatar ? (
+                            <MediaItem media={selectedAvatar} className="w-20 h-20 rounded-full object-cover" />
+                        ) : (
+                            <Avatar
+                                className="w-20 h-20"
+                                AvatarKey={user?.avatarKey ?? null}
+                                Username={user?.username ?? '?'}
+                            />
+                        )}
+                    </div>
+
+                    <div className="mb-8 flex items-center justify-center space-x-4">
                         <button
-                            key={index}
-                            className="w-16 h-16 rounded-full border-2 border-transparent hover:border-accent"
-                            onClick={() => selectStockAvatar(avatar)}
+                            className="flex flex-col items-center justify-center bg-overlay hover:bg-surface-hover px-1.5 py-1 rounded-lg"
+                            onClick={() => uploadProfilePicture()}
                             disabled={loading}
                         >
-                            <img
-                                src={avatar}
-                                alt={`Avatar ${index + 1}`}
-                                className="w-full h-full object-cover rounded-full"
-                            />
+                            <PhotoIcon className="w-4 h-4 text-fg-muted" />
+                            <h3 className="font-extralight text-[0.6rem]">image</h3>
                         </button>
-                    ))}
-                </div>
 
-                {/* Buttons */}
-                <div className="flex justify-center mt-8 space-x-4">
-                    <button
-                        onClick={() => {
-                            onClose(true);
-                            setSelectedAvatar(null);
-                        }}
-                        className="text-[0.8rem] font-semibold bg-overlay rounded-full px-3.5 py-0.5 text-fg hover:bg-surface-hover"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        onClick={() => saveProfilePicture()}
-                        disabled={!selectedAvatar || loading}
-                        className={`text-[0.8rem] font-semibold rounded-full px-5 py-0.5 ${!selectedAvatar
-                                ? 'bg-overlay text-fg-subtle cursor-not-allowed'
-                                : 'bg-overlay text-fg hover:bg-surface-hover'
-                            }
-                                ${loading ? 'cursor-wait' : ''}`}
-                    >
-                        Save
-                    </button>
-                </div>
+                        <button className="flex flex-col items-center justify-center bg-overlay hover:bg-surface-hover px-2.5 py-1 rounded-lg">
+                            <PencilIcon className="w-4 h-4 text-fg-muted" />
+                            <h3 className="font-extralight text-[0.6rem]">text</h3>
+                        </button>
+                    </div>
+
+                    <div className="mx-auto grid grid-cols-3 items-center justify-center gap-6">
+                        {predefinedProfilePictures.map((avatar, index) => (
+                            <button
+                                key={index}
+                                className="w-16 h-16 rounded-full border-2 border-transparent hover:border-accent"
+                                onClick={() => selectStockAvatar(avatar)}
+                                disabled={loading}
+                            >
+                                <img
+                                    src={avatar}
+                                    alt={`Avatar ${index + 1}`}
+                                    className="w-full h-full object-cover rounded-full"
+                                />
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="mt-auto flex justify-center space-x-4">
+                        <button
+                            onClick={close}
+                            className="text-[0.8rem] font-semibold bg-overlay rounded-full px-3.5 py-0.5 text-fg hover:bg-surface-hover"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={() => saveProfilePicture()}
+                            disabled={!selectedAvatar || loading}
+                            className={`text-[0.8rem] font-semibold rounded-full px-5 py-0.5 ${
+                                !selectedAvatar
+                                    ? 'bg-overlay text-fg-subtle cursor-not-allowed'
+                                    : 'bg-accent text-fg-on-accent hover:bg-accent-hover'
+                            } ${loading ? 'cursor-wait' : ''}`}
+                        >
+                            Save
+                        </button>
+                    </div>
+                </DialogPanel>
             </div>
-        </Modal>
+        </Dialog>
     );
 };
 
