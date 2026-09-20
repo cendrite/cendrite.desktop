@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
-import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
+import { Dialog, DialogBackdrop, DialogPanel } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import SettingsNav from './SettingsNav.tsx';
+import { SettingsSection, settingsSections } from './SettingsSection.ts';
+import AccountSection from './Sections/AccountSection.tsx';
+import AppearanceSection from './Sections/AppearanceSection.tsx';
+import NotificationsSection from './Sections/NotificationsSection.tsx';
+import PrivacySection from './Sections/PrivacySection.tsx';
 
-type SettingsSection = 'account' | 'appearance' | 'notifications' | 'privacy';
-
-const sections: { id: SettingsSection; label: string }[] = [
-    { id: 'account', label: 'Account' },
-    { id: 'appearance', label: 'Appearance' },
-    { id: 'notifications', label: 'Notifications' },
-    { id: 'privacy', label: 'Privacy' },
-];
+const sectionComponents: Record<SettingsSection, React.FC> = {
+    account: AccountSection,
+    appearance: AppearanceSection,
+    notifications: NotificationsSection,
+    privacy: PrivacySection,
+};
 
 interface SettingsModalProps {
     isOpen: boolean;
@@ -18,6 +22,7 @@ interface SettingsModalProps {
 
 const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     const [active, setActive] = useState<SettingsSection>('account');
+    const ActiveSection = sectionComponents[active];
 
     return (
         <Dialog open={isOpen} onClose={onClose} className="relative z-[1000]">
@@ -25,26 +30,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
 
             <div className="fixed inset-0 flex items-center justify-center p-4">
                 <DialogPanel className="flex w-[900px] h-[620px] max-w-[92vw] max-h-[88vh] overflow-hidden rounded-xl bg-darkGray-500 text-white shadow-lg">
-                    <nav className="w-[200px] shrink-0 border-r border-zinc-600 p-3">
-                        <DialogTitle className="px-3 py-2 text-sm text-gray-500">Settings</DialogTitle>
-
-                        <ul className="mt-1 space-y-1">
-                            {sections.map((section) => (
-                                <li key={section.id}>
-                                    <button
-                                        onClick={() => setActive(section.id)}
-                                        className={`w-full rounded-md px-3 py-2 text-left text-sm ${
-                                            active === section.id
-                                                ? 'bg-darkGray-300 text-white'
-                                                : 'text-gray-400 hover:bg-darkGray-300 hover:text-gray-200'
-                                        }`}
-                                    >
-                                        {section.label}
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    </nav>
+                    <SettingsNav active={active} onSelect={setActive} />
 
                     <div className="relative flex-1 overflow-y-auto p-6">
                         <button
@@ -55,9 +41,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                             <XMarkIcon className="h-5 w-5" />
                         </button>
 
-                        <h2 className="text-lg font-semibold">
-                            {sections.find((s) => s.id === active)?.label}
+                        <h2 className="mb-4 text-lg font-semibold">
+                            {settingsSections.find((s) => s.id === active)?.label}
                         </h2>
+
+                        <ActiveSection />
                     </div>
                 </DialogPanel>
             </div>
