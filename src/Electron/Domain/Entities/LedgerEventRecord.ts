@@ -1,4 +1,4 @@
-import { LedgerEventStatus } from './LedgerEventStatus.js';
+import { LedgerEventStatus } from "../Enums/LedgerEventStatus.js";
 
 export class LedgerEventRecord {
     groupId: string;

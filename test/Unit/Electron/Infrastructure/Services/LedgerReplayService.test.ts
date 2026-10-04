@@ -13,9 +13,9 @@ import {
     hashEvent,
     signOuter,
 } from '../../../../../src/Electron/Infrastructure/Crypto/LedgerCodec.js';
-import { LedgerEventRecord } from '../../../../../src/Electron/Domain/Ledger/LedgerEventRecord.js';
-import { LedgerOperation } from '../../../../../src/Electron/Domain/Ledger/LedgerOperation.js';
-import { LedgerOperationType } from '../../../../../src/Electron/Domain/Ledger/LedgerOperationType.js';
+import { LedgerEventRecord } from '../../../../../src/Electron/Domain/Entities/LedgerEventRecord.js';
+import { LedgerOperation } from '../../../../../src/Electron/Domain/Operations/LedgerOperation.js';
+import { LedgerOperationType } from '../../../../../src/Electron/Domain/Enums/LedgerOperationType.js';
 import { ChatPrivileges } from '../../../../../src/Electron/Domain/Enums/ChatPrivileges.js';
 
 const GROUP_ID = '0199673a-3c1e-7c2b-9f2e-5d8b1a4c7e10';

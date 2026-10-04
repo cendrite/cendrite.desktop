@@ -1,7 +1,8 @@
 import { ChatPrivileges } from '../Enums/ChatPrivileges.js';
-import { GroupMember, GroupState } from './GroupState.js';
-import { LedgerOperation } from './LedgerOperation.js';
-import { LedgerOperationType } from './LedgerOperationType.js';
+import { LedgerOperationType } from '../Enums/LedgerOperationType.js';
+import { GroupMember } from '../Projections/GroupMember.js';
+import { GroupState } from '../Projections/GroupState.js';
+import { LedgerOperation } from '../Operations/LedgerOperation.js';
 
 export interface OperationContext {
     version: number;
@@ -14,10 +15,6 @@ export function authorOf(state: GroupState, writeKeyPublic: string): GroupMember
     return state.ownerOfWriteKey(writeKeyPublic);
 }
 
-/**
- * Every rule the server cannot enforce, because it never sees the operation. An author may only act
- * within the privilege the log itself granted them.
- */
 export function rejectReasonFor(state: GroupState, operation: LedgerOperation, context: OperationContext): string | null {
     if (operation.type === LedgerOperationType.GroupCreated) {
         return context.version === 1 ? null : 'group creation is only valid as the first event';
@@ -122,8 +119,6 @@ function requireAdmin(author: GroupMember): string | null {
     return author.privilege >= ChatPrivileges.Admin ? null : 'author is not an admin';
 }
 
-// The outer key changes the server applies must be exactly what the operation says it is doing,
-// or an author could grant or revoke keys the operation never mentions.
 function declaredKeyChanges(state: GroupState, operation: LedgerOperation): { added: string[]; removed: string[] } {
     switch (operation.type) {
         case LedgerOperationType.MemberAdded:

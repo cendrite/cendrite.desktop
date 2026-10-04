@@ -1,5 +1,5 @@
-import { GroupState } from '../../../Domain/Ledger/GroupState.js';
-import { LedgerEventRecord } from '../../../Domain/Ledger/LedgerEventRecord.js';
+import { GroupState } from '../../../Domain/Projections/GroupState.js';
+import { LedgerEventRecord } from '../../../Domain/Entities/LedgerEventRecord.js';
 
 export interface RejectedEvent {
     version: number;

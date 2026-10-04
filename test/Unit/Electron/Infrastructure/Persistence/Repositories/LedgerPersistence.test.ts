@@ -15,10 +15,10 @@ import { initializeDatabase, getDbContext } from '../../../../../../src/Electron
 import { LedgerLogRepository } from '../../../../../../src/Electron/Infrastructure/Persistence/Repositories/LedgerLogRepository.js';
 import { GroupRepository } from '../../../../../../src/Electron/Infrastructure/Persistence/Repositories/GroupRepository.js';
 import { GroupKeyRepository } from '../../../../../../src/Electron/Infrastructure/Persistence/Repositories/GroupKeyRepository.js';
-import { LedgerEventRecord } from '../../../../../../src/Electron/Domain/Ledger/LedgerEventRecord.js';
-import { LedgerEventStatus } from '../../../../../../src/Electron/Domain/Ledger/LedgerEventStatus.js';
-import { GroupRecord } from '../../../../../../src/Electron/Domain/Ledger/GroupRecord.js';
-import { GroupLifecycle } from '../../../../../../src/Electron/Domain/Ledger/GroupLifecycle.js';
+import { LedgerEventRecord } from '../../../../../../src/Electron/Domain/Entities/LedgerEventRecord.js';
+import { LedgerEventStatus } from '../../../../../../src/Electron/Domain/Enums/LedgerEventStatus.js';
+import { GroupRecord } from '../../../../../../src/Electron/Domain/Entities/GroupRecord.js';
+import { GroupLifecycle } from '../../../../../../src/Electron/Domain/Enums/GroupLifecycle.js';
 import { GroupWriteKey } from '../../../../../../src/Electron/Domain/Encryption/GroupWriteKey.js';
 import { GroupEpochKey } from '../../../../../../src/Electron/Domain/Encryption/GroupEpochKey.js';
 

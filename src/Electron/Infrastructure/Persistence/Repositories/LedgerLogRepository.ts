@@ -1,7 +1,7 @@
 import { Repository } from 'typeorm/repository/Repository.js';
 import { ILedgerLogRepository } from '../../../Application/Contracts/Repositories/ILedgerLogRepository.js';
-import { LedgerEventRecord } from '../../../Domain/Ledger/LedgerEventRecord.js';
-import { LedgerEventStatus } from '../../../Domain/Ledger/LedgerEventStatus.js';
+import { LedgerEventRecord } from '../../../Domain/Entities/LedgerEventRecord.js';
+import { LedgerEventStatus } from '../../../Domain/Enums/LedgerEventStatus.js';
 import { getDbContext } from '../Context/DatabaseContext.js';
 
 export class LedgerLogRepository implements ILedgerLogRepository {

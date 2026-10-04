@@ -5,11 +5,11 @@ import {
     ReplayResult,
 } from '../../Application/Contracts/Services/ILedgerReplayService.js';
 import { IGroupKeyRepository } from '../../Application/Contracts/Repositories/IGroupKeyRepository.js';
-import { applyOperation, OperationContext, rejectReasonFor } from '../../Domain/Ledger/GroupReducer.js';
-import { GroupState } from '../../Domain/Ledger/GroupState.js';
-import { LedgerEventRecord } from '../../Domain/Ledger/LedgerEventRecord.js';
-import { LedgerOperation, SignedLedgerOperation } from '../../Domain/Ledger/LedgerOperation.js';
-import { LedgerOperationType } from '../../Domain/Ledger/LedgerOperationType.js';
+import { applyOperation, OperationContext, rejectReasonFor } from '../../Domain/Services/GroupReducer.js';
+import { GroupState } from '../../Domain/Projections/GroupState.js';
+import { LedgerEventRecord } from '../../Domain/Entities/LedgerEventRecord.js';
+import { LedgerOperation, SignedLedgerOperation } from '../../Domain/Operations/LedgerOperation.js';
+import { LedgerOperationType } from '../../Domain/Enums/LedgerOperationType.js';
 import {
     buildOperationSigningInput,
     buildSigningInput,

@@ -1,5 +1,5 @@
 import { ChatPrivileges } from '../Enums/ChatPrivileges.js';
-import { LedgerOperationType } from './LedgerOperationType.js';
+import { LedgerOperationType } from '../Enums/LedgerOperationType.js';
 
 export interface GroupMemberRef {
     userTag: string;

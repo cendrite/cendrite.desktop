@@ -1,5 +1,5 @@
-import { GroupLifecycle } from '../../../Domain/Ledger/GroupLifecycle.js';
-import { GroupRecord } from '../../../Domain/Ledger/GroupRecord.js';
+import { GroupLifecycle } from '../../../Domain/Enums/GroupLifecycle.js';
+import { GroupRecord } from '../../../Domain/Entities/GroupRecord.js';
 
 export interface IGroupRepository {
     save(group: GroupRecord): Promise<void>;

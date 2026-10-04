@@ -1,7 +1,7 @@
 import { Repository } from 'typeorm/repository/Repository.js';
 import { IGroupRepository } from '../../../Application/Contracts/Repositories/IGroupRepository.js';
-import { GroupLifecycle } from '../../../Domain/Ledger/GroupLifecycle.js';
-import { GroupRecord } from '../../../Domain/Ledger/GroupRecord.js';
+import { GroupLifecycle } from '../../../Domain/Enums/GroupLifecycle.js';
+import { GroupRecord } from '../../../Domain/Entities/GroupRecord.js';
 import { getDbContext } from '../Context/DatabaseContext.js';
 
 export class GroupRepository implements IGroupRepository {
