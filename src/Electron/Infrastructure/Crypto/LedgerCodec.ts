@@ -12,6 +12,7 @@ import {
 import { EPOCH_HEADER_BYTES, HASH_BYTES, IV_BYTES, SIGNATURE_BYTES, WRITE_KEY_BYTES } from '../../Domain/Ledger/LedgerEvent.js';
 
 const DOMAIN_PREFIX = Buffer.from('ledger-v1', 'ascii');
+const OPERATION_PREFIX = Buffer.from('ledger-op-v1', 'ascii');
 const PKCS8_ED25519_PREFIX = Buffer.from('302e020100300506032b657004220420', 'hex');
 const GCM_TAG_BYTES = 16;
 const EPOCH_KEY_BYTES = 32;
@@ -63,6 +64,14 @@ export function buildSigningInput(parts: SigningInputParts): Buffer {
         writeKeyList(keysRemoved),
         payload,
     ]);
+}
+
+/**
+ * What the author signs with their libsignal identity key, inside the ciphertext. Binding the group and
+ * version stops an operation being replayed into another group or at another position.
+ */
+export function buildOperationSigningInput(groupId: string, version: number, operation: Buffer): Buffer {
+    return Buffer.concat([OPERATION_PREFIX, uuidToBytes(groupId), bigEndian(version), operation]);
 }
 
 export function hashEvent(signingInput: Buffer): Buffer {

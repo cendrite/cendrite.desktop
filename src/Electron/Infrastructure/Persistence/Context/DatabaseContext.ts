@@ -17,6 +17,8 @@ import { SignedPreKeySchema } from '../Schemas/SignedPreKeySchema.js';
 import { SessionRecordSchema } from '../Schemas/SessionRecordSchema.js';
 import { GroupEpochKeySchema } from '../Schemas/GroupEpochKeySchema.js';
 import { GroupWriteKeySchema } from '../Schemas/GroupWriteKeySchema.js';
+import { LedgerEventRecordSchema } from '../Schemas/LedgerEventRecordSchema.js';
+import { GroupRecordSchema } from '../Schemas/GroupRecordSchema.js';
 import { MessageMediaSchema } from '../Schemas/MessageMediaSchema.js';
 import { OutboxEventSchema } from '../Schemas/OutboxEventSchema.js';
 import { KyberPreKeySchema } from '../Schemas/KyberPreKeySchema.js';
@@ -51,7 +53,9 @@ export async function initializeDatabase(dbPath: string | null = null): Promise<
             OutboxEventSchema,
             AppearanceSettingsSchema,
             GroupEpochKeySchema,
-            GroupWriteKeySchema
+            GroupWriteKeySchema,
+            LedgerEventRecordSchema,
+            GroupRecordSchema
         ],
         migrations: [],
         synchronize: true,
