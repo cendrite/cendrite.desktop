@@ -18,6 +18,7 @@ import { SignalProtocolStore } from './Services/SignalProtocolStore.js';
 import { KeyGenerator } from './Services/KeyGenerator.js';
 import { PurgeLocalDataService } from './Services/PurgeLocalDataService.js';
 import { SessionManager } from './Services/SessionManager.js';
+import { LedgerClient } from './Clients/LedgerClient.js';
 import { KeyStoreClient } from './Clients/KeyStoreClient.js';
 import { DeviceClient } from './Clients/DeviceClient.js';
 import { TokenClient } from './Clients/TokenClient.js';
@@ -65,6 +66,7 @@ const providers = {
     tokenProvider: asClass(TokenClient, { lifetime: Lifetime.SINGLETON }),
     deviceProvider: asClass(DeviceClient, { lifetime: Lifetime.SINGLETON }),
     keyStoreProvider: asClass(KeyStoreClient, { lifetime: Lifetime.SINGLETON }),
+    ledgerProvider: asClass(LedgerClient, { lifetime: Lifetime.SINGLETON }),
     mediaProvider: asClass(MediaProvider, { lifetime: Lifetime.SINGLETON }),
     userProvider: asClass(UserClient, { lifetime: Lifetime.SINGLETON }),
     friendProvider: asClass(FriendClient, { lifetime: Lifetime.SINGLETON }),
@@ -88,6 +90,10 @@ const httpClients = {
 
     keyStoreApiClient: asFunction(
         (tokenManager: TokenManager) => new ApiClient(API_URLS.KEYSTORE.BASE, tokenManager),
+    ).singleton(),
+
+    ledgerApiClient: asFunction(
+        (tokenManager: TokenManager) => new ApiClient(API_URLS.LEDGER.BASE, tokenManager),
     ).singleton(),
 
     mediaApiClient: asFunction(

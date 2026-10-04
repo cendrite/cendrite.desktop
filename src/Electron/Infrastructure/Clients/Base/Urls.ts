@@ -27,6 +27,9 @@ export const API_URLS = {
         BASE: 'https://conduit.xhykl49jkg.org/api/friend',
         FRIENDSHIP: 'https://social.xhykl49jkg.org/api/UserProfile/friendship',
     },
+    LEDGER: {
+        BASE: 'https://conduit.xhykl49jkg.org/api/ledger/streams',
+    },
     KEYSTORE: {
         BASE: 'https://conduit.xhykl49jkg.org/api/keys',
         UPLOAD_OTPS: 'https://conduit.xhykl49jkg.org/api/keys/otps',
