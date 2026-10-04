@@ -14,9 +14,7 @@ export interface HaltedEvent {
 export interface ReplayResult {
     state: GroupState;
     rejected: RejectedEvent[];
-    /** The server served something it could not have produced honestly; everything after it is untrusted. */
     halted: HaltedEvent | null;
-    /** Replay stopped because an epoch key has not arrived yet, and can resume once it does. */
     stalledAt: number | null;
 }
 

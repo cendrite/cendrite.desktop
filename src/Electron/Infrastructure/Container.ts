@@ -20,6 +20,9 @@ import { PurgeLocalDataService } from './Services/PurgeLocalDataService.js';
 import { SessionManager } from './Services/SessionManager.js';
 import { LedgerClient } from './Clients/LedgerClient.js';
 import { LedgerIdentity } from './Services/LedgerIdentity.js';
+import { LedgerSyncService } from './Services/LedgerSyncService.js';
+import { LedgerWriter } from './Services/LedgerWriter.js';
+import { LedgerPump } from './Pumps/LedgerPump.js';
 import { LedgerReplayService } from './Services/LedgerReplayService.js';
 import { GroupKeyRepository } from './Persistence/Repositories/GroupKeyRepository.js';
 import { GroupRepository } from './Persistence/Repositories/GroupRepository.js';
@@ -69,6 +72,8 @@ const signalR = {
 const ledgerServices = {
     ledgerIdentity: asClass(LedgerIdentity, { lifetime: Lifetime.SINGLETON }),
     ledgerReplayService: asClass(LedgerReplayService, { lifetime: Lifetime.SINGLETON }),
+    ledgerSyncService: asClass(LedgerSyncService, { lifetime: Lifetime.SINGLETON }),
+    ledgerWriter: asClass(LedgerWriter, { lifetime: Lifetime.SINGLETON }),
 };
 
 const ledgerPersistence = {
@@ -91,6 +96,7 @@ const providers = {
 const jobs = {
     messagePump: asClass(MessagePump, { lifetime: Lifetime.SINGLETON }),
     deliveryStatusUpdatePump: asClass(DeliveryStatusUpdatePump, { lifetime: Lifetime.SINGLETON }),
+    ledgerPump: asClass(LedgerPump, { lifetime: Lifetime.SINGLETON }),
 }
 
 const httpClients = {
