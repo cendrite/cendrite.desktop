@@ -1,6 +1,17 @@
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
+
+// CryptographyService loads keytar, a native binding to the OS keyring that does not exist on CI.
+// Mocking the module keeps it out of the graph entirely rather than stubbing it after it loads.
+vi.mock('../../../../../../src/Electron/Infrastructure/Persistence/Encryption/CryptographyService.js', () => ({
+    CryptographyService: {
+        getInstance: () => ({
+            encrypt: async (value: string) => `sealed:${value}`,
+            decrypt: async (value: string) => value.replace(/^sealed:/, ''),
+        }),
+    },
+}));
+
 import { initializeDatabase, getDbContext } from '../../../../../../src/Electron/Infrastructure/Persistence/Context/DatabaseContext.js';
-import { CryptographyService } from '../../../../../../src/Electron/Infrastructure/Persistence/Encryption/CryptographyService.js';
 import { LedgerLogRepository } from '../../../../../../src/Electron/Infrastructure/Persistence/Repositories/LedgerLogRepository.js';
 import { GroupRepository } from '../../../../../../src/Electron/Infrastructure/Persistence/Repositories/GroupRepository.js';
 import { GroupKeyRepository } from '../../../../../../src/Electron/Infrastructure/Persistence/Repositories/GroupKeyRepository.js';
@@ -14,14 +25,7 @@ import { GroupEpochKey } from '../../../../../../src/Electron/Domain/Encryption/
 const GROUP_ID = '0199673a-3c1e-7c2b-9f2e-5d8b1a4c7e10';
 const OTHER_GROUP_ID = '0199673a-3c1e-7c2b-9f2e-5d8b1a4c7e11';
 
-// Keytar needs an OS keyring, so the at-rest layer is stubbed with a reversible marker instead.
-const fakeCrypto = {
-    encrypt: vi.fn(async (value: string) => `sealed:${value}`),
-    decrypt: vi.fn(async (value: string) => value.replace(/^sealed:/, '')),
-};
-
 beforeAll(async () => {
-    vi.spyOn(CryptographyService, 'getInstance').mockReturnValue(fakeCrypto as unknown as CryptographyService);
     await initializeDatabase(':memory:');
 });
 
