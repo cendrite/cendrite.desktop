@@ -1,5 +1,42 @@
 import { Result } from '../../../../Shared/Result/Result.js';
-import { LedgerAppend, LedgerEvent } from '../../../Domain/Ledger/LedgerEvent.js';
+
+/** One event as the Ledger API returned it, decoded. */
+export class LedgerEvent {
+    constructor(
+        public readonly groupId: string,
+        public readonly version: number,
+        public readonly previousHash: Buffer,
+        public readonly payload: Buffer,
+        public readonly writeKeyPublic: Buffer,
+        public readonly signature: Buffer,
+        public readonly keysAdded: Buffer[],
+        public readonly keysRemoved: Buffer[],
+    ) { }
+}
+
+/** What the Ledger API returns, before base64 is decoded. */
+export interface LedgerEventDto {
+    version: number;
+    previousHash: string;
+    payload: string;
+    writeKeyPublic: string;
+    signature: string;
+    keysAdded: string[];
+    keysRemoved: string[];
+}
+
+export interface LedgerEventsPageDto {
+    version: number;
+    archived: boolean;
+    hasMore: boolean;
+    events: LedgerEventDto[];
+}
+
+export interface LedgerHeadDto {
+    version: number;
+    hash: string;
+    archived: boolean;
+}
 
 export interface LedgerEventsPage {
     version: number;
@@ -12,6 +49,18 @@ export interface LedgerHead {
     version: number;
     hash: Buffer;
     archived: boolean;
+}
+
+export class LedgerAppend {
+    constructor(
+        public readonly expectedVersion: number,
+        public readonly previousHash: Buffer,
+        public readonly payload: Buffer,
+        public readonly writeKeyPublic: Buffer,
+        public readonly signature: Buffer,
+        public readonly keysAdded: Buffer[] = [],
+        public readonly keysRemoved: Buffer[] = [],
+    ) { }
 }
 
 export interface ILedgerProvider {

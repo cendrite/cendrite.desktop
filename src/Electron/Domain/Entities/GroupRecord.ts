@@ -1,4 +1,4 @@
-import { GroupLifecycle } from './GroupLifecycle.js';
+import { GroupLifecycle } from "../Enums/GroupLifecycle.js";
 
 export class GroupRecord {
     groupId: string;

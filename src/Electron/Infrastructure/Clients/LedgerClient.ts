@@ -1,15 +1,13 @@
 import { Result } from '../../../Shared/Result/Result.js';
 import {
     ILedgerProvider,
-    LedgerEventsPage,
-    LedgerHead,
-} from '../../Application/Contracts/Providers/ILedgerProvider.js';
-import {
     LedgerAppend,
-    LedgerEvent,
+    LedgerEventsPage,
     LedgerEventsPageDto,
+    LedgerHead,
     LedgerHeadDto,
-} from '../../Domain/Ledger/LedgerEvent.js';
+} from '../../Application/Contracts/Providers/ILedgerProvider.js';
+import { LedgerEvent } from '../../Application/Contracts/Providers/ILedgerProvider.js';
 import { ApiClient } from './Base/ApiClient.js';
 
 export class LedgerClient implements ILedgerProvider {

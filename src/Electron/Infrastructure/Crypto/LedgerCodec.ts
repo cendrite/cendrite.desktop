@@ -9,7 +9,12 @@ import {
     sign as edSign,
     verify as edVerify,
 } from 'crypto';
-import { EPOCH_HEADER_BYTES, HASH_BYTES, IV_BYTES, SIGNATURE_BYTES, WRITE_KEY_BYTES } from '../../Domain/Ledger/LedgerEvent.js';
+
+export const EPOCH_HEADER_BYTES = 4;
+export const IV_BYTES = 12;
+export const HASH_BYTES = 32;
+export const WRITE_KEY_BYTES = 32;
+export const SIGNATURE_BYTES = 64;
 
 const DOMAIN_PREFIX = Buffer.from('ledger-v1', 'ascii');
 const OPERATION_PREFIX = Buffer.from('ledger-op-v1', 'ascii');

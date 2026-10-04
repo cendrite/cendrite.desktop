@@ -1,5 +1,5 @@
 import { EntitySchema } from 'typeorm';
-import { GroupRecord } from '../../../Domain/Ledger/GroupRecord.js';
+import { GroupRecord } from '../../../Domain/Entities/GroupRecord.js';
 import { BaseSchema } from './BaseSchema.js';
 
 export const GroupRecordSchema = new EntitySchema<GroupRecord>({

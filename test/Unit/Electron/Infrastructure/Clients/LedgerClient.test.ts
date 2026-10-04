@@ -2,8 +2,7 @@ import { describe, expect, test, vi } from 'vitest';
 import { AxiosRequestConfig } from 'axios';
 import { LedgerClient } from '../../../../../src/Electron/Infrastructure/Clients/LedgerClient.js';
 import { ApiClient } from '../../../../../src/Electron/Infrastructure/Clients/Base/ApiClient.js';
-import { LedgerAppend } from '../../../../../src/Electron/Domain/Ledger/LedgerEvent.js';
-import { isLedgerConflict } from '../../../../../src/Electron/Application/Contracts/Providers/ILedgerProvider.js';
+import { isLedgerConflict, LedgerAppend } from '../../../../../src/Electron/Application/Contracts/Providers/ILedgerProvider.js';
 import { Result } from '../../../../../src/Shared/Result/Result.js';
 import { ErrorMessage } from '../../../../../src/Shared/Result/ErrorMessage.js';
 
