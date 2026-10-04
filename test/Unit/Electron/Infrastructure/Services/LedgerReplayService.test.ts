@@ -1,6 +1,9 @@
 import { describe, expect, test } from 'vitest';
 import { PrivateKey, PublicKey } from '@signalapp/libsignal-client';
-import { replay, ReplayDependencies } from '../../../../../src/Electron/Infrastructure/Crypto/LedgerReplay.js';
+import { LedgerReplayService } from '../../../../../src/Electron/Infrastructure/Services/LedgerReplayService.js';
+import { IGroupKeyRepository } from '../../../../../src/Electron/Application/Contracts/Repositories/IGroupKeyRepository.js';
+import { ILedgerIdentity } from '../../../../../src/Electron/Infrastructure/Interfaces/ILedgerIdentity.js';
+import { GroupEpochKey } from '../../../../../src/Electron/Domain/Encryption/GroupEpochKey.js';
 import {
     buildOperationSigningInput,
     buildSigningInput,
@@ -20,11 +23,26 @@ const EPOCH = 1;
 
 const epochKey = generateEpochKey();
 
-const deps: ReplayDependencies = {
-    epochKey: (epoch) => (epoch === EPOCH ? epochKey : null),
-    verifyIdentitySignature: (identityKey, data, signature) =>
-        PublicKey.deserialize(identityKey).verify(data, signature),
+const ledgerIdentity: ILedgerIdentity = {
+    sign: () => Promise.reject(new Error('replay never signs')),
+    publicKey: () => Promise.reject(new Error('replay never needs the local key')),
+    verify: (identityKey, data, signature) => PublicKey.deserialize(identityKey).verify(data, signature),
 };
+
+function keyRepository(keys: GroupEpochKey[] = [new GroupEpochKey(GROUP_ID, EPOCH, epochKey)]): IGroupKeyRepository {
+    return {
+        saveWriteKey: () => Promise.resolve(),
+        getWriteKey: () => Promise.resolve(null),
+        saveEpochKey: () => Promise.resolve(),
+        getEpochKey: (_groupId, epoch) => Promise.resolve(keys.find((k) => k.epoch === epoch) ?? null),
+        getEpochKeys: () => Promise.resolve(keys),
+        deleteAll: () => Promise.resolve(),
+    };
+}
+
+function sut(keys?: GroupEpochKey[]): LedgerReplayService {
+    return new LedgerReplayService(keyRepository(keys), ledgerIdentity);
+}
 
 class Member {
     public readonly identity = PrivateKey.generate();
@@ -147,7 +165,7 @@ function memberAdded(author: Member, member: Member, privilege = ChatPrivileges.
 }
 
 describe('a well formed log', () => {
-    test('applies every operation and tracks the head', () => {
+    test('applies every operation and tracks the head', async () => {
         const alice = new Member('alice', 'Alice');
         const bob = new Member('bob', 'Bob');
         const events = new LogBuilder()
@@ -155,7 +173,7 @@ describe('a well formed log', () => {
             .add(alice, memberAdded(alice, bob), { keysAdded: [bob.writeKeyPublic] })
             .build();
 
-        const result = replay(GROUP_ID, events, deps);
+        const result = await sut().replay(GROUP_ID, events);
 
         expect(result.halted).toBeNull();
         expect(result.stalledAt).toBeNull();
@@ -166,7 +184,7 @@ describe('a well formed log', () => {
         expect(result.state.headHash).toEqual(events[1].hash);
     });
 
-    test('lets a member the log admitted write afterwards', () => {
+    test('lets a member the log admitted write afterwards', async () => {
         const alice = new Member('alice', 'Alice');
         const bob = new Member('bob', 'Bob');
         const events = new LogBuilder()
@@ -181,13 +199,13 @@ describe('a well formed log', () => {
             })
             .build();
 
-        const result = replay(GROUP_ID, events, deps);
+        const result = await sut().replay(GROUP_ID, events);
 
         expect(result.rejected).toEqual([]);
         expect(result.state.name).toBe('Renamed');
     });
 
-    test('is deterministic', () => {
+    test('is deterministic', async () => {
         const alice = new Member('alice', 'Alice');
         const bob = new Member('bob', 'Bob');
         const events = new LogBuilder()
@@ -195,14 +213,14 @@ describe('a well formed log', () => {
             .add(alice, memberAdded(alice, bob), { keysAdded: [bob.writeKeyPublic] })
             .build();
 
-        const first = replay(GROUP_ID, events, deps);
-        const second = replay(GROUP_ID, events, deps);
+        const first = await sut().replay(GROUP_ID, events);
+        const second = await sut().replay(GROUP_ID, events);
 
         expect(second.state.headHash).toEqual(first.state.headHash);
         expect([...second.state.members.keys()]).toEqual([...first.state.members.keys()]);
     });
 
-    test('removes a member and revokes their keys', () => {
+    test('removes a member and revokes their keys', async () => {
         const alice = new Member('alice', 'Alice');
         const bob = new Member('bob', 'Bob');
         const events = new LogBuilder()
@@ -215,13 +233,13 @@ describe('a well formed log', () => {
             )
             .build();
 
-        const result = replay(GROUP_ID, events, deps);
+        const result = await sut().replay(GROUP_ID, events);
 
         expect(result.rejected).toEqual([]);
         expect(result.state.members.has('bob')).toBe(false);
     });
 
-    test('records a member published device list', () => {
+    test('records a member published device list', async () => {
         const alice = new Member('alice', 'Alice');
         const events = new LogBuilder()
             .add(alice, created(alice))
@@ -234,25 +252,25 @@ describe('a well formed log', () => {
             })
             .build();
 
-        const result = replay(GROUP_ID, events, deps);
+        const result = await sut().replay(GROUP_ID, events);
 
         expect(result.state.members.get('alice')!.connectionIds).toEqual(['device-a', 'device-b']);
     });
 });
 
 describe('a log the server could not have produced honestly', () => {
-    test('halts when the outer signature does not verify', () => {
+    test('halts when the outer signature does not verify', async () => {
         const alice = new Member('alice', 'Alice');
         const events = new LogBuilder().add(alice, created(alice)).build();
         events[0].payload[events[0].payload.length - 1] ^= 0xff;
 
-        const result = replay(GROUP_ID, events, deps);
+        const result = await sut().replay(GROUP_ID, events);
 
         expect(result.halted).toEqual({ version: 1, reason: 'outer signature does not verify' });
         expect(result.state.members.size).toBe(0);
     });
 
-    test('halts on a broken chain link', () => {
+    test('halts on a broken chain link', async () => {
         const alice = new Member('alice', 'Alice');
         const bob = new Member('bob', 'Bob');
         const events = new LogBuilder()
@@ -263,13 +281,13 @@ describe('a log the server could not have produced honestly', () => {
             })
             .build();
 
-        const result = replay(GROUP_ID, events, deps);
+        const result = await sut().replay(GROUP_ID, events);
 
         expect(result.halted?.version).toBe(2);
         expect(result.halted?.reason).toBe('previous hash does not match the head');
     });
 
-    test('halts on a version gap', () => {
+    test('halts on a version gap', async () => {
         const alice = new Member('alice', 'Alice');
         const bob = new Member('bob', 'Bob');
         const events = new LogBuilder()
@@ -277,14 +295,14 @@ describe('a log the server could not have produced honestly', () => {
             .add(alice, memberAdded(alice, bob), { keysAdded: [bob.writeKeyPublic], version: 5 })
             .build();
 
-        const result = replay(GROUP_ID, events, deps);
+        const result = await sut().replay(GROUP_ID, events);
 
         expect(result.halted?.reason).toContain('expected version 2');
     });
 });
 
 describe('operations the log rejects but still chains', () => {
-    test('rejects an unauthorised add and keeps verifying later events', () => {
+    test('rejects an unauthorised add and keeps verifying later events', async () => {
         const alice = new Member('alice', 'Alice');
         const bob = new Member('bob', 'Bob');
         const carol = new Member('carol', 'Carol');
@@ -302,7 +320,7 @@ describe('operations the log rejects but still chains', () => {
             })
             .build();
 
-        const result = replay(GROUP_ID, events, deps);
+        const result = await sut().replay(GROUP_ID, events);
 
         expect(result.halted).toBeNull();
         expect(result.rejected).toEqual([{ version: 3, reason: 'author is not an admin' }]);
@@ -311,7 +329,7 @@ describe('operations the log rejects but still chains', () => {
         expect(result.state.version).toBe(4);
     });
 
-    test('rejects an operation signed by another identity', () => {
+    test('rejects an operation signed by another identity', async () => {
         const alice = new Member('alice', 'Alice');
         const bob = new Member('bob', 'Bob');
         const events = new LogBuilder()
@@ -330,13 +348,13 @@ describe('operations the log rejects but still chains', () => {
             )
             .build();
 
-        const result = replay(GROUP_ID, events, deps);
+        const result = await sut().replay(GROUP_ID, events);
 
         expect(result.rejected[0].reason).toBe('identity key does not match the one pinned for this member');
         expect(result.state.name).toBe('Trip');
     });
 
-    test('rejects a device list published for someone else', () => {
+    test('rejects a device list published for someone else', async () => {
         const alice = new Member('alice', 'Alice');
         const bob = new Member('bob', 'Bob');
         const events = new LogBuilder()
@@ -351,13 +369,13 @@ describe('operations the log rejects but still chains', () => {
             })
             .build();
 
-        const result = replay(GROUP_ID, events, deps);
+        const result = await sut().replay(GROUP_ID, events);
 
         expect(result.rejected[0].reason).toBe('a member may only publish their own devices');
         expect(result.state.members.get('bob')!.connectionIds).toEqual([]);
     });
 
-    test('rejects granting a key the operation never declared', () => {
+    test('rejects granting a key the operation never declared', async () => {
         const alice = new Member('alice', 'Alice');
         const bob = new Member('bob', 'Bob');
         const mallory = new Member('mallory', 'Mallory');
@@ -367,13 +385,13 @@ describe('operations the log rejects but still chains', () => {
             .add(alice, memberAdded(alice, bob), { keysAdded: [mallory.writeKeyPublic] })
             .build();
 
-        const result = replay(GROUP_ID, events, deps);
+        const result = await sut().replay(GROUP_ID, events);
 
         expect(result.rejected[0].reason).toBe('granted keys do not match the operation');
         expect(result.state.members.has('bob')).toBe(false);
     });
 
-    test('rejects a write key that belongs to no member', () => {
+    test('rejects a write key that belongs to no member', async () => {
         const alice = new Member('alice', 'Alice');
         const stranger = new Member('stranger', 'Stranger');
 
@@ -388,27 +406,27 @@ describe('operations the log rejects but still chains', () => {
             })
             .build();
 
-        const result = replay(GROUP_ID, events, deps);
+        const result = await sut().replay(GROUP_ID, events);
 
         expect(result.rejected[0].reason).toBe('write key does not belong to a member');
     });
 
-    test('rejects a payload encrypted for another position', () => {
+    test('rejects a payload encrypted for another position', async () => {
         const alice = new Member('alice', 'Alice');
         const events = new LogBuilder().add(alice, created(alice), { encryptAtVersion: 9 }).build();
 
-        const result = replay(GROUP_ID, events, deps);
+        const result = await sut().replay(GROUP_ID, events);
 
         expect(result.rejected[0].reason).toBe('payload could not be decrypted or parsed');
     });
 });
 
 describe('a missing epoch key', () => {
-    test('stalls instead of rejecting, so it can resume once the key arrives', () => {
+    test('stalls instead of rejecting, so it can resume once the key arrives', async () => {
         const alice = new Member('alice', 'Alice');
         const events = new LogBuilder().add(alice, created(alice)).build();
 
-        const result = replay(GROUP_ID, events, { ...deps, epochKey: () => null });
+        const result = await sut([]).replay(GROUP_ID, events);
 
         expect(result.stalledAt).toBe(1);
         expect(result.halted).toBeNull();
