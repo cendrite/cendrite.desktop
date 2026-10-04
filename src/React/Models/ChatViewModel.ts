@@ -24,7 +24,7 @@ export class ChatViewModel {
     }
 
     get connectionIds(): string[] {
-        return this.chatMembers.map((member) => member.contact.connectionIds).flat();
+        return this.chatMembers.map((member) => member.devices).flat();
     }
 
     get lastMessage(): MessageViewModel | null {

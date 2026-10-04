@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
+import { ChatMember } from '../../../Domain/Entities/ChatMember.js';
 import { FriendSchema } from '../Schemas/FriendSchema.js';
 import { FriendConnectionIdSchema } from '../Schemas/FriendConnectionIdSchema.js';
 import { DeviceSchema } from '../Schemas/DeviceSchema.js';
@@ -62,12 +63,28 @@ export async function initializeDatabase(dbPath: string | null = null): Promise<
     try {
         await newDbContext.initialize();
         dbContext = newDbContext;
+        await backfillChatMemberUserTags(newDbContext);
         console.log('Connected to the database at:', finalDbPath);
         return dbContext;
     } catch (error) {
         console.error('Error connecting to the database', error);
         throw error;
     }
+}
+
+/**
+ * userTag arrived after chat members already existed, and synchronize cannot add a non-null column to a
+ * populated table. Existing rows take the tag from the friend they were created against.
+ */
+async function backfillChatMemberUserTags(ctx: DataSource): Promise<void> {
+    const metadata = ctx.getMetadata(ChatMember);
+    const table = metadata.tableName;
+    const userTag = metadata.findColumnWithPropertyName('userTag')!.databaseName;
+    const friendId = metadata.findRelationWithPropertyPath('friend')!.joinColumns[0].databaseName;
+
+    await ctx.query(
+        `UPDATE "${table}" SET "${userTag}" = "${friendId}" WHERE "${userTag}" IS NULL AND "${friendId}" IS NOT NULL`,
+    );
 }
 
 export function getDbContext(): DataSource {

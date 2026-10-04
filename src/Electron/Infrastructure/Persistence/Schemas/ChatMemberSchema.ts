@@ -21,6 +21,15 @@ export const ChatMemberSchema = new EntitySchema<ChatMember>({
         displayName: {
             type: "text",
             nullable: true
+        },
+        // Nullable because synchronize cannot add a non-null column to a populated table; it is backfilled on startup.
+        userTag: {
+            type: "text",
+            nullable: true
+        },
+        connectionIds: {
+            type: "simple-json",
+            nullable: true
         }
     },
     relations: {
@@ -29,7 +38,9 @@ export const ChatMemberSchema = new EntitySchema<ChatMember>({
             type: "many-to-one",
             joinColumn: true,
             cascade: true,
-            onDelete: "CASCADE",
+            nullable: true,
+            // Deleting a friend must not delete them from every group chat, so the link is cleared instead.
+            onDelete: "SET NULL",
             eager: true,
         },
         chat: {

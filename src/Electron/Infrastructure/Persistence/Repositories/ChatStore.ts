@@ -98,6 +98,8 @@ export class ChatStore implements IChatStore {
             .innerJoin('chat.members', 'member')
             .innerJoin('member.friend', 'friend')
             .where('friend.id = :friendId', { friendId })
+            // Only the one-to-one chat with that friend: a group outlives any single membership.
+            .andWhere('chat.groupId IS NULL')
             .getOne();
 
         if (chat) {

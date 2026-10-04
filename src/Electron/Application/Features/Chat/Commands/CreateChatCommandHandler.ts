@@ -41,10 +41,11 @@ export class CreateChatCommandHandler implements Handler<CreateChatCommand, Chat
                 (member) =>
                     new ChatMemberContract(
                         member.id,
-                        member.friend.id,
+                        member.friend?.id ?? null,
+                        member.userTag,
                         member.privilege,
-                        member.displayName ?? member.friend.displayName ?? member.friend.username,
-                        member.friend.connectionIds.map((conn) => conn.connectionId),
+                        member.displayName ?? member.friend?.displayName ?? member.userTag,
+                        member.devices,
                     ),
             ),
             chat.messageTtl,
