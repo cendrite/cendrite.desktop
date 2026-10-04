@@ -2,7 +2,15 @@ import { Result } from '../../../../../Shared/Result/Result.js';
 import { Message } from '../../../../Domain/Entities/Message.js';
 import { MessageMedia } from '../../../../Domain/Entities/MessageMedia.js';
 import { DeliveryStatus } from '../../../../Domain/Enums/DeliveryStatus.js';
+import { LedgerOperationQueuedEvent } from '../../../../Domain/Events/LedgerOperationQueuedEvent.js';
 import { MessageSentEvent } from '../../../../Domain/Events/MessageSentEvent.js';
+import { GroupLifecycle } from '../../../../Domain/Enums/GroupLifecycle.js';
+import { ChatPrivileges } from '../../../../Domain/Enums/ChatPrivileges.js';
+import { LedgerOperationType } from '../../../../Domain/Enums/LedgerOperationType.js';
+import { Chat } from '../../../../Domain/Aggregates/Chat.js';
+import { IGroupRepository } from '../../../Contracts/Repositories/IGroupRepository.js';
+import { IUserRepository } from '../../../Contracts/Repositories/IUserRepository.js';
+import { ILedgerIdentity } from '../../../../Infrastructure/Interfaces/ILedgerIdentity.js';
 import { MessageContract } from '../../../Contracts/Models/MessageContract.js';
 import { IEventRepository } from '../../../Contracts/Providers/IEventRepository.js';
 import { IChatStore } from '../../../Contracts/Repositories/IChatStore.js';
@@ -18,6 +26,10 @@ export class SendMessageCommandHandler implements Handler<SendMessageCommand, Me
         private readonly chatStore: IChatStore,
         private readonly mediaStore: IMediaStore,
         private readonly messagePump: IPump,
+        private readonly groupRepository: IGroupRepository,
+        private readonly userRepository: IUserRepository,
+        private readonly ledgerIdentity: ILedgerIdentity,
+        private readonly ledgerPump: IPump,
     ) { }
 
     async handle(cmd: SendMessageCommand): Promise<Result<MessageContract>> {
@@ -49,6 +61,12 @@ export class SendMessageCommandHandler implements Handler<SendMessageCommand, Me
             message.messageToken,
         );
 
+        const chat = await this.chatStore.getChat(cmd.chatId);
+
+        if (chat?.isGroup) {
+            await this.queueGroupCreationIfDraft(chat);
+        }
+
         await this.eventRepository.appendEvent(
             new MessageSentEvent(uuid().toString(), messageContract, cmd.connectionIds, cmd.participants, new Date()),
         );
@@ -56,5 +74,43 @@ export class SendMessageCommandHandler implements Handler<SendMessageCommand, Me
         this.messagePump.notify();
 
         return Result.success(messageContract);
+    }
+
+    /**
+     * The stream is created on the first message, so a group only reaches the server once there is
+     * something to say in it.
+     */
+    private async queueGroupCreationIfDraft(chat: Chat): Promise<void> {
+        const group = await this.groupRepository.get(chat.id);
+        if (!group || group.lifecycle !== GroupLifecycle.Draft) return;
+
+        const user = await this.userRepository.get(true);
+        const identityKey = (await this.ledgerIdentity.publicKey()).toString('base64');
+
+        await this.eventRepository.appendEvent(
+            new LedgerOperationQueuedEvent(
+                uuid().toString(),
+                chat.id,
+                {
+                    type: LedgerOperationType.GroupCreated,
+                    authorTag: user.userTag,
+                    at: Date.now(),
+                    name: chat.groupName ?? '',
+                    owner: {
+                        userTag: user.userTag,
+                        displayName: user.displayName ?? user.username,
+                        privilege: ChatPrivileges.Owner,
+                        identityKey,
+                    },
+                },
+                true,
+                new Date(),
+            ),
+        );
+
+        group.lifecycle = GroupLifecycle.Creating;
+        await this.groupRepository.save(group);
+
+        this.ledgerPump.notify();
     }
 }
