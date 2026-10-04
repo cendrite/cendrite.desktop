@@ -32,8 +32,8 @@ export function useMessageService() {
         async (chat: ChatViewModel, text: string | null, media: Media[]) => {
             const msg = await chatService.sendMessage(
                 user!,
-                chat.chatMembers.map((member) => member.contact.connectionIds).flat(),
-                chat.chatMembers.map((member) => member.contact.id),
+                chat.chatMembers.map((member) => member.devices).flat(),
+                chat.chatMembers.map((member) => member.userTag),
                 chat.id,
                 text,
                 media,
@@ -58,8 +58,8 @@ export function useMessageService() {
             await chatService.resendMessage(
                 chat.id,
                 message.id,
-                chat.chatMembers.map((m) => m.contact.connectionIds).flat(),
-                chat.chatMembers.map((m) => m.contact.id),
+                chat.chatMembers.map((m) => m.devices).flat(),
+                chat.chatMembers.map((m) => m.userTag),
             );
         },
         [chatService],

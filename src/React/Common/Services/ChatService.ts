@@ -84,8 +84,8 @@ export class ChatService {
                 chat.id,
                 user.connectionId,
                 messageIds,
-                chat.chatMembers.map((m) => m.contact.connectionIds).flat(),
-                chat.chatMembers.map((m) => m.contact.id),
+                chat.chatMembers.map((m) => m.devices).flat(),
+                chat.chatMembers.map((m) => m.userTag),
                 deliveryStatus,
             ),
         );
@@ -106,7 +106,14 @@ export class ChatService {
         if (!result.success) throw new Error('Failed to create chat');
 
         const memberDto = result.data!.members[0];
-        const chatMember = new ChatMemberViewModel(memberDto.id, memberDto.privelege, memberDto.displayName, contact);
+        const chatMember = new ChatMemberViewModel(
+            memberDto.id,
+            memberDto.privelege,
+            memberDto.displayName,
+            memberDto.userTag,
+            memberDto.connectionsIds ?? [],
+            contact,
+        );
 
         return new ChatViewModel(result.data!.id, [chatMember]);
     }
@@ -119,11 +126,17 @@ export class ChatService {
         }
 
         return chatsResult.data!.map((chatDto) => {
-            const members = chatDto.members.flatMap((memberDto) => {
-                const contact = contacts.find((c) => c.id === memberDto.friendId);
-                if (!contact) return [];
+            const members = chatDto.members.map((memberDto) => {
+                const contact = contacts.find((c) => c.id === memberDto.friendId) ?? null;
 
-                return [new ChatMemberViewModel(memberDto.id, memberDto.privelege, memberDto.displayName, contact)];
+                return new ChatMemberViewModel(
+                    memberDto.id,
+                    memberDto.privelege,
+                    memberDto.displayName,
+                    memberDto.userTag,
+                    memberDto.connectionsIds ?? [],
+                    contact,
+                );
             });
 
             const messages = chatDto.messages.map((msgDto) => MessageViewModel.mapFromContract(msgDto));

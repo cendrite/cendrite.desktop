@@ -5,12 +5,32 @@ export class ChatMemberViewModel {
     id: string;
     privilege: ChatPrivileges;
     displayName: string | null;
-    contact: Contact;
+    userTag: string;
+    connectionIds: string[];
+    // A group member need not be a friend, so there may be no local contact for them.
+    contact: Contact | null;
 
-    constructor(id: string, privilege: ChatPrivileges, displayName: string | null, contact: Contact) {
+    constructor(
+        id: string,
+        privilege: ChatPrivileges,
+        displayName: string | null,
+        userTag: string,
+        connectionIds: string[],
+        contact: Contact | null,
+    ) {
         this.id = id;
         this.privilege = privilege;
         this.displayName = displayName;
+        this.userTag = userTag;
+        this.connectionIds = connectionIds;
         this.contact = contact;
+    }
+
+    public get name(): string {
+        return this.contact?.displayName ?? this.contact?.username ?? this.displayName ?? this.userTag;
+    }
+
+    public get devices(): string[] {
+        return this.contact?.connectionIds ?? this.connectionIds;
     }
 }
