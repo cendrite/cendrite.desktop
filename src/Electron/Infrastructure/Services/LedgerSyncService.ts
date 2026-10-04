@@ -45,7 +45,6 @@ export class LedgerSyncService implements ILedgerSyncService {
 
             await this.ledgerLogRepository.append(events.map((event) => toRecord(groupId, event)));
 
-            // An empty page also ends the walk: without it a server claiming hasMore would spin forever.
             hasMore = page.data!.hasMore && events.length > 0;
 
             if (hasMore) fromVersion = events[events.length - 1].version + 1;

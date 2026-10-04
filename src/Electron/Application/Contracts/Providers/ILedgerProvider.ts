@@ -1,6 +1,5 @@
 import { Result } from '../../../../Shared/Result/Result.js';
 
-/** One event as the Ledger API returned it, decoded. */
 export class LedgerEvent {
     constructor(
         public readonly groupId: string,
@@ -14,7 +13,6 @@ export class LedgerEvent {
     ) { }
 }
 
-/** What the Ledger API returns, before base64 is decoded. */
 export interface LedgerEventDto {
     version: number;
     previousHash: string;

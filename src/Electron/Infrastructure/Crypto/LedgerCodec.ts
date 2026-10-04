@@ -138,10 +138,6 @@ export function readEpoch(payload: Buffer): number {
     return payload.readInt32BE(0);
 }
 
-/**
- * The epoch, group and version are bound as additional data, so a ciphertext cannot be replayed at
- * another position in the log. The server never decrypts, so this stays a client-side choice.
- */
 export function encryptPayload(epochKey: Buffer, epoch: number, groupId: string, version: number, plaintext: Buffer): Buffer {
     assertLength('epoch key', epochKey, EPOCH_KEY_BYTES);
 

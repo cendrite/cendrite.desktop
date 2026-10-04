@@ -32,10 +32,6 @@ export class LedgerWriter implements ILedgerWriter {
         return this.ledgerProvider.createStream(groupId, payload, writeKey.publicKey, signature);
     }
 
-    /**
-     * Another member may write between reading the head and sending, so a conflict is resynced and the
-     * event rebuilt: both the version and the signature over it change.
-     */
     public async append(groupId: string, operation: LedgerOperation): Promise<Result<void>> {
         for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
             const synced = await this.ledgerSyncService.sync(groupId);
@@ -124,7 +120,6 @@ interface SealedOperation {
     signature: Buffer;
 }
 
-// The key changes the server applies must be exactly what the operation declares, or replay rejects it.
 function keyChangesFor(operation: LedgerOperation, state: GroupState): { added: Buffer[]; removed: Buffer[] } {
     switch (operation.type) {
         case LedgerOperationType.MemberAdded:
