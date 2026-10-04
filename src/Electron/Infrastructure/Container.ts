@@ -19,6 +19,8 @@ import { KeyGenerator } from './Services/KeyGenerator.js';
 import { PurgeLocalDataService } from './Services/PurgeLocalDataService.js';
 import { SessionManager } from './Services/SessionManager.js';
 import { LedgerClient } from './Clients/LedgerClient.js';
+import { LedgerIdentity } from './Services/LedgerIdentity.js';
+import { LedgerReplayService } from './Services/LedgerReplayService.js';
 import { GroupKeyRepository } from './Persistence/Repositories/GroupKeyRepository.js';
 import { GroupRepository } from './Persistence/Repositories/GroupRepository.js';
 import { LedgerLogRepository } from './Persistence/Repositories/LedgerLogRepository.js';
@@ -62,6 +64,11 @@ const signalR = {
     messageHubHandler: asClass(MessageHubHandler, { lifetime: Lifetime.SINGLETON }),
     changeEventHubHandler: asClass(ChangeEventHubHandler, { lifetime: Lifetime.SINGLETON }),
     messageReceiver: asClass(MessageReceiver, { lifetime: Lifetime.SINGLETON }),
+};
+
+const ledgerServices = {
+    ledgerIdentity: asClass(LedgerIdentity, { lifetime: Lifetime.SINGLETON }),
+    ledgerReplayService: asClass(LedgerReplayService, { lifetime: Lifetime.SINGLETON }),
 };
 
 const ledgerPersistence = {
@@ -125,6 +132,7 @@ export const infrastructureResolvers = {
     ...persistence,
     ...signalR,
     ...ledgerPersistence,
+    ...ledgerServices,
     ...providers,
     ...jobs,
     ...httpClients,
