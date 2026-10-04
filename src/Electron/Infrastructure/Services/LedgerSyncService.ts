@@ -34,19 +34,24 @@ export class LedgerSyncService implements ILedgerSyncService {
     private async fetchNewEvents(groupId: string): Promise<Result<boolean>> {
         let fromVersion = (await this.ledgerLogRepository.getLastVersion(groupId)) + 1;
         let archived = false;
+        let hasMore = true;
 
-        for (;;) {
+        while (hasMore) {
             const page = await this.ledgerProvider.getEvents(groupId, fromVersion, PAGE_SIZE);
             if (!page.success) return Result.fail<boolean>(page.errorMessage!);
 
+            const { events } = page.data!;
             archived = page.data!.archived;
 
-            await this.ledgerLogRepository.append(page.data!.events.map((event) => toRecord(groupId, event)));
+            await this.ledgerLogRepository.append(events.map((event) => toRecord(groupId, event)));
 
-            if (!page.data!.hasMore || page.data!.events.length === 0) return Result.success(archived);
+            // An empty page also ends the walk: without it a server claiming hasMore would spin forever.
+            hasMore = page.data!.hasMore && events.length > 0;
 
-            fromVersion = page.data!.events[page.data!.events.length - 1].version + 1;
+            if (hasMore) fromVersion = events[events.length - 1].version + 1;
         }
+
+        return Result.success(archived);
     }
 
     private async recordOutcome(groupId: string, replayed: ReplayResult, archived: boolean): Promise<void> {
