@@ -14,6 +14,8 @@ import { IdentityKeysSchema } from '../Schemas/IdentityKeysSchema.js';
 import { IdentityCacheSchema } from '../Schemas/IdentityCacheSchema.js';
 import { SignedPreKeySchema } from '../Schemas/SignedPreKeySchema.js';
 import { SessionRecordSchema } from '../Schemas/SessionRecordSchema.js';
+import { GroupEpochKeySchema } from '../Schemas/GroupEpochKeySchema.js';
+import { GroupWriteKeySchema } from '../Schemas/GroupWriteKeySchema.js';
 import { MessageMediaSchema } from '../Schemas/MessageMediaSchema.js';
 import { OutboxEventSchema } from '../Schemas/OutboxEventSchema.js';
 import { KyberPreKeySchema } from '../Schemas/KyberPreKeySchema.js';
@@ -46,7 +48,9 @@ export async function initializeDatabase(dbPath: string | null = null): Promise<
             SignedPreKeySchema,
             KyberPreKeySchema,
             OutboxEventSchema,
-            AppearanceSettingsSchema
+            AppearanceSettingsSchema,
+            GroupEpochKeySchema,
+            GroupWriteKeySchema
         ],
         migrations: [],
         synchronize: true,
