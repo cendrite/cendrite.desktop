@@ -13,6 +13,7 @@ import {
     PayloadType,
 } from '../../../Application/Contracts/Messaging/Envelope.js';
 import { IGroupInviteService } from '../../../Application/Contracts/Services/IGroupInviteService.js';
+import { IGroupMembershipGuard } from '../../../Application/Contracts/Services/IGroupMembershipGuard.js';
 import { Message } from '../../../Domain/Entities/Message.js';
 import { MessageMedia } from '../../../Domain/Entities/MessageMedia.js';
 import { DeliveryStatus } from '../../../Domain/Enums/DeliveryStatus.js';
@@ -38,6 +39,7 @@ export class MessageReceiver implements IMessageReceiver {
         private readonly userRepository: IUserRepository,
         private readonly mainWindow: BrowserWindow,
         private readonly groupInviteService: IGroupInviteService,
+        private readonly groupMembershipGuard: IGroupMembershipGuard,
     ) { }
 
 
@@ -85,6 +87,12 @@ export class MessageReceiver implements IMessageReceiver {
     }
 
     private async handleChatMessage(message: ServerMessage, payload: MessagePayload): Promise<void> {
+        // Removal is enforced here: the server will still carry a removed member's messages, clients ignore them.
+        if (payload.groupId && !(await this.groupMembershipGuard.isMember(payload.groupId, message.senderId))) {
+            console.warn(`MessageReceiver: dropped a message from a non-member in group ${payload.groupId}`);
+            return;
+        }
+
         const media = await this.mediaService.get(payload.media);
 
         for (const m of media) {

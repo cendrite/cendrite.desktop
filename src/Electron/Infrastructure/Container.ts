@@ -21,6 +21,7 @@ import { SessionManager } from './Services/SessionManager.js';
 import { LedgerClient } from './Clients/LedgerClient.js';
 import { GroupControlSender } from './Services/GroupControlSender.js';
 import { GroupInviteService } from './Services/GroupInviteService.js';
+import { GroupMembershipGuard } from './Services/GroupMembershipGuard.js';
 import { LedgerIdentity } from './Services/LedgerIdentity.js';
 import { LedgerSyncService } from './Services/LedgerSyncService.js';
 import { LedgerWriter } from './Services/LedgerWriter.js';
@@ -79,6 +80,7 @@ const ledgerServices = {
     ledgerWriter: asClass(LedgerWriter, { lifetime: Lifetime.SINGLETON }),
     groupControlSender: asClass(GroupControlSender, { lifetime: Lifetime.SINGLETON }),
     groupInviteService: asClass(GroupInviteService, { lifetime: Lifetime.SINGLETON }),
+    groupMembershipGuard: asClass(GroupMembershipGuard, { lifetime: Lifetime.SINGLETON }),
 };
 
 const ledgerPersistence = {

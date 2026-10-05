@@ -29,6 +29,8 @@ import { RemoveFriendConnectionIdCommandHandler } from './Features/Friends/Comma
 import { UpdateFriendCommandHandler } from './Features/Friends/Commands/UpdateFriendCommandHandler.js';
 import { CreateFriendCommandHandler } from './Features/Friends/Commands/CreateFriendCommandHandler.js';
 import { CreateGroupCommandHandler } from './Features/Chat/Commands/CreateGroupCommandHandler.js';
+import { RemoveGroupMemberCommandHandler } from './Features/Chat/Commands/RemoveGroupMemberCommandHandler.js';
+import { PublishDeviceListCommandHandler } from './Features/Chat/Commands/PublishDeviceListCommandHandler.js';
 import { SendMessageCommandHandler } from './Features/Chat/Commands/SendMessageCommandHandler.js';
 import { DeliveryStatusUpdatedCommandHandler } from './Features/Chat/Commands/DeliveryStatusUpdatedCommandHandler.js';
 import { UpdateDeliveryStatusCommandHandler } from './Features/Chat/Events/UpdateDeliveryStatusEventHandler.js';
@@ -64,6 +66,8 @@ const chatHandlers = {
     deliveryStatusUpdatedCommandHandler: asClass(DeliveryStatusUpdatedCommandHandler, { lifetime: Lifetime.SINGLETON }),
     sendMessageCommandHandler: asClass(SendMessageCommandHandler, { lifetime: Lifetime.SINGLETON }),
     createGroupCommandHandler: asClass(CreateGroupCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    removeGroupMemberCommandHandler: asClass(RemoveGroupMemberCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    publishDeviceListCommandHandler: asClass(PublishDeviceListCommandHandler, { lifetime: Lifetime.SINGLETON }),
     messageSentCommandHandler: asClass(MessageSentCommandHandler, { lifetime: Lifetime.SINGLETON }),
     resendMessageCommandHandler: asClass(ResendMessageCommandHandler, { lifetime: Lifetime.SINGLETON }),
 };
