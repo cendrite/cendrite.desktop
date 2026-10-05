@@ -12,6 +12,8 @@ declare global {
 
     type EventMessage =
         | { kind: 'message'; message: MessageContract }
+        | { kind: 'groupUpdated'; chatId: string }
+        | { kind: 'ledgerFork'; chatId: string; version: number }
         | { kind: 'deliveryStatus'; chatId: string; messageIds: string[]; status: DeliveryStatus }
         | { kind: 'textEdit'; messageId: string; newText: string }
         | { kind: 'delete'; messageId: string };

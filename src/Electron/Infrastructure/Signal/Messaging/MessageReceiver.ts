@@ -4,7 +4,15 @@ import { IChatStore } from '../../../Application/Contracts/Repositories/IChatSto
 import { IMediaStore } from '../../../Application/Contracts/Repositories/IMediaStore.js';
 import { IMediaService } from '../../../Application/Services/Media/MediaService.js';
 import { ServerMessage } from '../../../Application/Contracts/Messaging/ServerMessage.js';
-import { DeliveryStatusPayload, MessagePayload, PayloadType } from '../../../Application/Contracts/Messaging/Envelope.js';
+import {
+    DeliveryStatusPayload,
+    GroupInvitePayload,
+    GroupWriteKeyOfferPayload,
+    LedgerAdvancedPayload,
+    MessagePayload,
+    PayloadType,
+} from '../../../Application/Contracts/Messaging/Envelope.js';
+import { IGroupInviteService } from '../../../Application/Contracts/Services/IGroupInviteService.js';
 import { Message } from '../../../Domain/Entities/Message.js';
 import { MessageMedia } from '../../../Domain/Entities/MessageMedia.js';
 import { DeliveryStatus } from '../../../Domain/Enums/DeliveryStatus.js';
@@ -29,6 +37,7 @@ export class MessageReceiver implements IMessageReceiver {
         private readonly friendRepository: IFriendRepository,
         private readonly userRepository: IUserRepository,
         private readonly mainWindow: BrowserWindow,
+        private readonly groupInviteService: IGroupInviteService,
     ) { }
 
 
@@ -41,6 +50,18 @@ export class MessageReceiver implements IMessageReceiver {
                 break;
             case PayloadType.DeliveryStatus:
                 await this.handleDeliveryStatusUpdate(message, envelope.payload as DeliveryStatusPayload);
+                break;
+            case PayloadType.GroupInvite:
+                await this.groupInviteService.acceptInvite(envelope.payload as GroupInvitePayload, message.senderId);
+                break;
+            case PayloadType.GroupWriteKeyOffer:
+                await this.groupInviteService.registerWriteKey(
+                    envelope.payload as GroupWriteKeyOfferPayload,
+                    message.senderId,
+                );
+                break;
+            case PayloadType.LedgerAdvanced:
+                await this.groupInviteService.catchUp(envelope.payload as LedgerAdvancedPayload);
                 break;
             default:
                 console.warn(`Unhandled payload type ${envelope.payloadType}`);
@@ -108,8 +129,12 @@ export class MessageReceiver implements IMessageReceiver {
         const existing = await this.chatStore.getChat(chatId);
         if (existing) return;
 
-        if (payload.participants.length > 2) {
-            throw new Error(`Group chat creation is not implemented (chat ${chatId})`);
+        // A group chat arrives through its invite, never through a message. Catching up may create it.
+        if (payload.groupId) {
+            await this.groupInviteService.catchUp(
+                new LedgerAdvancedPayload(payload.groupId, 0, '', payload.participants),
+            );
+            return;
         }
 
         const user = await this.userRepository.get(true);

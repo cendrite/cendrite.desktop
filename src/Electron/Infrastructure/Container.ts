@@ -19,6 +19,8 @@ import { KeyGenerator } from './Services/KeyGenerator.js';
 import { PurgeLocalDataService } from './Services/PurgeLocalDataService.js';
 import { SessionManager } from './Services/SessionManager.js';
 import { LedgerClient } from './Clients/LedgerClient.js';
+import { GroupControlSender } from './Services/GroupControlSender.js';
+import { GroupInviteService } from './Services/GroupInviteService.js';
 import { LedgerIdentity } from './Services/LedgerIdentity.js';
 import { LedgerSyncService } from './Services/LedgerSyncService.js';
 import { LedgerWriter } from './Services/LedgerWriter.js';
@@ -74,6 +76,8 @@ const ledgerServices = {
     ledgerReplayService: asClass(LedgerReplayService, { lifetime: Lifetime.SINGLETON }),
     ledgerSyncService: asClass(LedgerSyncService, { lifetime: Lifetime.SINGLETON }),
     ledgerWriter: asClass(LedgerWriter, { lifetime: Lifetime.SINGLETON }),
+    groupControlSender: asClass(GroupControlSender, { lifetime: Lifetime.SINGLETON }),
+    groupInviteService: asClass(GroupInviteService, { lifetime: Lifetime.SINGLETON }),
 };
 
 const ledgerPersistence = {
