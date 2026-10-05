@@ -6,13 +6,16 @@ import { ServerMessage } from '../../../Contracts/Messaging/ServerMessage.js';
 import { Envelope, MessagePayload, PayloadType } from '../../../Contracts/Messaging/Envelope.js';
 import { Handler } from '../../../Mediator/Handler.js';
 import { IMediaService } from '../../../Services/Media/MediaService.js';
+import { IChatStore } from '../../../Contracts/Repositories/IChatStore.js';
 import { MessageSentCommand } from '../Contracts/SendMessage.js';
+import { tag } from '../../../../Utilities.js';
 
 export class MessageSentCommandHandler implements Handler<MessageSentCommand, DeliveryStatus> {
     constructor(
         private readonly sessionManager: ISessionManager,
         private readonly messageHubHandler: IMessageHubHandler,
         private readonly mediaService: IMediaService,
+        private readonly chatStore: IChatStore,
     ) { }
 
     async handle(cmd: MessageSentCommand): Promise<Result<DeliveryStatus>> {
@@ -22,12 +25,20 @@ export class MessageSentCommandHandler implements Handler<MessageSentCommand, De
 
         const m_pointers = await this.mediaService.upload(cmd.message.media);
 
+        const chat = await this.chatStore.getChat(cmd.message.chatId);
+
         const messages: ServerMessage[] = [];
 
         for (const conId of cmd.connectionIds) {
             const envelope = new Envelope(
                 PayloadType.ChatMessage,
-                new MessagePayload(cmd.message.text, m_pointers, cmd.participants, cmd.message.deliveryStatus),
+                new MessagePayload(
+                    cmd.message.text,
+                    m_pointers,
+                    cmd.participants,
+                    cmd.message.deliveryStatus,
+                    chat?.groupId ?? null,
+                ),
             );
 
             const cipher = await this.sessionManager.encrypt(envelope, conId);

@@ -34,9 +34,5 @@ export const GroupRecordSchema = new EntitySchema<GroupRecord>({
             nullable: false,
             default: false,
         },
-        publishedDevicesHash: {
-            type: 'text',
-            nullable: true,
-        },
     },
 });

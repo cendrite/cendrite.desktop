@@ -4,7 +4,6 @@ import { ChatMember } from '../Entities/ChatMember.js';
 export class Chat {
     id: string;
     groupId: string | null;
-    isGroup: boolean;
     groupName: string | null;
     members: ChatMember[];
     messages: Message[];
@@ -23,11 +22,15 @@ export class Chat {
         this.id = id;
         this.groupId = groupId;
         this.members = members;
-        this.isGroup = groupId !== null;
         this.muteTimer = null;
         this.groupName = null;
         this.messageTtl = messageTtl;
         this.muted = muted;
         this.messages = messages;
+    }
+
+    // Derived, not stored: TypeORM does not run the constructor when it loads a chat.
+    public get isGroup(): boolean {
+        return this.groupId !== null;
     }
 }

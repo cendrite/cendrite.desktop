@@ -15,7 +15,7 @@ export class RemoveGroupMemberCommandHandler implements Handler<RemoveGroupMembe
         private readonly eventRepository: IEventRepository,
         private readonly userRepository: IUserRepository,
         private readonly ledgerSyncService: ILedgerSyncService,
-        private readonly ledgerPump: IPump,
+        private readonly outboxPump: IPump,
     ) { }
 
     public async handle(cmd: RemoveGroupMemberCommand): Promise<Result> {
@@ -43,7 +43,7 @@ export class RemoveGroupMemberCommandHandler implements Handler<RemoveGroupMembe
             ),
         );
 
-        this.ledgerPump.notify();
+        this.outboxPump.notify();
 
         return Result.success();
     }

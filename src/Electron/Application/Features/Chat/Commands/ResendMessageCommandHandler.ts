@@ -16,7 +16,7 @@ export class ResendMessageCommandHandler implements Handler<ResendMessageCommand
     constructor(
         private readonly eventRepository: IEventRepository,
         private readonly chatStore: IChatStore,
-        private readonly messagePump: IPump,
+        private readonly outboxPump: IPump,
         private readonly mediaStore: IMediaStore,
     ) { }
 
@@ -57,7 +57,7 @@ export class ResendMessageCommandHandler implements Handler<ResendMessageCommand
             new MessageSentEvent(uuid().toString(), messageContract, cmd.connectionIds, cmd.participants, new Date()),
         );
 
-        this.messagePump.notify();
+        this.outboxPump.notify();
 
         return Result.success();
     }

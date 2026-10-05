@@ -17,6 +17,7 @@ import { IGroupKeyRepository } from '../../../Contracts/Repositories/IGroupKeyRe
 import { IGroupRepository } from '../../../Contracts/Repositories/IGroupRepository.js';
 import { Handler } from '../../../Mediator/Handler.js';
 import { CreateGroupCommand } from '../Contracts/CreateGroup.js';
+import { tag } from '../../../../Utilities.js';
 
 /**
  * Creates the group locally only. The ledger stream is written when the first message is sent, the same
@@ -56,6 +57,10 @@ export class CreateGroupCommandHandler implements Handler<CreateGroupCommand, Ch
         chat.groupName = cmd.name;
 
         await this.chatStore.create(chat);
+
+        console.log(
+            `${tag()} group: created ${cmd.groupId} locally as Draft with members [${cmd.memberTags.join(', ')}]`,
+        );
 
         return Result.success(this.mapToContract(chat));
     }

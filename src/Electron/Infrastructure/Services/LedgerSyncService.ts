@@ -8,6 +8,7 @@ import { GroupRecord } from '../../Domain/Entities/GroupRecord.js';
 import { LedgerEventRecord } from '../../Domain/Entities/LedgerEventRecord.js';
 import { LedgerEventStatus } from '../../Domain/Enums/LedgerEventStatus.js';
 import { buildSigningInput, hashEvent } from '../Crypto/LedgerCodec.js';
+import { tag } from '../../Utilities.js';
 
 const PAGE_SIZE = 500;
 
@@ -45,6 +46,10 @@ export class LedgerSyncService implements ILedgerSyncService {
 
             await this.ledgerLogRepository.append(events.map((event) => toRecord(groupId, event)));
 
+            console.log(
+                `${tag()} sync: ${groupId} fetched ${events.length} event(s) from ${fromVersion}, server head ${page.data!.version}`,
+            );
+
             hasMore = page.data!.hasMore && events.length > 0;
 
             if (hasMore) fromVersion = events[events.length - 1].version + 1;
@@ -63,7 +68,14 @@ export class LedgerSyncService implements ILedgerSyncService {
 
         await this.groupRepository.save(group);
 
+        console.log(
+            `${tag()} replay: ${groupId} -> version ${replayed.state.version}, members [${[...replayed.state.members.keys()].join(', ')}]` +
+                `${replayed.halted ? `, HALTED at ${replayed.halted.version}: ${replayed.halted.reason}` : ''}` +
+                `${replayed.stalledAt !== null ? `, stalled at ${replayed.stalledAt} (missing epoch key)` : ''}`,
+        );
+
         for (const rejected of replayed.rejected) {
+            console.warn(`${tag()} replay: rejected ${groupId} version ${rejected.version}: ${rejected.reason}`);
             await this.ledgerLogRepository.setStatus(
                 groupId,
                 rejected.version,

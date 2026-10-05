@@ -1,4 +1,5 @@
 import { Chat } from '../../../Domain/Aggregates/Chat.js';
+import { ChatMember } from '../../../Domain/Entities/ChatMember.js';
 import { Message } from '../../../Domain/Entities/Message.js';
 import { DeliveryStatus } from '../../../Domain/Enums/DeliveryStatus.js';
 
@@ -17,6 +18,12 @@ export interface IChatStore {
      * Get a chat by its ID
      **/
     getChat(chatId: string): Promise<Chat | null>;
+    getChatWithMembers(chatId: string): Promise<Chat | null>;
+
+    /**
+     * Replace a group chat's members and name with what the ledger now says
+     **/
+    syncGroupMembers(chatId: string, groupName: string | null, members: ChatMember[]): Promise<void>;
 
     /**
      * Get all chats, limited by the specified number

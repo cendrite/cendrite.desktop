@@ -6,13 +6,12 @@ import { IMediaService } from '../../../Application/Services/Media/MediaService.
 import { ServerMessage } from '../../../Application/Contracts/Messaging/ServerMessage.js';
 import {
     DeliveryStatusPayload,
-    GroupInvitePayload,
-    GroupWriteKeyOfferPayload,
+    GroupCreatedPayload,
     LedgerAdvancedPayload,
     MessagePayload,
     PayloadType,
 } from '../../../Application/Contracts/Messaging/Envelope.js';
-import { IGroupInviteService } from '../../../Application/Contracts/Services/IGroupInviteService.js';
+import { IGroupJoinService } from '../../../Application/Contracts/Services/IGroupJoinService.js';
 import { IGroupMembershipGuard } from '../../../Application/Contracts/Services/IGroupMembershipGuard.js';
 import { Message } from '../../../Domain/Entities/Message.js';
 import { MessageMedia } from '../../../Domain/Entities/MessageMedia.js';
@@ -24,6 +23,7 @@ import { Chat } from '../../../Domain/Aggregates/Chat.js';
 import { ChatMember } from '../../../Domain/Entities/ChatMember.js';
 import { ChatPrivileges } from '../../../Domain/Enums/ChatPrivileges.js';
 import { v4 as uuid } from 'uuid';
+import { tag } from '../../../Utilities.js';
 
 export interface IMessageReceiver {
     handle(message: ServerMessage): void;
@@ -38,13 +38,23 @@ export class MessageReceiver implements IMessageReceiver {
         private readonly friendRepository: IFriendRepository,
         private readonly userRepository: IUserRepository,
         private readonly mainWindow: BrowserWindow,
-        private readonly groupInviteService: IGroupInviteService,
+        private readonly groupJoinService: IGroupJoinService,
         private readonly groupMembershipGuard: IGroupMembershipGuard,
     ) { }
 
 
     public async handle(message: ServerMessage): Promise<void> {
+        try {
+            await this.dispatch(message);
+        } catch (error) {
+            console.error(`MessageReceiver: failed to handle message ${message.id}`, error);
+        }
+    }
+
+    private async dispatch(message: ServerMessage): Promise<void> {
         const envelope = await this.sessionManager.decrypt(message.payload, message.senderId);
+
+        console.log(`${tag()} wire: received type ${envelope.payloadType} from ${message.senderId}`);
 
         switch (envelope.payloadType) {
             case PayloadType.ChatMessage:
@@ -53,17 +63,11 @@ export class MessageReceiver implements IMessageReceiver {
             case PayloadType.DeliveryStatus:
                 await this.handleDeliveryStatusUpdate(message, envelope.payload as DeliveryStatusPayload);
                 break;
-            case PayloadType.GroupInvite:
-                await this.groupInviteService.acceptInvite(envelope.payload as GroupInvitePayload, message.senderId);
-                break;
-            case PayloadType.GroupWriteKeyOffer:
-                await this.groupInviteService.registerWriteKey(
-                    envelope.payload as GroupWriteKeyOfferPayload,
-                    message.senderId,
-                );
+            case PayloadType.GroupCreated:
+                await this.groupJoinService.join(envelope.payload as GroupCreatedPayload, message.senderId);
                 break;
             case PayloadType.LedgerAdvanced:
-                await this.groupInviteService.catchUp(envelope.payload as LedgerAdvancedPayload);
+                await this.groupJoinService.catchUp(envelope.payload as LedgerAdvancedPayload);
                 break;
             default:
                 console.warn(`Unhandled payload type ${envelope.payloadType}`);
@@ -87,9 +91,15 @@ export class MessageReceiver implements IMessageReceiver {
     }
 
     private async handleChatMessage(message: ServerMessage, payload: MessagePayload): Promise<void> {
+        console.log(
+            `${tag()} recv: message ${message.id} for chat ${message.ChatId} carries groupId ${payload.groupId ?? 'null'}`,
+        );
+
         // Removal is enforced here: the server will still carry a removed member's messages, clients ignore them.
-        if (payload.groupId && !(await this.groupMembershipGuard.isMember(payload.groupId, message.senderId))) {
-            console.warn(`MessageReceiver: dropped a message from a non-member in group ${payload.groupId}`);
+        if (payload.groupId && !(await this.isGroupMember(payload.groupId, message.senderId, payload.participants))) {
+            console.warn(
+                `${tag()} group: dropped message from ${message.senderId}, ledger does not list that device in ${payload.groupId}`,
+            );
             return;
         }
 
@@ -99,7 +109,11 @@ export class MessageReceiver implements IMessageReceiver {
             await this.mediaStore.store(m.id, m.content);
         }
 
-        await this.ensureChat(message.ChatId, payload);
+        // A message can outrun its own invite, and there is nowhere to put it until the chat exists.
+        if (!(await this.ensureChat(message.ChatId, payload))) {
+            console.warn(`MessageReceiver: no chat for ${message.ChatId} yet, dropping message ${message.id}`);
+            return;
+        }
 
         await this.chatStore.storeMessage(
             new Message(
@@ -133,16 +147,14 @@ export class MessageReceiver implements IMessageReceiver {
         });
     }
 
-    private async ensureChat(chatId: string, payload: MessagePayload): Promise<void> {
+    private async ensureChat(chatId: string, payload: MessagePayload): Promise<boolean> {
         const existing = await this.chatStore.getChat(chatId);
-        if (existing) return;
+        if (existing) return true;
 
-        // A group chat arrives through its invite, never through a message. Catching up may create it.
+        // A group chat arrives with GroupCreated, which the creator sends before the first message.
         if (payload.groupId) {
-            await this.groupInviteService.catchUp(
-                new LedgerAdvancedPayload(payload.groupId, 0, '', payload.participants),
-            );
-            return;
+            console.warn(`${tag()} group: message for ${payload.groupId} arrived before GroupCreated`);
+            return false;
         }
 
         const user = await this.userRepository.get(true);
@@ -159,5 +171,16 @@ export class MessageReceiver implements IMessageReceiver {
 
         const member = ChatMember.create(uuid().toString(), ChatPrivileges.Member, friend);
         await this.chatStore.create(new Chat(chatId, [member], []));
+
+        return true;
+    }
+
+    /** The group was created before the message was sent, so a miss means a genuine membership change. */
+    private async isGroupMember(groupId: string, connectionId: string, participants: string[]): Promise<boolean> {
+        if (await this.groupMembershipGuard.isMember(groupId, connectionId)) return true;
+
+        await this.groupJoinService.catchUp(new LedgerAdvancedPayload(groupId, 0, '', participants));
+
+        return this.groupMembershipGuard.isMember(groupId, connectionId);
     }
 }

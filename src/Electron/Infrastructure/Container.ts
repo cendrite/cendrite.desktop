@@ -19,14 +19,11 @@ import { KeyGenerator } from './Services/KeyGenerator.js';
 import { PurgeLocalDataService } from './Services/PurgeLocalDataService.js';
 import { SessionManager } from './Services/SessionManager.js';
 import { LedgerClient } from './Clients/LedgerClient.js';
-import { GroupControlSender } from './Services/GroupControlSender.js';
-import { GroupInviteService } from './Services/GroupInviteService.js';
+import { GroupJoinService } from './Services/GroupJoinService.js';
 import { GroupMembershipGuard } from './Services/GroupMembershipGuard.js';
 import { LedgerIdentity } from './Services/LedgerIdentity.js';
 import { LedgerSyncService } from './Services/LedgerSyncService.js';
 import { LedgerWriter } from './Services/LedgerWriter.js';
-import { LedgerPump } from './Pumps/LedgerPump.js';
-import { ControlMessagePump } from './Pumps/ControlMessagePump.js';
 import { LedgerReplayService } from './Services/LedgerReplayService.js';
 import { GroupKeyRepository } from './Persistence/Repositories/GroupKeyRepository.js';
 import { GroupRepository } from './Persistence/Repositories/GroupRepository.js';
@@ -41,7 +38,7 @@ import { FriendClient } from './Clients/FriendClient.js';
 import { EventRepository } from './Persistence/Repositories/EventRepository.js';
 import { AppearanceSettingsRepository } from './Persistence/Repositories/AppearanceSettingsRepository.js';
 import { SettingsRegistry } from './Services/SettingsRegistry.js';
-import { MessagePump } from './Pumps/MessagePump.js';
+import { OutboxPump } from './Pumps/OutboxPump.js';
 import { DeliveryStatusUpdatePump } from './Pumps/DeliveryUpdatePump.js';
 
 const services = {
@@ -78,8 +75,7 @@ const ledgerServices = {
     ledgerReplayService: asClass(LedgerReplayService, { lifetime: Lifetime.SINGLETON }),
     ledgerSyncService: asClass(LedgerSyncService, { lifetime: Lifetime.SINGLETON }),
     ledgerWriter: asClass(LedgerWriter, { lifetime: Lifetime.SINGLETON }),
-    groupControlSender: asClass(GroupControlSender, { lifetime: Lifetime.SINGLETON }),
-    groupInviteService: asClass(GroupInviteService, { lifetime: Lifetime.SINGLETON }),
+    groupJoinService: asClass(GroupJoinService, { lifetime: Lifetime.SINGLETON }),
     groupMembershipGuard: asClass(GroupMembershipGuard, { lifetime: Lifetime.SINGLETON }),
 };
 
@@ -101,10 +97,8 @@ const providers = {
 };
 
 const jobs = {
-    messagePump: asClass(MessagePump, { lifetime: Lifetime.SINGLETON }),
+    outboxPump: asClass(OutboxPump, { lifetime: Lifetime.SINGLETON }),
     deliveryStatusUpdatePump: asClass(DeliveryStatusUpdatePump, { lifetime: Lifetime.SINGLETON }),
-    ledgerPump: asClass(LedgerPump, { lifetime: Lifetime.SINGLETON }),
-    controlMessagePump: asClass(ControlMessagePump, { lifetime: Lifetime.SINGLETON }),
 }
 
 const httpClients = {

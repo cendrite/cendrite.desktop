@@ -1,4 +1,5 @@
 import { DeliveryStatus } from '../../../Domain/Enums/DeliveryStatus.js';
+import { GroupMemberRef } from '../../../Domain/Operations/LedgerOperation.js';
 
 export enum PayloadType {
     ChatMessage = 0,
@@ -6,8 +7,7 @@ export enum PayloadType {
     SettingsUpdate = 2,
     DeleteMessage = 3,
     EditMessage = 4,
-    GroupInvite = 5,
-    GroupWriteKeyOffer = 6,
+    GroupCreated = 5,
     LedgerAdvanced = 7,
 }
 
@@ -53,26 +53,18 @@ export class MediaPointer {
     ) { }
 }
 
-/** Carries the group keys over the pairwise session; they never touch the ledger. */
-export class GroupInvitePayload extends Payload {
+/**
+ * Everything a member needs to hold the group: the epoch key, the write key the creator minted for
+ * them, and the membership the ledger was created with. Nothing is asked of the recipient in return.
+ */
+export class GroupCreatedPayload extends Payload {
     constructor(
         public readonly groupId: string,
-        public readonly epochKeys: Record<number, string>,
-        public readonly atVersion: number,
-        participants: string[],
-    ) {
-        super(participants);
-    }
-}
-
-/** An invitee's answer: the public half of the write key it generated for this group. */
-export class GroupWriteKeyOfferPayload extends Payload {
-    constructor(
-        public readonly groupId: string,
-        public readonly writeKeyPublic: string,
-        public readonly userTag: string,
-        public readonly displayName: string,
-        public readonly identityKey: string,
+        public readonly name: string,
+        public readonly epoch: number,
+        public readonly epochKey: string,
+        public readonly writeKeyPrivate: string,
+        public readonly members: GroupMemberRef[],
         participants: string[],
     ) {
         super(participants);

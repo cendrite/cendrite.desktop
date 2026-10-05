@@ -84,6 +84,41 @@ export class EventRepository implements IEventRepository, IOutboxRepository {
         return deserializer(parseEventContent(event.content), event.occurredOn) as T;
     }
 
+    /**
+     * The next event to send. Ordered by rowid as well as time, because events queued in the same
+     * millisecond must still drain in the order they were written: a group's stream, its GroupCreated
+     * envelopes and the first message depend on it.
+     *
+     * Only the ordering is done in SQL. The row itself is loaded through the entity so its content is
+     * decoded the same way every other read decodes it.
+     */
+    public async getNext(): Promise<DomainEvent | null> {
+        let event = await this.nextUnprocessed();
+
+        while (event) {
+            const deserializer = resolveDeserializer(event.type);
+            if (deserializer) {
+                return deserializer(parseEventContent(event.content), event.occurredOn);
+            }
+
+            // An event whose kind no longer exists would otherwise block everything behind it forever.
+            await this.markAsFailed(event.id, `No registered deserializer for type: ${event.type}`);
+            event = await this.nextUnprocessed();
+        }
+
+        return null;
+    }
+
+    private async nextUnprocessed(): Promise<OutboxEvent | null> {
+        const rows: { id: string }[] = await this.ctx.query(
+            'SELECT id FROM outbox_event WHERE processedOn IS NULL ORDER BY occurredOn ASC, rowid ASC LIMIT 1',
+        );
+
+        if (rows.length === 0) return null;
+
+        return this.ctx.findOne({ where: { id: rows[0].id } });
+    }
+
     public async markEventAsProcessed(id: string): Promise<void> {
         await this.ctx.update({ id }, { processedOn: new Date() });
     }

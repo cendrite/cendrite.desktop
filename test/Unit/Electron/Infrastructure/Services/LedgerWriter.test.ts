@@ -110,12 +110,16 @@ function created(): LedgerOperation {
         authorTag: 'alice',
         at: 1,
         name: 'Trip',
-        owner: {
-            userTag: 'alice',
-            displayName: 'Alice',
-            privilege: ChatPrivileges.Owner,
-            identityKey: Buffer.from(identity.getPublicKey().serialize()).toString('base64'),
-        },
+        members: [
+            {
+                userTag: 'alice',
+                displayName: 'Alice',
+                privilege: ChatPrivileges.Owner,
+                identityKey: Buffer.from(identity.getPublicKey().serialize()).toString('base64'),
+                writeKeyPublic: writeKeyPair.publicKey.toString('base64'),
+                connectionIds: ['alice-device'],
+            },
+        ],
     };
 }
 
@@ -144,11 +148,15 @@ describe('creating a stream', () => {
         expect(result.success).toBe(true);
 
         const { payload, writeKey, signature } = provider.created!;
+
+        // The creation event grants the members their write keys, so those bytes are part of what it signs.
+        const keysAdded = [writeKeyPair.publicKey];
         const signingInput = buildSigningInput({
             groupId: GROUP_ID,
             version: 1,
             previousHash: Buffer.alloc(32),
             payload,
+            keysAdded,
         });
 
         const record = new LedgerEventRecord(
@@ -159,6 +167,7 @@ describe('creating a stream', () => {
             writeKey,
             signature,
             hashEvent(signingInput),
+            keysAdded.map((key) => key.toString('base64')),
         );
 
         const replayed = await new LedgerReplayService(keyRepository, ledgerIdentity).replay(GROUP_ID, [record]);

@@ -107,7 +107,7 @@ describe('LedgerLogRepository', () => {
 describe('GroupRepository', () => {
     test('round trips a group record', async () => {
         const sut = new GroupRepository();
-        await sut.save(new GroupRecord(GROUP_ID, GroupLifecycle.Active, 7, Buffer.alloc(32, 0x5a), 2, false, 'abc'));
+        await sut.save(new GroupRecord(GROUP_ID, GroupLifecycle.Active, 7, Buffer.alloc(32, 0x5a), 2, false));
 
         const stored = await sut.get(GROUP_ID);
 
@@ -115,7 +115,6 @@ describe('GroupRepository', () => {
         expect(stored!.version).toBe(7);
         expect(Buffer.from(stored!.headHash)).toEqual(Buffer.alloc(32, 0x5a));
         expect(stored!.epoch).toBe(2);
-        expect(stored!.publishedDevicesHash).toBe('abc');
     });
 
     test('defaults a new group to draft at version zero', async () => {

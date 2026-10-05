@@ -14,7 +14,7 @@ import {
     signOuter,
 } from '../../../../../src/Electron/Infrastructure/Crypto/LedgerCodec.js';
 import { LedgerEventRecord } from '../../../../../src/Electron/Domain/Entities/LedgerEventRecord.js';
-import { LedgerOperation } from '../../../../../src/Electron/Domain/Operations/LedgerOperation.js';
+import { GroupMemberRef, LedgerOperation } from '../../../../../src/Electron/Domain/Operations/LedgerOperation.js';
 import { LedgerOperationType } from '../../../../../src/Electron/Domain/Enums/LedgerOperationType.js';
 import { ChatPrivileges } from '../../../../../src/Electron/Domain/Enums/ChatPrivileges.js';
 
@@ -134,19 +134,30 @@ class LogBuilder {
     }
 }
 
-function created(owner: Member): LedgerOperation {
+function ref(member: Member, privilege: ChatPrivileges): GroupMemberRef {
+    return {
+        userTag: member.userTag,
+        displayName: member.displayName,
+        privilege,
+        identityKey: member.identityKey,
+        writeKeyPublic: member.writeKeyPublic,
+        connectionIds: [`${member.userTag}-device`],
+    };
+}
+
+/** The creator seats the whole group in one event, so the log needs no second round. */
+function created(owner: Member, ...members: Member[]): LedgerOperation {
     return {
         type: LedgerOperationType.GroupCreated,
         authorTag: owner.userTag,
         at: 1,
         name: 'Trip',
-        owner: {
-            userTag: owner.userTag,
-            displayName: owner.displayName,
-            privilege: ChatPrivileges.Owner,
-            identityKey: owner.identityKey,
-        },
+        members: [ref(owner, ChatPrivileges.Owner), ...members.map((member) => ref(member, ChatPrivileges.Member))],
     };
+}
+
+function createdKeys(owner: Member, ...members: Member[]): { keysAdded: string[] } {
+    return { keysAdded: [owner.writeKeyPublic, ...members.map((member) => member.writeKeyPublic)] };
 }
 
 function memberAdded(author: Member, member: Member, privilege = ChatPrivileges.Member): LedgerOperation {
@@ -154,13 +165,7 @@ function memberAdded(author: Member, member: Member, privilege = ChatPrivileges.
         type: LedgerOperationType.MemberAdded,
         authorTag: author.userTag,
         at: 2,
-        member: {
-            userTag: member.userTag,
-            displayName: member.displayName,
-            privilege,
-            identityKey: member.identityKey,
-        },
-        writeKeyPublic: member.writeKeyPublic,
+        member: ref(member, privilege),
     };
 }
 
@@ -169,7 +174,7 @@ describe('a well formed log', () => {
         const alice = new Member('alice', 'Alice');
         const bob = new Member('bob', 'Bob');
         const events = new LogBuilder()
-            .add(alice, created(alice))
+            .add(alice, created(alice), createdKeys(alice))
             .add(alice, memberAdded(alice, bob), { keysAdded: [bob.writeKeyPublic] })
             .build();
 
@@ -188,7 +193,7 @@ describe('a well formed log', () => {
         const alice = new Member('alice', 'Alice');
         const bob = new Member('bob', 'Bob');
         const events = new LogBuilder()
-            .add(alice, created(alice))
+            .add(alice, created(alice), createdKeys(alice))
             .add(alice, memberAdded(alice, bob, ChatPrivileges.Admin), { keysAdded: [bob.writeKeyPublic] })
             .add(bob, {
                 type: LedgerOperationType.SettingsChanged,
@@ -209,7 +214,7 @@ describe('a well formed log', () => {
         const alice = new Member('alice', 'Alice');
         const bob = new Member('bob', 'Bob');
         const events = new LogBuilder()
-            .add(alice, created(alice))
+            .add(alice, created(alice), createdKeys(alice))
             .add(alice, memberAdded(alice, bob), { keysAdded: [bob.writeKeyPublic] })
             .build();
 
@@ -224,7 +229,7 @@ describe('a well formed log', () => {
         const alice = new Member('alice', 'Alice');
         const bob = new Member('bob', 'Bob');
         const events = new LogBuilder()
-            .add(alice, created(alice))
+            .add(alice, created(alice), createdKeys(alice))
             .add(alice, memberAdded(alice, bob), { keysAdded: [bob.writeKeyPublic] })
             .add(
                 alice,
@@ -242,7 +247,7 @@ describe('a well formed log', () => {
     test('records a member published device list', async () => {
         const alice = new Member('alice', 'Alice');
         const events = new LogBuilder()
-            .add(alice, created(alice))
+            .add(alice, created(alice), createdKeys(alice))
             .add(alice, {
                 type: LedgerOperationType.DeviceListPublished,
                 authorTag: alice.userTag,
@@ -261,7 +266,7 @@ describe('a well formed log', () => {
 describe('a log the server could not have produced honestly', () => {
     test('halts when the outer signature does not verify', async () => {
         const alice = new Member('alice', 'Alice');
-        const events = new LogBuilder().add(alice, created(alice)).build();
+        const events = new LogBuilder().add(alice, created(alice), createdKeys(alice)).build();
         events[0].payload[events[0].payload.length - 1] ^= 0xff;
 
         const result = await sut().replay(GROUP_ID, events);
@@ -274,7 +279,7 @@ describe('a log the server could not have produced honestly', () => {
         const alice = new Member('alice', 'Alice');
         const bob = new Member('bob', 'Bob');
         const events = new LogBuilder()
-            .add(alice, created(alice))
+            .add(alice, created(alice), createdKeys(alice))
             .add(alice, memberAdded(alice, bob), {
                 keysAdded: [bob.writeKeyPublic],
                 previousHash: Buffer.alloc(32, 0xff),
@@ -291,7 +296,7 @@ describe('a log the server could not have produced honestly', () => {
         const alice = new Member('alice', 'Alice');
         const bob = new Member('bob', 'Bob');
         const events = new LogBuilder()
-            .add(alice, created(alice))
+            .add(alice, created(alice), createdKeys(alice))
             .add(alice, memberAdded(alice, bob), { keysAdded: [bob.writeKeyPublic], version: 5 })
             .build();
 
@@ -308,7 +313,7 @@ describe('operations the log rejects but still chains', () => {
         const carol = new Member('carol', 'Carol');
 
         const events = new LogBuilder()
-            .add(alice, created(alice))
+            .add(alice, created(alice), createdKeys(alice))
             .add(alice, memberAdded(alice, bob), { keysAdded: [bob.writeKeyPublic] })
             .add(bob, memberAdded(bob, carol), { keysAdded: [carol.writeKeyPublic] })
             .add(alice, {
@@ -333,7 +338,7 @@ describe('operations the log rejects but still chains', () => {
         const alice = new Member('alice', 'Alice');
         const bob = new Member('bob', 'Bob');
         const events = new LogBuilder()
-            .add(alice, created(alice))
+            .add(alice, created(alice), createdKeys(alice))
             .add(alice, memberAdded(alice, bob), { keysAdded: [bob.writeKeyPublic] })
             .add(
                 alice,
@@ -358,7 +363,7 @@ describe('operations the log rejects but still chains', () => {
         const alice = new Member('alice', 'Alice');
         const bob = new Member('bob', 'Bob');
         const events = new LogBuilder()
-            .add(alice, created(alice))
+            .add(alice, created(alice), createdKeys(alice))
             .add(alice, memberAdded(alice, bob), { keysAdded: [bob.writeKeyPublic] })
             .add(alice, {
                 type: LedgerOperationType.DeviceListPublished,
@@ -372,7 +377,8 @@ describe('operations the log rejects but still chains', () => {
         const result = await sut().replay(GROUP_ID, events);
 
         expect(result.rejected[0].reason).toBe('a member may only publish their own devices');
-        expect(result.state.members.get('bob')!.connectionIds).toEqual([]);
+        // Bob keeps the devices he joined with: another member cannot rewrite them.
+        expect(result.state.members.get('bob')!.connectionIds).toEqual(['bob-device']);
     });
 
     test('rejects granting a key the operation never declared', async () => {
@@ -381,7 +387,7 @@ describe('operations the log rejects but still chains', () => {
         const mallory = new Member('mallory', 'Mallory');
 
         const events = new LogBuilder()
-            .add(alice, created(alice))
+            .add(alice, created(alice), createdKeys(alice))
             .add(alice, memberAdded(alice, bob), { keysAdded: [mallory.writeKeyPublic] })
             .build();
 
@@ -396,7 +402,7 @@ describe('operations the log rejects but still chains', () => {
         const stranger = new Member('stranger', 'Stranger');
 
         const events = new LogBuilder()
-            .add(alice, created(alice))
+            .add(alice, created(alice), createdKeys(alice))
             .add(stranger, {
                 type: LedgerOperationType.SettingsChanged,
                 authorTag: stranger.userTag,
@@ -413,7 +419,7 @@ describe('operations the log rejects but still chains', () => {
 
     test('rejects a payload encrypted for another position', async () => {
         const alice = new Member('alice', 'Alice');
-        const events = new LogBuilder().add(alice, created(alice), { encryptAtVersion: 9 }).build();
+        const events = new LogBuilder().add(alice, created(alice), { ...createdKeys(alice), encryptAtVersion: 9 }).build();
 
         const result = await sut().replay(GROUP_ID, events);
 
@@ -424,7 +430,7 @@ describe('operations the log rejects but still chains', () => {
 describe('a missing epoch key', () => {
     test('stalls instead of rejecting, so it can resume once the key arrives', async () => {
         const alice = new Member('alice', 'Alice');
-        const events = new LogBuilder().add(alice, created(alice)).build();
+        const events = new LogBuilder().add(alice, created(alice), createdKeys(alice)).build();
 
         const result = await sut([]).replay(GROUP_ID, events);
 

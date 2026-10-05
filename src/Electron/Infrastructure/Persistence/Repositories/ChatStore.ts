@@ -92,6 +92,46 @@ export class ChatStore implements IChatStore {
             .execute();
     }
 
+    public async getChatWithMembers(chatId: string): Promise<Chat | null> {
+        return this.chatRepository.findOne({
+            where: { id: chatId },
+            relations: { members: { friend: { connectionIds: true } } },
+        });
+    }
+
+    public async syncGroupMembers(chatId: string, groupName: string | null, members: ChatMember[]): Promise<void> {
+        const chat = await this.getChatWithMembers(chatId);
+        if (!chat) return;
+
+        const existing = new Map(chat.members.map((member) => [member.userTag, member]));
+
+        for (const member of members) {
+            const current = existing.get(member.userTag);
+
+            if (!current) {
+                member.chat = chat;
+                await this.memberRepository.save(member);
+                continue;
+            }
+
+            // The friend relation is the local one-to-one link and is not the ledger's to overwrite.
+            current.privilege = member.privilege;
+            current.displayName = member.displayName;
+            current.connectionIds = member.connectionIds;
+            await this.memberRepository.save(current);
+        }
+
+        const departed = chat.members.filter((member) => !members.some((m) => m.userTag === member.userTag));
+        if (departed.length > 0) {
+            await this.memberRepository.remove(departed);
+        }
+
+        if (chat.groupName !== groupName) {
+            chat.groupName = groupName;
+            await this.chatRepository.save(chat);
+        }
+    }
+
     public async deleteByFriendId(friendId: string): Promise<void> {
         const chat = await this.chatRepository
             .createQueryBuilder('chat')

@@ -1,6 +1,8 @@
-import { PublicKey } from '@signalapp/libsignal-client';
+import { ProtocolAddress, PublicKey } from '@signalapp/libsignal-client';
 import { ILedgerIdentity } from '../Interfaces/ILedgerIdentity.js';
 import { SignalProtocolStore } from './SignalProtocolStore.js';
+
+const DEVICE_ID = 1;
 
 /**
  * Operations are signed with the long-term libsignal identity key, inside the ciphertext, so members can
@@ -17,6 +19,11 @@ export class LedgerIdentity implements ILedgerIdentity {
     public async publicKey(): Promise<Buffer> {
         const identityKey = await this.signalProtocolStore.getIdentityKey();
         return Buffer.from(identityKey.getPublicKey().serialize());
+    }
+
+    public async peerPublicKey(connectionId: string): Promise<Buffer | null> {
+        const identity = await this.signalProtocolStore.getIdentity(ProtocolAddress.new(connectionId, DEVICE_ID));
+        return identity ? Buffer.from(identity.serialize()) : null;
     }
 
     public verify(identityKey: Buffer, data: Buffer, signature: Buffer): boolean {

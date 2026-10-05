@@ -7,7 +7,6 @@ export class GroupRecord {
     headHash: Buffer;
     epoch: number;
     archived: boolean;
-    publishedDevicesHash: string | null;
 
     constructor(
         groupId: string,
@@ -16,7 +15,6 @@ export class GroupRecord {
         headHash: Buffer = Buffer.alloc(32),
         epoch: number = 1,
         archived: boolean = false,
-        publishedDevicesHash: string | null = null,
     ) {
         this.groupId = groupId;
         this.lifecycle = lifecycle;
@@ -24,6 +22,5 @@ export class GroupRecord {
         this.headHash = headHash;
         this.epoch = epoch;
         this.archived = archived;
-        this.publishedDevicesHash = publishedDevicesHash;
     }
 }

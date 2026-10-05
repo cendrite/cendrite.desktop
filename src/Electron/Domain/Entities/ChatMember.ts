@@ -41,6 +41,6 @@ export class ChatMember {
     }
 
     public get devices(): string[] {
-        return this.connectionIds ?? this.friend?.connectionIds.map((c) => c.connectionId) ?? [];
+        return this.connectionIds ?? this.friend?.connectionIds?.map((c) => c.connectionId) ?? [];
     }
 }

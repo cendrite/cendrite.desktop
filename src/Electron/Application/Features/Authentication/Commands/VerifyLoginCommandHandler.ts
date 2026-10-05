@@ -28,7 +28,7 @@ export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, Us
         private readonly signalManager: ISignalManager,
         private readonly userRepository: IUserRepository,
         private readonly userProvider: IUserProvider,
-        private readonly messagePump: IPump,
+        private readonly outboxPump: IPump,
         private readonly deliveryStatusUpdatePump: IPump,
     ) { }
 
@@ -110,7 +110,7 @@ export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, Us
             savedUser.displayName,
         );
 
-        this.messagePump.start();
+        this.outboxPump.start();
         this.deliveryStatusUpdatePump.start();
 
         return Result.success<UserContract>(userContract);

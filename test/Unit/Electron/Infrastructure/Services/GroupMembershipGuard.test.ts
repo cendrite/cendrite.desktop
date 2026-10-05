@@ -1,39 +1,30 @@
 import { describe, expect, test } from 'vitest';
 import { GroupMembershipGuard } from '../../../../../src/Electron/Infrastructure/Services/GroupMembershipGuard.js';
-import { ILedgerLogRepository } from '../../../../../src/Electron/Application/Contracts/Repositories/ILedgerLogRepository.js';
-import { ILedgerReplayService } from '../../../../../src/Electron/Application/Contracts/Services/ILedgerReplayService.js';
-import { LedgerEventRecord } from '../../../../../src/Electron/Domain/Entities/LedgerEventRecord.js';
-import { GroupMember } from '../../../../../src/Electron/Domain/Projections/GroupMember.js';
-import { GroupState } from '../../../../../src/Electron/Domain/Projections/GroupState.js';
+import { IChatStore } from '../../../../../src/Electron/Application/Contracts/Repositories/IChatStore.js';
+import { Chat } from '../../../../../src/Electron/Domain/Aggregates/Chat.js';
+import { ChatMember } from '../../../../../src/Electron/Domain/Entities/ChatMember.js';
 import { ChatPrivileges } from '../../../../../src/Electron/Domain/Enums/ChatPrivileges.js';
 
 const GROUP_ID = '0199673a-3c1e-7c2b-9f2e-5d8b1a4c7e10';
 
-function guard(members: { tag: string; devices: string[] }[], hasEvents = true) {
-    const state = new GroupState(GROUP_ID);
-    for (const member of members) {
-        state.members.set(
-            member.tag,
-            new GroupMember(member.tag, member.tag, ChatPrivileges.Member, 'id', 1, [], member.devices),
-        );
-    }
+function guard(members: { tag: string; devices: string[] }[] | null) {
+    const chatStore = {
+        getChatWithMembers: async () => {
+            if (!members) return null;
 
-    const log = {
-        getAll: async () =>
-            hasEvents
-                ? [new LedgerEventRecord(GROUP_ID, 1, Buffer.alloc(32), Buffer.from([1]), Buffer.alloc(32), Buffer.alloc(64), Buffer.alloc(32))]
-                : [],
-    } as unknown as ILedgerLogRepository;
+            const chatMembers = members.map((member, index) =>
+                ChatMember.createExternal(`m${index}`, ChatPrivileges.Member, member.tag, member.tag, member.devices),
+            );
 
-    const replay = {
-        replay: async () => ({ state, rejected: [], halted: null, stalledAt: null }),
-    } as unknown as ILedgerReplayService;
+            return new Chat(GROUP_ID, chatMembers, [], 0, false, GROUP_ID);
+        },
+    } as unknown as IChatStore;
 
-    return new GroupMembershipGuard(log, replay);
+    return new GroupMembershipGuard(chatStore);
 }
 
 describe('the membership guard', () => {
-    test('accepts a device the ledger lists', async () => {
+    test('accepts a device the group lists', async () => {
         const sut = guard([{ tag: 'bob', devices: ['bob-device'] }]);
 
         expect(await sut.isMember(GROUP_ID, 'bob-device')).toBe(true);
@@ -42,11 +33,11 @@ describe('the membership guard', () => {
     test('rejects a device belonging to nobody in the group', async () => {
         const sut = guard([{ tag: 'bob', devices: ['bob-device'] }]);
 
-        expect(await sut.isMember(GROUP_ID, 'carol-device')).toBe(false);
+        expect(await sut.isMember(GROUP_ID, 'stranger-device')).toBe(false);
     });
 
-    test('rejects everyone when there is no log yet', async () => {
-        const sut = guard([{ tag: 'bob', devices: ['bob-device'] }], false);
+    test('rejects everyone when the group is not held locally', async () => {
+        const sut = guard(null);
 
         expect(await sut.isMember(GROUP_ID, 'bob-device')).toBe(false);
     });

@@ -15,9 +15,3 @@ export class RemoveGroupMemberCommand implements MediatorRequest {
         public readonly userTag: string,
     ) { }
 }
-
-export class PublishDeviceListCommand implements MediatorRequest {
-    type = PublishDeviceListCommand.name;
-
-    constructor(public readonly groupId: string | null = null) { }
-}

@@ -2,11 +2,11 @@ import { PayloadType } from '../../Application/Contracts/Messaging/Envelope.js';
 import { DomainEvent, registerDomainEvent } from './IDomainEvent.js';
 
 /**
- * Control traffic goes through the outbox like messages do, so an invite is not lost when the hub
- * happens to be down, and so the receiver never depends on the sender.
+ * An envelope waiting to be sent. It goes through the outbox like a message does, so the order it was
+ * queued in is the order it leaves in, and nothing is lost while the hub is down.
  */
-export class ControlMessageQueuedEvent extends DomainEvent {
-    static readonly type = ControlMessageQueuedEvent.name;
+export class EnvelopeQueuedEvent extends DomainEvent {
+    static readonly type = EnvelopeQueuedEvent.name;
 
     constructor(
         id: string,
@@ -20,8 +20,8 @@ export class ControlMessageQueuedEvent extends DomainEvent {
 }
 
 registerDomainEvent(
-    ControlMessageQueuedEvent.type,
-    ControlMessageQueuedEvent,
+    EnvelopeQueuedEvent.type,
+    EnvelopeQueuedEvent,
     (raw: any, occurredOn: Date) =>
-        new ControlMessageQueuedEvent(raw.id, raw.payloadType, raw.payload, raw.connectionIds, occurredOn),
+        new EnvelopeQueuedEvent(raw.id, raw.payloadType, raw.payload, raw.connectionIds, occurredOn),
 );

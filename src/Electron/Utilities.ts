@@ -16,3 +16,14 @@ export function getPreloadPath() {
         return path.resolve(app.getAppPath(), isDevelopment() ? './' : '../', 'dist-electron/Electron/Preload.cjs');
     }
 }
+
+/** Prefix for group and ledger logs, so the three dev instances can be told apart in one stream. */
+export function tag(): string {
+    return `[i${process.env.ELECTRON_INSTANCE_ID ?? '?'}]`;
+}
+
+export function short(value: Buffer | string | null | undefined): string {
+    if (!value) return 'none';
+    const hex = typeof value === 'string' ? value : value.toString('hex');
+    return hex.slice(0, 8);
+}

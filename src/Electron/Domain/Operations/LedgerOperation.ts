@@ -6,6 +6,9 @@ export interface GroupMemberRef {
     displayName: string;
     privilege: ChatPrivileges;
     identityKey: string;
+    /** Minted by whoever adds the member, so joining costs no round trip. */
+    writeKeyPublic: string;
+    connectionIds: string[];
 }
 
 interface LedgerOperationBase {
@@ -17,13 +20,12 @@ interface LedgerOperationBase {
 export interface GroupCreatedOperation extends LedgerOperationBase {
     type: LedgerOperationType.GroupCreated;
     name: string;
-    owner: GroupMemberRef;
+    members: GroupMemberRef[];
 }
 
 export interface MemberAddedOperation extends LedgerOperationBase {
     type: LedgerOperationType.MemberAdded;
     member: GroupMemberRef;
-    writeKeyPublic: string;
 }
 
 export interface MemberRemovedOperation extends LedgerOperationBase {

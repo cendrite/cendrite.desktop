@@ -1,17 +1,11 @@
 import { describe, expect, test } from 'vitest';
 import { RemoveGroupMemberCommandHandler } from '../../../../../../../src/Electron/Application/Features/Chat/Commands/RemoveGroupMemberCommandHandler.js';
-import { PublishDeviceListCommandHandler } from '../../../../../../../src/Electron/Application/Features/Chat/Commands/PublishDeviceListCommandHandler.js';
-import {
-    PublishDeviceListCommand,
-    RemoveGroupMemberCommand,
-} from '../../../../../../../src/Electron/Application/Features/Chat/Contracts/GroupMembership.js';
+import { RemoveGroupMemberCommand } from '../../../../../../../src/Electron/Application/Features/Chat/Contracts/GroupMembership.js';
 import { IEventRepository } from '../../../../../../../src/Electron/Application/Contracts/Providers/IEventRepository.js';
 import { IGroupRepository } from '../../../../../../../src/Electron/Application/Contracts/Repositories/IGroupRepository.js';
 import { IUserRepository } from '../../../../../../../src/Electron/Application/Contracts/Repositories/IUserRepository.js';
 import { ILedgerSyncService } from '../../../../../../../src/Electron/Application/Contracts/Services/ILedgerSyncService.js';
 import { IPump } from '../../../../../../../src/Electron/Application/Contracts/Services/IPump.js';
-import { GroupRecord } from '../../../../../../../src/Electron/Domain/Entities/GroupRecord.js';
-import { GroupLifecycle } from '../../../../../../../src/Electron/Domain/Enums/GroupLifecycle.js';
 import { LedgerOperationType } from '../../../../../../../src/Electron/Domain/Enums/LedgerOperationType.js';
 import { ChatPrivileges } from '../../../../../../../src/Electron/Domain/Enums/ChatPrivileges.js';
 import { LedgerOperationQueuedEvent } from '../../../../../../../src/Electron/Domain/Events/LedgerOperationQueuedEvent.js';
@@ -69,54 +63,5 @@ describe('removing a member', () => {
 
         expect(result.success).toBe(false);
         expect(appended).toEqual([]);
-    });
-});
-
-describe('publishing a device list', () => {
-    function harness(groups: GroupRecord[]) {
-        const appended: DomainEvent[] = [];
-        const saved: GroupRecord[] = [];
-
-        const sut = new PublishDeviceListCommandHandler(
-            { appendEvent: async (e: DomainEvent) => void appended.push(e) } as IEventRepository,
-            {
-                get: async (id: string) => groups.find((g) => g.groupId === id) ?? null,
-                getByLifecycle: async () => groups,
-                save: async (g: GroupRecord) => void saved.push(g),
-            } as unknown as IGroupRepository,
-            { get: async () => user() } as unknown as IUserRepository,
-            { notify: () => {}, start: () => {}, stop: () => {} } as IPump,
-        );
-
-        return { sut, appended, saved };
-    }
-
-    test('publishes the caller own devices to every active group', async () => {
-        const h = harness([
-            new GroupRecord(GROUP_ID, GroupLifecycle.Active),
-            new GroupRecord('0199673a-3c1e-7c2b-9f2e-5d8b1a4c7e11', GroupLifecycle.Active),
-        ]);
-
-        await h.sut.handle(new PublishDeviceListCommand());
-
-        expect(h.appended).toHaveLength(2);
-        const queued = h.appended[0] as LedgerOperationQueuedEvent;
-        const operation = queued.operation as { userTag: string; connectionIds: string[] };
-        expect(queued.operation.type).toBe(LedgerOperationType.DeviceListPublished);
-        expect(operation.userTag).toBe('alice');
-        expect(operation.connectionIds).toEqual(['device-a', 'device-b']);
-    });
-
-    test('says nothing when the device list has not changed', async () => {
-        const h = harness([new GroupRecord(GROUP_ID, GroupLifecycle.Active)]);
-
-        await h.sut.handle(new PublishDeviceListCommand());
-        const after = h.saved[0];
-        h.appended.length = 0;
-
-        await h.sut.handle(new PublishDeviceListCommand());
-
-        expect(after.publishedDevicesHash).not.toBeNull();
-        expect(h.appended).toEqual([]);
     });
 });

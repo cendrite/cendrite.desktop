@@ -10,6 +10,7 @@ import { LedgerOperation } from '../../Domain/Operations/LedgerOperation.js';
 import { GroupState } from '../../Domain/Projections/GroupState.js';
 import { buildOperationSigningInput, buildSigningInput, encryptPayload, signOuter } from '../Crypto/LedgerCodec.js';
 import { ILedgerIdentity } from '../Interfaces/ILedgerIdentity.js';
+import { short, tag } from '../../Utilities.js';
 
 const GENESIS_PREVIOUS_HASH = Buffer.alloc(32);
 const MAX_ATTEMPTS = 5;
@@ -24,10 +25,25 @@ export class LedgerWriter implements ILedgerWriter {
     ) { }
 
     public async createStream(groupId: string, operation: LedgerOperation): Promise<Result<void>> {
-        const sealed = await this.seal(groupId, 1, GENESIS_PREVIOUS_HASH, operation, [], []);
+        // The members' keys are declared in the event the creator signs, so every client sees the same
+        // grant. The create endpoint registers only the creator's key server side.
+        const keyChanges = keyChangesFor(operation, new GroupState(groupId));
+
+        const sealed = await this.seal(
+            groupId,
+            1,
+            GENESIS_PREVIOUS_HASH,
+            operation,
+            keyChanges.added,
+            keyChanges.removed,
+        );
         if (!sealed.success) return Result.fail(sealed.errorMessage!);
 
         const { payload, writeKey, signature } = sealed.data!;
+
+        console.log(
+            `${tag()} ledger: POST stream ${groupId} version 1 writeKey ${short(writeKey.publicKey)} payload ${payload.length}b`,
+        );
 
         return this.ledgerProvider.createStream(groupId, payload, writeKey.publicKey, signature);
     }
@@ -66,6 +82,10 @@ export class LedgerWriter implements ILedgerWriter {
                     keyChanges.added,
                     keyChanges.removed,
                 ),
+            );
+
+            console.log(
+                `${tag()} ledger: PUT ${groupId} expected ${group.version} prev ${short(Buffer.from(group.headHash))} -> ${result.success ? 'ok' : result.errorMessage?.code}`,
             );
 
             if (result.success || !isLedgerConflict(result)) return result;
@@ -122,7 +142,15 @@ interface SealedOperation {
 
 function keyChangesFor(operation: LedgerOperation, state: GroupState): { added: Buffer[]; removed: Buffer[] } {
     switch (operation.type) {
+        case LedgerOperationType.GroupCreated:
+            return {
+                added: operation.members.map((member) => Buffer.from(member.writeKeyPublic, 'base64')),
+                removed: [],
+            };
+
         case LedgerOperationType.MemberAdded:
+            return { added: [Buffer.from(operation.member.writeKeyPublic, 'base64')], removed: [] };
+
         case LedgerOperationType.WriteKeyRegistered:
             return { added: [Buffer.from(operation.writeKeyPublic, 'base64')], removed: [] };
 

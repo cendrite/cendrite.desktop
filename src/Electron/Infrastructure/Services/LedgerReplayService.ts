@@ -126,13 +126,21 @@ export class LedgerReplayService implements ILedgerReplayService {
      */
     private identityPinFailure(state: GroupState, operation: LedgerOperation, identityKey: string): string | null {
         if (operation.type === LedgerOperationType.GroupCreated) {
-            return operation.owner.identityKey === identityKey
+            const creator = operation.members.find((member) => member.userTag === operation.authorTag);
+
+            return creator?.identityKey === identityKey
                 ? null
                 : 'creator identity key does not match the operation';
         }
 
         const author = state.members.get(operation.authorTag);
         if (!author) return null;
+
+        // The creator may not have known a member's identity key, so an unpinned member pins on first use.
+        if (!author.identityKey) {
+            author.identityKey = identityKey;
+            return null;
+        }
 
         return author.identityKey === identityKey ? null : 'identity key does not match the one pinned for this member';
     }
