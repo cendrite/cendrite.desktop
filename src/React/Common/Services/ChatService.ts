@@ -15,6 +15,7 @@ import { DeliveryStatus } from '../../../Electron/Domain/Enums/DeliveryStatus.ts
 import { GetMessagesQuery } from '../../../Electron/Application/Features/Chat/Contracts/GetMessages.ts';
 import { Media } from '../../Models/Media.ts';
 import { SendMessageCommand } from '../../../Electron/Application/Features/Chat/Contracts/SendMessage.ts';
+import { CreateGroupCommand } from '../../../Electron/Application/Features/Chat/Contracts/CreateGroup.ts';
 import { ResendMessageCommand } from '../../../Electron/Application/Features/Chat/Contracts/ResendMessage.ts';
 import { MessageContract } from '../../../Electron/Application/Contracts/Models/MessageContract.ts';
 import { UpdateDeliveryStatusCommand } from '../../../Electron/Application/Features/Chat/Contracts/UpdateDeliveryStatus.ts';
@@ -118,6 +119,34 @@ export class ChatService {
         return new ChatViewModel(result.data!.id, [chatMember]);
     }
 
+    public async createGroup(name: string, members: Contact[]): Promise<ChatViewModel> {
+        const groupId = uuid().toString();
+        const result = await window.electron.sendRequestAsync<Result<ChatContract>>(
+            new CreateGroupCommand(
+                groupId,
+                name,
+                members.map((member) => member.id),
+            ),
+        );
+
+        if (!result.success) throw new Error(result.errorMessage?.message ?? 'Failed to create group');
+
+        const chatMembers = result.data!.members.map((memberDto) => {
+            const contact = members.find((c) => c.id === memberDto.friendId) ?? null;
+
+            return new ChatMemberViewModel(
+                memberDto.id,
+                memberDto.privelege,
+                memberDto.displayName,
+                memberDto.userTag,
+                memberDto.connectionsIds ?? [],
+                contact,
+            );
+        });
+
+        return new ChatViewModel(result.data!.id, chatMembers, [], false, null, result.data!.groupName, true);
+    }
+
     public async getChats(contacts: Contact[]): Promise<ChatViewModel[]> {
         const chatsResult = await window.electron.sendRequestAsync<Result<ChatContract[]>>(new GetChatsQuery(30, 20));
 
@@ -147,6 +176,8 @@ export class ChatService {
                 messages,
                 chatDto.muted,
                 chatDto.muteTimer ? new Date(chatDto.muteTimer) : null,
+                chatDto.groupName,
+                chatDto.isGroup,
             );
         });
     }

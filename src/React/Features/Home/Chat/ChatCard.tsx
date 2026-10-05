@@ -14,7 +14,7 @@ export const ChatCard: React.FC<ChatCardProps> = ({ chat }) => {
     const { user } = useUser();
     const unreadMessages = chat.getUnreadMessages(user!.connectionId);
     const isSelected = selectedItem.type === 'chat' && selectedItem.value.id === chat.id;
-    const name = chat.chatMembers[0]?.name ?? "?";
+    const name = chat.title;
     const lastMessage = chat.messages.length > 0 ? chat.messages[chat.messages.length - 1] : null;
 
     const onHandleClick = async () => {

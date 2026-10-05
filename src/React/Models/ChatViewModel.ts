@@ -8,6 +8,8 @@ export class ChatViewModel {
     messages: MessageViewModel[];
     muted: boolean = false;
     mutedTimer: Date | null = null;
+    groupName: string | null = null;
+    isGroup: boolean = false;
 
     constructor(
         id: string,
@@ -15,12 +17,20 @@ export class ChatViewModel {
         messages: MessageViewModel[] = [],
         muted: boolean = false,
         mutedTimer: Date | null = null,
+        groupName: string | null = null,
+        isGroup: boolean = false,
     ) {
         this.id = id;
         this.chatMembers = contact;
         this.messages = messages;
         this.muted = muted;
         this.mutedTimer = mutedTimer;
+        this.groupName = groupName;
+        this.isGroup = isGroup;
+    }
+
+    get title(): string {
+        return this.isGroup ? (this.groupName ?? 'Group') : (this.chatMembers[0]?.name ?? '?');
     }
 
     get connectionIds(): string[] {

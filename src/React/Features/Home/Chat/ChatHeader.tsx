@@ -24,18 +24,18 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ chat, onClose }) => {
                 <div className="w-7 h-7 rounded-full flex items-center justify-center overflow-hidden bg-media ml-3">
                     <Avatar
                         className="w-11 h-11"
-                        AvatarKey={chatMember?.contact?.avatarKey ?? null}
-                        Username={chatMember?.name ?? "?"}
+                        AvatarKey={chat.isGroup ? null : (chatMember?.contact?.avatarKey ?? null)}
+                        Username={chat.title}
                     />
                 </div>
 
                 <span className="text-fg text-sm ml-3">
-                    {chatMember.name}
+                    {chat.title}
                 </span>
             </div>
 
             <div className="flex items-center space-x-2">
-                {chatMember.contact && (
+                {!chat.isGroup && chatMember.contact && (
                     <>
                         <VoiceCallButton contact={chatMember.contact} />
                         <VideoCallButton contact={chatMember.contact} />

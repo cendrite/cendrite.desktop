@@ -69,6 +69,18 @@ export function useChatEvents(
         [chatDispatch],
     );
 
+    // A group appears or changes when the ledger says so, so the chat list is rebuilt from the main process.
+    const handleGroupUpdated = useCallback(async () => {
+        const refreshed = await chatService.getChats(contacts);
+        chatDispatch({ type: ChatActionType.Init, payload: refreshed });
+    }, [chatService, contacts, chatDispatch]);
+
+    const handleLedgerFork = useCallback((evt: { chatId: string }) => {
+        console.error(`Ledger fork reported for group ${evt.chatId}: the server served two different logs.`);
+    }, []);
+
+    useMessageEdit('groupUpdated', handleGroupUpdated);
+    useMessageEdit('ledgerFork', handleLedgerFork);
     useMessageEdit('deliveryStatus', handleDeliveryStatusUpdate);
     useMessageEdit('message', receiveMessage);
     useSignalEvent<FriendDeletedEvent>(ChangeEventType.FriendRemoved, handleFriendDeleted);
