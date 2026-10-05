@@ -11,7 +11,6 @@ import { IGroupRepository } from '../../../../../src/Electron/Application/Contra
 import { IChatStore } from '../../../../../src/Electron/Application/Contracts/Repositories/IChatStore.js';
 import { IUserRepository } from '../../../../../src/Electron/Application/Contracts/Repositories/IUserRepository.js';
 import { IEventRepository } from '../../../../../src/Electron/Application/Contracts/Providers/IEventRepository.js';
-import { IGroupControlSender } from '../../../../../src/Electron/Application/Contracts/Services/IGroupControlSender.js';
 import { ILedgerSyncService } from '../../../../../src/Electron/Application/Contracts/Services/ILedgerSyncService.js';
 import { IPump } from '../../../../../src/Electron/Application/Contracts/Services/IPump.js';
 import { Chat } from '../../../../../src/Electron/Domain/Aggregates/Chat.js';
@@ -23,6 +22,7 @@ import { ChatPrivileges } from '../../../../../src/Electron/Domain/Enums/ChatPri
 import { LedgerOperationType } from '../../../../../src/Electron/Domain/Enums/LedgerOperationType.js';
 import { GroupMember } from '../../../../../src/Electron/Domain/Projections/GroupMember.js';
 import { GroupState } from '../../../../../src/Electron/Domain/Projections/GroupState.js';
+import { ControlMessageQueuedEvent } from '../../../../../src/Electron/Domain/Events/ControlMessageQueuedEvent.js';
 import { LedgerOperationQueuedEvent } from '../../../../../src/Electron/Domain/Events/LedgerOperationQueuedEvent.js';
 import { DomainEvent } from '../../../../../src/Electron/Domain/Events/IDomainEvent.js';
 import { User } from '../../../../../src/Electron/Domain/Aggregates/User.js';
@@ -80,11 +80,12 @@ function harness(state: GroupState, options: { syncFails?: boolean; existingWrit
         get: async () => new User('user-1', 'alice', 'alice', 'Alice'),
     } as unknown as IUserRepository;
 
-    const eventRepository = { appendEvent: async (e: DomainEvent) => void appended.push(e) } as IEventRepository;
-
-    const groupControlSender: IGroupControlSender = {
-        send: async (type, _payload, connectionIds) => void sent.push({ type, connectionIds }),
-    };
+    const eventRepository = {
+        appendEvent: async (e: DomainEvent) => {
+            appended.push(e);
+            if (e instanceof ControlMessageQueuedEvent) sent.push({ type: e.payloadType, connectionIds: e.connectionIds });
+        },
+    } as IEventRepository;
 
     const ledgerPump = { notify: () => {}, start: () => {}, stop: () => {} } as IPump;
     const mainWindow = { webContents: { send: vi.fn() } } as unknown as Electron.BrowserWindow;
@@ -96,7 +97,6 @@ function harness(state: GroupState, options: { syncFails?: boolean; existingWrit
         chatStore,
         userRepository,
         eventRepository,
-        groupControlSender,
         ledgerPump,
         mainWindow,
     );
@@ -160,7 +160,7 @@ describe('an invitee offering its write key', () => {
             'bob-device',
         );
 
-        const queued = h.appended[0] as LedgerOperationQueuedEvent;
+        const queued = h.appended.find((e) => e instanceof LedgerOperationQueuedEvent) as LedgerOperationQueuedEvent;
         expect(queued.operation.type).toBe(LedgerOperationType.MemberAdded);
         expect(queued.createsStream).toBe(false);
     });
@@ -173,7 +173,7 @@ describe('an invitee offering its write key', () => {
             'bob-device',
         );
 
-        const queued = h.appended[0] as LedgerOperationQueuedEvent;
+        const queued = h.appended.find((e) => e instanceof LedgerOperationQueuedEvent) as LedgerOperationQueuedEvent;
         expect(queued.operation.type).toBe(LedgerOperationType.WriteKeyRegistered);
     });
 
@@ -187,7 +187,7 @@ describe('an invitee offering its write key', () => {
             'bob-device',
         );
 
-        expect(h.appended).toEqual([]);
+        expect(h.appended.filter((e) => e instanceof LedgerOperationQueuedEvent)).toEqual([]);
     });
 });
 

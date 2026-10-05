@@ -17,6 +17,7 @@ export class LogoutCommandHandler implements Handler<LogoutCommand, void> {
         private readonly messagePump: IPump,
         private readonly deliveryStatusUpdatePump: IPump,
         private readonly ledgerPump: IPump,
+        private readonly controlMessagePump: IPump,
         private readonly signalManager: ISignalManager
     ) { }
 
@@ -28,6 +29,7 @@ export class LogoutCommandHandler implements Handler<LogoutCommand, void> {
 
         this.messagePump.stop();
         this.ledgerPump.stop();
+        this.controlMessagePump.stop();
         this.deliveryStatusUpdatePump.stop();
 
         this.logoutManager.startLogout();

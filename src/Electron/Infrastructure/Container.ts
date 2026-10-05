@@ -25,6 +25,7 @@ import { LedgerIdentity } from './Services/LedgerIdentity.js';
 import { LedgerSyncService } from './Services/LedgerSyncService.js';
 import { LedgerWriter } from './Services/LedgerWriter.js';
 import { LedgerPump } from './Pumps/LedgerPump.js';
+import { ControlMessagePump } from './Pumps/ControlMessagePump.js';
 import { LedgerReplayService } from './Services/LedgerReplayService.js';
 import { GroupKeyRepository } from './Persistence/Repositories/GroupKeyRepository.js';
 import { GroupRepository } from './Persistence/Repositories/GroupRepository.js';
@@ -101,6 +102,7 @@ const jobs = {
     messagePump: asClass(MessagePump, { lifetime: Lifetime.SINGLETON }),
     deliveryStatusUpdatePump: asClass(DeliveryStatusUpdatePump, { lifetime: Lifetime.SINGLETON }),
     ledgerPump: asClass(LedgerPump, { lifetime: Lifetime.SINGLETON }),
+    controlMessagePump: asClass(ControlMessagePump, { lifetime: Lifetime.SINGLETON }),
 }
 
 const httpClients = {

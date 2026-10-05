@@ -6,7 +6,6 @@ import {
     LedgerAdvancedPayload,
     PayloadType,
 } from '../../Application/Contracts/Messaging/Envelope.js';
-import { IGroupControlSender } from '../../Application/Contracts/Services/IGroupControlSender.js';
 import { IGroupInviteService } from '../../Application/Contracts/Services/IGroupInviteService.js';
 import { ILedgerSyncService } from '../../Application/Contracts/Services/ILedgerSyncService.js';
 import { IChatStore } from '../../Application/Contracts/Repositories/IChatStore.js';
@@ -22,6 +21,7 @@ import { ChatMember } from '../../Domain/Entities/ChatMember.js';
 import { GroupRecord } from '../../Domain/Entities/GroupRecord.js';
 import { GroupLifecycle } from '../../Domain/Enums/GroupLifecycle.js';
 import { LedgerOperationType } from '../../Domain/Enums/LedgerOperationType.js';
+import { ControlMessageQueuedEvent } from '../../Domain/Events/ControlMessageQueuedEvent.js';
 import { LedgerOperationQueuedEvent } from '../../Domain/Events/LedgerOperationQueuedEvent.js';
 import { GroupState } from '../../Domain/Projections/GroupState.js';
 import { generateWriteKeyPair } from '../Crypto/LedgerCodec.js';
@@ -34,7 +34,6 @@ export class GroupInviteService implements IGroupInviteService {
         private readonly chatStore: IChatStore,
         private readonly userRepository: IUserRepository,
         private readonly eventRepository: IEventRepository,
-        private readonly groupControlSender: IGroupControlSender,
         private readonly ledgerPump: IPump,
         private readonly mainWindow: BrowserWindow,
     ) { }
@@ -64,18 +63,23 @@ export class GroupInviteService implements IGroupInviteService {
             new GroupWriteKey(payload.groupId, writeKey.publicKey, writeKey.privateKey),
         );
 
-        await this.groupControlSender.send(
-            PayloadType.GroupWriteKeyOffer,
-            new GroupWriteKeyOfferPayload(
-                payload.groupId,
-                writeKey.publicKey.toString('base64'),
-                user.userTag,
-                user.displayName ?? user.username,
-                (await this.identityKeyOf(synced.data!.state, user.userTag)) ?? '',
-                [],
+        await this.eventRepository.appendEvent(
+            new ControlMessageQueuedEvent(
+                uuid().toString(),
+                PayloadType.GroupWriteKeyOffer,
+                new GroupWriteKeyOfferPayload(
+                    payload.groupId,
+                    writeKey.publicKey.toString('base64'),
+                    user.userTag,
+                    user.displayName ?? user.username,
+                    (await this.identityKeyOf(synced.data!.state, user.userTag)) ?? '',
+                    [],
+                ),
+                [senderConnectionId],
+                new Date(),
             ),
-            [senderConnectionId],
         );
+
     }
 
     public async registerWriteKey(payload: GroupWriteKeyOfferPayload, _senderConnectionId: string): Promise<void> {
