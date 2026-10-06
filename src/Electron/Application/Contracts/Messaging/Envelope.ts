@@ -21,6 +21,7 @@ export abstract class Payload {
 
 export class MessagePayload extends Payload {
     constructor(
+        public chatId: string,
         public text: string,
         public media: MediaPointer[],
         public participants: string[],
@@ -32,6 +33,7 @@ export class MessagePayload extends Payload {
 
 export class DeliveryStatusPayload extends Payload {
     constructor(
+        public chatId: string,
         public messageIds: string[],
         public deliveryStatus: DeliveryStatus,
         public participants: string[],

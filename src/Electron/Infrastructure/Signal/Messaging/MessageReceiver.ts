@@ -49,15 +49,15 @@ export class MessageReceiver implements IMessageReceiver {
     }
 
     private async handleDeliveryStatusUpdate(message: ServerMessage, payload: DeliveryStatusPayload): Promise<void> {
-        await this.chatStore.updateDeliveryStatus(message.ChatId, payload.messageIds, payload.deliveryStatus);
+        await this.chatStore.updateDeliveryStatus(payload.chatId, payload.messageIds, payload.deliveryStatus);
 
         console.log(
-            `MessageReceiver: received delivery status update for chat ${message.ChatId} from ${message.senderId}`,
+            `MessageReceiver: received delivery status update for chat ${payload.chatId} from ${message.senderId}`,
         );
 
         this.mainWindow.webContents.send('eventMessage', {
             kind: 'deliveryStatus',
-            chatId: message.ChatId,
+            chatId: payload.chatId,
             messageIds: payload.messageIds,
             status: payload.deliveryStatus,
         });
@@ -70,12 +70,12 @@ export class MessageReceiver implements IMessageReceiver {
             await this.mediaStore.store(m.id, m.content);
         }
 
-        await this.ensureChat(message.ChatId, payload);
+        await this.ensureChat(payload.chatId, payload);
 
         await this.chatStore.storeMessage(
             new Message(
                 message.id,
-                message.ChatId,
+                payload.chatId,
                 message.senderId,
                 message.timestamp,
                 payload.text,
@@ -86,14 +86,14 @@ export class MessageReceiver implements IMessageReceiver {
         );
 
         console.log(
-            `MessageReceiver: received message ${message.id} for chat ${message.ChatId} from ${message.senderId}`,
+            `MessageReceiver: received message ${message.id} for chat ${payload.chatId} from ${message.senderId}`,
         );
 
         this.mainWindow.webContents.send('eventMessage', {
             kind: 'message',
             message: new MessageContract(
                 message.id,
-                message.ChatId,
+                payload.chatId,
                 message.senderId,
                 payload.text,
                 message.timestamp,
