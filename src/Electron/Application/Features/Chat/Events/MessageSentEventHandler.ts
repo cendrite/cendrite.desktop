@@ -27,7 +27,7 @@ export class MessageSentCommandHandler implements Handler<MessageSentCommand, De
         for (const conId of cmd.connectionIds) {
             const envelope = new Envelope(
                 PayloadType.ChatMessage,
-                new MessagePayload(cmd.message.text, m_pointers, cmd.participants, cmd.message.deliveryStatus),
+                new MessagePayload(cmd.message.chatId, cmd.message.text, m_pointers, cmd.participants, cmd.message.deliveryStatus),
             );
 
             const cipher = await this.sessionManager.encrypt(envelope, conId);
@@ -35,7 +35,6 @@ export class MessageSentCommandHandler implements Handler<MessageSentCommand, De
             messages.push(
                 new ServerMessage(
                     cmd.message.id,
-                    cmd.message.chatId,
                     cmd.message.senderId,
                     conId,
                     cipher,

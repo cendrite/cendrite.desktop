@@ -19,6 +19,7 @@ export class DeliveryStatusUpdatedCommandHandler implements Handler<DeliveryStat
             const envelope = new Envelope(
                 PayloadType.DeliveryStatus,
                 new DeliveryStatusPayload(
+                    cmd.chatId,
                     cmd.messageIds,
                     cmd.deliveryStatus,
                     cmd.participants),
@@ -29,7 +30,6 @@ export class DeliveryStatusUpdatedCommandHandler implements Handler<DeliveryStat
             meessages.push(
                 new ServerMessage(
                     uuid().toString(),
-                    cmd.chatId,
                     cmd.senderId,
                     conId,
                     cipher,
