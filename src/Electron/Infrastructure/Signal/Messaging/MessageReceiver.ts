@@ -4,7 +4,11 @@ import { IChatStore } from '../../../Application/Contracts/Repositories/IChatSto
 import { IMediaStore } from '../../../Application/Contracts/Repositories/IMediaStore.js';
 import { IMediaService } from '../../../Application/Services/Media/MediaService.js';
 import { ServerMessage } from '../../../Application/Contracts/Messaging/ServerMessage.js';
-import { DeliveryStatusPayload, MessagePayload, PayloadType } from '../../../Application/Contracts/Messaging/Payload.js';
+import {
+    DeliveryStatusPayload,
+    MessagePayload,
+    PayloadType,
+} from '../../../Application/Contracts/Messaging/Payload.js';
 import { Message } from '../../../Domain/Entities/Message.js';
 import { MessageMedia } from '../../../Domain/Entities/MessageMedia.js';
 import { DeliveryStatus } from '../../../Domain/Enums/DeliveryStatus.js';
@@ -31,20 +35,21 @@ export class MessageReceiver implements IMessageReceiver {
         private readonly mainWindow: BrowserWindow,
     ) { }
 
-
     public async handle(message: ServerMessage): Promise<void> {
         const envelope = await this.sessionManager.decrypt(message.payload, message.senderId);
 
-        switch (envelope.payloadType) {
-            case PayloadType.ChatMessage:
-                await this.handleChatMessage(message, envelope.payload as MessagePayload);
-                break;
-            case PayloadType.DeliveryStatus:
-                await this.handleDeliveryStatusUpdate(message, envelope.payload as DeliveryStatusPayload);
-                break;
-            default:
-                console.warn(`Unhandled payload type ${envelope.payloadType}`);
-                break;
+        for (const payload of envelope.payloads) {
+            switch (payload.type) {
+                case PayloadType.ChatMessage:
+                    await this.handleChatMessage(message, payload as MessagePayload);
+                    break;
+                case PayloadType.DeliveryStatus:
+                    await this.handleDeliveryStatusUpdate(message, payload as DeliveryStatusPayload);
+                    break;
+                default:
+                    console.warn(`Unhandled payload type ${payload.type}`);
+                    break;
+            }
         }
     }
 
