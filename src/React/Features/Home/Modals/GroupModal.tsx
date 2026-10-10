@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 import { CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
@@ -6,6 +6,7 @@ import { Contact } from '../../../Models/Contact.ts';
 import { useContacts } from '../../../Context/Contacts/ContactContext.tsx';
 import ContactCard from '../../../Common/Components/Cards/ContactCard.tsx';
 import Button from '../../../Common/Components/Button/Button.tsx';
+import SearchBar from '../SearchBar.tsx';
 
 interface GroupModalProps {
     isOpen: boolean;
@@ -16,10 +17,20 @@ interface GroupModalProps {
 const GroupModal: React.FC<GroupModalProps> = ({ isOpen, onClose, contact }) => {
     const { contacts } = useContacts();
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const filteredContacts = useMemo(() => {
+        const query = searchQuery.trim().toLowerCase();
+        if (!query) return contacts;
+        return contacts.filter(
+            (c) => c.username.toLowerCase().includes(query) || c.displayName?.toLowerCase().includes(query),
+        );
+    }, [contacts, searchQuery]);
 
     useEffect(() => {
         if (isOpen) {
             setSelectedIds(contact ? [contact.id] : []);
+            setSearchQuery('');
         }
     }, [isOpen, contact]);
 
@@ -48,12 +59,23 @@ const GroupModal: React.FC<GroupModalProps> = ({ isOpen, onClose, contact }) => 
 
                     <DialogTitle className="mb-5 text-sm font-medium text-fg-muted">Create group</DialogTitle>
 
+                    <div className="mb-4 text-sm text-fg-subtle">
+                        <SearchBar
+                            autoFocus
+                            placeHolder="Search contacts"
+                            value={searchQuery}
+                            onChange={setSearchQuery}
+                        />
+                    </div>
+
                     <ul className="max-h-[420px] space-y-2.5 overflow-y-auto">
-                        {contacts.length === 0 && (
-                            <li className="py-10 text-center text-sm text-fg-faint">No contacts to add</li>
+                        {filteredContacts.length === 0 && (
+                            <li className="py-10 text-center text-sm text-fg-faint">
+                                {contacts.length === 0 ? 'No contacts to add' : 'No contacts found'}
+                            </li>
                         )}
 
-                        {contacts.map((c) => {
+                        {filteredContacts.map((c) => {
                             const selected = selectedIds.includes(c.id);
                             return (
                                 <li key={c.id}>
