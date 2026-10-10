@@ -1,8 +1,8 @@
 import React from 'react';
-import { PlusIcon } from '@heroicons/react/24/outline';
 import { useChatContext } from '../../../Context/Chat/ChatContext.tsx';
 import { ChatCard } from './ChatCard.tsx';
 import { ChatViewModel } from '../../../Models/ChatViewModel.ts';
+import { PlusIcon } from '@phosphor-icons/react';
 
 export const ChatsPane: React.FC = () => {
     const { chatState } = useChatContext();

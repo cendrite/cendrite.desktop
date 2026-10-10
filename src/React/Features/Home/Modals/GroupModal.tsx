@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
-import { CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import { Contact } from '../../../Models/Contact.ts';
 import { useContacts } from '../../../Context/Contacts/ContactContext.tsx';
 import ContactCard from '../../../Common/Components/Cards/ContactCard.tsx';
 import Button from '../../../Common/Components/Button/Button.tsx';
 import SearchBar from '../SearchBar.tsx';
+import { CheckIcon, XIcon } from '@phosphor-icons/react';
 
 interface GroupModalProps {
     isOpen: boolean;
@@ -54,7 +54,7 @@ const GroupModal: React.FC<GroupModalProps> = ({ isOpen, onClose, contact }) => 
                         aria-label="Close"
                         className="absolute right-4 top-4 text-fg-subtle hover:text-fg-muted"
                     >
-                        <XMarkIcon className="h-4 w-4" />
+                        <XIcon className="h-4 w-4" />
                     </button>
 
                     <DialogTitle className="mb-5 text-sm font-medium text-fg-muted">Create group</DialogTitle>

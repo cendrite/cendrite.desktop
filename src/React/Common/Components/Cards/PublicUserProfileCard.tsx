@@ -1,5 +1,4 @@
 ﻿import React, { useState } from 'react';
-import { CheckIcon, XMarkIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { FriendshipStatus } from '../../../../Electron/Application/Contracts/Enums/FriendshipStatus.ts';
 import { FriendshipDirection } from '../../../../Electron/Application/Contracts/Enums/FriendshipDirection.ts';
 import { delay } from '../../../../Shared/HelperFunctions.ts';
@@ -14,6 +13,7 @@ import { DeclineFriendRequestCommand } from '../../../../Electron/Application/Fe
 import { AcceptFriendRequestCommand } from '../../../../Electron/Application/Features/Friends/Contracts/AcceptFriendRequest.ts';
 import { FriendContract } from '../../../../Electron/Application/Contracts/Models/FriendContract.ts';
 import { Contact } from '../../../Models/Contact.ts';
+import { CheckIcon, PlusIcon, XIcon } from '@phosphor-icons/react';
 
 interface PublicUserProfileCardProps {
     username: string;
@@ -127,7 +127,7 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
                             onClick={onDeclineFriendRequest}
                             className="p-2 bg-surface-hover hover:bg-overlay-hover rounded-full cursor-pointer transition-colors"
                         >
-                            <XMarkIcon className="h-3 w-3 text-fg" />
+                            <XIcon className="h-3 w-3 text-fg" />
                         </button>
                     </ToolTip>
                     <ToolTip content="Accept friend request">
@@ -153,7 +153,7 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
                         onClick={onDeclineFriendRequest}
                         className="p-2 bg-surface-hover hover:bg-overlay-hover rounded-full cursor-pointer transition-colors"
                     >
-                        <XMarkIcon className="h-3 w-3 text-fg" />
+                        <XIcon className="h-3 w-3 text-fg" />
                     </button>
                 </ToolTip>
             );

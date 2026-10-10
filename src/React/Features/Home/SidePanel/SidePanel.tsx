@@ -1,9 +1,4 @@
 import React, { useState } from 'react';
-import { Cog6ToothIcon, ChatBubbleOvalLeftIcon, UserGroupIcon } from '@heroicons/react/24/outline';
-import {
-    ChatBubbleOvalLeftIcon as ChatBubbleOvalLeftIconFilled,
-    UserGroupIcon as UserGroupIconFilled,
-} from '@heroicons/react/24/solid';
 import SidePanelToggle from './SidePanelToggle';
 import PanelButton from './SidePanelButton';
 import UserModal from '../Modals/UserModal.tsx';
@@ -11,6 +6,7 @@ import NotificationBadge from '../../../Context/Notification/NotificationBadge.t
 import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
 import { useUser } from '../../../Context/User/UserContext.tsx';
 import SettingsModal from '../../Settings/SettingsModal.tsx';
+import { AddressBookIcon, ChatCircleIcon, GearSixIcon } from '@phosphor-icons/react';
 
 export interface SidePanelProps {
     onTogglePane: () => void;
@@ -35,9 +31,9 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onTogglePane, setPaneType,
                     <div className="relative">
                         <PanelButton
                             onClick={() => setPaneType('chats')}
-                            icon={<ChatBubbleOvalLeftIcon className="w-5 h-5 cursor-pointer hover:text-fg-muted" />}
+                            icon={<ChatCircleIcon className="w-5 h-5 cursor-pointer hover:text-fg-muted" />}
                             activeIcon={
-                                <ChatBubbleOvalLeftIconFilled className="w-5 h-5 cursor-pointer text-fg-muted" />
+                                <ChatCircleIcon weight="fill" className="w-5 h-5 cursor-pointer text-fg-muted" />
                             }
                             isActive={paneType === 'chats'}
                         />
@@ -48,8 +44,8 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onTogglePane, setPaneType,
                     <div className="relative">
                         <PanelButton
                             onClick={() => setPaneType('contacts')}
-                            icon={<UserGroupIcon className="w-5 h-5" />}
-                            activeIcon={<UserGroupIconFilled className="w-5 h-5 text-fg-muted" />}
+                            icon={<AddressBookIcon className="w-5 h-5" />}
+                            activeIcon={<AddressBookIcon weight="fill" className="w-5 h-5 text-fg-muted" />}
                             isActive={paneType === 'contacts'}
                         />
                         {paneType !== 'contacts' && <NotificationBadge section="contacts" />}
@@ -78,8 +74,8 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onTogglePane, setPaneType,
                     />
                     <PanelButton
                         onClick={() => setSettingsModalOpen(true)}
-                        icon={<Cog6ToothIcon className="w-5 h-5" />}
-                        activeIcon={<Cog6ToothIcon className="w-5 h-5 text-fg-muted" />}
+                        icon={<GearSixIcon className="w-5 h-5" />}
+                        activeIcon={<GearSixIcon className="w-5 h-5 text-fg-muted" />}
                         isActive={isSettingsModalOpen}
                     />
                 </div>

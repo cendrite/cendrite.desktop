@@ -1,8 +1,8 @@
 ﻿import React, { Fragment } from 'react';
 import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react';
-import { EllipsisHorizontalIcon } from '@heroicons/react/24/solid';
 import { ChatViewModel } from '../../../Models/ChatViewModel.ts';
 import { useChatSettings } from '../../../Common/Hooks/ChatSettings.ts';
+import { DotsThreeIcon } from '@phosphor-icons/react';
 
 interface ChatSettingsMenu {
     chat: ChatViewModel;
@@ -30,7 +30,7 @@ const ChatSettingsMenu: React.FC<ChatSettingsMenu> = ({ chat }) => {
                             className="flex items-center justify-center hover:bg-surface-hover rounded-lg p-2"
                             aria-label="Chat settings"
                         >
-                            <EllipsisHorizontalIcon className="w-5 h-5 text-fg-muted" />
+                            <DotsThreeIcon weight="bold" className="w-5 h-5 text-fg-muted" />
                         </MenuButton>
 
                         <Transition

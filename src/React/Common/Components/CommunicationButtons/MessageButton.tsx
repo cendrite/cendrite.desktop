@@ -2,11 +2,11 @@
 import { ChatService } from "../../Services/ChatService.ts";
 import {useChatContext} from "../../../Context/Chat/ChatContext.tsx";
 import { ChatActionType } from "../../../Context/Chat/ChatReducer.ts";
-import { ChatBubbleOvalLeftIcon } from "@heroicons/react/24/outline";
 import {useHomePage} from "../../../Context/HomePage/HomePageContext.tsx";
 import {HomePageActionType} from "../../../Context/HomePage/HomePageReducer.ts";
 import { Contact } from "../../../Models/Contact.ts";
 import { useUser } from "../../../Context/User/UserContext.tsx";
+import { ChatCircleIcon } from "@phosphor-icons/react";
 
 
 interface MessageButtonProps{
@@ -35,7 +35,7 @@ const MessageButton: React.FC<MessageButtonProps> = ({contact}) => {
             className="flex flex-col items-center justify-center hover:bg-surface-hover px-1.5 py-1 rounded-lg"
             onClick={handleMessage}
         >
-            <ChatBubbleOvalLeftIcon className="w-5 h-5 text-fg-muted"/>
+            <ChatCircleIcon className="w-5 h-5 text-fg-muted"/>
             <h3 className="font-extralight text-[0.6rem]">Message</h3>
         </button>
     );

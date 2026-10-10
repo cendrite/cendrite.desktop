@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
-import { XMarkIcon } from '@heroicons/react/24/outline';
 import LogoutModal from './LogoutModal.tsx';
 import { useUser } from '../../../Context/User/UserContext.tsx';
 import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
 import AvatarModal from './AvatarModal.tsx';
 import Button from '../../../Common/Components/Button/Button.tsx';
+import { XIcon } from '@phosphor-icons/react';
 
 interface UserModalProps {
     isOpen: boolean;
@@ -33,7 +33,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose }) => {
                             aria-label="Close"
                             className="absolute right-3 top-3 text-fg-subtle hover:text-fg-muted"
                         >
-                            <XMarkIcon className="h-4 w-4" />
+                            <XIcon className="h-4 w-4" />
                         </button>
 
                         <DialogTitle className="text-sm text-fg">Profile</DialogTitle>
