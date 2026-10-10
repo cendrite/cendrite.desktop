@@ -2,7 +2,7 @@ import React from 'react';
 import { useChatContext } from '../../../Context/Chat/ChatContext.tsx';
 import { ChatCard } from './ChatCard.tsx';
 import { ChatViewModel } from '../../../Models/ChatViewModel.ts';
-import { PlusIcon } from '@phosphor-icons/react';
+import CreateGroupButton from './CreateGroupButton.tsx';
 
 export const ChatsPane: React.FC = () => {
     const { chatState } = useChatContext();
@@ -13,10 +13,7 @@ export const ChatsPane: React.FC = () => {
                 <div className="flex-grow text-center">
                     <h2 className="text-lg font-bold">Chats</h2>
                 </div>
-
-                <button className="p-2 rounded-md text-fg hover:bg-surface-hover">
-                    <PlusIcon className="w-5 h-5" />
-                </button>
+                <CreateGroupButton contact={null} />
             </div>
 
             {/*/!* Search Bar *!/*/}
