@@ -15,14 +15,15 @@ export class CreateChatCommandHandler implements Handler<CreateChatCommand, Chat
     ) { }
 
     public async handle(cmd: CreateChatCommand): Promise<Result<ChatContract>> {
-        const friend = await this.friendRepository.getById(cmd.friendId);
+        const friend = await this.friendRepository.getByIds(cmd.friendIds);
+
         if (!friend) {
             throw new Error('Friend not found');
         }
 
-        const chatMember = ChatMember.create(cmd.chatMemberId, cmd.chatMemberPrivilege, friend);
+        const chatMembers = friend.map((f) => ChatMember.create(f.id, cmd.chatMemberPrivilege, f));
 
-        const newChat = new Chat(cmd.chatId, [chatMember], []);
+        const newChat = new Chat(cmd.chatId, chatMembers, [], cmd.groupName);
 
         const chat = await this.chatStore.create(newChat);
 
@@ -34,8 +35,7 @@ export class CreateChatCommandHandler implements Handler<CreateChatCommand, Chat
     private mapToContract(chat: Chat): ChatContract {
         return new ChatContract(
             chat.id,
-            chat.groupId,
-            chat.isGroup,
+            chat.isGroup(),
             chat.groupName,
             chat.members.map(
                 (member) =>

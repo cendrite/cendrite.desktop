@@ -36,8 +36,7 @@ export class GetChatsQueryHandler implements Handler<GetChatsQuery, ChatContract
                 async (chat) =>
                     new ChatContract(
                         chat.id,
-                        chat.groupId,
-                        chat.isGroup,
+                        chat.isGroup(),
                         chat.groupName,
                         chat.members.map(
                             (member) =>

@@ -14,10 +14,6 @@ export const ChatSchema = new EntitySchema<Chat>({
             primary: true,
             generated: 'uuid'
         },
-        groupId: {
-            type: "uuid",
-            nullable: true,
-        },
         groupName: {
             type: "text",
             nullable: true,

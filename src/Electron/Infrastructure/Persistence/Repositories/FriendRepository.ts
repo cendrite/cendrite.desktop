@@ -1,12 +1,17 @@
 import { getDbContext } from '../Context/DatabaseContext.js';
 import { Friend } from '../../../Domain/Aggregates/Friend.js';
 import { IFriendRepository } from '../../../Application/Contracts/Repositories/IFriendRepository.js';
+import { In } from 'typeorm';
 
 export class FriendRepository implements IFriendRepository {
     private readonly friendRepository = getDbContext().getRepository(Friend);
 
     public async create(friend: Friend): Promise<void> {
         await this.friendRepository.save(friend);
+    }
+
+    public async getByIds(ids: string[]): Promise<Friend[]> {
+        return await this.friendRepository.findBy({ id: In(ids) });
     }
 
     public async getAll(): Promise<Friend[]> {

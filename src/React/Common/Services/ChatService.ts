@@ -100,7 +100,7 @@ export class ChatService {
     public async initializeChat(user: User, contact: Contact): Promise<ChatViewModel> {
         const chatId = await this.deriveChatId(user.userTag, contact.id);
         const result = await window.electron.sendRequestAsync<Result<ChatContract>>(
-            new CreateChatCommand(chatId, contact.id, uuid().toString(), ChatPrivileges.Admin),
+            new CreateChatCommand(chatId, [contact.id],  ChatPrivileges.Admin),
         );
 
         if (!result.success) throw new Error('Failed to create chat');
@@ -116,6 +116,36 @@ export class ChatService {
         );
 
         return new ChatViewModel(result.data!.id, [chatMember]);
+    }
+
+    public async createGroupChat(contacts: Contact[], groupName: string | null): Promise<ChatViewModel> {
+        const chatId = uuid().toString();
+
+        const result = await window.electron.sendRequestAsync<Result<ChatContract>>(
+            new CreateChatCommand(
+                chatId,
+                contacts.map((c) => c.id),
+                ChatPrivileges.Admin,
+                groupName,
+            ),
+        );
+
+        if (!result.success) throw new Error('Failed to create group chat');
+
+        const members = result.data!.members.map((memberDto) => {
+            const contact = contacts.find((c) => c.id === memberDto.friendId) ?? null;
+
+            return new ChatMemberViewModel(
+                memberDto.id,
+                memberDto.privelege,
+                memberDto.displayName,
+                memberDto.userTag,
+                memberDto.connectionsIds ?? [],
+                contact,
+            );
+        });
+
+        return new ChatViewModel(result.data!.id, members);
     }
 
     public async getChats(contacts: Contact[]): Promise<ChatViewModel[]> {

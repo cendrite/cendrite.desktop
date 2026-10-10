@@ -3,19 +3,19 @@
 export class CreateChatCommand implements MediatorRequest {
     type = CreateChatCommand.name;
     chatId: string;
-    friendId: string;
-    chatMemberId: string;
+    friendIds: string[];
     chatMemberPrivilege: ChatPrivileges;
+    groupName: string | null;
 
     constructor(
         id: string,
-        friendId: string,
-        chatMemberId: string,
+        friendIds: string[],
         chatMemberPrivilege: ChatPrivileges,
+        groupName: string | null = null
     ) {
         this.chatId = id;
-        this.friendId = friendId;
-        this.chatMemberId = chatMemberId;
+        this.friendIds = friendIds;
         this.chatMemberPrivilege = chatMemberPrivilege;
+        this.groupName = groupName;
     }
 }

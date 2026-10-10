@@ -7,6 +7,11 @@ import ContactCard from '../../../Common/Components/Cards/ContactCard.tsx';
 import Button from '../../../Common/Components/Button/Button.tsx';
 import SearchBar from '../SearchBar.tsx';
 import { CheckIcon, XIcon } from '@phosphor-icons/react';
+import { ChatService } from '../../../Common/Services/ChatService.ts';
+import { useChatContext } from '../../../Context/Chat/ChatContext.tsx';
+import { ChatActionType } from '../../../Context/Chat/ChatReducer.ts';
+import { useHomePage } from '../../../Context/HomePage/HomePageContext.tsx';
+import { HomePageActionType } from '../../../Context/HomePage/HomePageReducer.ts';
 
 interface GroupModalProps {
     isOpen: boolean;
@@ -16,8 +21,11 @@ interface GroupModalProps {
 
 const GroupModal: React.FC<GroupModalProps> = ({ isOpen, onClose, contact }) => {
     const { contacts } = useContacts();
-    const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    const { chatDispatch } = useChatContext();
+    const { homeDispatch } = useHomePage();
+    const [selectedContacts, setSelectedContacts] = useState<Contact[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
+    const chatService = useMemo(() => new ChatService(), []);
 
     const filteredContacts = useMemo(() => {
         const query = searchQuery.trim().toLowerCase();
@@ -29,17 +37,21 @@ const GroupModal: React.FC<GroupModalProps> = ({ isOpen, onClose, contact }) => 
 
     useEffect(() => {
         if (isOpen) {
-            setSelectedIds(contact ? [contact.id] : []);
+            setSelectedContacts(contact ? [contact] : []);
             setSearchQuery('');
         }
     }, [isOpen, contact]);
 
-    const toggle = (id: string) => {
-        setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+    const toggle = (target: Contact) => {
+        setSelectedContacts((prev) =>
+            prev.some((c) => c.id === target.id) ? prev.filter((c) => c.id !== target.id) : [...prev, target],
+        );
     };
 
-    const handleCreateGroup = () => {
-        console.log('Create group with', selectedIds);
+    const handleCreateGroup = async () => {
+        const chat = await chatService.createGroupChat(selectedContacts, null);
+        chatDispatch({ type: ChatActionType.AddChat, payload: chat });
+        homeDispatch({ type: HomePageActionType.SetSelectedChat, payload: chat });
         onClose();
     };
 
@@ -76,14 +88,14 @@ const GroupModal: React.FC<GroupModalProps> = ({ isOpen, onClose, contact }) => 
                         )}
 
                         {filteredContacts.map((c) => {
-                            const selected = selectedIds.includes(c.id);
+                            const selected = selectedContacts.some((s) => s.id === c.id);
                             return (
                                 <li key={c.id}>
                                     <ContactCard
                                         contact={c}
                                         variant="outlined"
                                         selected={selected}
-                                        onClick={() => toggle(c.id)}
+                                        onClick={() => toggle(c)}
                                         trailing={
                                             <span
                                                 className={clsx(
@@ -102,7 +114,7 @@ const GroupModal: React.FC<GroupModalProps> = ({ isOpen, onClose, contact }) => 
 
                     <div className="mt-6 flex justify-end space-x-3">
                         <Button onClick={onClose}>Cancel</Button>
-                        <Button variant="primary" onClick={handleCreateGroup} disabled={selectedIds.length === 0}>
+                        <Button variant="primary" onClick={handleCreateGroup} disabled={selectedContacts.length === 0}>
                             Create
                         </Button>
                     </div>
