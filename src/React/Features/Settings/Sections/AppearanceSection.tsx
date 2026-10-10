@@ -1,9 +1,9 @@
 import React from 'react';
 import { Description, Label, Radio, RadioGroup } from '@headlessui/react';
-import { CheckCircleIcon } from '@heroicons/react/24/solid';
 import { Theme } from '../../../../Shared/Theme.ts';
 import { useTheme } from '../../../Context/Theme/ThemeContext.tsx';
 import ThemePreview from './ThemePreview.tsx';
+import { CheckCircleIcon } from '@phosphor-icons/react';
 
 const themeOptions: { id: Theme; label: string; description: string }[] = [
     { id: 'system', label: 'System', description: 'Match your operating system' },
@@ -42,7 +42,7 @@ const AppearanceSection: React.FC = () => {
 
                                 <div className="mt-2 flex items-center justify-between">
                                     <Label className="text-sm text-fg">{option.label}</Label>
-                                    {checked && <CheckCircleIcon className="h-4 w-4 text-accent" />}
+                                    {checked && <CheckCircleIcon weight="fill" className="h-4 w-4 text-accent" />}
                                 </div>
 
                                 <Description className="text-xs text-fg-subtle">{option.description}</Description>

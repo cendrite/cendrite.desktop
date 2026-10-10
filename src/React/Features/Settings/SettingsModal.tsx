@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Dialog, DialogBackdrop, DialogPanel } from '@headlessui/react';
-import { XMarkIcon } from '@heroicons/react/24/outline';
 import SettingsNav from './SettingsNav.tsx';
 import { SettingsSection, settingsSections } from './SettingsSection.ts';
 import AccountSection from './Sections/AccountSection.tsx';
 import AppearanceSection from './Sections/AppearanceSection.tsx';
 import NotificationsSection from './Sections/NotificationsSection.tsx';
 import PrivacySection from './Sections/PrivacySection.tsx';
+import { XIcon } from '@phosphor-icons/react';
 
 const sectionComponents: Record<SettingsSection, React.FC> = {
     account: AccountSection,
@@ -38,7 +38,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                             className="absolute right-4 top-4 text-fg-subtle hover:text-fg-muted"
                             aria-label="Close settings"
                         >
-                            <XMarkIcon className="h-5 w-5" />
+                            <XIcon className="h-5 w-5" />
                         </button>
 
                         <h2 className="mb-4 text-lg font-semibold">

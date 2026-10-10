@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import { BellAlertIcon, UserPlusIcon } from '@heroicons/react/24/outline';
-import { BellAlertIcon as BellAlertIconFilled } from '@heroicons/react/24/solid';
 import SearchForUserModal from '../Modals/SearchForUserModal.tsx';
 import ContactListItem from './ContactListItem.tsx';
 import PendingContactListItem from './PendingContactListItem.tsx';
@@ -8,6 +6,7 @@ import NotificationBadge from '../../../Context/Notification/NotificationBadge.t
 import { useContacts } from '../../../Context/Contacts/ContactContext.tsx';
 import { Contact } from '../../../Models/Contact.ts';
 import { usePendingContacts } from '../../../Context/PendingContact/PendingContactContext.tsx';
+import { BellRingingIcon, UserPlusIcon } from '@phosphor-icons/react';
 
 export const ContactsPane: React.FC = () => {
     const { contacts } = useContacts();
@@ -36,11 +35,11 @@ export const ContactsPane: React.FC = () => {
                             >
                                 {!isRequestListSelected ? (
                                     <div>
-                                        <BellAlertIcon className="w-5 h-5" />
+                                        <BellRingingIcon className="w-5 h-5" />
                                         <NotificationBadge section="contacts" itemId={null} />
                                     </div>
                                 ) : (
-                                    <BellAlertIconFilled className="w-5 h-5" />
+                                    <BellRingingIcon weight="fill" className="w-5 h-5" />
                                 )}
                             </button>
                         </div>

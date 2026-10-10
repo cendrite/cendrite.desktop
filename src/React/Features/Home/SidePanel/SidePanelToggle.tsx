@@ -1,5 +1,5 @@
 import React from "react";
-import { Bars3Icon } from "@heroicons/react/24/outline";
+import { ListIcon } from "@phosphor-icons/react";
 
 interface SidePanelToggleProps {
   onClick: () => void;
@@ -7,7 +7,7 @@ interface SidePanelToggleProps {
 
 const SidePanelToggle: React.FC<SidePanelToggleProps> = ({ onClick }) => (
   <button onClick={onClick} className="p-2 text-fg hover:bg-surface-hover rounded-md">
-    <Bars3Icon className="w-5 h-5" />
+    <ListIcon className="w-5 h-5" />
   </button>
 );
 

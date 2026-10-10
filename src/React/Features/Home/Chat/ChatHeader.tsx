@@ -1,11 +1,11 @@
 ﻿import React from 'react';
-import ChevronLeftIcon from '@heroicons/react/24/outline/ChevronLeftIcon';
 import { ChatViewModel } from '../../../Models/ChatViewModel.ts';
 import VoiceCallButton from '../../../Common/Components/CommunicationButtons/VoiceCallButton.tsx';
 import VideoCallButton from '../../../Common/Components/CommunicationButtons/VideoCallButton.tsx';
 import ChatSettingsMenu from './ChatSettingsMenu.tsx';
 import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
 import CreateGroupButton from './CreateGroupButton.tsx';
+import { CaretLeftIcon } from '@phosphor-icons/react';
 
 interface ChatHeaderProps {
     chat: ChatViewModel;
@@ -19,7 +19,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ chat, onClose }) => {
         <div className="flex items-center justify-between p-3 w-full">
             <div className="flex items-center">
                 <button className="text-fg-subtle hover:text-fg-muted" onClick={onClose}>
-                    <ChevronLeftIcon className="w-6 h-6" />
+                    <CaretLeftIcon className="w-6 h-6" />
                 </button>
 
                 <div className="w-7 h-7 rounded-full flex items-center justify-center overflow-hidden bg-media ml-3">

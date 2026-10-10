@@ -1,5 +1,4 @@
-﻿import { FaceSmileIcon, MicrophoneIcon, PaperClipIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
 import { MediaType } from '../../../../Electron/Application/Features/Files/Contracts/GetMedia.ts';
 import { ChatViewModel } from '../../../Models/ChatViewModel';
@@ -7,6 +6,7 @@ import { Media } from '../../../Models/Media';
 import { useMessageService } from '../../../Common/Hooks/MessageService';
 import { MediaService } from '../../../Common/Services/MediaService';
 import { MediaItem } from './MediaBox';
+import { MicrophoneIcon, PaperclipIcon, SmileyIcon, XIcon } from '@phosphor-icons/react';
 
 interface ChatBarProps {
     chat: ChatViewModel;
@@ -20,7 +20,7 @@ const MediaPreview: React.FC<{ media: Media; onRemove: () => void }> = ({ media,
                 onClick={onRemove}
                 className="absolute -top-2 -right-2 bg-field rounded-full p-1 hover:bg-surface-hover"
             >
-                <XMarkIcon className="h-4 w-4 text-fg-muted" />
+                <XIcon className="h-4 w-4 text-fg-muted" />
             </button>
         </div>
     );
@@ -49,7 +49,7 @@ export const ChatBar: React.FC<ChatBarProps> = ({ chat }) => {
         <div className="bg-canvas p-3">
             <div className="flex items-center space-x-2">
                 <button className="p-2 rounded-md hover:bg-surface-hover">
-                    <FaceSmileIcon className="h-5 w-5 text-fg-muted" />
+                    <SmileyIcon className="h-5 w-5 text-fg-muted" />
                 </button>
 
                 <div className="flex-1 bg-field rounded-3xl px-3 py-2">
@@ -83,7 +83,7 @@ export const ChatBar: React.FC<ChatBarProps> = ({ chat }) => {
                 </div>
 
                 <button className="p-2 rounded-md hover:bg-surface-hover">
-                    <PaperClipIcon
+                    <PaperclipIcon
                         className="h-5 w-5 text-fg-muted"
                         onClick={() => {
                             handleImpageUpload();

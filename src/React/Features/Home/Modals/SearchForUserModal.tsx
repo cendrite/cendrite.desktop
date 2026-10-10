@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
-import { XMarkIcon } from '@heroicons/react/24/outline';
 import SearchBar from '../SearchBar.tsx';
 import PublicUserProfileCard from '../../../Common/Components/Cards/PublicUserProfileCard.tsx';
 import { useUser } from '../../../Context/User/UserContext.tsx';
@@ -9,6 +8,7 @@ import {
     GetProfileByTagQuery,
     ProfileDto,
 } from '../../../../Electron/Application/Features/Friends/Contracts/GetProfileByTag.ts';
+import { XIcon } from '@phosphor-icons/react';
 
 interface SearchForUserModalProps {
     isOpen: boolean;
@@ -83,7 +83,7 @@ const SearchForUserModal: React.FC<SearchForUserModalProps> = ({ isOpen, onClose
                         aria-label="Close"
                         className="absolute right-3 top-3 text-fg-subtle hover:text-fg-muted"
                     >
-                        <XMarkIcon className="h-4 w-4" />
+                        <XIcon className="h-4 w-4" />
                     </button>
 
                     <DialogTitle className="mb-3 text-sm font-medium text-fg-muted">Find a user</DialogTitle>

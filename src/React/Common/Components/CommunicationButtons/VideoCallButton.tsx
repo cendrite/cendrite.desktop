@@ -1,6 +1,6 @@
 ﻿import React from "react";
-import { VideoCameraIcon } from "@heroicons/react/24/outline";
 import { Contact } from "../../../Models/Contact";
+import { VideoCameraIcon } from "@phosphor-icons/react";
 
 interface VideoCallButtonProps {
     withText?: boolean;

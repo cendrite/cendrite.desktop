@@ -24,8 +24,8 @@
   "dependencies": {
     "@fontsource/inter": "^5.1.1",
     "@headlessui/react": "^2.2.9",
-    "@heroicons/react": "^2.2.0",
     "@microsoft/signalr": "^8.0.7",
+    "@phosphor-icons/react": "^2.1.10",
     "@signalapp/libsignal-client": "0.103.0",
     "@tabler/icons-react": "^3.36.0",
     "@types/lodash": "^4.17.20",

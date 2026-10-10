@@ -1,12 +1,11 @@
 ﻿import React, { useEffect, useState } from 'react';
-import ChevronLeftIcon from '@heroicons/react/24/outline/ChevronLeftIcon';
-import { BellSlashIcon, ClockIcon, NoSymbolIcon, PaintBrushIcon, PencilIcon } from '@heroicons/react/24/outline';
 import DeleteFriendModal from '../Modals/DeleteFriendModal.tsx';
 import MessageButton from '../../../Common/Components/CommunicationButtons/MessageButton.tsx';
 import VoiceCallButton from '../../../Common/Components/CommunicationButtons/VoiceCallButton.tsx';
 import VideoCallButton from '../../../Common/Components/CommunicationButtons/VideoCallButton.tsx';
 import { Contact } from '../../../Models/Contact.ts';
 import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
+import { BellSlashIcon, CaretLeftIcon, ClockIcon, PaintBrushIcon, PencilSimpleIcon, ProhibitIcon } from '@phosphor-icons/react';
 
 interface ContactPageProps {
     contact: Contact;
@@ -41,7 +40,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ contact, onClose }) => {
                     {/* Top Bar */}
                     <div className="flex items-center p-3 shrink-0">
                         <button className="text-fg-subtle hover:text-fg-muted" onClick={handleSlideOut}>
-                            <ChevronLeftIcon className="w-6 h-6" />
+                            <CaretLeftIcon className="w-6 h-6" />
                         </button>
                     </div>
 
@@ -94,7 +93,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ contact, onClose }) => {
                         </div>
 
                         <div className="flex items-center mt-2 hover:bg-canvas-hover rounded-md p-4">
-                            <PencilIcon className="w-5 h-5 text-fg-muted mr-2" />
+                            <PencilSimpleIcon className="w-5 h-5 text-fg-muted mr-2" />
                             <h4 className="text-sm text-fg-muted font-light">Nickname</h4>
                         </div>
 
@@ -122,7 +121,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ contact, onClose }) => {
                                 handleDelete();
                             }}
                         >
-                            <NoSymbolIcon className="w-5 h-5 text-danger-fg mr-2" />
+                            <ProhibitIcon className="w-5 h-5 text-danger-fg mr-2" />
                             <h4 className="text-sm text-danger-fg font-light">Delete</h4>
                         </button>
                         <button
@@ -131,7 +130,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ contact, onClose }) => {
                                 handleBlock();
                             }}
                         >
-                            <NoSymbolIcon className="w-5 h-5 text-danger-fg mr-2" />
+                            <ProhibitIcon className="w-5 h-5 text-danger-fg mr-2" />
                             <h4 className="text-sm text-danger-fg font-light">Block</h4>
                         </button>
                     </div>

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
-import { PencilIcon, PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { MediaType } from '../../../../Electron/Application/Features/Files/Contracts/GetMedia.ts';
 import { useUser } from '../../../Context/User/UserContext.tsx';
 import { UserActionType } from '../../../Context/User/UserReducer.ts';
@@ -11,6 +10,7 @@ import { MediaItem } from '../Chat/MediaBox.tsx';
 import { Result } from '../../../../Shared/Result/Result.ts';
 import { UpdateAvatarCommand } from '../../../../Electron/Application/Features/User/Contracts/UpdateAvatar.ts';
 import Button from '../../../Common/Components/Button/Button.tsx';
+import { ImageIcon, PencilSimpleIcon, XIcon } from '@phosphor-icons/react';
 
 interface AvatarModelProps {
     isOpen: boolean;
@@ -91,7 +91,7 @@ const AvatarModal: React.FC<AvatarModelProps> = ({ isOpen, onClose }) => {
                         aria-label="Close"
                         className="absolute right-3 top-3 text-fg-subtle hover:text-fg-muted"
                     >
-                        <XMarkIcon className="h-4 w-4" />
+                        <XIcon className="h-4 w-4" />
                     </button>
 
                     <DialogTitle className="text-sm text-fg">Avatar</DialogTitle>
@@ -114,12 +114,12 @@ const AvatarModal: React.FC<AvatarModelProps> = ({ isOpen, onClose }) => {
                             onClick={() => uploadProfilePicture()}
                             disabled={loading}
                         >
-                            <PhotoIcon className="w-4 h-4 text-fg-muted" />
+                            <ImageIcon className="w-4 h-4 text-fg-muted" />
                             <h3 className="font-extralight text-[0.6rem]">image</h3>
                         </button>
 
                         <button className="flex flex-col items-center justify-center bg-overlay hover:bg-surface-hover px-2.5 py-1 rounded-lg">
-                            <PencilIcon className="w-4 h-4 text-fg-muted" />
+                            <PencilSimpleIcon className="w-4 h-4 text-fg-muted" />
                             <h3 className="font-extralight text-[0.6rem]">text</h3>
                         </button>
                     </div>
