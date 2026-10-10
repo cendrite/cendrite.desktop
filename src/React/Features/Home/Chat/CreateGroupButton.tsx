@@ -3,7 +3,7 @@ import GroupModal from '../Modals/GroupModal';
 import React from 'react';
 import { UsersThreeIcon } from '@phosphor-icons/react';
 
-const CreateGroupButton: React.FC<{ contact: Contact }> = ({ contact }) => {
+const CreateGroupButton: React.FC<{ contact: Contact | null }> = ({ contact }) => {
     const [isGroupModalOpen, setIsGroupModalOpen] = React.useState(false);
 
     const openGroupModal = () => {
