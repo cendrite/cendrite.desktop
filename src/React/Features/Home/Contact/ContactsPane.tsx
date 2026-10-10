@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { BellAlertIcon, UserPlusIcon } from '@heroicons/react/24/outline';
 import { BellAlertIcon as BellAlertIconFilled } from '@heroicons/react/24/solid';
 import SearchForUserModal from '../Modals/SearchForUserModal.tsx';
-import ContactCard from './ContactCard.tsx';
-import PendingContactCard from './PendingContactCard.tsx';
+import ContactListItem from './ContactListItem.tsx';
+import PendingContactListItem from './PendingContactListItem.tsx';
 import NotificationBadge from '../../../Context/Notification/NotificationBadge.tsx';
 import { useContacts } from '../../../Context/Contacts/ContactContext.tsx';
 import { Contact } from '../../../Models/Contact.ts';
@@ -59,7 +59,7 @@ export const ContactsPane: React.FC = () => {
                     <ul className="mt-4 space-y-2">
                         {contacts.map((contact: Contact) => (
                             <li key={contact.id}>
-                                <ContactCard contact={contact} />
+                                <ContactListItem contact={contact} />
                             </li>
                         ))}
                     </ul>
@@ -67,7 +67,7 @@ export const ContactsPane: React.FC = () => {
                     <ul className="mt-4 space-y-2">
                         {pendingContacts.map((contact) => (
                             <li key={contact.id}>
-                                <PendingContactCard contact={contact} />
+                                <PendingContactListItem contact={contact} />
                             </li>
                         ))}
                     </ul>
