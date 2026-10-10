@@ -66,7 +66,15 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
             const chats = state.chats.map((chat) => {
                 if (chat.id !== m.chatId) return chat;
                 if (chat.messages.some((x) => x.id === m.id)) return chat;
-                return new ChatViewModel(chat.id, chat.chatMembers, [...chat.messages, m]);
+                return new ChatViewModel(
+                    chat.id,
+                    chat.chatMembers,
+                    [...chat.messages, m],
+                    chat.isGroup,
+                    chat.groupName,
+                    chat.muted,
+                    chat.mutedTimer,
+                );
             });
             return { ...state, chats };
         }
@@ -78,7 +86,15 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
                 const existingIds = new Set(chat.messages.map((m) => m.id));
                 const newMessages = messages.filter((m) => !existingIds.has(m.id));
                 if (newMessages.length === 0) return chat;
-                return new ChatViewModel(chat.id, chat.chatMembers, [...newMessages, ...chat.messages]);
+                return new ChatViewModel(
+                    chat.id,
+                    chat.chatMembers,
+                    [...newMessages, ...chat.messages],
+                    chat.isGroup,
+                    chat.groupName,
+                    chat.muted,
+                    chat.mutedTimer,
+                );
             });
             return { ...state, chats };
         }
@@ -104,7 +120,15 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
                         : msg;
                 });
 
-                return new ChatViewModel(chat.id, chat.chatMembers, updatedMessages);
+                return new ChatViewModel(
+                    chat.id,
+                    chat.chatMembers,
+                    updatedMessages,
+                    chat.isGroup,
+                    chat.groupName,
+                    chat.muted,
+                    chat.mutedTimer,
+                );
             });
 
             return { ...state, chats };
@@ -129,7 +153,15 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
                     );
                 });
 
-                return new ChatViewModel(chat.id, chat.chatMembers, updatedMessages);
+                return new ChatViewModel(
+                    chat.id,
+                    chat.chatMembers,
+                    updatedMessages,
+                    chat.isGroup,
+                    chat.groupName,
+                    chat.muted,
+                    chat.mutedTimer,
+                );
             });
 
             return { ...state, chats };

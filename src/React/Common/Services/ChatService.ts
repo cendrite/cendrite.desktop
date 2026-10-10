@@ -145,7 +145,7 @@ export class ChatService {
             );
         });
 
-        return new ChatViewModel(result.data!.id, members);
+        return new ChatViewModel(result.data!.id, members, [], true, groupName);
     }
 
     public async getChats(contacts: Contact[]): Promise<ChatViewModel[]> {
@@ -175,6 +175,8 @@ export class ChatService {
                 chatDto.id,
                 members,
                 messages,
+                chatDto.isGroup,
+                chatDto.groupName,
                 chatDto.muted,
                 chatDto.muteTimer ? new Date(chatDto.muteTimer) : null,
             );
@@ -190,7 +192,6 @@ export class ChatService {
             throw new Error('Failed to get messages');
         }
 
-        console.log('Fetched messages:', messages.data);
         return messages.data!.map((c) => MessageViewModel.mapFromContract(c));
     }
 
