@@ -123,7 +123,6 @@ interface SealedOperation {
 function keyChangesFor(operation: LedgerOperation, state: GroupState): { added: Buffer[]; removed: Buffer[] } {
     switch (operation.type) {
         case LedgerOperationType.MemberAdded:
-        case LedgerOperationType.WriteKeyRegistered:
             return { added: [Buffer.from(operation.writeKeyPublic, 'base64')], removed: [] };
 
         case LedgerOperationType.MemberRemoved:

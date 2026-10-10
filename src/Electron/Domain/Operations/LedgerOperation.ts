@@ -6,6 +6,8 @@ export interface GroupMemberRef {
     displayName: string;
     privilege: ChatPrivileges;
     identityKey: string;
+    writeKeyPublic: string;
+    connectionIds: string[];
 }
 
 interface LedgerOperationBase {
@@ -16,7 +18,8 @@ interface LedgerOperationBase {
 
 export interface GroupCreatedOperation extends LedgerOperationBase {
     type: LedgerOperationType.GroupCreated;
-    name: string;
+    authorTag: string;
+    name: string | null;
     owner: GroupMemberRef;
 }
 
@@ -43,12 +46,6 @@ export interface SettingsChangedOperation extends LedgerOperationBase {
     messageTtl: number | null;
 }
 
-export interface WriteKeyRegisteredOperation extends LedgerOperationBase {
-    type: LedgerOperationType.WriteKeyRegistered;
-    userTag: string;
-    writeKeyPublic: string;
-}
-
 export interface DeviceListPublishedOperation extends LedgerOperationBase {
     type: LedgerOperationType.DeviceListPublished;
     userTag: string;
@@ -61,7 +58,6 @@ export type LedgerOperation =
     | MemberRemovedOperation
     | PrivilegeChangedOperation
     | SettingsChangedOperation
-    | WriteKeyRegisteredOperation
     | DeviceListPublishedOperation;
 
 /**
