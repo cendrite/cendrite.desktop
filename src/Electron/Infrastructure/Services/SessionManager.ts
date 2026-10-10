@@ -13,7 +13,7 @@ import { IDeviceRepository } from '../../Application/Contracts/Repositories/IDev
 import { ISessionManager } from '../../Application/Contracts/Services/ISessionManager.js';
 import { SignalProtocolStore } from './SignalProtocolStore.js';
 import { mapToPreKeyBundle } from '../Mappers/KeyMapper.js';
-import { Envelope, Payload } from '../../Application/Contracts/Messaging/Envelope.js';
+import { Envelope, Payload } from '../../Application/Contracts/Messaging/Payload.js';
 
 /**
  * Every client has exactly one device per connectionId, so the libsignal device id is fixed.

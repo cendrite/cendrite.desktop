@@ -2,7 +2,7 @@ import { Result } from "../../../../../Shared/Result/Result.js";
 import { ISessionManager } from "../../../Contracts/Services/ISessionManager.js";
 import { IMessageHubHandler } from "../../../Contracts/Services/IMessageHubHandler.js";
 import { ServerMessage } from "../../../Contracts/Messaging/ServerMessage.js";
-import { DeliveryStatusPayload, Envelope, PayloadType } from "../../../Contracts/Messaging/Envelope.js";
+import { DeliveryStatusPayload, Envelope, PayloadType } from "../../../Contracts/Messaging/Payload.js";
 import { Handler } from "../../../Mediator/Handler.js";
 import { DeliveryStatusUpdatedCommand } from "../Contracts/UpdateDeliveryStatus.js";
 import { v4 as uuid } from 'uuid';

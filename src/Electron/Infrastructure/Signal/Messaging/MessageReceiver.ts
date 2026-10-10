@@ -4,7 +4,7 @@ import { IChatStore } from '../../../Application/Contracts/Repositories/IChatSto
 import { IMediaStore } from '../../../Application/Contracts/Repositories/IMediaStore.js';
 import { IMediaService } from '../../../Application/Services/Media/MediaService.js';
 import { ServerMessage } from '../../../Application/Contracts/Messaging/ServerMessage.js';
-import { DeliveryStatusPayload, MessagePayload, PayloadType } from '../../../Application/Contracts/Messaging/Envelope.js';
+import { DeliveryStatusPayload, MessagePayload, PayloadType } from '../../../Application/Contracts/Messaging/Payload.js';
 import { Message } from '../../../Domain/Entities/Message.js';
 import { MessageMedia } from '../../../Domain/Entities/MessageMedia.js';
 import { DeliveryStatus } from '../../../Domain/Enums/DeliveryStatus.js';
