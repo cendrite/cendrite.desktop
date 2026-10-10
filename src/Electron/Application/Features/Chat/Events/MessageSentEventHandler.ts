@@ -3,7 +3,7 @@ import { DeliveryStatus } from '../../../../Domain/Enums/DeliveryStatus.js';
 import { ISessionManager } from '../../../Contracts/Services/ISessionManager.js';
 import { IMessageHubHandler } from '../../../Contracts/Services/IMessageHubHandler.js';
 import { ServerMessage } from '../../../Contracts/Messaging/ServerMessage.js';
-import { Envelope, MessagePayload, PayloadType } from '../../../Contracts/Messaging/Envelope.js';
+import { Envelope, MessagePayload } from '../../../Contracts/Messaging/Payload.js';
 import { Handler } from '../../../Mediator/Handler.js';
 import { IMediaService } from '../../../Services/Media/MediaService.js';
 import { MessageSentCommand } from '../Contracts/SendMessage.js';
@@ -26,8 +26,13 @@ export class MessageSentCommandHandler implements Handler<MessageSentCommand, De
 
         for (const conId of cmd.connectionIds) {
             const envelope = new Envelope(
-                PayloadType.ChatMessage,
-                new MessagePayload(cmd.message.chatId, cmd.message.text, m_pointers, cmd.participants, cmd.message.deliveryStatus),
+                new MessagePayload(
+                    cmd.message.chatId,
+                    cmd.message.text,
+                    m_pointers,
+                    cmd.participants,
+                    cmd.message.deliveryStatus,
+                ),
             );
 
             const cipher = await this.sessionManager.encrypt(envelope, conId);

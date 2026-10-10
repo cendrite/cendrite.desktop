@@ -9,17 +9,22 @@ export enum PayloadType {
 }
 
 export class Envelope<T extends Payload> {
-    constructor(
-        public readonly payloadType: PayloadType,
-        public readonly payload: T,
-    ) { }
+    public readonly payloads: T[];
+
+    constructor(payloads: T[]);
+    constructor(payload: T);
+    constructor(input: T | T[]) {
+        this.payloads = Array.isArray(input) ? input : [input];
+    }
 }
 
 export abstract class Payload {
+    abstract readonly type: PayloadType;
     constructor(public readonly participants: string[]) { }
 }
 
 export class MessagePayload extends Payload {
+    type = PayloadType.ChatMessage;
     constructor(
         public chatId: string,
         public text: string,
@@ -32,6 +37,7 @@ export class MessagePayload extends Payload {
 }
 
 export class DeliveryStatusPayload extends Payload {
+    type = PayloadType.DeliveryStatus;
     constructor(
         public chatId: string,
         public messageIds: string[],
