@@ -5,6 +5,7 @@ import VoiceCallButton from '../../../Common/Components/CommunicationButtons/Voi
 import VideoCallButton from '../../../Common/Components/CommunicationButtons/VideoCallButton.tsx';
 import ChatSettingsMenu from './ChatSettingsMenu.tsx';
 import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
+import CreateGroupButton from './CreateGroupButton.tsx';
 
 interface ChatHeaderProps {
     chat: ChatViewModel;
@@ -39,6 +40,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ chat, onClose }) => {
                     <>
                         <VoiceCallButton contact={chatMember.contact} />
                         <VideoCallButton contact={chatMember.contact} />
+                        <CreateGroupButton contact={chatMember.contact} />
                     </>
                 )}
                 <ChatSettingsMenu chat={chat} />
