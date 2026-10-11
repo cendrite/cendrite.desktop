@@ -3,7 +3,6 @@ import { MessageContract } from "./MessageContract.js";
 
 export class ChatContract {
     id: string;
-    groupId: string | null;
     isGroup: boolean;
     groupName: string | null;
     members: ChatMemberContract[];
@@ -14,7 +13,6 @@ export class ChatContract {
 
     constructor(
         id: string,
-        groupId: string | null,
         isGroup: boolean,
         groupName: string | null,
         members: ChatMemberContract[],
@@ -24,7 +22,6 @@ export class ChatContract {
         messages: MessageContract[]
     ) {
         this.id = id;
-        this.groupId = groupId;
         this.isGroup = isGroup;
         this.groupName = groupName;
         this.members = members;

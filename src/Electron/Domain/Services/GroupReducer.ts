@@ -15,9 +15,21 @@ export function authorOf(state: GroupState, writeKeyPublic: string): GroupMember
     return state.ownerOfWriteKey(writeKeyPublic);
 }
 
-export function rejectReasonFor(state: GroupState, operation: LedgerOperation, context: OperationContext): string | null {
+export function rejectReasonFor(
+    state: GroupState,
+    operation: LedgerOperation,
+    context: OperationContext,
+): string | null {
     if (operation.type === LedgerOperationType.GroupCreated) {
-        return context.version === 1 ? null : 'group creation is only valid as the first event';
+        if (context.version !== 1) return 'group creation is only valid as the first event';
+
+        if (!operation.members.some((member) => member.writeKeyPublic === context.authorKey)) {
+            return 'the creating write key is not among the declared members';
+        }
+
+        return sameKeys(declaredKeyChanges(state, operation).added, context.keysAdded)
+            ? null
+            : 'granted keys do not match the operation';
     }
 
     const author = authorOf(state, context.authorKey);
@@ -49,13 +61,6 @@ export function rejectReasonFor(state: GroupState, operation: LedgerOperation, c
         case LedgerOperationType.SettingsChanged:
             return requireAdmin(author);
 
-        case LedgerOperationType.WriteKeyRegistered: {
-            const target = state.members.get(operation.userTag);
-            if (!target) return 'member is not in the group';
-            if (target.writeKeys.includes(operation.writeKeyPublic)) return 'write key is already registered';
-            return null;
-        }
-
         case LedgerOperationType.DeviceListPublished:
             return operation.userTag === author.userTag ? null : 'a member may only publish their own devices';
     }
@@ -65,17 +70,21 @@ export function applyOperation(state: GroupState, operation: LedgerOperation, co
     switch (operation.type) {
         case LedgerOperationType.GroupCreated:
             state.name = operation.name;
-            state.members.set(
-                operation.owner.userTag,
-                new GroupMember(
-                    operation.owner.userTag,
-                    operation.owner.displayName,
-                    operation.owner.privilege,
-                    operation.owner.identityKey,
-                    context.version,
-                    [context.authorKey],
-                ),
-            );
+
+            for (const member of operation.members) {
+                state.members.set(
+                    member.userTag,
+                    new GroupMember(
+                        member.userTag,
+                        member.displayName,
+                        member.privilege,
+                        member.identityKey,
+                        context.version,
+                        [member.writeKeyPublic],
+                        member.connectionIds,
+                    ),
+                );
+            }
             break;
 
         case LedgerOperationType.MemberAdded:
@@ -105,10 +114,6 @@ export function applyOperation(state: GroupState, operation: LedgerOperation, co
             if (operation.messageTtl !== null) state.messageTtl = operation.messageTtl;
             break;
 
-        case LedgerOperationType.WriteKeyRegistered:
-            state.members.get(operation.userTag)!.writeKeys.push(operation.writeKeyPublic);
-            break;
-
         case LedgerOperationType.DeviceListPublished:
             state.members.get(operation.userTag)!.connectionIds = [...operation.connectionIds];
             break;
@@ -121,8 +126,10 @@ function requireAdmin(author: GroupMember): string | null {
 
 function declaredKeyChanges(state: GroupState, operation: LedgerOperation): { added: string[]; removed: string[] } {
     switch (operation.type) {
+        case LedgerOperationType.GroupCreated:
+            return { added: operation.members.map((member) => member.writeKeyPublic), removed: [] };
+
         case LedgerOperationType.MemberAdded:
-        case LedgerOperationType.WriteKeyRegistered:
             return { added: [operation.writeKeyPublic], removed: [] };
 
         case LedgerOperationType.MemberRemoved:

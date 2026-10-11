@@ -6,6 +6,7 @@ import { IMediaService } from '../../../Application/Services/Media/MediaService.
 import { ServerMessage } from '../../../Application/Contracts/Messaging/ServerMessage.js';
 import {
     DeliveryStatusPayload,
+    GroupStrapPayload,
     MessagePayload,
     PayloadType,
 } from '../../../Application/Contracts/Messaging/Payload.js';
@@ -15,6 +16,13 @@ import { DeliveryStatus } from '../../../Domain/Enums/DeliveryStatus.js';
 import { MessageContract } from '../../../Application/Contracts/Models/MessageContract.js';
 import { IFriendRepository } from '../../../Application/Contracts/Repositories/IFriendRepository.js';
 import { IUserRepository } from '../../../Application/Contracts/Repositories/IUserRepository.js';
+import { IGroupRepository } from '../../../Application/Contracts/Repositories/IGroupRepository.js';
+import { IGroupKeyRepository } from '../../../Application/Contracts/Repositories/IGroupKeyRepository.js';
+import { Group } from '../../../Domain/Entities/Group.js';
+import { GroupEpochKey } from '../../../Domain/Encryption/GroupEpochKey.js';
+import { GroupWriteKey } from '../../../Domain/Encryption/GroupWriteKey.js';
+import { GroupLifecycle } from '../../../Domain/Enums/GroupLifecycle.js';
+import { publicKeyFromPrivate } from '../../Crypto/LedgerCodec.js';
 import { Chat } from '../../../Domain/Aggregates/Chat.js';
 import { ChatMember } from '../../../Domain/Entities/ChatMember.js';
 import { ChatPrivileges } from '../../../Domain/Enums/ChatPrivileges.js';
@@ -32,6 +40,8 @@ export class MessageReceiver implements IMessageReceiver {
         private readonly mediaService: IMediaService,
         private readonly friendRepository: IFriendRepository,
         private readonly userRepository: IUserRepository,
+        private readonly groupRepository: IGroupRepository,
+        private readonly groupKeyRepository: IGroupKeyRepository,
         private readonly mainWindow: BrowserWindow,
     ) { }
 
@@ -40,7 +50,12 @@ export class MessageReceiver implements IMessageReceiver {
 
         for (const payload of envelope.payloads) {
             switch (payload.type) {
+                case PayloadType.GroupCreated:
+                    console.log(`MessageReceiver: received group creation for from ${message.senderId}`);
+                    await this.handleGroupCreated(message, payload as GroupStrapPayload);
+                    break;
                 case PayloadType.ChatMessage:
+                    console.log(`MessageReceiver: received chat message from ${message.senderId}`);
                     await this.handleChatMessage(message, payload as MessagePayload);
                     break;
                 case PayloadType.DeliveryStatus:
@@ -51,6 +66,63 @@ export class MessageReceiver implements IMessageReceiver {
                     break;
             }
         }
+    }
+
+    private async handleGroupCreated(message: ServerMessage, payload: GroupStrapPayload): Promise<void> {
+        const existing = await this.chatStore.getChat(payload.groupId);
+        if (existing) return;
+
+        const user = await this.userRepository.get(true);
+
+        if (!payload.members.some((member) => member.userTag === user.userTag)) {
+            console.warn(`MessageReceiver: ${message.senderId} sent a group that does not list us, ignored`);
+            return;
+        }
+
+        if (!payload.members.some((member) => member.connectionIds.includes(message.senderId))) {
+            console.warn(`MessageReceiver: ${message.senderId} is not a member of ${payload.groupId}, ignored`);
+            return;
+        }
+
+        const writeKeyPrivate = Buffer.from(payload.writeKeyPrivate, 'base64');
+
+        await this.groupKeyRepository.saveWriteKey(
+            new GroupWriteKey(payload.groupId, publicKeyFromPrivate(writeKeyPrivate), writeKeyPrivate),
+        );
+
+        for (const [index, epochKey] of payload.epochKeys.entries()) {
+            await this.groupKeyRepository.saveEpochKey(
+                new GroupEpochKey(payload.groupId, index + 1, Buffer.from(epochKey, 'base64')),
+            );
+        }
+
+        const members = payload.members
+            .filter((member) => member.userTag !== user.userTag)
+            .map((member) =>
+                ChatMember.createExternal(
+                    uuid().toString(),
+                    member.privilege,
+                    member.userTag,
+                    member.displayName,
+                    member.connectionIds,
+                ),
+            );
+
+        await this.chatStore.create(new Chat(payload.groupId, members, [], payload.groupName));
+
+        await this.groupRepository.create(
+            new Group(
+                payload.groupId,
+                GroupLifecycle.Active,
+                payload.version,
+                Buffer.from(payload.headHash, 'base64'),
+                payload.epochKeys.length,
+            ),
+        );
+
+        console.log(
+            `MessageReceiver: joined group ${payload.groupId} from ${message.senderId} with ${members.length} other member(s)`,
+        );
     }
 
     private async handleDeliveryStatusUpdate(message: ServerMessage, payload: DeliveryStatusPayload): Promise<void> {
@@ -112,10 +184,6 @@ export class MessageReceiver implements IMessageReceiver {
     private async ensureChat(chatId: string, payload: MessagePayload): Promise<void> {
         const existing = await this.chatStore.getChat(chatId);
         if (existing) return;
-
-        if (payload.participants.length > 2) {
-            throw new Error(`Group chat creation is not implemented (chat ${chatId})`);
-        }
 
         const user = await this.userRepository.get(true);
 

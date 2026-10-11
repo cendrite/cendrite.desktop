@@ -37,6 +37,7 @@ export function useMessageService() {
                 chat.id,
                 text,
                 media,
+                chat.isGroup,
             );
 
             if (msg) {

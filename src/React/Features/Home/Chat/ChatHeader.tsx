@@ -5,6 +5,7 @@ import VideoCallButton from '../../../Common/Components/CommunicationButtons/Vid
 import ChatSettingsMenu from './ChatSettingsMenu.tsx';
 import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
 import CreateGroupButton from './CreateGroupButton.tsx';
+import AvatarStack from '../../../Common/Components/Avatar/AvatarStack.tsx';
 import { CaretLeftIcon } from '@phosphor-icons/react';
 
 interface ChatHeaderProps {
@@ -22,21 +23,33 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ chat, onClose }) => {
                     <CaretLeftIcon className="w-6 h-6" />
                 </button>
 
-                <div className="w-7 h-7 rounded-full flex items-center justify-center overflow-hidden bg-media ml-3">
-                    <Avatar
-                        className="w-11 h-11"
-                        AvatarKey={chatMember?.contact?.avatarKey ?? null}
-                        Username={chatMember?.name ?? "?"}
-                    />
-                </div>
+                {chat.isGroup ? (
+                    <>
+                        <AvatarStack className="w-7 h-7 ml-3" textClassName="!text-[0.45rem]" members={chat.chatMembers} />
+                        <div className="flex flex-col ml-3">
+                            <span className="text-fg text-sm">{chat.displayName}</span>
+                            <span className="text-fg-subtle text-xs">{chat.chatMembers.length + 1} members</span>
+                        </div>
+                    </>
+                ) : (
+                    <>
+                        <div className="w-7 h-7 rounded-full flex items-center justify-center overflow-hidden bg-media ml-3">
+                            <Avatar
+                                className="w-11 h-11"
+                                AvatarKey={chatMember?.contact?.avatarKey ?? null}
+                                Username={chatMember?.name ?? "?"}
+                            />
+                        </div>
 
-                <span className="text-fg text-sm ml-3">
-                    {chatMember.name}
-                </span>
+                        <span className="text-fg text-sm ml-3">
+                            {chatMember.name}
+                        </span>
+                    </>
+                )}
             </div>
 
             <div className="flex items-center space-x-2">
-                {chatMember.contact && (
+                {!chat.isGroup && chatMember.contact && (
                     <>
                         <VoiceCallButton contact={chatMember.contact} />
                         <VideoCallButton contact={chatMember.contact} />

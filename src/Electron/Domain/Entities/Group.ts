@@ -1,6 +1,6 @@
 import { GroupLifecycle } from "../Enums/GroupLifecycle.js";
 
-export class GroupRecord {
+export class Group {
     groupId: string;
     lifecycle: GroupLifecycle;
     version: number;

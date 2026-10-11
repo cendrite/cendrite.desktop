@@ -126,7 +126,9 @@ export class LedgerReplayService implements ILedgerReplayService {
      */
     private identityPinFailure(state: GroupState, operation: LedgerOperation, identityKey: string): string | null {
         if (operation.type === LedgerOperationType.GroupCreated) {
-            return operation.owner.identityKey === identityKey
+            const creator = operation.members.find((member) => member.userTag === operation.authorTag);
+
+            return creator?.identityKey === identityKey
                 ? null
                 : 'creator identity key does not match the operation';
         }

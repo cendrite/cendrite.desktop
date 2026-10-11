@@ -1,26 +1,35 @@
 import { Repository } from 'typeorm/repository/Repository.js';
 import { IGroupRepository } from '../../../Application/Contracts/Repositories/IGroupRepository.js';
 import { GroupLifecycle } from '../../../Domain/Enums/GroupLifecycle.js';
-import { GroupRecord } from '../../../Domain/Entities/GroupRecord.js';
 import { getDbContext } from '../Context/DatabaseContext.js';
+import { Group } from '../../../Domain/Entities/Group.js';
 
 export class GroupRepository implements IGroupRepository {
-    private readonly repository: Repository<GroupRecord>;
+    private readonly repository: Repository<Group>;
 
     public constructor() {
-        this.repository = getDbContext().getRepository(GroupRecord);
+        this.repository = getDbContext().getRepository(Group);
     }
 
-    public async save(group: GroupRecord): Promise<void> {
+    public async update(group: Group): Promise<void> {
         await this.repository.save(group);
     }
 
-    public async get(groupId: string): Promise<GroupRecord | null> {
+    public async create(group: Group): Promise<void> {
+        await this.repository.save(group);
+    }
+
+    public async get(groupId: string): Promise<Group | null> {
         return this.repository.findOneBy({ groupId });
     }
 
-    public async getByLifecycle(lifecycle: GroupLifecycle): Promise<GroupRecord[]> {
+    public async getByLifecycle(lifecycle: GroupLifecycle): Promise<Group[]> {
         return this.repository.findBy({ lifecycle });
+    }
+
+    public async getIds(): Promise<string[]> {
+        const groups = await this.repository.find({ select: { groupId: true } });
+        return groups.map((group) => group.groupId);
     }
 
     public async deleteAll(): Promise<void> {

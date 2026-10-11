@@ -15,10 +15,15 @@ import { ILedgerSyncService } from '../../../../../src/Electron/Application/Cont
 import { ILedgerIdentity } from '../../../../../src/Electron/Infrastructure/Interfaces/ILedgerIdentity.js';
 import { GroupEpochKey } from '../../../../../src/Electron/Domain/Encryption/GroupEpochKey.js';
 import { GroupWriteKey } from '../../../../../src/Electron/Domain/Encryption/GroupWriteKey.js';
-import { GroupRecord } from '../../../../../src/Electron/Domain/Entities/GroupRecord.js';
+import { Group } from '../../../../../src/Electron/Domain/Entities/Group.js';
 import { LedgerEventRecord } from '../../../../../src/Electron/Domain/Entities/LedgerEventRecord.js';
 import { GroupState } from '../../../../../src/Electron/Domain/Projections/GroupState.js';
-import { LedgerOperation } from '../../../../../src/Electron/Domain/Operations/LedgerOperation.js';
+import {
+    GroupCreatedOperation,
+    GroupMemberRef,
+    LedgerOperation,
+    SettingsChangedOperation,
+} from '../../../../../src/Electron/Domain/Operations/LedgerOperation.js';
 import { LedgerOperationType } from '../../../../../src/Electron/Domain/Enums/LedgerOperationType.js';
 import { ChatPrivileges } from '../../../../../src/Electron/Domain/Enums/ChatPrivileges.js';
 import { ReplayResult } from '../../../../../src/Electron/Application/Contracts/Services/ILedgerReplayService.js';
@@ -53,12 +58,18 @@ const keyRepository: IGroupKeyRepository = {
 };
 
 class FakeProvider implements ILedgerProvider {
-    public created: { payload: Buffer; writeKey: Buffer; signature: Buffer } | null = null;
+    public created: { payload: Buffer; writeKey: Buffer; keys: Buffer[]; signature: Buffer } | null = null;
     public appends: LedgerAppend[] = [];
     public conflictsLeft = 0;
 
-    public async createStream(_groupId: string, payload: Buffer, writeKey: Buffer, signature: Buffer) {
-        this.created = { payload, writeKey, signature };
+    public async createStream(
+        _groupId: string,
+        payload: Buffer,
+        writeKey: Buffer,
+        keys: Buffer[],
+        signature: Buffer,
+    ) {
+        this.created = { payload, writeKey, keys, signature };
         return Result.success<void>();
     }
 
@@ -86,7 +97,7 @@ class FakeProvider implements ILedgerProvider {
     }
 }
 
-function groupRepository(record: GroupRecord): IGroupRepository {
+function groupRepository(record: Group): IGroupRepository {
     return {
         save: async () => undefined,
         get: async () => record,
@@ -105,22 +116,20 @@ function syncService(state: GroupState, onSync?: () => void): ILedgerSyncService
 }
 
 function created(): LedgerOperation {
-    return {
-        type: LedgerOperationType.GroupCreated,
-        authorTag: 'alice',
-        at: 1,
-        name: 'Trip',
-        owner: {
-            userTag: 'alice',
-            displayName: 'Alice',
-            privilege: ChatPrivileges.Owner,
-            identityKey: Buffer.from(identity.getPublicKey().serialize()).toString('base64'),
-        },
-    };
+    return new GroupCreatedOperation('alice', 'Trip', [
+        new GroupMemberRef(
+            'alice',
+            'Alice',
+            ChatPrivileges.Owner,
+            Buffer.from(identity.getPublicKey().serialize()).toString('base64'),
+            writeKeyPair.publicKey.toString('base64'),
+            ['alice-device'],
+        ),
+    ]);
 }
 
 function settingsChanged(): LedgerOperation {
-    return { type: LedgerOperationType.SettingsChanged, authorTag: 'alice', at: 2, name: 'Renamed', messageTtl: null };
+    return new SettingsChangedOperation('alice', 'Renamed', null);
 }
 
 let provider: FakeProvider;
@@ -134,21 +143,24 @@ describe('creating a stream', () => {
         const sut = new LedgerWriter(
             provider,
             keyRepository,
-            groupRepository(new GroupRecord(GROUP_ID)),
+            groupRepository(new Group(GROUP_ID)),
             syncService(new GroupState(GROUP_ID)),
             ledgerIdentity,
         );
 
-        const result = await sut.createStream(GROUP_ID, created());
+        const result = await sut.createStream(GROUP_ID, [writeKeyPair.publicKey], created());
 
         expect(result.success).toBe(true);
 
         const { payload, writeKey, signature } = provider.created!;
+        const keysAdded = [writeKeyPair.publicKey];
+
         const signingInput = buildSigningInput({
             groupId: GROUP_ID,
             version: 1,
             previousHash: Buffer.alloc(32),
             payload,
+            keysAdded,
         });
 
         const record = new LedgerEventRecord(
@@ -159,6 +171,7 @@ describe('creating a stream', () => {
             writeKey,
             signature,
             hashEvent(signingInput),
+            keysAdded.map((key) => key.toString('base64')),
         );
 
         const replayed = await new LedgerReplayService(keyRepository, ledgerIdentity).replay(GROUP_ID, [record]);
@@ -173,12 +186,12 @@ describe('creating a stream', () => {
         const sut = new LedgerWriter(
             provider,
             keyRepository,
-            groupRepository(new GroupRecord(GROUP_ID)),
+            groupRepository(new Group(GROUP_ID)),
             syncService(new GroupState(GROUP_ID)),
             ledgerIdentity,
         );
 
-        await sut.createStream(GROUP_ID, created());
+        await sut.createStream(GROUP_ID, [writeKeyPair.publicKey], created());
 
         expect(provider.created!.writeKey).toEqual(writeKeyPair.publicKey);
         expect(provider.created!.signature).toHaveLength(64);
@@ -191,7 +204,7 @@ describe('appending', () => {
         const sut = new LedgerWriter(
             provider,
             keyRepository,
-            groupRepository(new GroupRecord(GROUP_ID, 0, 4, head)),
+            groupRepository(new Group(GROUP_ID, 0, 4, head)),
             syncService(new GroupState(GROUP_ID)),
             ledgerIdentity,
         );
@@ -210,7 +223,7 @@ describe('appending', () => {
         const sut = new LedgerWriter(
             provider,
             keyRepository,
-            groupRepository(new GroupRecord(GROUP_ID, 0, 1, Buffer.alloc(32, 0x11))),
+            groupRepository(new Group(GROUP_ID, 0, 1, Buffer.alloc(32, 0x11))),
             syncService(new GroupState(GROUP_ID), () => syncs++),
             ledgerIdentity,
         );
@@ -228,7 +241,7 @@ describe('appending', () => {
         const sut = new LedgerWriter(
             provider,
             keyRepository,
-            groupRepository(new GroupRecord(GROUP_ID, 0, 1, Buffer.alloc(32, 0x11))),
+            groupRepository(new Group(GROUP_ID, 0, 1, Buffer.alloc(32, 0x11))),
             syncService(new GroupState(GROUP_ID)),
             ledgerIdentity,
         );
@@ -254,7 +267,7 @@ describe('appending', () => {
         const sut = new LedgerWriter(
             provider,
             keyRepository,
-            groupRepository(new GroupRecord(GROUP_ID, 0, 2, Buffer.alloc(32, 0x11))),
+            groupRepository(new Group(GROUP_ID, 0, 2, Buffer.alloc(32, 0x11))),
             syncService(state),
             ledgerIdentity,
         );
@@ -274,7 +287,7 @@ describe('appending', () => {
         const sut = new LedgerWriter(
             provider,
             { ...keyRepository, getWriteKey: async () => null },
-            groupRepository(new GroupRecord(GROUP_ID, 0, 1, Buffer.alloc(32, 0x11))),
+            groupRepository(new Group(GROUP_ID, 0, 1, Buffer.alloc(32, 0x11))),
             syncService(new GroupState(GROUP_ID)),
             ledgerIdentity,
         );

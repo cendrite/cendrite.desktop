@@ -6,6 +6,8 @@ export class ChatViewModel {
     id: string;
     chatMembers: ChatMemberViewModel[];
     messages: MessageViewModel[];
+    isGroup: boolean;
+    groupName: string | null;
     muted: boolean = false;
     mutedTimer: Date | null = null;
 
@@ -13,18 +15,31 @@ export class ChatViewModel {
         id: string,
         contact: ChatMemberViewModel[],
         messages: MessageViewModel[] = [],
+        isGroup: boolean = false,
+        groupName: string | null = null,
         muted: boolean = false,
         mutedTimer: Date | null = null,
     ) {
         this.id = id;
         this.chatMembers = contact;
         this.messages = messages;
+        this.isGroup = isGroup;
+        this.groupName = groupName;
         this.muted = muted;
         this.mutedTimer = mutedTimer;
     }
 
     get connectionIds(): string[] {
         return this.chatMembers.map((member) => member.devices).flat();
+    }
+
+    get displayName(): string {
+        if (this.isGroup == false) throw new Error('displayName is only available for group chats');
+
+        return (
+            this.groupName ??
+            this.chatMembers.map((member) => member.displayName ?? member.contact?.username).join(', ')
+        );
     }
 
     get lastMessage(): MessageViewModel | null {

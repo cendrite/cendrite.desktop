@@ -1,4 +1,5 @@
 import { DeliveryStatus } from '../../../Domain/Enums/DeliveryStatus.js';
+import { GroupMemberRef } from '../../../Domain/Operations/LedgerOperation.js';
 
 export enum PayloadType {
     ChatMessage = 0,
@@ -6,6 +7,8 @@ export enum PayloadType {
     SettingsUpdate = 2,
     DeleteMessage = 3,
     EditMessage = 4,
+    GroupUpdated = 5,
+    GroupCreated = 6,
 }
 
 export class Envelope<T extends Payload> {
@@ -45,6 +48,34 @@ export class DeliveryStatusPayload extends Payload {
         public participants: string[],
     ) {
         super(participants);
+    }
+}
+
+export class GroupUpdatedPayload extends Payload {
+    type = PayloadType.GroupUpdated;
+    constructor(
+        public readonly groupId: string,
+        public readonly groupName: string | null,
+        public readonly version: number,
+        public readonly epochNumber: number,
+        public readonly headHash: string,
+    ) {
+        super([]);
+    }
+}
+
+export class GroupStrapPayload extends Payload {
+    type = PayloadType.GroupCreated;
+    constructor(
+        public readonly groupId: string,
+        public readonly groupName: string | null,
+        public readonly version: number,
+        public readonly headHash: string,
+        public readonly epochKeys: string[],
+        public readonly writeKeyPrivate: string,
+        public readonly members: GroupMemberRef[],
+    ) {
+        super([]);
     }
 }
 

@@ -12,7 +12,7 @@ import {
     ILedgerReplayService,
     ReplayResult,
 } from '../../../../../src/Electron/Application/Contracts/Services/ILedgerReplayService.js';
-import { GroupRecord } from '../../../../../src/Electron/Domain/Entities/GroupRecord.js';
+import { Group } from '../../../../../src/Electron/Domain/Entities/Group.js';
 import { LedgerEventRecord } from '../../../../../src/Electron/Domain/Entities/LedgerEventRecord.js';
 import { LedgerEventStatus } from '../../../../../src/Electron/Domain/Enums/LedgerEventStatus.js';
 import { GroupState } from '../../../../../src/Electron/Domain/Projections/GroupState.js';
@@ -51,10 +51,11 @@ function logRepository(existing: LedgerEventRecord[] = []) {
 }
 
 function groupRepository() {
-    const saved: GroupRecord[] = [];
+    const saved: Group[] = [];
 
     const repository: IGroupRepository = {
-        save: async (group) => void saved.push(group),
+        create: async (group) => void saved.push(group),
+        update: async (group) => void saved.push(group),
         get: async () => saved[saved.length - 1] ?? null,
         getByLifecycle: async () => [],
         deleteAll: async () => undefined,

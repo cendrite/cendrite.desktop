@@ -17,7 +17,7 @@ import { GroupRepository } from '../../../../../../src/Electron/Infrastructure/P
 import { GroupKeyRepository } from '../../../../../../src/Electron/Infrastructure/Persistence/Repositories/GroupKeyRepository.js';
 import { LedgerEventRecord } from '../../../../../../src/Electron/Domain/Entities/LedgerEventRecord.js';
 import { LedgerEventStatus } from '../../../../../../src/Electron/Domain/Enums/LedgerEventStatus.js';
-import { GroupRecord } from '../../../../../../src/Electron/Domain/Entities/GroupRecord.js';
+import { Group } from '../../../../../../src/Electron/Domain/Entities/Group.js';
 import { GroupLifecycle } from '../../../../../../src/Electron/Domain/Enums/GroupLifecycle.js';
 import { GroupWriteKey } from '../../../../../../src/Electron/Domain/Encryption/GroupWriteKey.js';
 import { GroupEpochKey } from '../../../../../../src/Electron/Domain/Encryption/GroupEpochKey.js';
@@ -107,7 +107,7 @@ describe('LedgerLogRepository', () => {
 describe('GroupRepository', () => {
     test('round trips a group record', async () => {
         const sut = new GroupRepository();
-        await sut.save(new GroupRecord(GROUP_ID, GroupLifecycle.Active, 7, Buffer.alloc(32, 0x5a), 2, false, 'abc'));
+        await sut.create(new Group(GROUP_ID, GroupLifecycle.Active, 7, Buffer.alloc(32, 0x5a), 2, false, 'abc'));
 
         const stored = await sut.get(GROUP_ID);
 
@@ -120,7 +120,7 @@ describe('GroupRepository', () => {
 
     test('defaults a new group to draft at version zero', async () => {
         const sut = new GroupRepository();
-        await sut.save(new GroupRecord(GROUP_ID));
+        await sut.create(new Group(GROUP_ID));
 
         const stored = await sut.get(GROUP_ID);
 
@@ -131,8 +131,8 @@ describe('GroupRepository', () => {
 
     test('finds groups by lifecycle', async () => {
         const sut = new GroupRepository();
-        await sut.save(new GroupRecord(GROUP_ID, GroupLifecycle.Active));
-        await sut.save(new GroupRecord(OTHER_GROUP_ID, GroupLifecycle.Draft));
+        await sut.create(new Group(GROUP_ID, GroupLifecycle.Active));
+        await sut.create(new Group(OTHER_GROUP_ID, GroupLifecycle.Draft));
 
         const active = await sut.getByLifecycle(GroupLifecycle.Active);
 

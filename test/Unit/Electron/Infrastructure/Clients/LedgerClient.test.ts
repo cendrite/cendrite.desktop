@@ -37,7 +37,13 @@ describe('createStream', () => {
     test('posts the stream with base64 encoded bytes', async () => {
         const { calls, sut } = fakeClient();
 
-        await sut.createStream(GROUP_ID, Buffer.from([1, 2, 3]), Buffer.alloc(32, 0xa1), Buffer.alloc(64, 0x7f));
+        await sut.createStream(
+            GROUP_ID,
+            Buffer.from([1, 2, 3]),
+            Buffer.alloc(32, 0xa1),
+            [Buffer.alloc(32, 0xb2)],
+            Buffer.alloc(64, 0x7f),
+        );
 
         expect(calls[0].method).toBe('POST');
         expect(calls[0].url).toBeUndefined();
@@ -46,6 +52,7 @@ describe('createStream', () => {
             payload: Buffer.from([1, 2, 3]).toString('base64'),
             writeKey: Buffer.alloc(32, 0xa1).toString('base64'),
             signature: Buffer.alloc(64, 0x7f).toString('base64'),
+            keysAdded: [Buffer.alloc(32, 0xb2).toString('base64')],
         });
     });
 });

@@ -25,7 +25,8 @@ export class MessageSentCommandHandler implements Handler<MessageSentCommand, De
         const messages: ServerMessage[] = [];
 
         for (const conId of cmd.connectionIds) {
-            const envelope = new Envelope(
+            const envelope = new Envelope([
+                ...(cmd.payloads[conId] ?? []),
                 new MessagePayload(
                     cmd.message.chatId,
                     cmd.message.text,
@@ -33,7 +34,10 @@ export class MessageSentCommandHandler implements Handler<MessageSentCommand, De
                     cmd.participants,
                     cmd.message.deliveryStatus,
                 ),
-            );
+            ]);
+
+            console.log("payload count for connection", conId, envelope.payloads.length);
+
 
             const cipher = await this.sessionManager.encrypt(envelope, conId);
 

@@ -3,8 +3,6 @@ import { ChatMember } from '../Entities/ChatMember.js';
 
 export class Chat {
     id: string;
-    groupId: string | null;
-    isGroup: boolean;
     groupName: string | null;
     members: ChatMember[];
     messages: Message[];
@@ -16,16 +14,14 @@ export class Chat {
         id: string,
         members: ChatMember[],
         messages: Message[],
+        groupName: string | null = null,
         messageTtl: number = 0,
         muted: boolean = false,
-        groupId: string | null = null,
     ) {
         this.id = id;
-        this.groupId = groupId;
         this.members = members;
-        this.isGroup = groupId !== null;
         this.muteTimer = null;
-        this.groupName = null;
+        this.groupName = groupName;
         this.messageTtl = messageTtl;
         this.muted = muted;
         this.messages = messages;
