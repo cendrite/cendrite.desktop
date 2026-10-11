@@ -41,7 +41,7 @@ describe('a group chat', () => {
         const sut = new ChatStore();
         const external = ChatMember.createExternal('m1', ChatPrivileges.Member, 'carol', 'Carol', ['carol-device']);
 
-        await sut.create(new Chat(GROUP_ID, [external], [], 0, false, GROUP_ID));
+        await sut.create(new Chat(GROUP_ID, [external], [], 'Trip'));
 
         const stored = await loadChatWithMembers(GROUP_ID);
         const member = stored!.members[0];
@@ -55,7 +55,7 @@ describe('a group chat', () => {
         const sut = new ChatStore();
         const friend = await storeFriend('bob');
         await sut.create(
-            new Chat(GROUP_ID, [ChatMember.create('m1', ChatPrivileges.Member, friend)], [], 0, false, GROUP_ID),
+            new Chat(GROUP_ID, [ChatMember.create('m1', ChatPrivileges.Member, friend)], [], 'Trip'),
         );
 
         await sut.deleteByFriendId('bob');
@@ -69,7 +69,7 @@ describe('a group chat', () => {
         const sut = new ChatStore();
         const friend = await storeFriend('bob');
         await sut.create(
-            new Chat(GROUP_ID, [ChatMember.create('m1', ChatPrivileges.Member, friend)], [], 0, false, GROUP_ID),
+            new Chat(GROUP_ID, [ChatMember.create('m1', ChatPrivileges.Member, friend)], [], 'Trip'),
         );
 
         await getDbContext().getRepository(Friend).delete('bob');
