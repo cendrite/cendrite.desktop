@@ -51,6 +51,7 @@ export class GetChatsQueryHandler implements Handler<GetChatsQuery, ChatContract
                                     member.privilege,
                                     member.displayName ?? member.friend?.displayName ?? member.userTag,
                                     member.devices,
+                                    member.avatar,
                                 ),
                         ),
                         chat.messageTtl,

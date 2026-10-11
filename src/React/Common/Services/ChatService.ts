@@ -115,6 +115,7 @@ export class ChatService {
             memberDto.userTag,
             memberDto.connectionsIds ?? [],
             contact,
+            memberDto.avatarKey,
         );
 
         return new ChatViewModel(result.data!.id, [chatMember]);
@@ -145,6 +146,7 @@ export class ChatService {
                 memberDto.userTag,
                 memberDto.connectionsIds ?? [],
                 contact,
+                memberDto.avatarKey,
             );
         });
 
@@ -169,6 +171,7 @@ export class ChatService {
                     memberDto.userTag,
                     memberDto.connectionsIds ?? [],
                     contact,
+                    memberDto.avatarKey,
                 );
             });
 

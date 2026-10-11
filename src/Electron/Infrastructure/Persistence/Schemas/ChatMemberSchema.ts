@@ -30,6 +30,10 @@ export const ChatMemberSchema = new EntitySchema<ChatMember>({
         connectionIds: {
             type: "simple-json",
             nullable: true
+        },
+        avatarKey: {
+            type: "text",
+            nullable: true
         }
     },
     relations: {

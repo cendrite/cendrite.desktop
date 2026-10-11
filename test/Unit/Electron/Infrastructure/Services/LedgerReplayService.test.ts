@@ -144,6 +144,7 @@ function ref(member: Member, privilege: ChatPrivileges): GroupMemberRef {
         member.userTag,
         member.displayName,
         privilege,
+        null,
         member.identityKey,
         member.writeKeyPublic,
         [`${member.userTag}-device`],
