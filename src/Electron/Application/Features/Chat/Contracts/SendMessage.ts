@@ -1,5 +1,6 @@
-import { MediaContract } from "../../../Contracts/Models/MediaContract.js";
-import { MessageContract } from "../../../Contracts/Models/MessageContract.js";
+import { Payload } from '../../../Contracts/Messaging/Payload.js';
+import { MediaContract } from '../../../Contracts/Models/MediaContract.js';
+import { MessageContract } from '../../../Contracts/Models/MessageContract.js';
 
 export class SendMessageCommand implements MediatorRequest {
     type = 'SendMessageCommand';
@@ -38,10 +39,17 @@ export class MessageSentCommand implements MediatorRequest {
     public readonly message: MessageContract;
     public readonly connectionIds: string[];
     public readonly participants: string[];
+    public readonly payloads: Record<string, Payload[]>;
 
-    public constructor(message: MessageContract, connectionIds: string[], participants: string[]) {
+    public constructor(
+        message: MessageContract,
+        connectionIds: string[],
+        participants: string[],
+        payloads: Record<string, Payload[]>,
+    ) {
         this.message = message;
         this.connectionIds = connectionIds;
         this.participants = participants;
+        this.payloads = payloads;
     }
 }

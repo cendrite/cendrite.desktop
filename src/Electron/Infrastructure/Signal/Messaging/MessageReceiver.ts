@@ -77,7 +77,6 @@ export class MessageReceiver implements IMessageReceiver {
             return;
         }
 
-        // Anyone can encrypt to us, so the group is only real if whoever sent it is in it.
         if (!payload.members.some((member) => member.connectionIds.includes(message.senderId))) {
             console.warn(`MessageReceiver: ${message.senderId} is not a member of ${payload.groupId}, ignored`);
             return;
