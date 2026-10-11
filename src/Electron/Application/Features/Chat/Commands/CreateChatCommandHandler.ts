@@ -35,11 +35,11 @@ export class CreateChatCommandHandler implements Handler<CreateChatCommand, Chat
 
         const chat = await this.chatStore.create(newChat);
 
-        if (chat.isGroup()) {
+        if (cmd.isGroup) {
             await this.createGroup(chat.id);
         }
 
-        const chatContract = this.mapToContract(chat);
+        const chatContract = this.mapToContract(chat, cmd.isGroup);
 
         return Result.success<ChatContract>(chatContract);
     }
@@ -54,10 +54,10 @@ export class CreateChatCommandHandler implements Handler<CreateChatCommand, Chat
         await this.groupRepository.create(new Group(groupId));
     }
 
-    private mapToContract(chat: Chat): ChatContract {
+    private mapToContract(chat: Chat, isGroup: boolean): ChatContract {
         return new ChatContract(
             chat.id,
-            chat.isGroup(),
+            isGroup,
             chat.groupName,
             chat.members.map(
                 (member) =>

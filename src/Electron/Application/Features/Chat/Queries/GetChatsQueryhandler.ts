@@ -6,6 +6,7 @@ import { ChatMemberContract } from "../../../Contracts/Models/ChatMemberContract
 import { MediaContract } from "../../../Contracts/Models/MediaContract.js";
 import { MessageContract } from "../../../Contracts/Models/MessageContract.js";
 import { IChatStore } from "../../../Contracts/Repositories/IChatStore.js";
+import { IGroupRepository } from "../../../Contracts/Repositories/IGroupRepository.js";
 import { IMediaStore } from "../../../Contracts/Repositories/IMediaStore.js";
 import { Handler } from "../../../Mediator/Handler.js";
 import { GetChatsQuery } from "../Contracts/GetChats.js";
@@ -14,6 +15,7 @@ export class GetChatsQueryHandler implements Handler<GetChatsQuery, ChatContract
     constructor(
         private readonly chatStore: IChatStore,
         private readonly mediaStore: IMediaStore,
+        private readonly groupRepository: IGroupRepository,
     ) { }
     public async handle(request: GetChatsQuery): Promise<Result<ChatContract[]>> {
 
@@ -26,17 +28,19 @@ export class GetChatsQueryHandler implements Handler<GetChatsQuery, ChatContract
             }),
         );
 
-        const chatDtos = await this.mapToDto(chats);
+        const groupIds = new Set(await this.groupRepository.getIds());
+
+        const chatDtos = await this.mapToDto(chats, groupIds);
         return Result.success<ChatContract[]>(chatDtos);
     }
 
-    private async mapToDto(chats: Chat[]): Promise<ChatContract[]> {
+    private async mapToDto(chats: Chat[], groupIds: Set<string>): Promise<ChatContract[]> {
         return Promise.all(
             chats.map(
                 async (chat) =>
                     new ChatContract(
                         chat.id,
-                        chat.isGroup(),
+                        groupIds.has(chat.id),
                         chat.groupName,
                         chat.members.map(
                             (member) =>

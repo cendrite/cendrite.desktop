@@ -129,6 +129,7 @@ export class ChatService {
                 contacts.map((c) => c.id),
                 ChatPrivileges.Admin,
                 groupName,
+                true,
             ),
         );
 

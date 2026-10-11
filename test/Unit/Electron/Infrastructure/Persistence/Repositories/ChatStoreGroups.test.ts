@@ -1,6 +1,8 @@
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { getDbContext, initializeDatabase } from '../../../../../../src/Electron/Infrastructure/Persistence/Context/DatabaseContext.js';
 import { ChatStore } from '../../../../../../src/Electron/Infrastructure/Persistence/Repositories/ChatStore.js';
+import { GroupRepository } from '../../../../../../src/Electron/Infrastructure/Persistence/Repositories/GroupRepository.js';
+import { Group } from '../../../../../../src/Electron/Domain/Entities/Group.js';
 import { Chat } from '../../../../../../src/Electron/Domain/Aggregates/Chat.js';
 import { ChatMember } from '../../../../../../src/Electron/Domain/Entities/ChatMember.js';
 import { Friend } from '../../../../../../src/Electron/Domain/Aggregates/Friend.js';
@@ -54,9 +56,8 @@ describe('a group chat', () => {
     test('survives deleting a friend who is in it', async () => {
         const sut = new ChatStore();
         const friend = await storeFriend('bob');
-        await sut.create(
-            new Chat(GROUP_ID, [ChatMember.create('m1', ChatPrivileges.Member, friend)], [], 'Trip'),
-        );
+        await sut.create(new Chat(GROUP_ID, [ChatMember.create('m1', ChatPrivileges.Member, friend)], [], 'Trip'));
+        await new GroupRepository().create(new Group(GROUP_ID));
 
         await sut.deleteByFriendId('bob');
 

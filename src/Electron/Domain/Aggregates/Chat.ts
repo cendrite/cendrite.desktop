@@ -26,8 +26,4 @@ export class Chat {
         this.muted = muted;
         this.messages = messages;
     }
-
-    isGroup(): boolean {
-        return this.members.length >= 2 || this.groupName !== null;
-    }
 }

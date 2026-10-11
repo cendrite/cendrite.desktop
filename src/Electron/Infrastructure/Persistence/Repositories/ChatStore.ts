@@ -18,7 +18,7 @@ export class ChatStore implements IChatStore {
         this.messageRepository = dbContext.getRepository(Message);
     }
 
-    getMessage(chatId: string, messageId: string): Promise<Message | null> {
+    public async getMessage(chatId: string, messageId: string): Promise<Message | null> {
         return this.messageRepository.findOne({
             where: { id: messageId, chat: { id: chatId } },
             relations: { messageMedia: true },
@@ -103,19 +103,14 @@ export class ChatStore implements IChatStore {
             .execute();
     }
 
+    // A group outlives any single membership, so only the one to one chat with that friend goes.
     public async deleteByFriendId(friendId: string): Promise<void> {
-        const chat = await this.chatRepository
-            .createQueryBuilder('chat')
-            .innerJoin('chat.members', 'member')
-            .innerJoin('member.friend', 'friend')
-            .where('friend.id = :friendId', { friendId })
-            // Only the one-to-one chat with that friend: a group outlives any single membership.
-            .andWhere('chat.groupId IS NULL')
-            .getOne();
-
-        if (chat) {
-            await this.chatRepository.delete(chat.id);
-        }
+        await this.chatRepository
+            .createQueryBuilder()
+            .delete()
+            .where('id IN (SELECT chatId FROM chat_member WHERE friendId = :friendId)', { friendId })
+            .andWhere('NOT EXISTS (SELECT 1 FROM "group" WHERE "group".groupId = Chat.id)')
+            .execute();
     }
 
     public async create(chat: Chat): Promise<Chat> {

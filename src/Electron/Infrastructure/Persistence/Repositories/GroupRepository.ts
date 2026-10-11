@@ -27,6 +27,11 @@ export class GroupRepository implements IGroupRepository {
         return this.repository.findBy({ lifecycle });
     }
 
+    public async getIds(): Promise<string[]> {
+        const groups = await this.repository.find({ select: { groupId: true } });
+        return groups.map((group) => group.groupId);
+    }
+
     public async deleteAll(): Promise<void> {
         await this.repository.clear();
     }
