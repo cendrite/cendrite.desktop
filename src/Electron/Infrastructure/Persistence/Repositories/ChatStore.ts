@@ -51,6 +51,17 @@ export class ChatStore implements IChatStore {
         });
     }
 
+    public async getChatWithMembers(chatId: string): Promise<Chat> {
+        const chat = await this.chatRepository.findOne({
+            where: { id: chatId },
+            relations: { members: { friend: { connectionIds: true } } },
+        });
+        if (!chat) {
+            throw new Error(`Chat with ID ${chatId} not found`);
+        }
+        return chat;
+    }
+
     public async deleteChat(chatId: string): Promise<void> {
         await this.chatRepository.delete(chatId);
     }

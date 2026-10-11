@@ -4,6 +4,7 @@ import { MessageMedia } from '../../../../Domain/Entities/MessageMedia.js';
 import { DeliveryStatus } from '../../../../Domain/Enums/DeliveryStatus.js';
 import { GroupLifecycle } from '../../../../Domain/Enums/GroupLifecycle.js';
 import { MessageSentEvent } from '../../../../Domain/Events/MessageSentEvent.js';
+import { GroupMemberRef } from '../../../../Domain/Operations/LedgerOperation.js';
 import { MessageContract } from '../../../Contracts/Models/MessageContract.js';
 import { IEventRepository } from '../../../Contracts/Providers/IEventRepository.js';
 import { IChatStore } from '../../../Contracts/Repositories/IChatStore.js';
@@ -44,7 +45,9 @@ export class SendMessageCommandHandler implements Handler<SendMessageCommand, Me
             }
             if (group.lifecycle === GroupLifecycle.Draft) {
                 group.lifecycle = GroupLifecycle.Active;
-                await this.groupRepository.update(group);
+                const chat = await this.chatStore.getChatWithMembers(cmd.chatId);
+                const groupMemberRefs: GroupMemberRef[] = chat.members.map((m) => new 
+
             }
         }
 

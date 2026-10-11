@@ -19,6 +19,11 @@ export interface IChatStore {
     getChat(chatId: string): Promise<Chat | null>;
 
     /**
+     * Get a chat by its ID, with its members and the devices behind them
+     **/
+    getChatWithMembers(chatId: string): Promise<Chat>;
+
+    /**
      * Get all chats, limited by the specified number
      **/
     getChats(limit: number): Promise<Chat[]>;
