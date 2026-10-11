@@ -21,7 +21,15 @@ export function rejectReasonFor(
     context: OperationContext,
 ): string | null {
     if (operation.type === LedgerOperationType.GroupCreated) {
-        return context.version === 1 ? null : 'group creation is only valid as the first event';
+        if (context.version !== 1) return 'group creation is only valid as the first event';
+
+        if (!operation.members.some((member) => member.writeKeyPublic === context.authorKey)) {
+            return 'the creating write key is not among the declared members';
+        }
+
+        return sameKeys(declaredKeyChanges(state, operation).added, context.keysAdded)
+            ? null
+            : 'granted keys do not match the operation';
     }
 
     const author = authorOf(state, context.authorKey);
@@ -62,17 +70,21 @@ export function applyOperation(state: GroupState, operation: LedgerOperation, co
     switch (operation.type) {
         case LedgerOperationType.GroupCreated:
             state.name = operation.name;
-            state.members.set(
-                operation.owner.userTag,
-                new GroupMember(
-                    operation.owner.userTag,
-                    operation.owner.displayName,
-                    operation.owner.privilege,
-                    operation.owner.identityKey,
-                    context.version,
-                    [context.authorKey],
-                ),
-            );
+
+            for (const member of operation.members) {
+                state.members.set(
+                    member.userTag,
+                    new GroupMember(
+                        member.userTag,
+                        member.displayName,
+                        member.privilege,
+                        member.identityKey,
+                        context.version,
+                        [member.writeKeyPublic],
+                        member.connectionIds,
+                    ),
+                );
+            }
             break;
 
         case LedgerOperationType.MemberAdded:
@@ -114,6 +126,9 @@ function requireAdmin(author: GroupMember): string | null {
 
 function declaredKeyChanges(state: GroupState, operation: LedgerOperation): { added: string[]; removed: string[] } {
     switch (operation.type) {
+        case LedgerOperationType.GroupCreated:
+            return { added: operation.members.map((member) => member.writeKeyPublic), removed: [] };
+
         case LedgerOperationType.MemberAdded:
             return { added: [operation.writeKeyPublic], removed: [] };
 

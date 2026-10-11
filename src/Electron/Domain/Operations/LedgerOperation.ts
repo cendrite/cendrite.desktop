@@ -27,7 +27,7 @@ export class GroupCreatedOperation extends LedgerOperationBase {
     constructor(
         authorTag: string,
         public readonly name: string | null,
-        public readonly owner: GroupMemberRef[],
+        public readonly members: GroupMemberRef[],
         at?: number,
     ) {
         super(authorTag, at);
