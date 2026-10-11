@@ -23,7 +23,7 @@ const AvatarStack: React.FC<AvatarStackProps> = ({ members, className, textClass
             <div className={clsx('shrink-0 overflow-hidden rounded-full bg-media', className)}>
                 <Avatar
                     className="h-full w-full"
-                    AvatarKey={member?.contact?.avatarKey ?? null}
+                    AvatarKey={member?.avatar ?? null}
                     Username={member?.name ?? '?'}
                 />
             </div>
@@ -42,7 +42,7 @@ const AvatarStack: React.FC<AvatarStackProps> = ({ members, className, textClass
                 >
                     <Avatar
                         className={clsx('h-full w-full', textClassName)}
-                        AvatarKey={member.contact?.avatarKey ?? null}
+                        AvatarKey={member.avatar}
                         Username={member.name}
                     />
                 </div>

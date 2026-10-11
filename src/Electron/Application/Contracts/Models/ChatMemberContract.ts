@@ -7,6 +7,7 @@ export class ChatMemberContract {
     privelege: ChatPrivileges;
     displayName: string;
     connectionsIds: string[] | null;
+    avatarKey: string | null;
 
     constructor(
         id: string,
@@ -14,7 +15,8 @@ export class ChatMemberContract {
         userTag: string,
         privelege: number,
         displayName: string,
-        connectionsIds: string[] | null = null
+        connectionsIds: string[] | null = null,
+        avatarKey: string | null = null,
     ) {
         this.id = id;
         this.friendId = friendId;
@@ -22,5 +24,6 @@ export class ChatMemberContract {
         this.privelege = privelege;
         this.displayName = displayName;
         this.connectionsIds = connectionsIds;
+        this.avatarKey = avatarKey;
     }
 }

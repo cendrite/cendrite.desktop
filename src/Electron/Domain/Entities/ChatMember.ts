@@ -8,6 +8,7 @@ export class ChatMember {
     displayName!: string;
     userTag!: string;
     connectionIds!: string[] | null;
+    avatarKey!: string | null;
     friend!: Friend | null;
     chat!: Chat;
 
@@ -18,6 +19,7 @@ export class ChatMember {
         cm.friend = friend;
         cm.userTag = friend.id;
         cm.connectionIds = null;
+        cm.avatarKey = null;
         cm.displayName = friend.displayName ?? friend.username;
         return cm;
     }
@@ -29,6 +31,7 @@ export class ChatMember {
         userTag: string,
         displayName: string,
         connectionIds: string[] = [],
+        avatarKey: string | null = null,
     ): ChatMember {
         const cm = new ChatMember();
         cm.id = id;
@@ -36,8 +39,13 @@ export class ChatMember {
         cm.friend = null;
         cm.userTag = userTag;
         cm.connectionIds = connectionIds;
+        cm.avatarKey = avatarKey;
         cm.displayName = displayName;
         return cm;
+    }
+
+    public get avatar(): string | null {
+        return this.friend?.avatarKey ?? this.avatarKey;
     }
 
     public get devices(): string[] {

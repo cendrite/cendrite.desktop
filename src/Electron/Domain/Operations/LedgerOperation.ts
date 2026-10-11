@@ -6,6 +6,7 @@ export class GroupMemberRef {
         public readonly userTag: string,
         public readonly displayName: string,
         public readonly privilege: ChatPrivileges,
+        public readonly avatarKey: string | null,
         public readonly identityKey: string,
         public readonly writeKeyPublic: string,
         public readonly connectionIds: string[],

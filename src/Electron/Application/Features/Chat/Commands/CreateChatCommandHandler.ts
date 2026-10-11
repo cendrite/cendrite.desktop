@@ -68,6 +68,7 @@ export class CreateChatCommandHandler implements Handler<CreateChatCommand, Chat
                         member.privilege,
                         member.displayName ?? member.friend?.displayName ?? member.userTag,
                         member.devices,
+                        member.avatar,
                     ),
             ),
             chat.messageTtl,

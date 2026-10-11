@@ -121,6 +121,7 @@ function created(): LedgerOperation {
             'alice',
             'Alice',
             ChatPrivileges.Owner,
+            null,
             Buffer.from(identity.getPublicKey().serialize()).toString('base64'),
             writeKeyPair.publicKey.toString('base64'),
             ['alice-device'],

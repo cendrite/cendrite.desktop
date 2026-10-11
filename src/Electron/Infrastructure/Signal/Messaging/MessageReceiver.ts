@@ -105,6 +105,7 @@ export class MessageReceiver implements IMessageReceiver {
                     member.userTag,
                     member.displayName,
                     member.connectionIds,
+                    member.avatarKey,
                 ),
             );
 
