@@ -36,6 +36,9 @@ export class MessageSentCommandHandler implements Handler<MessageSentCommand, De
                 ),
             ]);
 
+            console.log("payload count for connection", conId, envelope.payloads.length);
+
+
             const cipher = await this.sessionManager.encrypt(envelope, conId);
 
             messages.push(

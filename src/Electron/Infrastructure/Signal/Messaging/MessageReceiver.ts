@@ -51,9 +51,11 @@ export class MessageReceiver implements IMessageReceiver {
         for (const payload of envelope.payloads) {
             switch (payload.type) {
                 case PayloadType.GroupCreated:
+                    console.log(`MessageReceiver: received group creation for from ${message.senderId}`);
                     await this.handleGroupCreated(message, payload as GroupStrapPayload);
                     break;
                 case PayloadType.ChatMessage:
+                    console.log(`MessageReceiver: received chat message from ${message.senderId}`);
                     await this.handleChatMessage(message, payload as MessagePayload);
                     break;
                 case PayloadType.DeliveryStatus:

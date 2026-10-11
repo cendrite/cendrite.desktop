@@ -32,6 +32,6 @@ registerDomainEvent(MessageSentEvent.type, MessageSentEvent, (raw: any, occurred
         raw.connectionIds,
         raw.participants,
         occurredOn,
-        raw.precedingPayloads ?? {},
+        raw.payloads ?? {},
     );
 });
