@@ -62,7 +62,7 @@ export class LedgerAppend {
 }
 
 export interface ILedgerProvider {
-    createStream(groupId: string, payload: Buffer, writeKey: Buffer, signature: Buffer): Promise<Result<void>>;
+    createStream(groupId: string, payload: Buffer, writeKey: Buffer, keysAdded: Buffer[], signature: Buffer): Promise<Result<void>>;
     appendEvent(groupId: string, append: LedgerAppend): Promise<Result<void>>;
     archiveStream(groupId: string, append: LedgerAppend): Promise<Result<void>>;
     getEvents(groupId: string, fromVersion: number, limit?: number): Promise<Result<LedgerEventsPage>>;

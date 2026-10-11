@@ -1,9 +1,10 @@
+import { Group } from '../../../Domain/Entities/Group.js';
 import { GroupLifecycle } from '../../../Domain/Enums/GroupLifecycle.js';
-import { GroupRecord } from '../../../Domain/Entities/GroupRecord.js';
 
 export interface IGroupRepository {
-    save(group: GroupRecord): Promise<void>;
-    get(groupId: string): Promise<GroupRecord | null>;
-    getByLifecycle(lifecycle: GroupLifecycle): Promise<GroupRecord[]>;
+    create(group: Group): Promise<void>;
+    update(group: Group): Promise<void>;
+    get(groupId: string): Promise<Group | null>;
+    getByLifecycle(lifecycle: GroupLifecycle): Promise<Group[]>;
     deleteAll(): Promise<void>;
 }

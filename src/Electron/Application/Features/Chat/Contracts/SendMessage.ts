@@ -10,6 +10,7 @@ export class SendMessageCommand implements MediatorRequest {
     public readonly chatId: string;
     public readonly message: string;
     public readonly media: MediaContract[];
+    public readonly isGroup: boolean;
 
     constructor(
         chatId: string,
@@ -19,6 +20,7 @@ export class SendMessageCommand implements MediatorRequest {
         connectionIds: string[],
         message: string,
         media: MediaContract[] | null = null,
+        isGroup: boolean = false,
     ) {
         this.messageId = messageId;
         this.userConnectionId = userConnectionId;
@@ -27,6 +29,7 @@ export class SendMessageCommand implements MediatorRequest {
         this.chatId = chatId;
         this.message = message;
         this.media = media ?? [];
+        this.isGroup = isGroup;
     }
 }
 

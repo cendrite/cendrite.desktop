@@ -1,10 +1,10 @@
 import { EntitySchema } from 'typeorm';
-import { GroupRecord } from '../../../Domain/Entities/GroupRecord.js';
 import { BaseSchema } from './BaseSchema.js';
+import { Group } from '../../../Domain/Entities/Group.js';
 
-export const GroupRecordSchema = new EntitySchema<GroupRecord>({
+export const GroupRecordSchema = new EntitySchema<Group>({
     name: 'GroupRecord',
-    target: GroupRecord,
+    target: Group,
     columns: {
         ...BaseSchema.columns,
         groupId: {

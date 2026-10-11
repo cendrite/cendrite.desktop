@@ -4,7 +4,7 @@ import { IGroupRepository } from '../../Application/Contracts/Repositories/IGrou
 import { ILedgerLogRepository } from '../../Application/Contracts/Repositories/ILedgerLogRepository.js';
 import { ILedgerReplayService, ReplayResult } from '../../Application/Contracts/Services/ILedgerReplayService.js';
 import { ILedgerSyncService } from '../../Application/Contracts/Services/ILedgerSyncService.js';
-import { GroupRecord } from '../../Domain/Entities/GroupRecord.js';
+import { Group } from '../../Domain/Entities/Group.js';
 import { LedgerEventRecord } from '../../Domain/Entities/LedgerEventRecord.js';
 import { LedgerEventStatus } from '../../Domain/Enums/LedgerEventStatus.js';
 import { buildSigningInput, hashEvent } from '../Crypto/LedgerCodec.js';
@@ -54,14 +54,14 @@ export class LedgerSyncService implements ILedgerSyncService {
     }
 
     private async recordOutcome(groupId: string, replayed: ReplayResult, archived: boolean): Promise<void> {
-        const group = (await this.groupRepository.get(groupId)) ?? new GroupRecord(groupId);
+        const group = (await this.groupRepository.get(groupId)) ?? new Group(groupId);
 
         group.version = replayed.state.version;
         group.headHash = replayed.state.headHash;
         group.epoch = replayed.state.epoch;
         group.archived = archived;
 
-        await this.groupRepository.save(group);
+        await this.groupRepository.create(group);
 
         for (const rejected of replayed.rejected) {
             await this.ledgerLogRepository.setStatus(

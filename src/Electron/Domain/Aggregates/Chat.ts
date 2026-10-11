@@ -28,6 +28,6 @@ export class Chat {
     }
 
     isGroup(): boolean {
-        return this.members.length > 2 || this.groupName !== null;
+        return this.members.length >= 2 || this.groupName !== null;
     }
 }
