@@ -17,7 +17,13 @@ export class LedgerClient implements ILedgerProvider {
         this.client = ledgerApiClient;
     }
 
-    public createStream(groupId: string, payload: Buffer, writeKey: Buffer, keysAdded: Buffer[], signature: Buffer): Promise<Result<void>> {
+    public createStream(
+        groupId: string,
+        payload: Buffer,
+        writeKey: Buffer,
+        keys: Buffer[],
+        signature: Buffer,
+    ): Promise<Result<void>> {
         return this.client.handleConduit<void>(
             {
                 method: 'POST',
@@ -26,7 +32,7 @@ export class LedgerClient implements ILedgerProvider {
                     payload: toBase64(payload),
                     writeKey: toBase64(writeKey),
                     signature: toBase64(signature),
-                    keysAdded: keysAdded.map(toBase64),
+                    keysAdded: keys.map(toBase64),
                 },
             },
             true,

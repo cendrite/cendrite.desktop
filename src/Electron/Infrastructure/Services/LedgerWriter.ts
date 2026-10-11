@@ -2,7 +2,11 @@ import { Result } from '../../../Shared/Result/Result.js';
 import { ErrorMessage } from '../../../Shared/Result/ErrorMessage.js';
 import { IGroupKeyRepository } from '../../Application/Contracts/Repositories/IGroupKeyRepository.js';
 import { IGroupRepository } from '../../Application/Contracts/Repositories/IGroupRepository.js';
-import { ILedgerProvider, isLedgerConflict, LedgerAppend } from '../../Application/Contracts/Providers/ILedgerProvider.js';
+import {
+    ILedgerProvider,
+    isLedgerConflict,
+    LedgerAppend,
+} from '../../Application/Contracts/Providers/ILedgerProvider.js';
 import { ILedgerWriter } from '../../Application/Contracts/Services/ILedgerWriter.js';
 import { ILedgerSyncService } from '../../Application/Contracts/Services/ILedgerSyncService.js';
 import { LedgerOperationType } from '../../Domain/Enums/LedgerOperationType.js';
@@ -23,13 +27,13 @@ export class LedgerWriter implements ILedgerWriter {
         private readonly ledgerIdentity: ILedgerIdentity,
     ) { }
 
-    public async createStream(groupId: string, operation: LedgerOperation): Promise<Result<void>> {
+    public async createStream(groupId: string, keys: Buffer[], operation: LedgerOperation): Promise<Result<void>> {
         const sealed = await this.seal(groupId, 1, GENESIS_PREVIOUS_HASH, operation, [], []);
         if (!sealed.success) return Result.fail(sealed.errorMessage!);
 
         const { payload, writeKey, signature } = sealed.data!;
 
-        return this.ledgerProvider.createStream(groupId, payload, writeKey.publicKey, signature);
+        return this.ledgerProvider.createStream(groupId, payload, writeKey.publicKey, keys, signature);
     }
 
     public async append(groupId: string, operation: LedgerOperation): Promise<Result<void>> {
@@ -83,13 +87,15 @@ export class LedgerWriter implements ILedgerWriter {
         keysRemoved: Buffer[],
     ): Promise<Result<SealedOperation>> {
         const writeKey = await this.groupKeyRepository.getWriteKey(groupId);
-        if (!writeKey) return Result.fail<SealedOperation>(new ErrorMessage('LedgerWriter', `No write key for group ${groupId}`));
+        if (!writeKey)
+            return Result.fail<SealedOperation>(new ErrorMessage('LedgerWriter', `No write key for group ${groupId}`));
 
         const group = await this.groupRepository.get(groupId);
         const epoch = group?.epoch ?? 1;
 
         const epochKey = await this.groupKeyRepository.getEpochKey(groupId, epoch);
-        if (!epochKey) return Result.fail<SealedOperation>(new ErrorMessage('LedgerWriter', `No epoch key for group ${groupId}`));
+        if (!epochKey)
+            return Result.fail<SealedOperation>(new ErrorMessage('LedgerWriter', `No epoch key for group ${groupId}`));
 
         const operationBytes = Buffer.from(JSON.stringify(operation), 'utf8');
         const wrapper = Buffer.from(
