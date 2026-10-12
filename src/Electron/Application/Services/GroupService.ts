@@ -1,0 +1,129 @@
+import { ErrorMessage } from '../../../Shared/Result/ErrorMessage.js';
+import { Result } from '../../../Shared/Result/Result.js';
+import { GroupEpochKey } from '../../Domain/Encryption/GroupEpochKey.js';
+import { GroupWriteKey } from '../../Domain/Encryption/GroupWriteKey.js';
+import { Group } from '../../Domain/Entities/Group.js';
+import { ChatPrivileges } from '../../Domain/Enums/ChatPrivileges.js';
+import { GroupLifecycle } from '../../Domain/Enums/GroupLifecycle.js';
+import { GroupCreatedOperation, GroupMemberRef } from '../../Domain/Operations/LedgerOperation.js';
+import { generateEpochKey, generateWriteKeyPair, WriteKeyPair } from '../../Infrastructure/Crypto/LedgerCodec.js';
+import { ILedgerIdentity } from '../../Infrastructure/Interfaces/ILedgerIdentity.js';
+import { GroupStrapPayload, Payload } from '../Contracts/Messaging/Payload.js';
+import { IChatStore } from '../Contracts/Repositories/IChatStore.js';
+import { IDeviceRepository } from '../Contracts/Repositories/IDeviceRepository.js';
+import { IGroupKeyRepository } from '../Contracts/Repositories/IGroupKeyRepository.js';
+import { IGroupRepository } from '../Contracts/Repositories/IGroupRepository.js';
+import { IUserRepository } from '../Contracts/Repositories/IUserRepository.js';
+import { ILedgerWriter } from '../Contracts/Services/ILedgerWriter.js';
+
+export interface IGroupService {
+    createGroup(groupId: string): Promise<void>;
+    startGroup(groupId: string): Promise<Result<Record<string, Payload[]> | null>>;
+}
+
+export class GroupService implements IGroupService {
+    constructor(
+        private readonly groupRepository: IGroupRepository,
+        private readonly groupKeyRepository: IGroupKeyRepository,
+        private readonly userRepository: IUserRepository,
+        private readonly deviceRepository: IDeviceRepository,
+        private readonly chatStore: IChatStore,
+        private readonly ledgerWriter: ILedgerWriter,
+        private readonly ledgerIdentity: ILedgerIdentity
+    ) { }
+
+    public async createGroup(groupId: string): Promise<void> {
+        const writeKey = generateWriteKeyPair();
+
+        await this.groupKeyRepository.saveWriteKey(new GroupWriteKey(groupId, writeKey.publicKey, writeKey.privateKey));
+        await this.groupKeyRepository.saveEpochKey(new GroupEpochKey(groupId, 1, generateEpochKey()));
+        await this.groupRepository.create(new Group(groupId));
+    }
+
+    public async startGroup(groupId: string): Promise<Result<Record<string, Payload[]> | null>> {
+        const group = await this.groupRepository.get(groupId);
+
+        if (!group) throw new Error(`Group with ID ${groupId} not found`);
+
+        if (group.lifecycle !== GroupLifecycle.Draft) return Result.success(null);
+
+        const chat = await this.chatStore.getChatWithMembers(groupId);
+        const user = await this.userRepository.get(true);
+        const device = await this.deviceRepository.get();
+
+        if(device === null) throw new Error('Device not found');
+
+        const ownWriteKey = await this.groupKeyRepository.getWriteKey(group.groupId);
+        const epochKey = await this.groupKeyRepository.getEpochKey(group.groupId, group.epoch);
+
+        if (!ownWriteKey || !epochKey) {
+            throw new Error(`Group ${group.groupId} has no keys`);
+        }
+
+        const minted = new Map<string, WriteKeyPair>();
+
+        const members: GroupMemberRef[] = [
+            new GroupMemberRef(
+                user.userTag,
+                user.displayName ?? user.username,
+                ChatPrivileges.Owner,
+                user.avatarKey,
+                (await this.ledgerIdentity.publicKey()).toString('base64'),
+                ownWriteKey.publicKey.toString('base64'),
+                [...new Set([device.connectionId, ...(user.connectionIds ?? []).map((c) => c.connectionId)])],
+            ),
+        ];
+
+        for (const member of chat.members) {
+            const writeKey = generateWriteKeyPair();
+            minted.set(member.userTag, writeKey);
+
+            members.push(
+                new GroupMemberRef(
+                    member.userTag,
+                    member.displayName,
+                    ChatPrivileges.Member,
+                    member.friend!.avatarKey,
+                    '',
+                    writeKey.publicKey.toString('base64'),
+                    member.devices,
+                ),
+            );
+        }
+
+        const created = await this.ledgerWriter.createStream(
+            group.groupId,
+            members.map((member) => Buffer.from(member.writeKeyPublic, 'base64')),
+            new GroupCreatedOperation(user.userTag, chat.groupName, members),
+        );
+
+        if (!created.success) {
+            return Result.fail<Record<string, Payload[]> | null>(
+                created.errorMessage ?? new ErrorMessage('SendMessage', 'Could not create the group stream.'),
+            );
+        }
+
+        const payloads: Record<string, Payload[]> = {};
+
+        for (const member of chat.members) {
+            const strap = new GroupStrapPayload(
+                group.groupId,
+                chat.groupName,
+                1,
+                created.data!.toString('base64'),
+                [epochKey.key.toString('base64')],
+                minted.get(member.userTag)!.privateKey.toString('base64'),
+                members,
+            );
+
+            for (const connectionId of member.devices) {
+                payloads[connectionId] = [strap];
+            }
+        }
+
+        group.lifecycle = GroupLifecycle.Active;
+        await this.groupRepository.update(group);
+
+        return Result.success<Record<string, Payload[]> | null>(payloads);
+    }
+}
