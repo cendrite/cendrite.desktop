@@ -1,25 +1,19 @@
 ﻿import { Result } from '../../../../../Shared/Result/Result.js';
 import { Chat } from '../../../../Domain/Aggregates/Chat.js';
 import { ChatMember } from '../../../../Domain/Entities/ChatMember.js';
-import { Group } from '../../../../Domain/Entities/Group.js';
-import { GroupEpochKey } from '../../../../Domain/Encryption/GroupEpochKey.js';
-import { GroupWriteKey } from '../../../../Domain/Encryption/GroupWriteKey.js';
-import { generateEpochKey, generateWriteKeyPair } from '../../../../Infrastructure/Crypto/LedgerCodec.js';
 import { ChatContract } from '../../../Contracts/Models/ChatContract.js';
 import { ChatMemberContract } from '../../../Contracts/Models/ChatMemberContract.js';
 import { IChatStore } from '../../../Contracts/Repositories/IChatStore.js';
 import { IFriendRepository } from '../../../Contracts/Repositories/IFriendRepository.js';
-import { IGroupKeyRepository } from '../../../Contracts/Repositories/IGroupKeyRepository.js';
-import { IGroupRepository } from '../../../Contracts/Repositories/IGroupRepository.js';
 import { Handler } from '../../../Mediator/Handler.js';
 import { CreateChatCommand } from '../Contracts/CreateChat.js';
+import { IGroupService } from '../../../Services/GroupService.js';
 
 export class CreateChatCommandHandler implements Handler<CreateChatCommand, ChatContract> {
     constructor(
         private readonly friendRepository: IFriendRepository,
         private readonly chatStore: IChatStore,
-        private readonly groupRepository: IGroupRepository,
-        private readonly groupKeyRepository: IGroupKeyRepository,
+        private readonly groupService: IGroupService,
     ) { }
 
     public async handle(cmd: CreateChatCommand): Promise<Result<ChatContract>> {
@@ -36,22 +30,12 @@ export class CreateChatCommandHandler implements Handler<CreateChatCommand, Chat
         const chat = await this.chatStore.create(newChat);
 
         if (cmd.isGroup) {
-            await this.createGroup(chat.id);
+            await this.groupService.createGroup(chat.id);
         }
 
         const chatContract = this.mapToContract(chat, cmd.isGroup);
 
         return Result.success<ChatContract>(chatContract);
-    }
-
-    private async createGroup(groupId: string): Promise<void> {
-        const writeKey = generateWriteKeyPair();
-
-        await this.groupKeyRepository.saveWriteKey(
-            new GroupWriteKey(groupId, writeKey.publicKey, writeKey.privateKey),
-        );
-        await this.groupKeyRepository.saveEpochKey(new GroupEpochKey(groupId, 1, generateEpochKey()));
-        await this.groupRepository.create(new Group(groupId));
     }
 
     private mapToContract(chat: Chat, isGroup: boolean): ChatContract {

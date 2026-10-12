@@ -35,10 +35,12 @@ import { MessageSentCommandHandler } from './Features/Chat/Events/MessageSentEve
 import { ResendMessageCommandHandler } from './Features/Chat/Commands/ResendMessageCommandHandler.js';
 import { GetSettingsQueryHandler } from './Features/Settings/Queries/GetSettingsQueryHandler.js';
 import { UpdateSettingsCommandHandler } from './Features/Settings/Commands/UpdateSettingsCommandHandler.js';
+import { GroupService } from './Services/GroupService.js';
 
 const services = {
     logoutManager: asValue(LogoutManager.getInstance()),
     mediaService: asClass(MediaService, { lifetime: Lifetime.SINGLETON }),
+    groupService: asClass(GroupService, { lifetime: Lifetime.SINGLETON }),
 };
 
 const authenticationHandlers = {
