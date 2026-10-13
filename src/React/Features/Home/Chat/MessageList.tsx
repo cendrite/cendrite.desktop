@@ -5,6 +5,7 @@ import { useUser } from '../../../Context/User/UserContext.tsx';
 import { useChatContext } from '../../../Context/Chat/ChatContext.tsx';
 import { useMessageService } from '../../../Common/Hooks/MessageService.ts';
 import { ChatViewModel } from '../../../Models/ChatViewModel.ts';
+import { ChatMemberViewModel } from '../../../Models/ChatMemberViewModel.ts';
 import { ChatActionType } from '../../../Context/Chat/ChatReducer.ts';
 import { IconChevronDown } from '@tabler/icons-react';
 
@@ -26,6 +27,21 @@ function shouldShowStatus(messages: MessageViewModel[], index: number, isMine: (
     }
 
     return true;
+}
+
+function findSender(chat: ChatViewModel, senderId: string): ChatMemberViewModel | undefined {
+    return chat.chatMembers.find((m) => m.devices.includes(senderId));
+}
+
+function senderNameFor(chat: ChatViewModel, index: number, isMine: (senderId: string) => boolean): string | undefined {
+    const message = chat.messages[index];
+    if (!chat.isGroup || isMine(message.senderId)) return undefined;
+
+    const sender = findSender(chat, message.senderId);
+    const previous = chat.messages[index - 1];
+    if (previous && !isMine(previous.senderId) && findSender(chat, previous.senderId) === sender) return undefined;
+
+    return sender?.name;
 }
 
 interface ChatScroll {
@@ -162,6 +178,7 @@ const MessageList: React.FC<MessageListProps> = ({ chat }) => {
                         key={message.id}
                         message={message}
                         showStatus={shouldShowStatus(chat.messages, index, isMine)}
+                        senderName={senderNameFor(chat, index, isMine)}
                     />
                 ))}
             </div>
