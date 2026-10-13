@@ -15,6 +15,7 @@ import { MediaBox } from './MediaBox.tsx';
 export interface ChatBubbleProps {
     message: MessageViewModel;
     showStatus: boolean;
+    senderName?: string;
 }
 
 function determineStatusIcon(status: DeliveryStatus): ReactNode {
@@ -38,7 +39,7 @@ function determineStatusIcon(status: DeliveryStatus): ReactNode {
     }
 }
 
-export const MessageBubble: React.FC<ChatBubbleProps> = ({ message, showStatus }) => {
+export const MessageBubble: React.FC<ChatBubbleProps> = ({ message, showStatus, senderName }) => {
     const { user } = useUser();
     const isMine = user?.IsUserConnectionId(message.senderId) ?? false;
 
@@ -58,8 +59,9 @@ export const MessageBubble: React.FC<ChatBubbleProps> = ({ message, showStatus }
 
     return (
         <>
-            <div className={`flex ${isMine ? 'justify-end' : 'justify-start'} mt-1 mb-1`}>
+            <div className={`flex ${isMine ? 'justify-end' : 'justify-start'} ${senderName ? 'mt-3' : 'mt-1'} mb-1`}>
                 <div className="relative max-w-[75%] sm:max-w-[60%] md:max-w-[50%]">
+                    {senderName && <p className="mb-0.5 ml-3 text-xs text-fg-subtle">{senderName}</p>}
                     <div
                         onContextMenu={(e) => {
                             if (!isMine) return;
