@@ -125,7 +125,6 @@ export class GroupService implements IGroupService {
             }
         }
 
-        // Our other devices are the same member, so they hold the same write key rather than a minted one.
         const ownStrap = strapFor(ownWriteKey.privateKey);
 
         for (const connectionId of members[0].connectionIds) {

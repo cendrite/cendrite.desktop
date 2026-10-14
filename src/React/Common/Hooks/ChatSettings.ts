@@ -26,6 +26,16 @@ export function useChatSettings() {
         [chatService, chatDispatch, homeDispatch, notificationDispatch],
     );
 
+    const leaveGroup = useCallback(
+        async (chat: ChatViewModel) => {
+            chatDispatch({ type: ChatActionType.RemoveChat, payload: chat });
+            chatDispatch({ type: ChatActionType.ClearActiveChat });
+            homeDispatch({ type: HomePageActionType.Clear });
+            notificationDispatch({ type: NotificationActionType.RemoveChat, payload: { chatId: chat.id } });
+        },
+        [chatService, chatDispatch, homeDispatch, notificationDispatch],
+    );
+
     const muteChat = useCallback((_chatId: string, _duration: number) => {
         // Implementation for muting a chat
     }, []);
@@ -38,5 +48,5 @@ export function useChatSettings() {
         // Implementation for setting message TTL
     }, []);
 
-    return { deleteChat, muteChat, archiveChat, setMessageTtl };
+    return { deleteChat, muteChat, archiveChat, setMessageTtl, leaveGroup };
 }

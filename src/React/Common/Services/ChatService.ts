@@ -15,6 +15,7 @@ import { Media } from '@/React/Models/Media.ts';
 import { SendMessageCommand } from '@/Shared/Chat/SendMessage.ts';
 import { ResendMessageCommand } from '@/Shared/Chat/ResendMessage.ts';
 import { UpdateDeliveryStatusCommand } from '@/Shared/Chat/UpdateDeliveryStatus.ts';
+import { LeaveGroupCommand } from '@/Shared/Chat/LeaveGroup';
 
 export class ChatService {
     public async sendMessage(
@@ -94,6 +95,10 @@ export class ChatService {
 
     public async deleteChat(chatId: string): Promise<void> {
         await window.electron.sendRequestAsync(new DeleteChatCommand(chatId));
+    }
+
+    public async leaveGroup(chatId: string): Promise<void> {
+        await window.electron.sendRequestAsync(new LeaveGroupCommand(chatId));
     }
 
     public async initializeChat(user: User, contact: Contact): Promise<ChatViewModel> {

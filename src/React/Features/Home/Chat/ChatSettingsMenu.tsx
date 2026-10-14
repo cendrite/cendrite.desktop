@@ -73,19 +73,37 @@ const ChatSettingsMenu: React.FC<ChatSettingsMenu> = ({ chat }) => {
 
                                 <div className="my-1 h-px bg-line" />
 
-                                <MenuItem>
-                                    {({ focus }) => (
-                                        <button
-                                            className={`${menuButtonClass} ${focus ? 'bg-danger/20' : ''} text-danger-fg hover:text-danger-fg-hover`}
-                                            onClick={async () => {
-                                                close();
-                                                await deleteChat(chat);
-                                            }}
-                                        >
-                                            Delete chat
-                                        </button>
-                                    )}
-                                </MenuItem>
+                                {chat.isGroup && (
+                                    <MenuItem>
+                                        {({ focus }) => (
+                                            <button
+                                                className={`${menuButtonClass} ${focus ? 'bg-danger/20' : ''} text-danger-fg hover:text-danger-fg-hover`}
+                                                onClick={() => {
+                                                    close();
+                                                    console.log('Leave group', chat.id);
+                                                }}
+                                            >
+                                                Leave group
+                                            </button>
+                                        )}
+                                    </MenuItem>
+                                )}
+
+                                {!chat.isGroup && (
+                                    <MenuItem>
+                                        {({ focus }) => (
+                                            <button
+                                                className={`${menuButtonClass} ${focus ? 'bg-danger/20' : ''} text-danger-fg hover:text-danger-fg-hover`}
+                                                onClick={async () => {
+                                                    close();
+                                                    await deleteChat(chat);
+                                                }}
+                                            >
+                                                Delete chat
+                                            </button>
+                                        )}
+                                    </MenuItem>
+                                )}
                             </MenuItems>
                         </Transition>
                     </div>
