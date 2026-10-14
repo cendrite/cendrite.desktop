@@ -1,5 +1,5 @@
-import { Result } from "../../../Shared/Result/Result.js";
-import { GetNonceRequest, GetNonceResponse, ITokenProvider, RefreshTokenRequest, RefreshTokenResponse, VerifyNonceRequest, VerifyNonceResponse } from "../../Application/Contracts/Providers/ITokenProvider.js";
+import { Result } from "#shared/Result/Result";
+import { GetNonceRequest, GetNonceResponse, ITokenProvider, RefreshTokenRequest, RefreshTokenResponse, VerifyNonceRequest, VerifyNonceResponse } from "#electron/Application/Contracts/Providers/ITokenProvider";
 import { ApiClient } from "./Base/ApiClient.js";
 
 export class TokenClient implements ITokenProvider {

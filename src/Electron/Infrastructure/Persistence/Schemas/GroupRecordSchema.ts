@@ -1,6 +1,6 @@
 import { EntitySchema } from 'typeorm';
 import { BaseSchema } from './BaseSchema.js';
-import { Group } from '../../../Domain/Entities/Group.js';
+import { Group } from '#electron/Domain/Entities/Group';
 
 export const GroupRecordSchema = new EntitySchema<Group>({
     name: 'GroupRecord',

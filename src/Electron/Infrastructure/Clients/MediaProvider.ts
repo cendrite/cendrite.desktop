@@ -1,5 +1,5 @@
-import { Result } from '../../../Shared/Result/Result.js';
-import { IMediaProvider } from '../../Application/Contracts/Providers/IMediaProvider.js';
+import { Result } from '#shared/Result/Result';
+import { IMediaProvider } from '#electron/Application/Contracts/Providers/IMediaProvider';
 import { ApiClient } from './Base/ApiClient.js';
 
 export class MediaProvider implements IMediaProvider {

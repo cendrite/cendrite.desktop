@@ -1,4 +1,4 @@
-import { Result } from "../../../../Shared/Result/Result.js";
+import { Result } from "#shared/Result/Result";
 
 export interface IMediaProvider {
     upload(id: string, cipher: Uint8Array): Promise<Result>;

@@ -1,15 +1,15 @@
-import { ErrorMessage } from '../../../../../Shared/Result/ErrorMessage.js';
-import { Result } from '../../../../../Shared/Result/Result.js';
-import { DeliveryStatus } from '../../../../../Shared/Enums/DeliveryStatus.js';
-import { MessageSentEvent } from '../../../../Domain/Events/MessageSentEvent.js';
-import { MediaContract } from '../../../../../Shared/Models/MediaContract.js';
-import { MessageContract } from '../../../../../Shared/Models/MessageContract.js';
-import { IEventRepository } from '../../../Contracts/Providers/IEventRepository.js';
-import { IChatStore } from '../../../Contracts/Repositories/IChatStore.js';
-import { IMediaStore } from '../../../Contracts/Repositories/IMediaStore.js';
-import { IPump } from '../../../Contracts/Services/IPump.js';
-import { Handler } from '../../../Mediator/Handler.js';
-import { ResendMessageCommand } from '../../../../../Shared/Chat/ResendMessage.js';
+import { ErrorMessage } from '#shared/Result/ErrorMessage';
+import { Result } from '#shared/Result/Result';
+import { DeliveryStatus } from '#shared/Enums/DeliveryStatus';
+import { MessageSentEvent } from '#electron/Domain/Events/MessageSentEvent';
+import { MediaContract } from '#shared/Models/MediaContract';
+import { MessageContract } from '#shared/Models/MessageContract';
+import { IEventRepository } from '#electron/Application/Contracts/Providers/IEventRepository';
+import { IChatStore } from '#electron/Application/Contracts/Repositories/IChatStore';
+import { IMediaStore } from '#electron/Application/Contracts/Repositories/IMediaStore';
+import { IPump } from '#electron/Application/Contracts/Services/IPump';
+import { Handler } from '#electron/Application/Mediator/Handler';
+import { ResendMessageCommand } from '#shared/Chat/ResendMessage';
 import { v4 as uuid } from 'uuid';
 
 export class ResendMessageCommandHandler implements Handler<ResendMessageCommand> {

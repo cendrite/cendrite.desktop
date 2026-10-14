@@ -1,10 +1,10 @@
-import { Result } from "../../../../../Shared/Result/Result.js";
-import { MediaContract } from "../../../../../Shared/Models/MediaContract.js";
-import { MessageContract } from "../../../../../Shared/Models/MessageContract.js";
-import { IChatStore } from "../../../Contracts/Repositories/IChatStore.js";
-import { IMediaStore } from "../../../Contracts/Repositories/IMediaStore.js";
-import { Handler } from "../../../Mediator/Handler.js";
-import { GetMessagesQuery } from "../../../../../Shared/Chat/GetMessages.js";
+import { Result } from "#shared/Result/Result";
+import { MediaContract } from "#shared/Models/MediaContract";
+import { MessageContract } from "#shared/Models/MessageContract";
+import { IChatStore } from "#electron/Application/Contracts/Repositories/IChatStore";
+import { IMediaStore } from "#electron/Application/Contracts/Repositories/IMediaStore";
+import { Handler } from "#electron/Application/Mediator/Handler";
+import { GetMessagesQuery } from "#shared/Chat/GetMessages";
 
 export class GetMessagesQueryHandler implements Handler<GetMessagesQuery, MessageContract[]> {
     constructor(

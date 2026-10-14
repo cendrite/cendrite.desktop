@@ -1,4 +1,4 @@
-import { Result } from '../../../Shared/Result/Result.js';
+import { Result } from '#shared/Result/Result';
 import {
     ILedgerProvider,
     LedgerAppend,
@@ -6,8 +6,8 @@ import {
     LedgerEventsPageDto,
     LedgerHead,
     LedgerHeadDto,
-} from '../../Application/Contracts/Providers/ILedgerProvider.js';
-import { LedgerEvent } from '../../Application/Contracts/Providers/ILedgerProvider.js';
+} from '#electron/Application/Contracts/Providers/ILedgerProvider';
+import { LedgerEvent } from '#electron/Application/Contracts/Providers/ILedgerProvider';
 import { ApiClient } from './Base/ApiClient.js';
 
 export class LedgerClient implements ILedgerProvider {

@@ -1,5 +1,5 @@
 import { EntitySchema } from "typeorm";
-import { SessionRecord } from "../../../Domain/Encryption/SessionRecord.js";
+import { SessionRecord } from "#electron/Domain/Encryption/SessionRecord";
 import { BaseSchema } from "./BaseSchema.js";
 
 export const SessionRecordSchema = new EntitySchema<SessionRecord>({

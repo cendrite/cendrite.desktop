@@ -1,4 +1,4 @@
-import { SettingsSection } from '../../../../Shared/Enums/SettingsSection.js';
+import { SettingsSection } from '#shared/Enums/SettingsSection';
 
 export type SettingsScope = 'device' | 'account';
 

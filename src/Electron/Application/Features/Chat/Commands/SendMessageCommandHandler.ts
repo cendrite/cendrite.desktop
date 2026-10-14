@@ -1,18 +1,18 @@
-import { Result } from '../../../../../Shared/Result/Result.js';
-import { Message } from '../../../../Domain/Entities/Message.js';
-import { MessageMedia } from '../../../../Domain/Entities/MessageMedia.js';
-import { DeliveryStatus } from '../../../../../Shared/Enums/DeliveryStatus.js';
-import { MessageSentEvent } from '../../../../Domain/Events/MessageSentEvent.js';
-import {  Payload } from '../../../../Domain/Protocol/Payload.js';
-import { MessageContract } from '../../../../../Shared/Models/MessageContract.js';
-import { IEventRepository } from '../../../Contracts/Providers/IEventRepository.js';
-import { IChatStore } from '../../../Contracts/Repositories/IChatStore.js';
-import { IMediaStore } from '../../../Contracts/Repositories/IMediaStore.js';
-import { IPump } from '../../../Contracts/Services/IPump.js';
-import { Handler } from '../../../Mediator/Handler.js';
-import { SendMessageCommand } from '../../../../../Shared/Chat/SendMessage.js';
+import { Result } from '#shared/Result/Result';
+import { Message } from '#electron/Domain/Entities/Message';
+import { MessageMedia } from '#electron/Domain/Entities/MessageMedia';
+import { DeliveryStatus } from '#shared/Enums/DeliveryStatus';
+import { MessageSentEvent } from '#electron/Domain/Events/MessageSentEvent';
+import {  Payload } from '#electron/Domain/Protocol/Payload';
+import { MessageContract } from '#shared/Models/MessageContract';
+import { IEventRepository } from '#electron/Application/Contracts/Providers/IEventRepository';
+import { IChatStore } from '#electron/Application/Contracts/Repositories/IChatStore';
+import { IMediaStore } from '#electron/Application/Contracts/Repositories/IMediaStore';
+import { IPump } from '#electron/Application/Contracts/Services/IPump';
+import { Handler } from '#electron/Application/Mediator/Handler';
+import { SendMessageCommand } from '#shared/Chat/SendMessage';
 import { v4 as uuid } from 'uuid';
-import { IGroupService } from '../../../Services/GroupService.js';
+import { IGroupService } from '#electron/Application/Services/GroupService';
 
 export class SendMessageCommandHandler implements Handler<SendMessageCommand, MessageContract> {
     constructor(

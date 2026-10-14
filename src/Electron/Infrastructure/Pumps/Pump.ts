@@ -1,4 +1,4 @@
-import { IPump } from "../../Application/Contracts/Services/IPump.js";
+import { IPump } from "#electron/Application/Contracts/Services/IPump";
 
 export abstract class Pump implements IPump {
     protected isRunning: boolean = false;

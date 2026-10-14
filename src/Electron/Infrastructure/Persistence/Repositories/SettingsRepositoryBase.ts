@@ -1,7 +1,7 @@
 import { Repository } from 'typeorm/repository/Repository.js';
 import { getDbContext } from '../Context/DatabaseContext.js';
-import { SettingsRecord } from '../../../Domain/Entities/SettingsRecord.js';
-import { ISettingsRepository } from '../../../Application/Contracts/Repositories/ISettingsRepository.js';
+import { SettingsRecord } from '#electron/Domain/Entities/SettingsRecord';
+import { ISettingsRepository } from '#electron/Application/Contracts/Repositories/ISettingsRepository';
 
 export abstract class SettingsRepositoryBase<T extends SettingsRecord> implements ISettingsRepository {
     private readonly repository: Repository<T>;

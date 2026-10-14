@@ -1,5 +1,5 @@
 import { EntitySchema } from 'typeorm';
-import { IdentityKeys } from '../../../Domain/Encryption/IdentityKeys.js';
+import { IdentityKeys } from '#electron/Domain/Encryption/IdentityKeys';
 import { BaseSchema } from './BaseSchema.js';
 
 export const IdentityKeysSchema = new EntitySchema<IdentityKeys>({

@@ -1,5 +1,5 @@
-import { GroupEpochKey } from '../../../Domain/Encryption/GroupEpochKey.js';
-import { GroupWriteKey } from '../../../Domain/Encryption/GroupWriteKey.js';
+import { GroupEpochKey } from '#electron/Domain/Encryption/GroupEpochKey';
+import { GroupWriteKey } from '#electron/Domain/Encryption/GroupWriteKey';
 
 export interface IGroupKeyRepository {
     saveWriteKey(writeKey: GroupWriteKey): Promise<void>;

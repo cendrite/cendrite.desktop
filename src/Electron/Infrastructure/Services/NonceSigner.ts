@@ -1,6 +1,6 @@
 import nacl from 'tweetnacl';
 import { DeviceRepository } from '../Persistence/Repositories/DeviceRepository.js';
-import { DeviceKeys, INonceSigner } from '../../Application/Contracts/Services/INonceSigner.js';
+import { DeviceKeys, INonceSigner } from '#electron/Application/Contracts/Services/INonceSigner';
 
 export class NonceSigner implements INonceSigner {
     private readonly deviceRepository: DeviceRepository;

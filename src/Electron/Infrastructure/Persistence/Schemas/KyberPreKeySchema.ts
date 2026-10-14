@@ -1,5 +1,5 @@
 import { EntitySchema } from "typeorm";
-import { KyberPreKey } from "../../../Domain/Encryption/KyberPreKey.js";
+import { KyberPreKey } from "#electron/Domain/Encryption/KyberPreKey";
 import { BaseSchema } from "./BaseSchema.js";
 
 export const KyberPreKeySchema = new EntitySchema<KyberPreKey>({

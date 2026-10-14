@@ -9,6 +9,8 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url)),
+            '#shared': fileURLToPath(new URL('./src/Shared', import.meta.url)),
+            '#electron': fileURLToPath(new URL('./src/Electron', import.meta.url)),
         },
     },
     base: './',

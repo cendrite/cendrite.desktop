@@ -1,5 +1,5 @@
 import { EntitySchema } from "typeorm";
-import { IdentityCache } from "../../../Domain/Encryption/IdentityCache.js";
+import { IdentityCache } from "#electron/Domain/Encryption/IdentityCache";
 import { BaseSchema } from "./BaseSchema.js";
 
 export const IdentityCacheSchema = new EntitySchema<IdentityCache>({

@@ -1,5 +1,5 @@
-import { Result } from '../../../../Shared/Result/Result.js';
-import { LedgerOperation } from '../../../Domain/Protocol/LedgerOperation.js';
+import { Result } from '#shared/Result/Result';
+import { LedgerOperation } from '#electron/Domain/Protocol/LedgerOperation';
 
 export interface ILedgerWriter {
     createStream(groupId: string, keys: Buffer[], operation: LedgerOperation): Promise<Result<Buffer>>;

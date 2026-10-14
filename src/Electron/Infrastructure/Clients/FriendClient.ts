@@ -1,11 +1,11 @@
-import { Result } from '../../../Shared/Result/Result.js';
+import { Result } from '#shared/Result/Result';
 import {
     AcceptFriendRequestResponse,
     FriendRequestResponse,
     FriendResponse,
     GetProfileResponse,
     IFriendProvider,
-} from '../../Application/Contracts/Providers/IFriendProvider.js';
+} from '#electron/Application/Contracts/Providers/IFriendProvider';
 import { ApiClient } from './Base/ApiClient.js';
 
 export class FriendClient implements IFriendProvider {

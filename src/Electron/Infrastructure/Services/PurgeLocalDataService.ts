@@ -1,14 +1,14 @@
-import { IPurgeLocalData } from '../../Application/Contracts/Services/IPurgeLocalData.js';
-import { IChatStore } from '../../Application/Contracts/Repositories/IChatStore.js';
-import { IGroupKeyRepository } from '../../Application/Contracts/Repositories/IGroupKeyRepository.js';
-import { IGroupRepository } from '../../Application/Contracts/Repositories/IGroupRepository.js';
-import { ILedgerLogRepository } from '../../Application/Contracts/Repositories/ILedgerLogRepository.js';
-import { IDeviceRepository } from '../../Application/Contracts/Repositories/IDeviceRepository.js';
-import { IFriendRepository } from '../../Application/Contracts/Repositories/IFriendRepository.js';
-import { IUserRepository } from '../../Application/Contracts/Repositories/IUserRepository.js';
+import { IPurgeLocalData } from '#electron/Application/Contracts/Services/IPurgeLocalData';
+import { IChatStore } from '#electron/Application/Contracts/Repositories/IChatStore';
+import { IGroupKeyRepository } from '#electron/Application/Contracts/Repositories/IGroupKeyRepository';
+import { IGroupRepository } from '#electron/Application/Contracts/Repositories/IGroupRepository';
+import { ILedgerLogRepository } from '#electron/Application/Contracts/Repositories/ILedgerLogRepository';
+import { IDeviceRepository } from '#electron/Application/Contracts/Repositories/IDeviceRepository';
+import { IFriendRepository } from '#electron/Application/Contracts/Repositories/IFriendRepository';
+import { IUserRepository } from '#electron/Application/Contracts/Repositories/IUserRepository';
 import { IProtocolStore } from '../Interfaces/IProtocolStore.js';
 import { IRefreshTokenRepository } from '../Interfaces/IRefreshTokenRepository.js';
-import { ISettingsRegistry } from '../../Application/Contracts/Services/ISettingsRegistry.js';
+import { ISettingsRegistry } from '#electron/Application/Contracts/Services/ISettingsRegistry';
 
 export class PurgeLocalDataService implements IPurgeLocalData {
     constructor(

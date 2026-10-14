@@ -1,5 +1,5 @@
-import { Result } from "../../../../Shared/Result/Result.js";
-import { CodeType } from "../../../../Shared/Enums/CodeType.js";
+import { Result } from "#shared/Result/Result";
+import { CodeType } from "#shared/Enums/CodeType";
 
 export interface LoginRequest {
     email: string;

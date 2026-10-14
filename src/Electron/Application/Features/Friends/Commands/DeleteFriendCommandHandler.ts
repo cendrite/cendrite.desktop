@@ -1,10 +1,10 @@
-import { ErrorMessage } from "../../../../../Shared/Result/ErrorMessage.js";
-import { Result } from "../../../../../Shared/Result/Result.js";
-import { IFriendProvider } from "../../../Contracts/Providers/IFriendProvider.js";
-import { IChatStore } from "../../../Contracts/Repositories/IChatStore.js";
-import { IFriendRepository } from "../../../Contracts/Repositories/IFriendRepository.js";
-import { Handler } from "../../../Mediator/Handler.js";
-import { DeleteFriendCommand } from "../../../../../Shared/Friends/DeleteFriend.js";
+import { ErrorMessage } from "#shared/Result/ErrorMessage";
+import { Result } from "#shared/Result/Result";
+import { IFriendProvider } from "#electron/Application/Contracts/Providers/IFriendProvider";
+import { IChatStore } from "#electron/Application/Contracts/Repositories/IChatStore";
+import { IFriendRepository } from "#electron/Application/Contracts/Repositories/IFriendRepository";
+import { Handler } from "#electron/Application/Mediator/Handler";
+import { DeleteFriendCommand } from "#shared/Friends/DeleteFriend";
 
 export class DeleteFriendCommandHandler implements Handler<DeleteFriendCommand> {
     constructor(

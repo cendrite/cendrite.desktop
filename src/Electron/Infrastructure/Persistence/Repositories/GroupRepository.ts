@@ -1,8 +1,8 @@
 import { Repository } from 'typeorm/repository/Repository.js';
-import { IGroupRepository } from '../../../Application/Contracts/Repositories/IGroupRepository.js';
-import { GroupLifecycle } from '../../../Domain/Enums/GroupLifecycle.js';
+import { IGroupRepository } from '#electron/Application/Contracts/Repositories/IGroupRepository';
+import { GroupLifecycle } from '#electron/Domain/Enums/GroupLifecycle';
 import { getDbContext } from '../Context/DatabaseContext.js';
-import { Group } from '../../../Domain/Entities/Group.js';
+import { Group } from '#electron/Domain/Entities/Group';
 
 export class GroupRepository implements IGroupRepository {
     private readonly repository: Repository<Group>;

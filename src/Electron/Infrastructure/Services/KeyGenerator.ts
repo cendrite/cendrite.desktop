@@ -1,12 +1,12 @@
 import { randomInt } from 'node:crypto';
 import { IdentityKeyPair, KEMKeyPair, KyberPreKeyRecord, PrivateKey } from '@signalapp/libsignal-client';
-import { IKeyStoreProvider } from '../../Application/Contracts/Providers/IKeyStoreProvider.js';
-import { IKeyGenerator } from '../../Application/Contracts/Services/IKeyGenerator.js';
+import { IKeyStoreProvider } from '#electron/Application/Contracts/Providers/IKeyStoreProvider';
+import { IKeyGenerator } from '#electron/Application/Contracts/Services/IKeyGenerator';
 import { IProtocolStore } from '../Interfaces/IProtocolStore.js';
-import { IdentityKeys } from '../../Domain/Encryption/IdentityKeys.js';
-import { EcPreKey } from '../../Domain/Encryption/EcPreKey.js';
-import { SignedPreKey } from '../../Domain/Encryption/SignedPreKey.js';
-import { KyberPreKey } from '../../Domain/Encryption/KyberPreKey.js';
+import { IdentityKeys } from '#electron/Domain/Encryption/IdentityKeys';
+import { EcPreKey } from '#electron/Domain/Encryption/EcPreKey';
+import { SignedPreKey } from '#electron/Domain/Encryption/SignedPreKey';
+import { KyberPreKey } from '#electron/Domain/Encryption/KyberPreKey';
 
 export class KeyGenerator implements IKeyGenerator {
     private readonly keyStoreProvider: IKeyStoreProvider;

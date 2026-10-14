@@ -1,12 +1,12 @@
-import { Result } from '../../../Shared/Result/Result.js';
-import { ILedgerProvider } from '../../Application/Contracts/Providers/ILedgerProvider.js';
-import { IGroupRepository } from '../../Application/Contracts/Repositories/IGroupRepository.js';
-import { ILedgerLogRepository } from '../../Application/Contracts/Repositories/ILedgerLogRepository.js';
-import { ILedgerReplayService, ReplayResult } from '../../Application/Contracts/Services/ILedgerReplayService.js';
-import { ILedgerSyncService } from '../../Application/Contracts/Services/ILedgerSyncService.js';
-import { Group } from '../../Domain/Entities/Group.js';
-import { LedgerEventRecord } from '../../Domain/Entities/LedgerEventRecord.js';
-import { LedgerEventStatus } from '../../Domain/Enums/LedgerEventStatus.js';
+import { Result } from '#shared/Result/Result';
+import { ILedgerProvider } from '#electron/Application/Contracts/Providers/ILedgerProvider';
+import { IGroupRepository } from '#electron/Application/Contracts/Repositories/IGroupRepository';
+import { ILedgerLogRepository } from '#electron/Application/Contracts/Repositories/ILedgerLogRepository';
+import { ILedgerReplayService, ReplayResult } from '#electron/Application/Contracts/Services/ILedgerReplayService';
+import { ILedgerSyncService } from '#electron/Application/Contracts/Services/ILedgerSyncService';
+import { Group } from '#electron/Domain/Entities/Group';
+import { LedgerEventRecord } from '#electron/Domain/Entities/LedgerEventRecord';
+import { LedgerEventStatus } from '#electron/Domain/Enums/LedgerEventStatus';
 import { buildSigningInput, hashEvent } from '../Crypto/LedgerCodec.js';
 
 const PAGE_SIZE = 500;

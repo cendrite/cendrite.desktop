@@ -1,7 +1,7 @@
-import { Result } from '../../../../../Shared/Result/Result.js';
-import { IUserRepository } from '../../../Contracts/Repositories/IUserRepository.js';
-import { Handler } from '../../../Mediator/Handler.js';
-import { RemoveUserConnectionIdCommand } from '../../../../../Shared/User/RemoveUserConnectionId.js';
+import { Result } from '#shared/Result/Result';
+import { IUserRepository } from '#electron/Application/Contracts/Repositories/IUserRepository';
+import { Handler } from '#electron/Application/Mediator/Handler';
+import { RemoveUserConnectionIdCommand } from '#shared/User/RemoveUserConnectionId';
 
 export class RemoveUserConnectionIdCommandHandler implements Handler<RemoveUserConnectionIdCommand, void> {
 

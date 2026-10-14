@@ -1,4 +1,4 @@
-import { ChatPrivileges } from '../../../Shared/Enums/ChatPrivileges.js';
+import { ChatPrivileges } from '#shared/Enums/ChatPrivileges';
 import { LedgerOperationType } from '../Enums/LedgerOperationType.js';
 import { GroupMember } from '../Projections/GroupMember.js';
 import { GroupState } from '../Projections/GroupState.js';

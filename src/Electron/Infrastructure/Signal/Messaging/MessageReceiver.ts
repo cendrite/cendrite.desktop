@@ -1,31 +1,31 @@
 import { BrowserWindow } from 'electron';
-import { ISessionManager } from '../../../Application/Contracts/Services/ISessionManager.js';
-import { IChatStore } from '../../../Application/Contracts/Repositories/IChatStore.js';
-import { IMediaStore } from '../../../Application/Contracts/Repositories/IMediaStore.js';
-import { IMediaService } from '../../../Application/Services/Media/MediaService.js';
-import { ServerMessage } from '../../../Application/Contracts/Services/IMessageHubHandler.js';
+import { ISessionManager } from '#electron/Application/Contracts/Services/ISessionManager';
+import { IChatStore } from '#electron/Application/Contracts/Repositories/IChatStore';
+import { IMediaStore } from '#electron/Application/Contracts/Repositories/IMediaStore';
+import { IMediaService } from '#electron/Application/Services/Media/MediaService';
+import { ServerMessage } from '#electron/Application/Contracts/Services/IMessageHubHandler';
 import {
     DeliveryStatusPayload,
     GroupStrapPayload,
     MessagePayload,
     PayloadType,
-} from '../../../Domain/Protocol/Payload.js';
-import { Message } from '../../../Domain/Entities/Message.js';
-import { MessageMedia } from '../../../Domain/Entities/MessageMedia.js';
-import { DeliveryStatus } from '../../../../Shared/Enums/DeliveryStatus.js';
-import { MessageContract } from '../../../../Shared/Models/MessageContract.js';
-import { IFriendRepository } from '../../../Application/Contracts/Repositories/IFriendRepository.js';
-import { IUserRepository } from '../../../Application/Contracts/Repositories/IUserRepository.js';
-import { IGroupRepository } from '../../../Application/Contracts/Repositories/IGroupRepository.js';
-import { IGroupKeyRepository } from '../../../Application/Contracts/Repositories/IGroupKeyRepository.js';
-import { Group } from '../../../Domain/Entities/Group.js';
-import { GroupEpochKey } from '../../../Domain/Encryption/GroupEpochKey.js';
-import { GroupWriteKey } from '../../../Domain/Encryption/GroupWriteKey.js';
-import { GroupLifecycle } from '../../../Domain/Enums/GroupLifecycle.js';
-import { publicKeyFromPrivate } from '../../Crypto/LedgerCodec.js';
-import { Chat } from '../../../Domain/Aggregates/Chat.js';
-import { ChatMember } from '../../../Domain/Entities/ChatMember.js';
-import { ChatPrivileges } from '../../../../Shared/Enums/ChatPrivileges.js';
+} from '#electron/Domain/Protocol/Payload';
+import { Message } from '#electron/Domain/Entities/Message';
+import { MessageMedia } from '#electron/Domain/Entities/MessageMedia';
+import { DeliveryStatus } from '#shared/Enums/DeliveryStatus';
+import { MessageContract } from '#shared/Models/MessageContract';
+import { IFriendRepository } from '#electron/Application/Contracts/Repositories/IFriendRepository';
+import { IUserRepository } from '#electron/Application/Contracts/Repositories/IUserRepository';
+import { IGroupRepository } from '#electron/Application/Contracts/Repositories/IGroupRepository';
+import { IGroupKeyRepository } from '#electron/Application/Contracts/Repositories/IGroupKeyRepository';
+import { Group } from '#electron/Domain/Entities/Group';
+import { GroupEpochKey } from '#electron/Domain/Encryption/GroupEpochKey';
+import { GroupWriteKey } from '#electron/Domain/Encryption/GroupWriteKey';
+import { GroupLifecycle } from '#electron/Domain/Enums/GroupLifecycle';
+import { publicKeyFromPrivate } from '#electron/Infrastructure/Crypto/LedgerCodec';
+import { Chat } from '#electron/Domain/Aggregates/Chat';
+import { ChatMember } from '#electron/Domain/Entities/ChatMember';
+import { ChatPrivileges } from '#shared/Enums/ChatPrivileges';
 import { v4 as uuid } from 'uuid';
 
 export interface IMessageReceiver {

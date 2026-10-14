@@ -1,4 +1,4 @@
-import { ChatPrivileges } from '../../../Shared/Enums/ChatPrivileges.js';
+import { ChatPrivileges } from '#shared/Enums/ChatPrivileges';
 
 export class GroupMember {
     constructor(

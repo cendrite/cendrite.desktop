@@ -16,11 +16,11 @@ import {
     SignedPreKeyStore,
 } from '@signalapp/libsignal-client';
 import { IProtocolStore } from '../Interfaces/IProtocolStore.js';
-import { IdentityCache } from '../../Domain/Encryption/IdentityCache.js';
-import { EcPreKey } from '../../Domain/Encryption/EcPreKey.js';
-import { SignedPreKey } from '../../Domain/Encryption/SignedPreKey.js';
-import { KyberPreKey } from '../../Domain/Encryption/KyberPreKey.js';
-import { SessionRecord as SessionRecordEntity } from '../../Domain/Encryption/SessionRecord.js';
+import { IdentityCache } from '#electron/Domain/Encryption/IdentityCache';
+import { EcPreKey } from '#electron/Domain/Encryption/EcPreKey';
+import { SignedPreKey } from '#electron/Domain/Encryption/SignedPreKey';
+import { KyberPreKey } from '#electron/Domain/Encryption/KyberPreKey';
+import { SessionRecord as SessionRecordEntity } from '#electron/Domain/Encryption/SessionRecord';
 
 /**
  * Adapter between libsignal's store interfaces and our persisted protocol state.

@@ -1,4 +1,4 @@
-import { Envelope, Payload } from "../../../Domain/Protocol/Payload.js";
+import { Envelope, Payload } from "#electron/Domain/Protocol/Payload";
 
 export interface ISessionManager {
     encrypt(envelope: Envelope<Payload>, connectionId: string): Promise<string>;

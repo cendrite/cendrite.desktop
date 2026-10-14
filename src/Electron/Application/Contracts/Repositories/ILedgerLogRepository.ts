@@ -1,5 +1,5 @@
-import { LedgerEventRecord } from '../../../Domain/Entities/LedgerEventRecord.js';
-import { LedgerEventStatus } from '../../../Domain/Enums/LedgerEventStatus.js';
+import { LedgerEventRecord } from '#electron/Domain/Entities/LedgerEventRecord';
+import { LedgerEventStatus } from '#electron/Domain/Enums/LedgerEventStatus';
 
 export interface ILedgerLogRepository {
     append(records: LedgerEventRecord[]): Promise<void>;

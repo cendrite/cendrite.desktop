@@ -1,11 +1,11 @@
-import { Result } from '../../../../../Shared/Result/Result.js';
-import { DeliveryStatus } from '../../../../../Shared/Enums/DeliveryStatus.js';
-import { MessageContract } from '../../../../../Shared/Models/MessageContract.js';
-import { ISessionManager } from '../../../Contracts/Services/ISessionManager.js';
-import { IMessageHubHandler, ServerMessage } from '../../../Contracts/Services/IMessageHubHandler.js';
-import { Envelope, MessagePayload, Payload } from '../../../../Domain/Protocol/Payload.js';
-import { Handler } from '../../../Mediator/Handler.js';
-import { IMediaService } from '../../../Services/Media/MediaService.js';
+import { Result } from '#shared/Result/Result';
+import { DeliveryStatus } from '#shared/Enums/DeliveryStatus';
+import { MessageContract } from '#shared/Models/MessageContract';
+import { ISessionManager } from '#electron/Application/Contracts/Services/ISessionManager';
+import { IMessageHubHandler, ServerMessage } from '#electron/Application/Contracts/Services/IMessageHubHandler';
+import { Envelope, MessagePayload, Payload } from '#electron/Domain/Protocol/Payload';
+import { Handler } from '#electron/Application/Mediator/Handler';
+import { IMediaService } from '#electron/Application/Services/Media/MediaService';
 
 export class MessageSentCommand implements MediatorRequest<DeliveryStatus> {
     declare readonly _response?: DeliveryStatus;

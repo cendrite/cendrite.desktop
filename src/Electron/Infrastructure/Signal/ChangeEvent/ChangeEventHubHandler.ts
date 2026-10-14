@@ -2,7 +2,7 @@
 import { IHubHandler } from '../IHubHandler.js';
 import { HubKey } from '../SignalRHubPath.js';
 import { HubMethods } from '../HubMethods.js';
-import { ChangeEvent } from '../../../../Shared/Events/ChangeEvent.js';
+import { ChangeEvent } from '#shared/Events/ChangeEvent';
 import { BrowserWindow } from 'electron';
 
 export class ChangeEventHubHandler implements IHubHandler {

@@ -1,8 +1,8 @@
-import { ISessionManager } from '../../Contracts/Services/ISessionManager.js';
-import { MediaPointer } from '../../../Domain/Protocol/Payload.js';
-import { MediaContract } from '../../../../Shared/Models/MediaContract.js';
-import { IMediaProvider } from '../../Contracts/Providers/IMediaProvider.js';
-import { MediaType } from '../../../../Shared/Files/GetMedia.js';
+import { ISessionManager } from '#electron/Application/Contracts/Services/ISessionManager';
+import { MediaPointer } from '#electron/Domain/Protocol/Payload';
+import { MediaContract } from '#shared/Models/MediaContract';
+import { IMediaProvider } from '#electron/Application/Contracts/Providers/IMediaProvider';
+import { MediaType } from '#shared/Files/GetMedia';
 
 export interface IMediaService {
     getLocal(type: MediaType): Promise<MediaContract[]>;

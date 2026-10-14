@@ -1,7 +1,7 @@
-import { Result } from '../../../../../Shared/Result/Result.js';
-import { IFriendProvider } from '../../../Contracts/Providers/IFriendProvider.js';
-import { Handler } from '../../../Mediator/Handler.js';
-import { SendFriendRequestCommand } from '../../../../../Shared/Friends/SendFriendRequest.js';
+import { Result } from '#shared/Result/Result';
+import { IFriendProvider } from '#electron/Application/Contracts/Providers/IFriendProvider';
+import { Handler } from '#electron/Application/Mediator/Handler';
+import { SendFriendRequestCommand } from '#shared/Friends/SendFriendRequest';
 
 export class SendFriendRequestCommandHandler implements Handler<SendFriendRequestCommand> {
     constructor(private readonly friendProvider: IFriendProvider) { }

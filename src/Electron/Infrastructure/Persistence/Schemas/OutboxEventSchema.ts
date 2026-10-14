@@ -1,5 +1,5 @@
 import { EntitySchema } from "typeorm/entity-schema/EntitySchema.js";
-import { OutboxEvent } from "../../Models/OutboxEvent.js";
+import { OutboxEvent } from "#electron/Infrastructure/Models/OutboxEvent";
 
 export const OutboxEventSchema = new EntitySchema<OutboxEvent>({
     name: 'outbox_event',

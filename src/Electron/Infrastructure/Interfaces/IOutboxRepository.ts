@@ -1,4 +1,4 @@
-import { DomainEvent } from "../../Domain/Events/IDomainEvent.js";
+import { DomainEvent } from "#electron/Domain/Events/IDomainEvent";
 
 export interface IOutboxRepository {
     getEvents<T extends DomainEvent>(type: string, count: number): Promise<T[]>;

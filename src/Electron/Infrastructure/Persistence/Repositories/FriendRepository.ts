@@ -1,6 +1,6 @@
 import { getDbContext } from '../Context/DatabaseContext.js';
-import { Friend } from '../../../Domain/Aggregates/Friend.js';
-import { IFriendRepository } from '../../../Application/Contracts/Repositories/IFriendRepository.js';
+import { Friend } from '#electron/Domain/Aggregates/Friend';
+import { IFriendRepository } from '#electron/Application/Contracts/Repositories/IFriendRepository';
 import { In } from 'typeorm';
 
 export class FriendRepository implements IFriendRepository {

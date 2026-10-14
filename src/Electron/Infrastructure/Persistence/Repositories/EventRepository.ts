@@ -1,9 +1,9 @@
 import { IsNull } from 'typeorm';
-import { IEventRepository } from '../../../Application/Contracts/Providers/IEventRepository.js';
-import { DomainEvent, resolveDeserializer } from '../../../Domain/Events/IDomainEvent.js';
-import { OutboxEvent } from '../../Models/OutboxEvent.js';
+import { IEventRepository } from '#electron/Application/Contracts/Providers/IEventRepository';
+import { DomainEvent, resolveDeserializer } from '#electron/Domain/Events/IDomainEvent';
+import { OutboxEvent } from '#electron/Infrastructure/Models/OutboxEvent';
 import { getDbContext } from '../Context/DatabaseContext.js';
-import { IOutboxRepository } from '../../Interfaces/IOutboxRepository.js';
+import { IOutboxRepository } from '#electron/Infrastructure/Interfaces/IOutboxRepository';
 
 const UINT8_MARKER = '__uint8array_b64';
 

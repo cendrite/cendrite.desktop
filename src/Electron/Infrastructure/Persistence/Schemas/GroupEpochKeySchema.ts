@@ -1,5 +1,5 @@
 import { EntitySchema } from 'typeorm';
-import { GroupEpochKey } from '../../../Domain/Encryption/GroupEpochKey.js';
+import { GroupEpochKey } from '#electron/Domain/Encryption/GroupEpochKey';
 import { BaseSchema } from './BaseSchema.js';
 
 export const GroupEpochKeySchema = new EntitySchema<GroupEpochKey>({

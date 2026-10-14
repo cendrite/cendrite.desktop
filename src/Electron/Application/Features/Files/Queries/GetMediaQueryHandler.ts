@@ -1,11 +1,11 @@
 import * as fs from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import { dialog, BrowserWindow, app } from 'electron';
-import { Handler } from '../../../Mediator/Handler.js';
-import { GetMediaQuery, MediaType } from '../../../../../Shared/Files/GetMedia.js';
-import { Result } from '../../../../../Shared/Result/Result.js';
-import { ErrorMessage } from '../../../../../Shared/Result/ErrorMessage.js';
-import { MediaContract } from '../../../../../Shared/Models/MediaContract.js';
+import { Handler } from '#electron/Application/Mediator/Handler';
+import { GetMediaQuery, MediaType } from '#shared/Files/GetMedia';
+import { Result } from '#shared/Result/Result';
+import { ErrorMessage } from '#shared/Result/ErrorMessage';
+import { MediaContract } from '#shared/Models/MediaContract';
 
 export class GetMediaQueryHandler implements Handler<GetMediaQuery, MediaContract[]> {
     private readonly mainWindow: BrowserWindow;

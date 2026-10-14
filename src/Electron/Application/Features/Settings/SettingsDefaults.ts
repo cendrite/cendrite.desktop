@@ -1,5 +1,5 @@
-import { SettingsSection } from '../../../../Shared/Enums/SettingsSection.js';
-import { SettingsDocument } from '../../../../Shared/Settings/SettingsDocument.js';
+import { SettingsSection } from '#shared/Enums/SettingsSection';
+import { SettingsDocument } from '#shared/Settings/SettingsDocument';
 import { defaultAppearanceSettings } from './AppearanceSettings.js';
 
 export const settingsDefaults: Record<SettingsSection, SettingsDocument> = {

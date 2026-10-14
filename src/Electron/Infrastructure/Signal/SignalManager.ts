@@ -4,7 +4,7 @@ import { IHubHandler } from './IHubHandler.js';
 import { ChangeEventHubHandler } from './ChangeEvent/ChangeEventHubHandler.js';
 import { MessageHubHandler } from './Messaging/MessageHubHandler.js';
 import { TokenManager } from '../Services/TokenManager.js';
-import { ISignalManager } from '../../Application/Contracts/Services/ISignalManager.js';
+import { ISignalManager } from '#electron/Application/Contracts/Services/ISignalManager';
 import { BrowserWindow } from 'electron';
 import { InfiniteRetryPolicy } from './RetryPolicy.js';
 

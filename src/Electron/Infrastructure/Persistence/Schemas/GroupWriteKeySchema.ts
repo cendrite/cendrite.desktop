@@ -1,5 +1,5 @@
 import { EntitySchema } from 'typeorm';
-import { GroupWriteKey } from '../../../Domain/Encryption/GroupWriteKey.js';
+import { GroupWriteKey } from '#electron/Domain/Encryption/GroupWriteKey';
 import { BaseSchema } from './BaseSchema.js';
 
 export const GroupWriteKeySchema = new EntitySchema<GroupWriteKey>({

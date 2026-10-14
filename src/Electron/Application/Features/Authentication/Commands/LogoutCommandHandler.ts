@@ -1,12 +1,12 @@
-import { Result } from '../../../../../Shared/Result/Result.js';
-import { ITokenManager } from '../../../Contracts/Services/ITokenManager.js';
-import { ISignalManager } from '../../../Contracts/Services/ISignalManager.js';
-import { IAuthenticationProvider } from '../../../Contracts/Providers/IAuthenticationProvider.js';
-import { IPump } from '../../../Contracts/Services/IPump.js';
-import { Handler } from '../../../Mediator/Handler.js';
-import { IPurgeLocalData } from '../../../Contracts/Services/IPurgeLocalData.js';
-import { LogoutManager } from '../../../Services/LogoutManager/LogoutManager.js';
-import { LogoutCommand } from '../../../../../Shared/Authentication/Logout.js';
+import { Result } from '#shared/Result/Result';
+import { ITokenManager } from '#electron/Application/Contracts/Services/ITokenManager';
+import { ISignalManager } from '#electron/Application/Contracts/Services/ISignalManager';
+import { IAuthenticationProvider } from '#electron/Application/Contracts/Providers/IAuthenticationProvider';
+import { IPump } from '#electron/Application/Contracts/Services/IPump';
+import { Handler } from '#electron/Application/Mediator/Handler';
+import { IPurgeLocalData } from '#electron/Application/Contracts/Services/IPurgeLocalData';
+import { LogoutManager } from '#electron/Application/Services/LogoutManager/LogoutManager';
+import { LogoutCommand } from '#shared/Authentication/Logout';
 
 export class LogoutCommandHandler implements Handler<LogoutCommand, void> {
     constructor(

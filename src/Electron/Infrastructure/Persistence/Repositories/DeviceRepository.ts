@@ -1,8 +1,8 @@
 import { Repository } from 'typeorm/repository/Repository.js';
 import { getDbContext } from '../Context/DatabaseContext.js';
 import { CryptographyService } from '../Encryption/CryptographyService.js';
-import { Device } from '../../../Domain/Entities/Device.js';
-import { IDeviceRepository } from '../../../Application/Contracts/Repositories/IDeviceRepository.js';
+import { Device } from '#electron/Domain/Entities/Device';
+import { IDeviceRepository } from '#electron/Application/Contracts/Repositories/IDeviceRepository';
 
 export class DeviceRepository implements IDeviceRepository {
     private repository: Repository<Device>;

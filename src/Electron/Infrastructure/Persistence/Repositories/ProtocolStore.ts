@@ -1,11 +1,11 @@
-import { SignedPreKey } from '../../../Domain/Encryption/SignedPreKey.js';
-import { EcPreKey } from '../../../Domain/Encryption/EcPreKey.js';
-import { IdentityKeys } from '../../../Domain/Encryption/IdentityKeys.js';
-import { IdentityCache } from '../../../Domain/Encryption/IdentityCache.js';
+import { SignedPreKey } from '#electron/Domain/Encryption/SignedPreKey';
+import { EcPreKey } from '#electron/Domain/Encryption/EcPreKey';
+import { IdentityKeys } from '#electron/Domain/Encryption/IdentityKeys';
+import { IdentityCache } from '#electron/Domain/Encryption/IdentityCache';
 import { getDbContext } from '../Context/DatabaseContext.js';
-import { SessionRecord } from '../../../Domain/Encryption/SessionRecord.js';
-import { KyberPreKey } from '../../../Domain/Encryption/KyberPreKey.js';
-import { IProtocolStore } from '../../Interfaces/IProtocolStore.js';
+import { SessionRecord } from '#electron/Domain/Encryption/SessionRecord';
+import { KyberPreKey } from '#electron/Domain/Encryption/KyberPreKey';
+import { IProtocolStore } from '#electron/Infrastructure/Interfaces/IProtocolStore';
 
 export class ProtocolStore implements IProtocolStore {
     private readonly signedPreKeysRepository = getDbContext().getRepository(SignedPreKey);

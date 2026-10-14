@@ -68,7 +68,7 @@ export default defineConfig(
                 {
                     patterns: [
                         {
-                            group: ['**/Electron/**', '**/React/**'],
+                            group: ['**/Electron/**', '**/React/**', '#electron/**'],
                             message: 'src/Shared is the dependency-free kernel; it must not import from either process.',
                         },
                     ],

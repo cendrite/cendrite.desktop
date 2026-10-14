@@ -1,7 +1,7 @@
-import { Result } from '../../../../../Shared/Result/Result.js';
-import { IAuthenticationProvider } from '../../../Contracts/Providers/IAuthenticationProvider.js';
-import { Handler } from '../../../Mediator/Handler.js';
-import { VerifyUserCommand } from '../../../../../Shared/Authentication/VerifyUser.js';
+import { Result } from '#shared/Result/Result';
+import { IAuthenticationProvider } from '#electron/Application/Contracts/Providers/IAuthenticationProvider';
+import { Handler } from '#electron/Application/Mediator/Handler';
+import { VerifyUserCommand } from '#shared/Authentication/VerifyUser';
 
 export class VerifyUserCommandHandler implements Handler<VerifyUserCommand> {
     constructor(private readonly authenticationProvider: IAuthenticationProvider) { }

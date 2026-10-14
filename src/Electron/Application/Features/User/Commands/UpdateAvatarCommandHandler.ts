@@ -1,9 +1,9 @@
-﻿import { ErrorMessage } from '../../../../../Shared/Result/ErrorMessage.js';
-import { Result } from '../../../../../Shared/Result/Result.js';
-import { IUserProvider } from '../../../Contracts/Providers/IUserProvider.js';
-import { IUserRepository } from '../../../Contracts/Repositories/IUserRepository.js';
-import { Handler } from '../../../Mediator/Handler.js';
-import { UpdateAvatarCommand } from '../../../../../Shared/User/UpdateAvatar.js';
+﻿import { ErrorMessage } from '#shared/Result/ErrorMessage';
+import { Result } from '#shared/Result/Result';
+import { IUserProvider } from '#electron/Application/Contracts/Providers/IUserProvider';
+import { IUserRepository } from '#electron/Application/Contracts/Repositories/IUserRepository';
+import { Handler } from '#electron/Application/Mediator/Handler';
+import { UpdateAvatarCommand } from '#shared/User/UpdateAvatar';
 
 export class UpdateAvatarCommandHandler implements Handler<UpdateAvatarCommand, string> {
     constructor(

@@ -1,8 +1,8 @@
-import { Result } from '../../../../../Shared/Result/Result.js';
-import { IAuthenticationProvider } from '../../../Contracts/Providers/IAuthenticationProvider.js';
-import { Handler } from '../../../Mediator/Handler.js';
-import { LoginResponse } from '../../../../../Shared/Authentication/Login.js';
-import { LoginCommand } from '../../../../../Shared/Authentication/Login.js';
+import { Result } from '#shared/Result/Result';
+import { IAuthenticationProvider } from '#electron/Application/Contracts/Providers/IAuthenticationProvider';
+import { Handler } from '#electron/Application/Mediator/Handler';
+import { LoginResponse } from '#shared/Authentication/Login';
+import { LoginCommand } from '#shared/Authentication/Login';
 
 export class LoginCommandHandler implements Handler<LoginCommand, LoginResponse> {
     constructor(private readonly authenticationProvider: IAuthenticationProvider) { }

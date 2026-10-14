@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import { ChatMember } from '../../../Domain/Entities/ChatMember.js';
+import { ChatMember } from '#electron/Domain/Entities/ChatMember';
 import { FriendSchema } from '../Schemas/FriendSchema.js';
 import { FriendConnectionIdSchema } from '../Schemas/FriendConnectionIdSchema.js';
 import { DeviceSchema } from '../Schemas/DeviceSchema.js';

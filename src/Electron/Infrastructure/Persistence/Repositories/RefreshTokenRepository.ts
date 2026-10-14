@@ -1,8 +1,8 @@
 import { Repository } from "typeorm/repository/Repository.js";
 import { getDbContext} from "../Context/DatabaseContext.js";
 import { CryptographyService } from "../Encryption/CryptographyService.js";
-import { RefreshToken } from "../../../Domain/Entities/RefreshToken.js";
-import { IRefreshTokenRepository } from "../../Interfaces/IRefreshTokenRepository.js";
+import { RefreshToken } from "#electron/Domain/Entities/RefreshToken";
+import { IRefreshTokenRepository } from "#electron/Infrastructure/Interfaces/IRefreshTokenRepository";
 
 export class RefreshTokenRepository implements IRefreshTokenRepository {
     private repository: Repository<RefreshToken>;

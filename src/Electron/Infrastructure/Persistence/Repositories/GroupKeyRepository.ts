@@ -1,7 +1,7 @@
 import { Repository } from 'typeorm/repository/Repository.js';
-import { IGroupKeyRepository } from '../../../Application/Contracts/Repositories/IGroupKeyRepository.js';
-import { GroupEpochKey } from '../../../Domain/Encryption/GroupEpochKey.js';
-import { GroupWriteKey } from '../../../Domain/Encryption/GroupWriteKey.js';
+import { IGroupKeyRepository } from '#electron/Application/Contracts/Repositories/IGroupKeyRepository';
+import { GroupEpochKey } from '#electron/Domain/Encryption/GroupEpochKey';
+import { GroupWriteKey } from '#electron/Domain/Encryption/GroupWriteKey';
 import { getDbContext } from '../Context/DatabaseContext.js';
 import { CryptographyService } from '../Encryption/CryptographyService.js';
 

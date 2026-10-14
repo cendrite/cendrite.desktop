@@ -1,8 +1,8 @@
 import { AwilixContainer } from 'awilix';
-import { ErrorMessage } from '../../../Shared/Result/ErrorMessage.js';
-import { Result } from '../../../Shared/Result/Result.js';
+import { ErrorMessage } from '#shared/Result/ErrorMessage';
+import { Result } from '#shared/Result/Result';
 import { Handler } from './Handler.js';
-import { Cradle } from '../../Container.js';
+import { Cradle } from '#electron/Container';
 
 export class Mediator {
     constructor(private readonly container: AwilixContainer<Cradle>) { }
