@@ -136,7 +136,7 @@ export class TokenManager implements ITokenManager {
         });
 
         if (!nonceResponse.success) {
-            throw new Error(`Failed to get nonce: ${nonceResponse.errorMessage}`);
+            throw new Error(`Failed to get nonce: ${nonceResponse.errorMessage.message}`);
         }
 
         const signedNonce = await this.nonceSigner.signNonce(nonceResponse.data.nonceValue);
@@ -149,7 +149,7 @@ export class TokenManager implements ITokenManager {
         });
 
         if (!verifyResponse.success) {
-            throw new Error(`Failed to verify nonce: ${verifyResponse.errorMessage}`);
+            throw new Error(`Failed to verify nonce: ${verifyResponse.errorMessage.message}`);
         }
 
         this.setTokens({
