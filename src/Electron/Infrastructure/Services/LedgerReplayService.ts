@@ -8,7 +8,8 @@ import { IGroupKeyRepository } from '../../Application/Contracts/Repositories/IG
 import { applyOperation, OperationContext, rejectReasonFor } from '../../Domain/Services/GroupReducer.js';
 import { GroupState } from '../../Domain/Projections/GroupState.js';
 import { LedgerEventRecord } from '../../Domain/Entities/LedgerEventRecord.js';
-import { LedgerOperation, SignedLedgerOperation } from '../../Domain/Protocol/LedgerOperation.js';
+import { LedgerOperation } from '../../Domain/Protocol/LedgerOperation.js';
+import { parseLedgerOperation, parseSignedLedgerOperation } from '../../Domain/Protocol/LedgerOperationParser.js';
 import { LedgerOperationType } from '../../Domain/Enums/LedgerOperationType.js';
 import {
     buildOperationSigningInput,
@@ -83,18 +84,20 @@ export class LedgerReplayService implements ILedgerReplayService {
     }
 
     private applyIfValid(state: GroupState, event: LedgerEventRecord, epochKey: Buffer): string | null {
-        let signed: SignedLedgerOperation;
-        let operation: LedgerOperation;
-        let operationBytes: Buffer;
+        let plaintext: Buffer;
 
         try {
-            const plaintext = decryptPayload(epochKey, state.groupId, event.version, event.payload);
-            signed = JSON.parse(plaintext.toString('utf8')) as SignedLedgerOperation;
-            operationBytes = Buffer.from(signed.operation, 'base64');
-            operation = JSON.parse(operationBytes.toString('utf8')) as LedgerOperation;
+            plaintext = decryptPayload(epochKey, state.groupId, event.version, event.payload);
         } catch {
             return 'payload could not be decrypted or parsed';
         }
+
+        const signed = parseSignedLedgerOperation(plaintext.toString('utf8'));
+        if (!signed) return 'signed operation is malformed';
+
+        const operationBytes = Buffer.from(signed.operation, 'base64');
+        const operation = parseLedgerOperation(operationBytes.toString('utf8'));
+        if (!operation) return 'operation is malformed';
 
         const identityKey = Buffer.from(signed.identityKey, 'base64');
         const operationInput = buildOperationSigningInput(state.groupId, event.version, operationBytes);
@@ -120,10 +123,6 @@ export class LedgerReplayService implements ILedgerReplayService {
         return null;
     }
 
-    /**
-     * A member's identity key is pinned the moment they join, so a later operation cannot quietly claim
-     * to be them under a different key.
-     */
     private identityPinFailure(state: GroupState, operation: LedgerOperation, identityKey: string): string | null {
         if (operation.type === LedgerOperationType.GroupCreated) {
             const creator = operation.members.find((member) => member.userTag === operation.authorTag);
