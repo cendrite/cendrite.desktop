@@ -1,12 +1,12 @@
 import { describe, expect, test, vi } from 'vitest';
 import { ResendMessageCommandHandler } from '../../../../../../../src/Electron/Application/Features/Chat/Commands/ResendMessageCommandHandler.js';
-import { ResendMessageCommand } from '../../../../../../../src/Electron/Application/Features/Chat/Contracts/ResendMessage.js';
+import { ResendMessageCommand } from '../../../../../../../src/Shared/Contracts/Chat/ResendMessage.js';
 import { IEventRepository } from '../../../../../../../src/Electron/Application/Contracts/Providers/IEventRepository.js';
 import { IChatStore } from '../../../../../../../src/Electron/Application/Contracts/Repositories/IChatStore.js';
 import { IMediaStore } from '../../../../../../../src/Electron/Application/Contracts/Repositories/IMediaStore.js';
 import { IPump } from '../../../../../../../src/Electron/Application/Contracts/Services/IPump.js';
 import { Message } from '../../../../../../../src/Electron/Domain/Entities/Message.js';
-import { DeliveryStatus } from '../../../../../../../src/Electron/Domain/Enums/DeliveryStatus.js';
+import { DeliveryStatus } from '../../../../../../../src/Shared/Contracts/Enums/DeliveryStatus.js';
 import { MessageSentEvent } from '../../../../../../../src/Electron/Domain/Events/MessageSentEvent.js';
 
 function createHandler(overrides: { chatStore?: Partial<IChatStore> } = {}) {

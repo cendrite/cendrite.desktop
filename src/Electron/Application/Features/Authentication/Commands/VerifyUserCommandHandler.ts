@@ -1,7 +1,7 @@
 import { Result } from '../../../../../Shared/Result/Result.js';
 import { IAuthenticationProvider } from '../../../Contracts/Providers/IAuthenticationProvider.js';
 import { Handler } from '../../../Mediator/Handler.js';
-import { VerifyUserCommand } from '../Contracts/VerifyUser.js';
+import { VerifyUserCommand } from '../../../../../Shared/Contracts/Authentication/VerifyUser.js';
 
 export class VerifyUserCommandHandler implements Handler<VerifyUserCommand> {
     constructor(private readonly authenticationProvider: IAuthenticationProvider) { }

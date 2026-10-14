@@ -1,4 +1,4 @@
-import { UserContract } from "../../../Contracts/Models/UserContract.js";
+import { UserContract } from "../Models/UserContract.js";
 
 export class StartupCommand implements MediatorRequest {
     public readonly type = 'StartupCommand';

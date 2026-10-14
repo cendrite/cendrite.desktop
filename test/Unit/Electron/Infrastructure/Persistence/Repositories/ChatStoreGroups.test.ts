@@ -7,7 +7,7 @@ import { Chat } from '../../../../../../src/Electron/Domain/Aggregates/Chat.js';
 import { ChatMember } from '../../../../../../src/Electron/Domain/Entities/ChatMember.js';
 import { Friend } from '../../../../../../src/Electron/Domain/Aggregates/Friend.js';
 import { FriendConnectionId } from '../../../../../../src/Electron/Domain/Entities/FriendConnectionId.js';
-import { ChatPrivileges } from '../../../../../../src/Electron/Domain/Enums/ChatPrivileges.js';
+import { ChatPrivileges } from '../../../../../../src/Shared/Contracts/Enums/ChatPrivileges.js';
 
 const GROUP_ID = '0199673a-3c1e-7c2b-9f2e-5d8b1a4c7e10';
 

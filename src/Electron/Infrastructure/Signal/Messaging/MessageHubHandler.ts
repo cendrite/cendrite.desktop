@@ -4,7 +4,7 @@ import { HubKey } from '../SignalRHubPath.js';
 import { ServerMessage, ServerMessageDto } from '../../../Application/Contracts/Messaging/ServerMessage.js';
 import { HubMethods } from '../HubMethods.js';
 import { IMessageHubHandler } from '../../../Application/Contracts/Services/IMessageHubHandler.js';
-import { DeliveryStatus } from '../../../Domain/Enums/DeliveryStatus.js';
+import { DeliveryStatus } from '../../../../Shared/Contracts/Enums/DeliveryStatus.js';
 import { IMessageReceiver } from './MessageReceiver.js';
 
 export class MessageHubHandler implements IHubHandler, IMessageHubHandler {

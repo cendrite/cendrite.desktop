@@ -2,10 +2,10 @@ import * as fs from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import { dialog, BrowserWindow, app } from 'electron';
 import { Handler } from '../../../Mediator/Handler.js';
-import { GetMediaQuery, MediaType } from '../Contracts/GetMedia.js';
+import { GetMediaQuery, MediaType } from '../../../../../Shared/Contracts/Files/GetMedia.js';
 import { Result } from '../../../../../Shared/Result/Result.js';
 import { ErrorMessage } from '../../../../../Shared/Result/ErrorMessage.js';
-import { MediaContract } from '../../../Contracts/Models/MediaContract.js';
+import { MediaContract } from '../../../../../Shared/Contracts/Models/MediaContract.js';
 
 export class GetMediaQueryHandler implements Handler<GetMediaQuery, MediaContract[]> {
     private readonly mainWindow: BrowserWindow;

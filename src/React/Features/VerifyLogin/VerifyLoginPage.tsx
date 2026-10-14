@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import React from 'react';
 import { Form, Formik, FormikHelpers } from 'formik';
 import { VerifyLoginValidationSchema } from './Validation/VerifyLoginValidationSchema';
-import { CodeType } from '../../../Electron/Application/Contracts/Enums/CodeType.ts';
+import { CodeType } from '../../../Shared/Contracts/Enums/CodeType.ts';
 import { useOnboarding } from '../../Context/OnboardingContext.tsx';
 import ErrorTooltip from '../../Common/Components/Utility/ErrorToolTip.tsx';
 import FormButton from '../../Common/Components/Form/FormButton.tsx';
@@ -11,8 +11,8 @@ import { useUser } from '../../Context/User/UserContext.tsx';
 import { UserActionType } from '../../Context/User/UserReducer.ts';
 import { User } from '../../Models/User.ts';
 import { Result } from '../../../Shared/Result/Result.ts';
-import { VerifyLoginCommand } from '../../../Electron/Application/Features/Authentication/Contracts/VerifyLogin.ts';
-import { UserContract } from '../../../Electron/Application/Contracts/Models/UserContract.ts';
+import { VerifyLoginCommand } from '../../../Shared/Contracts/Authentication/VerifyLogin.ts';
+import { UserContract } from '../../../Shared/Contracts/Models/UserContract.ts';
 
 const createLocalUserProfile = (userId: string, code: string): Promise<Result<UserContract>> =>
     window.electron.sendRequestAsync<Result<UserContract>>(new VerifyLoginCommand(userId, code));

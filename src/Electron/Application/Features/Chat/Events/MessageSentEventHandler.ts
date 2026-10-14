@@ -1,12 +1,12 @@
 import { Result } from '../../../../../Shared/Result/Result.js';
-import { DeliveryStatus } from '../../../../Domain/Enums/DeliveryStatus.js';
+import { DeliveryStatus } from '../../../../../Shared/Contracts/Enums/DeliveryStatus.js';
 import { ISessionManager } from '../../../Contracts/Services/ISessionManager.js';
 import { IMessageHubHandler } from '../../../Contracts/Services/IMessageHubHandler.js';
 import { ServerMessage } from '../../../Contracts/Messaging/ServerMessage.js';
 import { Envelope, MessagePayload } from '../../../Contracts/Messaging/Payload.js';
 import { Handler } from '../../../Mediator/Handler.js';
 import { IMediaService } from '../../../Services/Media/MediaService.js';
-import { MessageSentCommand } from '../Contracts/SendMessage.js';
+import { MessageSentCommand } from '../Contracts/MessageSent.js';
 
 export class MessageSentCommandHandler implements Handler<MessageSentCommand, DeliveryStatus> {
     constructor(

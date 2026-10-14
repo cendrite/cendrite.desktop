@@ -1,7 +1,6 @@
-import { SettingsSection } from '../../Contracts/Enums/SettingsSection.js';
+import { SettingsSection } from '../../../../Shared/Contracts/Enums/SettingsSection.js';
+import { SettingsDocument } from '../../../../Shared/Contracts/Settings/SettingsDocument.js';
 import { defaultAppearanceSettings } from './AppearanceSettings.js';
-
-export type SettingsDocument = Record<string, unknown>;
 
 export const settingsDefaults: Record<SettingsSection, SettingsDocument> = {
     appearance: defaultAppearanceSettings,

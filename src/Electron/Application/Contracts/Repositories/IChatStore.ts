@@ -1,6 +1,6 @@
 import { Chat } from '../../../Domain/Aggregates/Chat.js';
 import { Message } from '../../../Domain/Entities/Message.js';
-import { DeliveryStatus } from '../../../Domain/Enums/DeliveryStatus.js';
+import { DeliveryStatus } from '../../../../Shared/Contracts/Enums/DeliveryStatus.js';
 
 export interface IChatStore {
     /**

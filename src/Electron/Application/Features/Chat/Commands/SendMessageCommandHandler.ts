@@ -1,16 +1,16 @@
 import { Result } from '../../../../../Shared/Result/Result.js';
 import { Message } from '../../../../Domain/Entities/Message.js';
 import { MessageMedia } from '../../../../Domain/Entities/MessageMedia.js';
-import { DeliveryStatus } from '../../../../Domain/Enums/DeliveryStatus.js';
+import { DeliveryStatus } from '../../../../../Shared/Contracts/Enums/DeliveryStatus.js';
 import { MessageSentEvent } from '../../../../Domain/Events/MessageSentEvent.js';
 import {  Payload } from '../../../Contracts/Messaging/Payload.js';
-import { MessageContract } from '../../../Contracts/Models/MessageContract.js';
+import { MessageContract } from '../../../../../Shared/Contracts/Models/MessageContract.js';
 import { IEventRepository } from '../../../Contracts/Providers/IEventRepository.js';
 import { IChatStore } from '../../../Contracts/Repositories/IChatStore.js';
 import { IMediaStore } from '../../../Contracts/Repositories/IMediaStore.js';
 import { IPump } from '../../../Contracts/Services/IPump.js';
 import { Handler } from '../../../Mediator/Handler.js';
-import { SendMessageCommand } from '../Contracts/SendMessage.js';
+import { SendMessageCommand } from '../../../../../Shared/Contracts/Chat/SendMessage.js';
 import { v4 as uuid } from 'uuid';
 import { IGroupService } from '../../../Services/GroupService.js';
 

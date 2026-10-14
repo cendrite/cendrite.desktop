@@ -1,5 +1,5 @@
-import { MediaContract } from '../../../Electron/Application/Contracts/Models/MediaContract.ts';
-import { GetMediaQuery, MediaType } from '../../../Electron/Application/Features/Files/Contracts/GetMedia.ts';
+import { MediaContract } from '../../../Shared/Contracts/Models/MediaContract.ts';
+import { GetMediaQuery, MediaType } from '../../../Shared/Contracts/Files/GetMedia.ts';
 import { Result } from '../../../Shared/Result/Result';
 import { Media } from '../../Models/Media';
 

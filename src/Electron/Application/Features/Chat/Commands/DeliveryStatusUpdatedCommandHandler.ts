@@ -4,7 +4,7 @@ import { IMessageHubHandler } from "../../../Contracts/Services/IMessageHubHandl
 import { ServerMessage } from "../../../Contracts/Messaging/ServerMessage.js";
 import { DeliveryStatusPayload, Envelope } from "../../../Contracts/Messaging/Payload.js";
 import { Handler } from "../../../Mediator/Handler.js";
-import { DeliveryStatusUpdatedCommand } from "../Contracts/UpdateDeliveryStatus.js";
+import { DeliveryStatusUpdatedCommand } from "../Contracts/DeliveryStatusUpdated.js";
 import { v4 as uuid } from 'uuid';
 
 export class DeliveryStatusUpdatedCommandHandler implements Handler<DeliveryStatusUpdatedCommand> {

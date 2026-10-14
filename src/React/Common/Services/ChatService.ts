@@ -1,23 +1,23 @@
 ﻿import { ChatViewModel } from '../../Models/ChatViewModel.ts';
 import { Result } from '../../../Shared/Result/Result.ts';
-import { CreateChatCommand } from '../../../Electron/Application/Features/Chat/Contracts/CreateChat.ts';
-import { ChatContract } from '../../../Electron/Application/Contracts/Models/ChatContract.ts';
-import { DeleteChatCommand } from '../../../Electron/Application/Features/Chat/Contracts/DeleteChat.ts';
+import { CreateChatCommand } from '../../../Shared/Contracts/Chat/CreateChat.ts';
+import { ChatContract } from '../../../Shared/Contracts/Models/ChatContract.ts';
+import { DeleteChatCommand } from '../../../Shared/Contracts/Chat/DeleteChat.ts';
 import { v4 as uuid } from 'uuid';
-import { ChatPrivileges } from '../../../Electron/Domain/Enums/ChatPrivileges.ts';
+import { ChatPrivileges } from '../../../Shared/Contracts/Enums/ChatPrivileges.ts';
 import { ChatMemberViewModel } from '../../Models/ChatMemberViewModel.ts';
-import { GetChatsQuery } from '../../../Electron/Application/Features/Chat/Contracts/GetChats.ts';
+import { GetChatsQuery } from '../../../Shared/Contracts/Chat/GetChats.ts';
 import { Contact } from '../../Models/Contact.ts';
 import { User } from '../../Models/User.ts';
 import { sha256 } from '../../../Shared/HelperFunctions.ts';
 import { MessageViewModel } from '../../Models/MessageViewModel.ts';
-import { DeliveryStatus } from '../../../Electron/Domain/Enums/DeliveryStatus.ts';
-import { GetMessagesQuery } from '../../../Electron/Application/Features/Chat/Contracts/GetMessages.ts';
+import { DeliveryStatus } from '../../../Shared/Contracts/Enums/DeliveryStatus.ts';
+import { GetMessagesQuery } from '../../../Shared/Contracts/Chat/GetMessages.ts';
 import { Media } from '../../Models/Media.ts';
-import { SendMessageCommand } from '../../../Electron/Application/Features/Chat/Contracts/SendMessage.ts';
-import { ResendMessageCommand } from '../../../Electron/Application/Features/Chat/Contracts/ResendMessage.ts';
-import { MessageContract } from '../../../Electron/Application/Contracts/Models/MessageContract.ts';
-import { UpdateDeliveryStatusCommand } from '../../../Electron/Application/Features/Chat/Contracts/UpdateDeliveryStatus.ts';
+import { SendMessageCommand } from '../../../Shared/Contracts/Chat/SendMessage.ts';
+import { ResendMessageCommand } from '../../../Shared/Contracts/Chat/ResendMessage.ts';
+import { MessageContract } from '../../../Shared/Contracts/Models/MessageContract.ts';
+import { UpdateDeliveryStatusCommand } from '../../../Shared/Contracts/Chat/UpdateDeliveryStatus.ts';
 
 export class ChatService {
     public async sendMessage(

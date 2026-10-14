@@ -1,7 +1,7 @@
 import { Result } from '../../../../../Shared/Result/Result.js';
 import { IUserRepository } from '../../../Contracts/Repositories/IUserRepository.js';
 import { Handler } from '../../../Mediator/Handler.js';
-import { RemoveUserConnectionIdCommand } from '../Contracts/RemoveUserConnectionId.js';
+import { RemoveUserConnectionIdCommand } from '../../../../../Shared/Contracts/User/RemoveUserConnectionId.js';
 
 export class RemoveUserConnectionIdCommandHandler implements Handler<RemoveUserConnectionIdCommand, void> {
 

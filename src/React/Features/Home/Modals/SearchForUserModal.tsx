@@ -7,7 +7,7 @@ import { Result } from '../../../../Shared/Result/Result.ts';
 import {
     GetProfileByTagQuery,
     ProfileDto,
-} from '../../../../Electron/Application/Features/Friends/Contracts/GetProfileByTag.ts';
+} from '../../../../Shared/Contracts/Friends/GetProfileByTag.ts';
 import { XIcon } from '@phosphor-icons/react';
 
 interface SearchForUserModalProps {

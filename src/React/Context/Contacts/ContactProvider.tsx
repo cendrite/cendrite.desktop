@@ -5,8 +5,8 @@ import { useUser } from "../User/UserContext";
 import { useContactEvents } from "./ContactEvents";
 import { Result } from "../../../Shared/Result/Result";
 import { Contact } from "../../Models/Contact";
-import { FriendContract } from "../../../Electron/Application/Contracts/Models/FriendContract";
-import { SyncFriendsQuery } from "../../../Electron/Application/Features/Friends/Contracts/SyncFriends";
+import { FriendContract } from "../../../Shared/Contracts/Models/FriendContract";
+import { SyncFriendsQuery } from "../../../Shared/Contracts/Friends/SyncFriends";
 
 const syncFriends = async (): Promise<Contact[]> => {
     const result = await window.electron.sendRequestAsync<Result<FriendContract[]>>(new SyncFriendsQuery());

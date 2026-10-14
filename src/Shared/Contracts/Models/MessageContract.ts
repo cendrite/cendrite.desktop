@@ -1,4 +1,4 @@
-import { DeliveryStatus } from "../../../Domain/Enums/DeliveryStatus.js";
+import { DeliveryStatus } from "../Enums/DeliveryStatus.js";
 import { MediaContract } from "./MediaContract.js";
 
 export class MessageContract {

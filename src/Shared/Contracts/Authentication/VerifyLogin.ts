@@ -5,8 +5,3 @@ export class VerifyLoginCommand implements MediatorRequest {
         public readonly loginVerificationCode: string,
     ) { }
 }
-
-export interface VerifyLoginResponse {
-    deviceId: string;
-    connectionId: string;
-}

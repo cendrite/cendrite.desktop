@@ -25,7 +25,7 @@ import {
     SettingsChangedOperation,
 } from '../../../../../src/Electron/Domain/Operations/LedgerOperation.js';
 import { LedgerOperationType } from '../../../../../src/Electron/Domain/Enums/LedgerOperationType.js';
-import { ChatPrivileges } from '../../../../../src/Electron/Domain/Enums/ChatPrivileges.js';
+import { ChatPrivileges } from '../../../../../src/Shared/Contracts/Enums/ChatPrivileges.js';
 import { ReplayResult } from '../../../../../src/Electron/Application/Contracts/Services/ILedgerReplayService.js';
 import {
     buildSigningInput,

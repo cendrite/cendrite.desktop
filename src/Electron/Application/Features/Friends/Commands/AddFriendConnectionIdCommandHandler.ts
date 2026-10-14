@@ -3,7 +3,7 @@ import { Result } from '../../../../../Shared/Result/Result.js';
 import { FriendConnectionId } from '../../../../Domain/Entities/FriendConnectionId.js';
 import { IFriendRepository } from '../../../Contracts/Repositories/IFriendRepository.js';
 import { Handler } from '../../../Mediator/Handler.js';
-import { AddFriendConnectionIdCommand } from '../Contracts/AddFriendConnectionId.js';
+import { AddFriendConnectionIdCommand } from '../../../../../Shared/Contracts/Friends/AddFriendConnectionId.js';
 
 export class AddFriendConnectionIdCommandHandler implements Handler<AddFriendConnectionIdCommand> {
     constructor(private readonly friendRepository: IFriendRepository) { }

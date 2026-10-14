@@ -1,5 +1,5 @@
 import {Friend} from "../Aggregates/Friend.js";
-import { ChatPrivileges } from "../Enums/ChatPrivileges.js";
+import { ChatPrivileges } from "../../../Shared/Contracts/Enums/ChatPrivileges.js";
 import {Chat} from "../Aggregates/Chat.js";
 
 export class ChatMember {

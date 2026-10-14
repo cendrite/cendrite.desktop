@@ -1,4 +1,4 @@
-import { MessageContract } from '../../Application/Contracts/Models/MessageContract.js';
+import { MessageContract } from '../../../Shared/Contracts/Models/MessageContract.js';
 import { Payload } from '../../Application/Contracts/Messaging/Payload.js';
 import { DomainEvent, registerDomainEvent } from './IDomainEvent.js';
 

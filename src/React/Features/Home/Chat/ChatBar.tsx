@@ -1,6 +1,6 @@
 ﻿import React, { useState } from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
-import { MediaType } from '../../../../Electron/Application/Features/Files/Contracts/GetMedia.ts';
+import { MediaType } from '../../../../Shared/Contracts/Files/GetMedia.ts';
 import { ChatViewModel } from '../../../Models/ChatViewModel';
 import { Media } from '../../../Models/Media';
 import { useMessageService } from '../../../Common/Hooks/MessageService';

@@ -1,6 +1,6 @@
 ﻿import { useEffect, useRef } from 'react';
-import { ChangeEventType } from '../../Electron/Infrastructure/Signal/ChangeEvent/ChangeEventType';
-import { ChangeEvent } from '../../Electron/Infrastructure/Signal/ChangeEvent/ChangeEvent';
+import { ChangeEventType } from '../../Shared/Contracts/Events/ChangeEventType';
+import { ChangeEvent } from '../../Shared/Contracts/Events/ChangeEvent';
 
 export function useSignalEvent<T>(type: ChangeEventType, handler: (event: ChangeEvent<T>) => void) {
     const handlerRef = useRef(handler);

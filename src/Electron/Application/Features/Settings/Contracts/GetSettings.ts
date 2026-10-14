@@ -1,4 +1,4 @@
-import { SettingsSection } from '../../../Contracts/Enums/SettingsSection.js';
+import { SettingsSection } from '../../../../../Shared/Contracts/Enums/SettingsSection.js';
 
 export class GetSettingsQuery implements MediatorRequest {
     public readonly type = 'GetSettingsQuery';

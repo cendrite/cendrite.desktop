@@ -4,7 +4,7 @@ import { PendingContact } from '../../Models/PendingContact';
 import {
     FriendRequestDto,
     GetFriendRequestsQuery,
-} from '../../../Electron/Application/Features/Friends/Contracts/GetFriendRequests';
+} from '../../../Shared/Contracts/Friends/GetFriendRequests';
 import { useNotifications } from '../Notification/NotificationContext';
 import { useUser } from '../User/UserContext';
 import { PendingContactContext } from './PendingContactContext';

@@ -16,7 +16,7 @@ import { NotificationActionType } from '../../Context/Notification/NotificationR
 import { UserActionType } from '../../Context/User/UserReducer.ts';
 import { useHomePage } from '../../Context/HomePage/HomePageContext.tsx';
 import { HomePageActionType } from '../../Context/HomePage/HomePageReducer.ts';
-import { LogoutCommand } from '../../../Electron/Application/Features/Authentication/Contracts/Logout.ts';
+import { LogoutCommand } from '../../../Shared/Contracts/Authentication/Logout.ts';
 
 const LogoutPage: React.FC = () => {
     const navigate = useNavigate();

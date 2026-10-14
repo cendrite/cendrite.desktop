@@ -2,7 +2,7 @@
 import { Result } from '../../../../../Shared/Result/Result.js';
 import { IFriendRepository } from '../../../Contracts/Repositories/IFriendRepository.js';
 import { Handler } from '../../../Mediator/Handler.js';
-import { UpdateFriendCommand } from '../Contracts/UpdateFriend.js';
+import { UpdateFriendCommand } from '../../../../../Shared/Contracts/Friends/UpdateFriend.js';
 
 export class UpdateFriendCommandHandler implements Handler<UpdateFriendCommand> {
     constructor(private readonly friendRepository: IFriendRepository) { }

@@ -1,5 +1,5 @@
-import { DeliveryStatus } from "../../../../Domain/Enums/DeliveryStatus.js";
-import { MediaContract } from "../../../Contracts/Models/MediaContract.js";
+import { DeliveryStatus } from "../../../../../Shared/Contracts/Enums/DeliveryStatus.js";
+import { MediaContract } from "../../../../../Shared/Contracts/Models/MediaContract.js";
 
 export class AddMessageCommand implements MediatorRequest {
     type: string = AddMessageCommand.name;
