@@ -1,7 +1,7 @@
 ﻿import path from "path";
 import { app } from "electron";
 import * as fs from "node:fs";
-import { IPurgeLocalData } from "../../Contracts/Services/IPurgeLocalData.js";
+import { IPurgeLocalData } from "#electron/Application/Contracts/Services/IPurgeLocalData";
 
 export class LogoutManager {
     private static instance: LogoutManager;

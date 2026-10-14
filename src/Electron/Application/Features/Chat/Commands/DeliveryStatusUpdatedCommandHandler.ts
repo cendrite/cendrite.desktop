@@ -1,12 +1,13 @@
-import { Result } from "../../../../../Shared/Result/Result.js";
-import { DeliveryStatus } from "../../../../../Shared/Enums/DeliveryStatus.js";
-import { ISessionManager } from "../../../Contracts/Services/ISessionManager.js";
-import { IMessageHubHandler, ServerMessage } from "../../../Contracts/Services/IMessageHubHandler.js";
-import { DeliveryStatusPayload, Envelope } from "../../../../Domain/Protocol/Payload.js";
-import { Handler } from "../../../Mediator/Handler.js";
+import { Result } from "#shared/Result/Result";
+import { DeliveryStatus } from "#shared/Enums/DeliveryStatus";
+import { ISessionManager } from "#electron/Application/Contracts/Services/ISessionManager";
+import { IMessageHubHandler, ServerMessage } from "#electron/Application/Contracts/Services/IMessageHubHandler";
+import { DeliveryStatusPayload, Envelope } from "#electron/Domain/Protocol/Payload";
+import { Handler } from "#electron/Application/Mediator/Handler";
 import { v4 as uuid } from 'uuid';
 
-export class DeliveryStatusUpdatedCommand implements MediatorRequest {
+export class DeliveryStatusUpdatedCommand implements MediatorRequest<void> {
+    declare readonly _response?: void;
     type = DeliveryStatusUpdatedCommand.name;
     constructor(
         public readonly senderId: string,

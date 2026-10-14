@@ -1,13 +1,13 @@
 import React from 'react';
 import { useCallback } from 'react';
 import { ChatService } from '../Services/ChatService';
-import { useChatContext } from '../../Context/Chat/ChatContext';
-import { ChatViewModel } from '../../Models/ChatViewModel';
-import { ChatActionType } from '../../Context/Chat/ChatReducer';
-import { useHomePage } from '../../Context/HomePage/HomePageContext';
-import { HomePageActionType } from '../../Context/HomePage/HomePageReducer';
-import { useNotifications } from '../../Context/Notification/NotificationContext';
-import { NotificationActionType } from '../../Context/Notification/NotificationReducer';
+import { useChatContext } from '@/React/Context/Chat/ChatContext';
+import { ChatViewModel } from '@/React/Models/ChatViewModel';
+import { ChatActionType } from '@/React/Context/Chat/ChatReducer';
+import { useHomePage } from '@/React/Context/HomePage/HomePageContext';
+import { HomePageActionType } from '@/React/Context/HomePage/HomePageReducer';
+import { useNotifications } from '@/React/Context/Notification/NotificationContext';
+import { NotificationActionType } from '@/React/Context/Notification/NotificationReducer';
 
 export function useChatSettings() {
     const chatService = React.useMemo(() => new ChatService(), []);

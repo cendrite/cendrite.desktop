@@ -1,7 +1,7 @@
-import { Result } from '../../../../../Shared/Result/Result.js';
-import { IFriendProvider } from '../../../Contracts/Providers/IFriendProvider.js';
-import { Handler } from '../../../Mediator/Handler.js';
-import { DeclineFriendRequestCommand } from '../../../../../Shared/Friends/DeclineFriendRequest.js';
+import { Result } from '#shared/Result/Result';
+import { IFriendProvider } from '#electron/Application/Contracts/Providers/IFriendProvider';
+import { Handler } from '#electron/Application/Mediator/Handler';
+import { DeclineFriendRequestCommand } from '#shared/Friends/DeclineFriendRequest';
 
 export class DeclineFriendRequestCommandHandler implements Handler<DeclineFriendRequestCommand> {
     constructor(private readonly friendProvider: IFriendProvider) { }

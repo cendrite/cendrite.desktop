@@ -1,4 +1,5 @@
-export class UpdateAvatarCommand implements MediatorRequest {
+export class UpdateAvatarCommand implements MediatorRequest<string> {
+    declare readonly _response?: string;
     public readonly type = 'UpdateAvatarCommand';
     public readonly bytes: Uint8Array;
     public readonly mimeType: string;

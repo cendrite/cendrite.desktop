@@ -1,4 +1,4 @@
-import { DEFAULT_THEME, ResolvedTheme, Theme } from '../../../Shared/Theme.ts';
+import { DEFAULT_THEME, ResolvedTheme, Theme } from '@/Shared/Theme.ts';
 
 export enum ThemeActionType {
     SetTheme,

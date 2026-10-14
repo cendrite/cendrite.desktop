@@ -1,12 +1,12 @@
-import { Result } from '../../../../../Shared/Result/Result.js';
-import { ITokenManager } from '../../../Contracts/Services/ITokenManager.js';
-import { ISignalManager } from '../../../Contracts/Services/ISignalManager.js';
-import { UserContract } from '../../../../../Shared/Models/UserContract.js';
-import { IDeviceRepository } from '../../../Contracts/Repositories/IDeviceRepository.js';
-import { IUserRepository } from '../../../Contracts/Repositories/IUserRepository.js';
-import { IPump } from '../../../Contracts/Services/IPump.js';
-import { Handler } from '../../../Mediator/Handler.js';
-import { StartupCommand, StartupDto } from '../../../../../Shared/Authentication/Startup.js';
+import { Result } from '#shared/Result/Result';
+import { ITokenManager } from '#electron/Application/Contracts/Services/ITokenManager';
+import { ISignalManager } from '#electron/Application/Contracts/Services/ISignalManager';
+import { UserContract } from '#shared/Models/UserContract';
+import { IDeviceRepository } from '#electron/Application/Contracts/Repositories/IDeviceRepository';
+import { IUserRepository } from '#electron/Application/Contracts/Repositories/IUserRepository';
+import { IPump } from '#electron/Application/Contracts/Services/IPump';
+import { Handler } from '#electron/Application/Mediator/Handler';
+import { StartupCommand, StartupDto } from '#shared/Authentication/Startup';
 
 export class StartupCommandHandler implements Handler<StartupCommand, StartupDto> {
     constructor(

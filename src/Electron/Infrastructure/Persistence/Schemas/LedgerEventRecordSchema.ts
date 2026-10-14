@@ -1,5 +1,5 @@
 import { EntitySchema } from 'typeorm';
-import { LedgerEventRecord } from '../../../Domain/Entities/LedgerEventRecord.js';
+import { LedgerEventRecord } from '#electron/Domain/Entities/LedgerEventRecord';
 import { BaseSchema } from './BaseSchema.js';
 
 export const LedgerEventRecordSchema = new EntitySchema<LedgerEventRecord>({

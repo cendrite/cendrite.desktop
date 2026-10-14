@@ -1,6 +1,6 @@
-import { DeliveryStatusUpdatedCommand } from '../../Application/Features/Chat/Commands/DeliveryStatusUpdatedCommandHandler.js';
-import { Mediator } from '../../Application/Mediator/Mediator.js';
-import { DeliveryStatusUpdatedEvent } from '../../Domain/Events/DeliveryStatusUpdatedEvent.js';
+import { DeliveryStatusUpdatedCommand } from '#electron/Application/Features/Chat/Commands/DeliveryStatusUpdatedCommandHandler';
+import { Mediator } from '#electron/Application/Mediator/Mediator';
+import { DeliveryStatusUpdatedEvent } from '#electron/Domain/Events/DeliveryStatusUpdatedEvent';
 import { IOutboxRepository } from '../Interfaces/IOutboxRepository.js';
 import { SignalManager } from '../Signal/SignalManager.js';
 import { Pump } from './Pump.js';
@@ -33,7 +33,7 @@ export class DeliveryStatusUpdatePump extends Pump {
 
             console.log(`DeliveryUpdatePump: Processing delivery status update event ${deliveryEvent.id}`);
 
-            const result = await this.mediator.send<DeliveryStatusUpdatedCommand, void>(
+            const result = await this.mediator.send(
                 new DeliveryStatusUpdatedCommand(
                     deliveryEvent.senderId,
                     deliveryEvent.chatId,

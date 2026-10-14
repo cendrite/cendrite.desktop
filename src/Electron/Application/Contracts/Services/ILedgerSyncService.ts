@@ -1,4 +1,4 @@
-import { Result } from '../../../../Shared/Result/Result.js';
+import { Result } from '#shared/Result/Result';
 import { ReplayResult } from './ILedgerReplayService.js';
 
 export interface ILedgerSyncService {

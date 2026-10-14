@@ -1,7 +1,7 @@
-import { Result } from '../../../../../Shared/Result/Result.js';
-import { IFriendProvider } from '../../../Contracts/Providers/IFriendProvider.js';
-import { Handler } from '../../../Mediator/Handler.js';
-import { GetProfileByTagQuery, ProfileDto } from '../../../../../Shared/Friends/GetProfileByTag.js';
+import { Result } from '#shared/Result/Result';
+import { IFriendProvider } from '#electron/Application/Contracts/Providers/IFriendProvider';
+import { Handler } from '#electron/Application/Mediator/Handler';
+import { GetProfileByTagQuery, ProfileDto } from '#shared/Friends/GetProfileByTag';
 
 export class GetProfileByTagQueryHandler implements Handler<GetProfileByTagQuery, ProfileDto | void> {
     constructor(private readonly friendProvider: IFriendProvider) { }

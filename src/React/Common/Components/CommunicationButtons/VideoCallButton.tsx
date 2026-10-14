@@ -1,5 +1,5 @@
 ﻿import React from "react";
-import { Contact } from "../../../Models/Contact";
+import { Contact } from "@/React/Models/Contact";
 import { VideoCameraIcon } from "@phosphor-icons/react";
 
 interface VideoCallButtonProps {

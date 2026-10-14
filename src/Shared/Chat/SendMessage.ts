@@ -1,6 +1,8 @@
+import { MessageContract } from '../Models/MessageContract.js';
 import { MediaContract } from '../Models/MediaContract.js';
 
-export class SendMessageCommand implements MediatorRequest {
+export class SendMessageCommand implements MediatorRequest<MessageContract> {
+    declare readonly _response?: MessageContract;
     type = 'SendMessageCommand';
     public readonly messageId: string;
     public readonly userConnectionId: string;

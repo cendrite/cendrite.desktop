@@ -1,8 +1,8 @@
 ﻿import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { Envelope } from './Envelope.js';
-import { Result } from '../../../../Shared/Result/Result.js';
-import { ErrorMessage } from '../../../../Shared/Result/ErrorMessage.js';
-import { TokenManager } from '../../Services/TokenManager.js';
+import { Result } from '#shared/Result/Result';
+import { ErrorMessage } from '#shared/Result/ErrorMessage';
+import { TokenManager } from '#electron/Infrastructure/Services/TokenManager';
 
 export class ApiClient {
     protected api: AxiosInstance;

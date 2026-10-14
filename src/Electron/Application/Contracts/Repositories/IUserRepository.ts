@@ -1,4 +1,4 @@
-import { User } from "../../../Domain/Aggregates/User.js";
+import { User } from "#electron/Domain/Aggregates/User";
 
 export interface IUserRepository {
     create(user: User): Promise<User>;

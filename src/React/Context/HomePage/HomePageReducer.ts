@@ -1,7 +1,7 @@
-﻿import { ChatViewModel } from '../../Models/ChatViewModel.ts';
+﻿import { ChatViewModel } from '@/React/Models/ChatViewModel.ts';
 import { SelectedItem } from './HomePageContext.tsx';
-import { Contact } from '../../Models/Contact.ts';
-import { PendingContact } from '../../Models/PendingContact.ts';
+import { Contact } from '@/React/Models/Contact.ts';
+import { PendingContact } from '@/React/Models/PendingContact.ts';
 
 export enum HomePageActionType {
     SetSelectedContact = 0,

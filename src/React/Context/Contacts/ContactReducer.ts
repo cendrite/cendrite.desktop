@@ -1,4 +1,4 @@
-import { Contact } from '../../Models/Contact';
+import { Contact } from '@/React/Models/Contact';
 
 export enum ContactActionType {
     Initialize = -1,

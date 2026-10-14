@@ -1,6 +1,6 @@
 import React from 'react';
-import { MessageViewModel } from '../../../Models/MessageViewModel';
-import { useMessageService } from '../../../Common/Hooks/MessageService';
+import { MessageViewModel } from '@/React/Models/MessageViewModel';
+import { useMessageService } from '@/React/Common/Hooks/MessageService';
 
 const menuButtonClass = 'w-full text-left px-3 py-2 text-sm text-fg-muted hover:bg-surface-hover rounded-md';
 

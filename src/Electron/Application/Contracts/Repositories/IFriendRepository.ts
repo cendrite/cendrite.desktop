@@ -1,4 +1,4 @@
-import { Friend } from '../../../Domain/Aggregates/Friend.js';
+import { Friend } from '#electron/Domain/Aggregates/Friend';
 
 export interface IFriendRepository {
     create(friend: Friend): Promise<void>;

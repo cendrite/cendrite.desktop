@@ -1,4 +1,5 @@
-export class GetFriendRequestsQuery implements MediatorRequest {
+export class GetFriendRequestsQuery implements MediatorRequest<FriendRequestDto[]> {
+    declare readonly _response?: FriendRequestDto[];
     public readonly type = 'GetFriendRequestsQuery';
 }
 

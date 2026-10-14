@@ -1,14 +1,12 @@
 ﻿import React, { useEffect, useState } from 'react';
-import { delay } from '../../../../Shared/HelperFunctions.ts';
-import ToolTip from '../../../Common/Components/Utility/ToolTip.tsx';
-import { PendingContact } from '../../../Models/PendingContact.ts';
-import { usePendingContacts } from '../../../Context/PendingContact/PendingContactContext.tsx';
-import { PendingContactActionType } from '../../../Context/PendingContact/PendingContactReducer.ts';
-import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
-import { Result } from '../../../../Shared/Result/Result.ts';
-import { FriendContract } from '../../../../Shared/Models/FriendContract.ts';
-import { AcceptFriendRequestCommand } from '../../../../Shared/Friends/AcceptFriendRequest.ts';
-import { DeclineFriendRequestCommand } from '../../../../Shared/Friends/DeclineFriendRequest.ts';
+import { delay } from '@/Shared/HelperFunctions.ts';
+import ToolTip from '@/React/Common/Components/Utility/ToolTip.tsx';
+import { PendingContact } from '@/React/Models/PendingContact.ts';
+import { usePendingContacts } from '@/React/Context/PendingContact/PendingContactContext.tsx';
+import { PendingContactActionType } from '@/React/Context/PendingContact/PendingContactReducer.ts';
+import Avatar from '@/React/Common/Components/Avatar/Avatar.tsx';
+import { AcceptFriendRequestCommand } from '@/Shared/Friends/AcceptFriendRequest.ts';
+import { DeclineFriendRequestCommand } from '@/Shared/Friends/DeclineFriendRequest.ts';
 import { CaretLeftIcon, CheckIcon, ProhibitIcon, WarningIcon, XIcon } from '@phosphor-icons/react';
 
 interface PendingContactPage {
@@ -33,7 +31,7 @@ const PendingContactPage: React.FC<PendingContactPage> = ({ pendingContact, onCl
     };
 
     const handleAccept = async () => {
-        const result = await window.electron.sendRequestAsync<Result<FriendContract>>(
+        const result = await window.electron.sendRequestAsync(
             new AcceptFriendRequestCommand(pendingContact.id),
         );
         if (result.success) {
@@ -46,7 +44,7 @@ const PendingContactPage: React.FC<PendingContactPage> = ({ pendingContact, onCl
     };
 
     const handleDecline = async () => {
-        const result = await window.electron.sendRequestAsync<Result>(
+        const result = await window.electron.sendRequestAsync(
             new DeclineFriendRequestCommand(pendingContact.id),
         );
         if (result.success) {

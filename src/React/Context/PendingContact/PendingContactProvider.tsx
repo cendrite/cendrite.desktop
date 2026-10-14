@@ -1,10 +1,6 @@
 import React, { useEffect } from 'react';
-import { Result } from '../../../Shared/Result/Result';
-import { PendingContact } from '../../Models/PendingContact';
-import {
-    FriendRequestDto,
-    GetFriendRequestsQuery,
-} from '../../../Shared/Friends/GetFriendRequests';
+import { PendingContact } from '@/React/Models/PendingContact';
+import { GetFriendRequestsQuery } from '@/Shared/Friends/GetFriendRequests';
 import { useNotifications } from '../Notification/NotificationContext';
 import { useUser } from '../User/UserContext';
 import { PendingContactContext } from './PendingContactContext';
@@ -13,7 +9,7 @@ import { NotificationActionType } from '../Notification/NotificationReducer';
 import { usePendingContactEvents } from './PendingContactEvents';
 
 const getFriendRequests = async (): Promise<PendingContact[]> => {
-    const result = await window.electron.sendRequestAsync<Result<FriendRequestDto[]>>(new GetFriendRequestsQuery());
+    const result = await window.electron.sendRequestAsync(new GetFriendRequestsQuery());
 
     if (!result.success || !result.data) return [];
 

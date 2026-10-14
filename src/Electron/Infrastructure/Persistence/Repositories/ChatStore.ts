@@ -1,10 +1,10 @@
 ﻿import { Repository } from 'typeorm';
-import { Chat } from '../../../Domain/Aggregates/Chat.js';
+import { Chat } from '#electron/Domain/Aggregates/Chat';
 import { getDbContext } from '../Context/DatabaseContext.js';
-import { ChatMember } from '../../../Domain/Entities/ChatMember.js';
-import { Message } from '../../../Domain/Entities/Message.js';
-import { DeliveryStatus } from '../../../../Shared/Enums/DeliveryStatus.js';
-import { IChatStore } from '../../../Application/Contracts/Repositories/IChatStore.js';
+import { ChatMember } from '#electron/Domain/Entities/ChatMember';
+import { Message } from '#electron/Domain/Entities/Message';
+import { DeliveryStatus } from '#shared/Enums/DeliveryStatus';
+import { IChatStore } from '#electron/Application/Contracts/Repositories/IChatStore';
 
 export class ChatStore implements IChatStore {
     private readonly chatRepository: Repository<Chat>;

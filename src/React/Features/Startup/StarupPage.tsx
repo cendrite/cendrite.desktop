@@ -1,8 +1,8 @@
 ﻿import React, {useEffect} from "react";
 import Lottie from "lottie-react";
 import {useNavigate} from "react-router-dom";
-import boxAnimation from "../../Assets/Animations/box_load_animation.json";
-import { useAuthSession } from "../../Context/AuthSession/AuthSessionContext.tsx";
+import boxAnimation from "@/React/Assets/Animations/box_load_animation.json";
+import { useAuthSession } from "@/React/Context/AuthSession/AuthSessionContext.tsx";
 
 const StartupPage: React.FC = () => {
     const {sessionId, loading} = useAuthSession();

@@ -1,19 +1,19 @@
 import { useCallback } from 'react';
-import { ChatViewModel } from '../../Models/ChatViewModel';
+import { ChatViewModel } from '@/React/Models/ChatViewModel';
 import { ChatAction, ChatActionType } from './ChatReducer';
 import { NotificationActionType } from '../Notification/NotificationReducer';
 import { useContacts } from '../Contacts/ContactContext';
 import { useNotifications } from '../Notification/NotificationContext';
 import { getChat, getChatByMemberId } from './ChatSelectors';
 import { useUser } from '../User/UserContext';
-import { ChatService } from '../../Common/Services/ChatService';
+import { ChatService } from '@/React/Common/Services/ChatService';
 import React from 'react';
 import { HomePageAction, HomePageActionType } from '../HomePage/HomePageReducer';
-import { MessageViewModel } from '../../Models/MessageViewModel';
-import { ChangeEvent } from '../../../Shared/Events/ChangeEvent';
-import { FriendDeletedEvent } from '../../../Shared/Events/EventData';
-import { ChangeEventType } from '../../../Shared/Events/ChangeEventType';
-import { useMessageEdit, useSignalEvent } from '../../Common/Utilities';
+import { MessageViewModel } from '@/React/Models/MessageViewModel';
+import { ChangeEvent } from '@/Shared/Events/ChangeEvent';
+import { FriendDeletedEvent } from '@/Shared/Events/EventData';
+import { ChangeEventType } from '@/Shared/Events/ChangeEventType';
+import { useMessageEdit, useSignalEvent } from '@/React/Common/Utilities';
 
 export function useChatEvents(
     chats: ChatViewModel[],

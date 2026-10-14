@@ -1,22 +1,22 @@
 ﻿import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Lottie from 'lottie-react';
-import boxAnimation from '../../Assets/Animations/box_load_animation.json';
-import { useUser } from '../../Context/User/UserContext.tsx';
-import { useAuthSession } from '../../Context/AuthSession/AuthSessionContext.tsx';
-import { useContacts } from '../../Context/Contacts/ContactContext.tsx';
-import { useChatContext } from '../../Context/Chat/ChatContext.tsx';
-import { usePendingContacts } from '../../Context/PendingContact/PendingContactContext.tsx';
-import { useNotifications } from '../../Context/Notification/NotificationContext.tsx';
-import { AuthSessionActionType } from '../../Context/AuthSession/AuthSessionReducer.ts';
-import { ContactActionType } from '../../Context/Contacts/ContactReducer.ts';
-import { PendingContactActionType } from '../../Context/PendingContact/PendingContactReducer.ts';
-import { ChatActionType } from '../../Context/Chat/ChatReducer.ts';
-import { NotificationActionType } from '../../Context/Notification/NotificationReducer.ts';
-import { UserActionType } from '../../Context/User/UserReducer.ts';
-import { useHomePage } from '../../Context/HomePage/HomePageContext.tsx';
-import { HomePageActionType } from '../../Context/HomePage/HomePageReducer.ts';
-import { LogoutCommand } from '../../../Shared/Authentication/Logout.ts';
+import boxAnimation from '@/React/Assets/Animations/box_load_animation.json';
+import { useUser } from '@/React/Context/User/UserContext.tsx';
+import { useAuthSession } from '@/React/Context/AuthSession/AuthSessionContext.tsx';
+import { useContacts } from '@/React/Context/Contacts/ContactContext.tsx';
+import { useChatContext } from '@/React/Context/Chat/ChatContext.tsx';
+import { usePendingContacts } from '@/React/Context/PendingContact/PendingContactContext.tsx';
+import { useNotifications } from '@/React/Context/Notification/NotificationContext.tsx';
+import { AuthSessionActionType } from '@/React/Context/AuthSession/AuthSessionReducer.ts';
+import { ContactActionType } from '@/React/Context/Contacts/ContactReducer.ts';
+import { PendingContactActionType } from '@/React/Context/PendingContact/PendingContactReducer.ts';
+import { ChatActionType } from '@/React/Context/Chat/ChatReducer.ts';
+import { NotificationActionType } from '@/React/Context/Notification/NotificationReducer.ts';
+import { UserActionType } from '@/React/Context/User/UserReducer.ts';
+import { useHomePage } from '@/React/Context/HomePage/HomePageContext.tsx';
+import { HomePageActionType } from '@/React/Context/HomePage/HomePageReducer.ts';
+import { LogoutCommand } from '@/Shared/Authentication/Logout.ts';
 
 const LogoutPage: React.FC = () => {
     const navigate = useNavigate();

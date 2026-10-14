@@ -1,15 +1,15 @@
-import { Result } from "../../../../../Shared/Result/Result.js";
-import { Chat } from "../../../../Domain/Aggregates/Chat.js";
-import { Message } from "../../../../Domain/Entities/Message.js";
-import { ChatContract } from "../../../../../Shared/Models/ChatContract.js";
-import { ChatMemberContract } from "../../../../../Shared/Models/ChatMemberContract.js";
-import { MediaContract } from "../../../../../Shared/Models/MediaContract.js";
-import { MessageContract } from "../../../../../Shared/Models/MessageContract.js";
-import { IChatStore } from "../../../Contracts/Repositories/IChatStore.js";
-import { IGroupRepository } from "../../../Contracts/Repositories/IGroupRepository.js";
-import { IMediaStore } from "../../../Contracts/Repositories/IMediaStore.js";
-import { Handler } from "../../../Mediator/Handler.js";
-import { GetChatsQuery } from "../../../../../Shared/Chat/GetChats.js";
+import { Result } from "#shared/Result/Result";
+import { Chat } from "#electron/Domain/Aggregates/Chat";
+import { Message } from "#electron/Domain/Entities/Message";
+import { ChatContract } from "#shared/Models/ChatContract";
+import { ChatMemberContract } from "#shared/Models/ChatMemberContract";
+import { MediaContract } from "#shared/Models/MediaContract";
+import { MessageContract } from "#shared/Models/MessageContract";
+import { IChatStore } from "#electron/Application/Contracts/Repositories/IChatStore";
+import { IGroupRepository } from "#electron/Application/Contracts/Repositories/IGroupRepository";
+import { IMediaStore } from "#electron/Application/Contracts/Repositories/IMediaStore";
+import { Handler } from "#electron/Application/Mediator/Handler";
+import { GetChatsQuery } from "#shared/Chat/GetChats";
 
 export class GetChatsQueryHandler implements Handler<GetChatsQuery, ChatContract[]> {
     constructor(

@@ -1,5 +1,5 @@
 import { KEMPublicKey, PreKeyBundle as SignalPreKeyBundle, PublicKey } from '@signalapp/libsignal-client';
-import { PreKeyBundle } from '../../Application/Contracts/Providers/IKeyStoreProvider.js';
+import { PreKeyBundle } from '#electron/Application/Contracts/Providers/IKeyStoreProvider';
 
 /**
  * Maps a pre-key bundle fetched from the keystore (base64 fields) to a libsignal PreKeyBundle.

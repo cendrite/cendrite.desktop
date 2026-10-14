@@ -1,5 +1,5 @@
 import React from "react";
-import { User } from "../../Models/User";
+import { User } from "@/React/Models/User";
 import { UserAction } from "./UserReducer";
 
 interface UserContextType {

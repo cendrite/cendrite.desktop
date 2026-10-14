@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import ParentPane from './ParentPane';
 import SidePanel from './SidePanel/SidePanel';
 import MainContent from './MainContent';
-import { useHomePage } from '../../Context/HomePage/HomePageContext.tsx';
-import { HomePageActionType } from '../../Context/HomePage/HomePageReducer.ts';
-import { Contact } from '../../Models/Contact.ts';
+import { useHomePage } from '@/React/Context/HomePage/HomePageContext.tsx';
+import { HomePageActionType } from '@/React/Context/HomePage/HomePageReducer.ts';
+import { Contact } from '@/React/Models/Contact.ts';
 
 const HomePage: React.FC = () => {
     const { selectedItem, homeDispatch } = useHomePage();

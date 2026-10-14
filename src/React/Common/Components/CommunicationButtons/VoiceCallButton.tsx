@@ -1,5 +1,5 @@
 ﻿import React from "react";
-import { Contact } from "../../../Models/Contact";
+import { Contact } from "@/React/Models/Contact";
 import { PhoneIcon } from "@phosphor-icons/react";
 
 interface VoiceCallButtonProps {

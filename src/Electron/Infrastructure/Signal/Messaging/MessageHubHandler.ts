@@ -2,8 +2,8 @@
 import { IHubHandler } from '../IHubHandler.js';
 import { HubKey } from '../SignalRHubPath.js';
 import { HubMethods } from '../HubMethods.js';
-import { IMessageHubHandler, ServerMessage } from '../../../Application/Contracts/Services/IMessageHubHandler.js';
-import { DeliveryStatus } from '../../../../Shared/Enums/DeliveryStatus.js';
+import { IMessageHubHandler, ServerMessage } from '#electron/Application/Contracts/Services/IMessageHubHandler';
+import { DeliveryStatus } from '#shared/Enums/DeliveryStatus';
 import { IMessageReceiver } from './MessageReceiver.js';
 
 type ServerMessageDto = {

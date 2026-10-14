@@ -1,13 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 import SearchBar from '../SearchBar.tsx';
-import PublicUserProfileCard from '../../../Common/Components/Cards/PublicUserProfileCard.tsx';
-import { useUser } from '../../../Context/User/UserContext.tsx';
-import { Result } from '../../../../Shared/Result/Result.ts';
+import PublicUserProfileCard from '@/React/Common/Components/Cards/PublicUserProfileCard.tsx';
+import { useUser } from '@/React/Context/User/UserContext.tsx';
 import {
     GetProfileByTagQuery,
     ProfileDto,
-} from '../../../../Shared/Friends/GetProfileByTag.ts';
+} from '@/Shared/Friends/GetProfileByTag.ts';
 import { XIcon } from '@phosphor-icons/react';
 
 interface SearchForUserModalProps {
@@ -45,7 +44,7 @@ const SearchForUserModal: React.FC<SearchForUserModalProps> = ({ isOpen, onClose
         let cancelled = false;
 
         const timeoutId = setTimeout(async () => {
-            const result = await window.electron.sendRequestAsync<Result<ProfileDto | void>>(
+            const result = await window.electron.sendRequestAsync(
                 new GetProfileByTagQuery(searchQuery),
             );
 

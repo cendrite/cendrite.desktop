@@ -1,21 +1,21 @@
-import { ErrorMessage } from '../../../../../Shared/Result/ErrorMessage.js';
-import { Result } from '../../../../../Shared/Result/Result.js';
-import { Device } from '../../../../Domain/Entities/Device.js';
-import { INonceSigner } from '../../../Contracts/Services/INonceSigner.js';
-import { ITokenManager } from '../../../Contracts/Services/ITokenManager.js';
-import { IDeviceRepository } from '../../../Contracts/Repositories/IDeviceRepository.js';
-import { IAuthenticationProvider } from '../../../Contracts/Providers/IAuthenticationProvider.js';
-import { IDeviceProvider } from '../../../Contracts/Providers/IDeviceProvider.js';
-import { Handler } from '../../../Mediator/Handler.js';
-import { VerifyLoginCommand } from '../../../../../Shared/Authentication/VerifyLogin.js';
-import { IKeyGenerator } from '../../../Contracts/Services/IKeyGenerator.js';
-import { ISignalManager } from '../../../Contracts/Services/ISignalManager.js';
-import { IUserRepository } from '../../../Contracts/Repositories/IUserRepository.js';
-import { IUserProvider } from '../../../Contracts/Providers/IUserProvider.js';
-import { UserContract } from '../../../../../Shared/Models/UserContract.js';
-import { User } from '../../../../Domain/Aggregates/User.js';
-import { UserConnectionId } from '../../../../Domain/Entities/UserConnectionId.js';
-import { IPump } from '../../../Contracts/Services/IPump.js';
+import { ErrorMessage } from '#shared/Result/ErrorMessage';
+import { Result } from '#shared/Result/Result';
+import { Device } from '#electron/Domain/Entities/Device';
+import { INonceSigner } from '#electron/Application/Contracts/Services/INonceSigner';
+import { ITokenManager } from '#electron/Application/Contracts/Services/ITokenManager';
+import { IDeviceRepository } from '#electron/Application/Contracts/Repositories/IDeviceRepository';
+import { IAuthenticationProvider } from '#electron/Application/Contracts/Providers/IAuthenticationProvider';
+import { IDeviceProvider } from '#electron/Application/Contracts/Providers/IDeviceProvider';
+import { Handler } from '#electron/Application/Mediator/Handler';
+import { VerifyLoginCommand } from '#shared/Authentication/VerifyLogin';
+import { IKeyGenerator } from '#electron/Application/Contracts/Services/IKeyGenerator';
+import { ISignalManager } from '#electron/Application/Contracts/Services/ISignalManager';
+import { IUserRepository } from '#electron/Application/Contracts/Repositories/IUserRepository';
+import { IUserProvider } from '#electron/Application/Contracts/Providers/IUserProvider';
+import { UserContract } from '#shared/Models/UserContract';
+import { User } from '#electron/Domain/Aggregates/User';
+import { UserConnectionId } from '#electron/Domain/Entities/UserConnectionId';
+import { IPump } from '#electron/Application/Contracts/Services/IPump';
 
 export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, UserContract> {
     constructor(

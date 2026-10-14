@@ -1,4 +1,5 @@
-export class CreateFriendCommand implements MediatorRequest {
+export class CreateFriendCommand implements MediatorRequest<void> {
+    declare readonly _response?: void;
     type = 'CreateFriendCommand';
     username!: string;
     displayName: string | null;

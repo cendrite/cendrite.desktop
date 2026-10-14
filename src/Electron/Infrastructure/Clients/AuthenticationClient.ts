@@ -1,4 +1,4 @@
-import { Result } from '../../../Shared/Result/Result.js';
+import { Result } from '#shared/Result/Result';
 import {
     IAuthenticationProvider,
     LoginRequest,
@@ -9,7 +9,7 @@ import {
     VerifyLoginRequest,
     VerifyLoginResponse,
     VerifyUserRequest,
-} from '../../Application/Contracts/Providers/IAuthenticationProvider.js';
+} from '#electron/Application/Contracts/Providers/IAuthenticationProvider';
 import { ApiClient } from './Base/ApiClient.js';
 
 export class AuthenticationClient implements IAuthenticationProvider {

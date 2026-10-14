@@ -1,7 +1,7 @@
-import { ISettingsRegistry } from '../../Application/Contracts/Services/ISettingsRegistry.js';
-import { ISettingsRepository } from '../../Application/Contracts/Repositories/ISettingsRepository.js';
-import { SettingsSection } from '../../../Shared/Enums/SettingsSection.js';
-import { settingsScopes } from '../../Application/Features/Settings/SettingsScope.js';
+import { ISettingsRegistry } from '#electron/Application/Contracts/Services/ISettingsRegistry';
+import { ISettingsRepository } from '#electron/Application/Contracts/Repositories/ISettingsRepository';
+import { SettingsSection } from '#shared/Enums/SettingsSection';
+import { settingsScopes } from '#electron/Application/Features/Settings/SettingsScope';
 import { AppearanceSettingsRepository } from '../Persistence/Repositories/AppearanceSettingsRepository.js';
 
 export class SettingsRegistry implements ISettingsRegistry {

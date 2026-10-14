@@ -1,5 +1,5 @@
-import { Group } from '../../../Domain/Entities/Group.js';
-import { GroupLifecycle } from '../../../Domain/Enums/GroupLifecycle.js';
+import { Group } from '#electron/Domain/Entities/Group';
+import { GroupLifecycle } from '#electron/Domain/Enums/GroupLifecycle';
 
 export interface IGroupRepository {
     create(group: Group): Promise<void>;

@@ -1,7 +1,7 @@
-import { Result } from '../../../../../Shared/Result/Result.js';
-import { IAuthenticationProvider } from '../../../Contracts/Providers/IAuthenticationProvider.js';
-import { Handler } from '../../../Mediator/Handler.js';
-import { ResendVerificationCodeCommand } from '../../../../../Shared/Authentication/ResendVerificationCode.js';
+import { Result } from '#shared/Result/Result';
+import { IAuthenticationProvider } from '#electron/Application/Contracts/Providers/IAuthenticationProvider';
+import { Handler } from '#electron/Application/Mediator/Handler';
+import { ResendVerificationCodeCommand } from '#shared/Authentication/ResendVerificationCode';
 
 export class ResendVerificationCodeCommandHandler implements Handler<ResendVerificationCodeCommand> {
     constructor(private readonly authenticationProvider: IAuthenticationProvider) { }

@@ -1,5 +1,5 @@
-import { Result } from "../../../Shared/Result/Result.js";
-import { GetUserProfileRequest, GetUserProfileResponse, IUserProvider, UpdateAvatarRequest, UpdateAvatarResponse } from "../../Application/Contracts/Providers/IUserProvider.js";
+import { Result } from "#shared/Result/Result";
+import { GetUserProfileRequest, GetUserProfileResponse, IUserProvider, UpdateAvatarRequest, UpdateAvatarResponse } from "#electron/Application/Contracts/Providers/IUserProvider";
 import { ApiClient } from "./Base/ApiClient.js";
 
 export class UserClient implements IUserProvider {

@@ -1,6 +1,6 @@
-import { Chat } from '../../../Domain/Aggregates/Chat.js';
-import { Message } from '../../../Domain/Entities/Message.js';
-import { DeliveryStatus } from '../../../../Shared/Enums/DeliveryStatus.js';
+import { Chat } from '#electron/Domain/Aggregates/Chat';
+import { Message } from '#electron/Domain/Entities/Message';
+import { DeliveryStatus } from '#shared/Enums/DeliveryStatus';
 
 export interface IChatStore {
     /**

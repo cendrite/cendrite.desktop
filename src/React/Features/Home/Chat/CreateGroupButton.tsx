@@ -1,4 +1,4 @@
-import { Contact } from '../../../Models/Contact';
+import { Contact } from '@/React/Models/Contact';
 import GroupModal from '../Modals/GroupModal';
 import React from 'react';
 import { UsersThreeIcon } from '@phosphor-icons/react';

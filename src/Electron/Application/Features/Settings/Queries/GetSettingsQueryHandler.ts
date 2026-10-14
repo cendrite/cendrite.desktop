@@ -1,11 +1,12 @@
-import { Handler } from '../../../Mediator/Handler.js';
-import { Result } from '../../../../../Shared/Result/Result.js';
-import { ISettingsRegistry } from '../../../Contracts/Services/ISettingsRegistry.js';
-import { SettingsSection } from '../../../../../Shared/Enums/SettingsSection.js';
-import { SettingsDocument } from '../../../../../Shared/Settings/SettingsDocument.js';
+import { Handler } from '#electron/Application/Mediator/Handler';
+import { Result } from '#shared/Result/Result';
+import { ISettingsRegistry } from '#electron/Application/Contracts/Services/ISettingsRegistry';
+import { SettingsSection } from '#shared/Enums/SettingsSection';
+import { SettingsDocument } from '#shared/Settings/SettingsDocument';
 import { parseSettings } from '../SettingsDefaults.js';
 
-export class GetSettingsQuery implements MediatorRequest {
+export class GetSettingsQuery implements MediatorRequest<SettingsDocument> {
+    declare readonly _response?: SettingsDocument;
     public readonly type = 'GetSettingsQuery';
     constructor(public readonly section: SettingsSection) {}
 }

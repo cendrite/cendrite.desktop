@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Media } from "../../../Models/Media";
+import { Media } from "@/React/Models/Media";
 
 interface MediaBoxProps {
     media: Media[];

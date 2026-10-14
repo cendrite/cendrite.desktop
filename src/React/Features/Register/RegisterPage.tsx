@@ -4,19 +4,18 @@ import {Formik, Form, FormikHelpers} from "formik";
 import {RegisterFieldName, RegisterFormValues} from "./Form/RegisterFormValues";
 import {initialRegisterValues} from "./Form/InitialRegisterFormValues";
 import {RegisterValidationSchema} from "./Validation/RegisterFormValidation";
-import {Result} from "../../../Shared/Result/Result.ts";
-import {RegisterCommand, RegisterResponse} from "../../../Shared/Authentication/Register.ts";
-import {useOnboarding} from "../../Context/OnboardingContext.tsx";
-import ErrorTooltip from "../../Common/Components/Utility/ErrorToolTip.tsx";
-import InputBox from "../../Common/Components/Form/InputBox.tsx";
-import FormButton from "../../Common/Components/Form/FormButton.tsx";
+import { RegisterCommand } from "@/Shared/Authentication/Register.ts";
+import {useOnboarding} from "@/React/Context/OnboardingContext.tsx";
+import ErrorTooltip from "@/React/Common/Components/Utility/ErrorToolTip.tsx";
+import InputBox from "@/React/Common/Components/Form/InputBox.tsx";
+import FormButton from "@/React/Common/Components/Form/FormButton.tsx";
 
 const RegisterPage: React.FC = () => {
     const navigate = useNavigate();
     const onBoardingData = useOnboarding();
 
     const handleSubmit = async (values: RegisterFormValues, {setFieldError}: FormikHelpers<RegisterFormValues>) => {
-        const result = await window.electron.sendRequestAsync<Result<RegisterResponse>>(
+        const result = await window.electron.sendRequestAsync(
             new RegisterCommand(values.username, values.email, values.password),
         );
         if (result.success) {

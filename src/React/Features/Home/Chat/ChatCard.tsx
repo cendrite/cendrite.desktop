@@ -1,10 +1,10 @@
 ﻿import React from 'react';
-import { ChatViewModel } from '../../../Models/ChatViewModel.ts';
-import { useHomePage } from '../../../Context/HomePage/HomePageContext.tsx';
-import { HomePageActionType } from '../../../Context/HomePage/HomePageReducer.ts';
-import { useUser } from '../../../Context/User/UserContext.tsx';
-import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
-import AvatarStack from '../../../Common/Components/Avatar/AvatarStack.tsx';
+import { ChatViewModel } from '@/React/Models/ChatViewModel.ts';
+import { useHomePage } from '@/React/Context/HomePage/HomePageContext.tsx';
+import { HomePageActionType } from '@/React/Context/HomePage/HomePageReducer.ts';
+import { useUser } from '@/React/Context/User/UserContext.tsx';
+import Avatar from '@/React/Common/Components/Avatar/Avatar.tsx';
+import AvatarStack from '@/React/Common/Components/Avatar/AvatarStack.tsx';
 
 interface ChatCardProps {
     chat: ChatViewModel;

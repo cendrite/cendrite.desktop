@@ -1,4 +1,4 @@
-import { Contact } from "../../Models/Contact";
+import { Contact } from "@/React/Models/Contact";
 
 export function getById(contacts: Contact[], id: string): Contact | undefined {
     return contacts.find(contact => contact.id === id);

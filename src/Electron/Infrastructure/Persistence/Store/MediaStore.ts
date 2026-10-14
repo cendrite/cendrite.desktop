@@ -2,7 +2,7 @@ import { app } from 'electron';
 import path from 'path';
 import { writeFile, readFile, unlink } from 'fs/promises';
 import { mkdirSync } from 'fs';
-import { IMediaStore } from '../../../Application/Contracts/Repositories/IMediaStore.js';
+import { IMediaStore } from '#electron/Application/Contracts/Repositories/IMediaStore';
 
 export class MediaStore implements IMediaStore {
     private path = path.join(app.getPath('userData'), 'media');

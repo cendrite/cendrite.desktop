@@ -1,10 +1,10 @@
-import { Result } from '../../../../../Shared/Result/Result.js';
-import { DeliveryStatusUpdatedEvent } from '../../../../Domain/Events/DeliveryStatusUpdatedEvent.js';
-import { IEventRepository } from '../../../Contracts/Providers/IEventRepository.js';
-import { IChatStore } from '../../../Contracts/Repositories/IChatStore.js';
-import { IPump } from '../../../Contracts/Services/IPump.js';
-import { Handler } from '../../../Mediator/Handler.js';
-import { UpdateDeliveryStatusCommand } from '../../../../../Shared/Chat/UpdateDeliveryStatus.js';
+import { Result } from '#shared/Result/Result';
+import { DeliveryStatusUpdatedEvent } from '#electron/Domain/Events/DeliveryStatusUpdatedEvent';
+import { IEventRepository } from '#electron/Application/Contracts/Providers/IEventRepository';
+import { IChatStore } from '#electron/Application/Contracts/Repositories/IChatStore';
+import { IPump } from '#electron/Application/Contracts/Services/IPump';
+import { Handler } from '#electron/Application/Mediator/Handler';
+import { UpdateDeliveryStatusCommand } from '#shared/Chat/UpdateDeliveryStatus';
 import { v4 as uuid } from 'uuid';
 
 export class UpdateDeliveryStatusCommandHandler implements Handler<UpdateDeliveryStatusCommand> {

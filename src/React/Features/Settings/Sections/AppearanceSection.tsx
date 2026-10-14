@@ -1,7 +1,7 @@
 import React from 'react';
 import { Description, Label, Radio, RadioGroup } from '@headlessui/react';
-import { Theme } from '../../../../Shared/Theme.ts';
-import { useTheme } from '../../../Context/Theme/ThemeContext.tsx';
+import { Theme } from '@/Shared/Theme.ts';
+import { useTheme } from '@/React/Context/Theme/ThemeContext.tsx';
 import ThemePreview from './ThemePreview.tsx';
 import { CheckCircleIcon } from '@phosphor-icons/react';
 

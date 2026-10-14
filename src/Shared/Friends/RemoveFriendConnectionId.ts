@@ -1,5 +1,6 @@
 ﻿
-export class RemoveFriendConnectionIdCommand implements MediatorRequest {
+export class RemoveFriendConnectionIdCommand implements MediatorRequest<void> {
+    declare readonly _response?: void;
     type = "RemoveFriendConnectionIdCommand";
     id: string;
     connectionId: string[];

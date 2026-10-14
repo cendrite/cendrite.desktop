@@ -1,8 +1,8 @@
-import { ITokenProvider } from '../../Application/Contracts/Providers/ITokenProvider.js';
-import { ITokenManager } from '../../Application/Contracts/Services/ITokenManager.js';
-import { RefreshToken } from '../../Domain/Entities/RefreshToken.js';
+import { ITokenProvider } from '#electron/Application/Contracts/Providers/ITokenProvider';
+import { ITokenManager } from '#electron/Application/Contracts/Services/ITokenManager';
+import { RefreshToken } from '#electron/Domain/Entities/RefreshToken';
 import { IRefreshTokenRepository } from '../Interfaces/IRefreshTokenRepository.js';
-import { INonceSigner } from '../../Application/Contracts/Services/INonceSigner.js';
+import { INonceSigner } from '#electron/Application/Contracts/Services/INonceSigner';
 import { NonceSigner } from './NonceSigner.js';
 
 export interface Tokens {

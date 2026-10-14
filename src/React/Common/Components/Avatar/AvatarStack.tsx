@@ -1,6 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
-import { ChatMemberViewModel } from '../../../Models/ChatMemberViewModel.ts';
+import { ChatMemberViewModel } from '@/React/Models/ChatMemberViewModel.ts';
 import Avatar from './Avatar.tsx';
 
 interface AvatarStackProps {

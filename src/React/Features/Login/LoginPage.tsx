@@ -3,19 +3,18 @@ import { Form, Formik, FormikHelpers } from 'formik';
 import { LoginFormValidation } from './Validation/LoginFormValidation';
 import { InitialFormValues, LoginFieldName, LoginFormValues } from './FormValues/LoginFormValues';
 import React from 'react';
-import { useOnboarding } from '../../Context/OnboardingContext.tsx';
-import ErrorTooltip from '../../Common/Components/Utility/ErrorToolTip.tsx';
-import InputBox from '../../Common/Components/Form/InputBox.tsx';
-import FormButton from '../../Common/Components/Form/FormButton.tsx';
-import { LoginResponse, LoginCommand } from '../../../Shared/Authentication/Login.ts';
-import { Result } from '../../../Shared/Result/Result.ts';
+import { useOnboarding } from '@/React/Context/OnboardingContext.tsx';
+import ErrorTooltip from '@/React/Common/Components/Utility/ErrorToolTip.tsx';
+import InputBox from '@/React/Common/Components/Form/InputBox.tsx';
+import FormButton from '@/React/Common/Components/Form/FormButton.tsx';
+import { LoginCommand } from '@/Shared/Authentication/Login.ts';
 
 const LoginPage: React.FC = () => {
     const navigate = useNavigate();
     const onboardingData = useOnboarding();
 
     const handleLogin = async (values: LoginFormValues, { setFieldError }: FormikHelpers<LoginFormValues>) => {
-        const result = await window.electron.sendRequestAsync<Result<LoginResponse>>(
+        const result = await window.electron.sendRequestAsync(
             new LoginCommand(values.email, values.password),
         );
 

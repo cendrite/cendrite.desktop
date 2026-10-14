@@ -2,7 +2,7 @@
 import { ChatActionType, chatReducer } from './ChatReducer.ts';
 import { ChatContext, initialChatState } from './ChatContext.tsx';
 import { useChatEvents } from './ChatEvents.ts';
-import { ChatService } from '../../Common/Services/ChatService.ts';
+import { ChatService } from '@/React/Common/Services/ChatService.ts';
 import { useContacts } from '../Contacts/ContactContext.tsx';
 import { useHomePage } from '../HomePage/HomePageContext.tsx';
 

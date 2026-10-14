@@ -1,7 +1,7 @@
-import { Result } from '../../../../../Shared/Result/Result.js';
-import { IChatStore } from '../../../Contracts/Repositories/IChatStore.js';
-import { Handler } from '../../../Mediator/Handler.js';
-import { DeleteChatCommand } from '../../../../../Shared/Chat/DeleteChat.js';
+import { Result } from '#shared/Result/Result';
+import { IChatStore } from '#electron/Application/Contracts/Repositories/IChatStore';
+import { Handler } from '#electron/Application/Mediator/Handler';
+import { DeleteChatCommand } from '#shared/Chat/DeleteChat';
 
 export class DeleteChatCommandHandler implements Handler<DeleteChatCommand> {
     constructor(private readonly chatStore: IChatStore) { }

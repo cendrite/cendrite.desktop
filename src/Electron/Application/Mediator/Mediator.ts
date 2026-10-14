@@ -1,31 +1,20 @@
 import { AwilixContainer } from 'awilix';
-import { ErrorMessage } from '../../../Shared/Result/ErrorMessage.js';
-import { Result } from '../../../Shared/Result/Result.js';
+import { ErrorMessage } from '#shared/Result/ErrorMessage';
+import { Result } from '#shared/Result/Result';
 import { Handler } from './Handler.js';
-import { Cradle } from '../../Container.js';
+import { Cradle } from '#electron/Container';
 
 export class Mediator {
     constructor(private readonly container: AwilixContainer<Cradle>) { }
 
-    private _handlers = new Map<string, Handler<MediatorRequest, any | void>>();
+    public async send<TResponse>(request: MediatorRequest<TResponse>): Promise<Result<TResponse>> {
+        const key = this.handlerKey(request);
 
-    public registerHandler<TRequest extends MediatorRequest, TResponse>(
-        requestType: string,
-        handler: Handler<TRequest, TResponse>,
-    ): void {
-        this._handlers.set(requestType, handler);
-    }
-
-    public async send<TRequest extends MediatorRequest, TResponse>(request: TRequest): Promise<Result<TResponse>> {
-        const key = this.getRequestKey(request);
-
-        const handler = this.container.hasRegistration(key)
-            ? this.container.resolve<Handler<TRequest, TResponse>>(key)
-            : (this._handlers.get(request.type) as Handler<TRequest, TResponse> | undefined);
-
-        if (!handler) {
+        if (!this.container.hasRegistration(key)) {
             throw new Error(`No handler registered for request type ${request.type}`);
         }
+
+        const handler = this.container.resolve<Handler<MediatorRequest<TResponse>, TResponse>>(key);
 
         try {
             return await handler.handle(request);
@@ -35,7 +24,7 @@ export class Mediator {
         }
     }
 
-    public getRequestKey(request: MediatorRequest): string {
+    private handlerKey(request: MediatorRequest): string {
         return request.type.charAt(0).toLowerCase() + request.type.slice(1) + 'Handler';
     }
 }

@@ -1,5 +1,5 @@
 ﻿import React from "react";
-import {ChatViewModel} from "../../Models/ChatViewModel.ts";
+import {ChatViewModel} from "@/React/Models/ChatViewModel.ts";
 import {ChatAction} from "./ChatReducer.ts";
 import {getChatById, getChatByMemberId} from "./ChatSelectors.ts";
 

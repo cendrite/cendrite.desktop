@@ -1,4 +1,4 @@
-import { User } from "../../Models/User";
+import { User } from "@/React/Models/User";
 
 export enum UserActionType {
     Initialize = -1,

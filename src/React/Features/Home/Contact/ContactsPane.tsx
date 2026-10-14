@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import SearchForUserModal from '../Modals/SearchForUserModal.tsx';
 import ContactListItem from './ContactListItem.tsx';
 import PendingContactListItem from './PendingContactListItem.tsx';
-import NotificationBadge from '../../../Context/Notification/NotificationBadge.tsx';
-import { useContacts } from '../../../Context/Contacts/ContactContext.tsx';
-import { Contact } from '../../../Models/Contact.ts';
-import { usePendingContacts } from '../../../Context/PendingContact/PendingContactContext.tsx';
+import NotificationBadge from '@/React/Context/Notification/NotificationBadge.tsx';
+import { useContacts } from '@/React/Context/Contacts/ContactContext.tsx';
+import { Contact } from '@/React/Models/Contact.ts';
+import { usePendingContacts } from '@/React/Context/PendingContact/PendingContactContext.tsx';
 import { BellRingingIcon, UserPlusIcon } from '@phosphor-icons/react';
 
 export const ContactsPane: React.FC = () => {

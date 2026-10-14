@@ -1,8 +1,8 @@
-import { Handler } from '../../../Mediator/Handler.js';
-import { Result } from '../../../../../Shared/Result/Result.js';
-import { ISettingsRegistry } from '../../../Contracts/Services/ISettingsRegistry.js';
-import { UpdateSettingsCommand } from '../../../../../Shared/Settings/UpdateSettings.js';
-import { SettingsDocument } from '../../../../../Shared/Settings/SettingsDocument.js';
+import { Handler } from '#electron/Application/Mediator/Handler';
+import { Result } from '#shared/Result/Result';
+import { ISettingsRegistry } from '#electron/Application/Contracts/Services/ISettingsRegistry';
+import { UpdateSettingsCommand } from '#shared/Settings/UpdateSettings';
+import { SettingsDocument } from '#shared/Settings/SettingsDocument';
 import { parseSettings } from '../SettingsDefaults.js';
 
 export class UpdateSettingsCommandHandler implements Handler<UpdateSettingsCommand, SettingsDocument> {

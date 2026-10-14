@@ -1,5 +1,5 @@
 import React from 'react';
-import { PendingContact } from '../../Models/PendingContact';
+import { PendingContact } from '@/React/Models/PendingContact';
 import { PendingContactAction } from './PendingContactReducer';
 
 export interface PendingContactContextType {

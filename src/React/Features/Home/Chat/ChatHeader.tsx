@@ -1,11 +1,11 @@
 ﻿import React from 'react';
-import { ChatViewModel } from '../../../Models/ChatViewModel.ts';
-import VoiceCallButton from '../../../Common/Components/CommunicationButtons/VoiceCallButton.tsx';
-import VideoCallButton from '../../../Common/Components/CommunicationButtons/VideoCallButton.tsx';
+import { ChatViewModel } from '@/React/Models/ChatViewModel.ts';
+import VoiceCallButton from '@/React/Common/Components/CommunicationButtons/VoiceCallButton.tsx';
+import VideoCallButton from '@/React/Common/Components/CommunicationButtons/VideoCallButton.tsx';
 import ChatSettingsMenu from './ChatSettingsMenu.tsx';
-import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
+import Avatar from '@/React/Common/Components/Avatar/Avatar.tsx';
 import CreateGroupButton from './CreateGroupButton.tsx';
-import AvatarStack from '../../../Common/Components/Avatar/AvatarStack.tsx';
+import AvatarStack from '@/React/Common/Components/Avatar/AvatarStack.tsx';
 import { CaretLeftIcon } from '@phosphor-icons/react';
 
 interface ChatHeaderProps {

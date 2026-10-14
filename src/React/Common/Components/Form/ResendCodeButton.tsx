@@ -1,7 +1,6 @@
 ﻿import React, {useState} from "react";
-import {CodeType} from "../../../../Shared/Enums/CodeType.ts";
-import {ResendVerificationCodeCommand} from "../../../../Shared/Authentication/ResendVerificationCode.ts";
-import {Result} from "../../../../Shared/Result/Result.ts";
+import {CodeType} from "@/Shared/Enums/CodeType.ts";
+import {ResendVerificationCodeCommand} from "@/Shared/Authentication/ResendVerificationCode.ts";
 
 interface ResendCodeButtonProps {
     userId: string;
@@ -17,7 +16,7 @@ const ResendCodeButton: React.FC<ResendCodeButtonProps> = ({userId, codeType}) =
         setIsCooldown(true);
         setCooldownTime(5);
 
-        const resendCodeResult = await window.electron.sendRequestAsync<Result>(
+        const resendCodeResult = await window.electron.sendRequestAsync(
             new ResendVerificationCodeCommand(userId, codeType),
         );
 

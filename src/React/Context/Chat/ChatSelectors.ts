@@ -1,4 +1,4 @@
-﻿import { ChatViewModel } from '../../Models/ChatViewModel.ts';
+﻿import { ChatViewModel } from '@/React/Models/ChatViewModel.ts';
 
 export function getChatByMemberId(chats: ChatViewModel[], memberId: string): ChatViewModel | null {
     const singleMemberChats = chats.filter((chat) => chat.isGroup === false);

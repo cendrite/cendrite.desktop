@@ -1,7 +1,7 @@
-﻿import {User} from "../../../Domain/Aggregates/User.js";
+﻿import {User} from "#electron/Domain/Aggregates/User";
 import {EntitySchema} from "typeorm";
 import {BaseSchema} from "./BaseSchema.js";
-import {UserConnectionId} from "../../../Domain/Entities/UserConnectionId.js";
+import {UserConnectionId} from "#electron/Domain/Entities/UserConnectionId";
 
 export const UserSchema = new EntitySchema<User>({
     name: "User",

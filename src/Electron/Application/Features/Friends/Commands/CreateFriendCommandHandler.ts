@@ -1,9 +1,9 @@
-import { Result } from '../../../../../Shared/Result/Result.js';
-import { Friend } from '../../../../Domain/Aggregates/Friend.js';
-import { FriendConnectionId } from '../../../../Domain/Entities/FriendConnectionId.js';
-import { IFriendRepository } from '../../../Contracts/Repositories/IFriendRepository.js';
-import { Handler } from '../../../Mediator/Handler.js';
-import { CreateFriendCommand } from '../../../../../Shared/Friends/CreateFriend.js';
+import { Result } from '#shared/Result/Result';
+import { Friend } from '#electron/Domain/Aggregates/Friend';
+import { FriendConnectionId } from '#electron/Domain/Entities/FriendConnectionId';
+import { IFriendRepository } from '#electron/Application/Contracts/Repositories/IFriendRepository';
+import { Handler } from '#electron/Application/Mediator/Handler';
+import { CreateFriendCommand } from '#shared/Friends/CreateFriend';
 
 export class CreateFriendCommandHandler implements Handler<CreateFriendCommand> {
 

@@ -3,14 +3,14 @@ import {
     ILedgerReplayService,
     RejectedEvent,
     ReplayResult,
-} from '../../Application/Contracts/Services/ILedgerReplayService.js';
-import { IGroupKeyRepository } from '../../Application/Contracts/Repositories/IGroupKeyRepository.js';
-import { applyOperation, OperationContext, rejectReasonFor } from '../../Domain/Services/GroupReducer.js';
-import { GroupState } from '../../Domain/Projections/GroupState.js';
-import { LedgerEventRecord } from '../../Domain/Entities/LedgerEventRecord.js';
-import { LedgerOperation } from '../../Domain/Protocol/LedgerOperation.js';
-import { parseLedgerOperation, parseSignedLedgerOperation } from '../../Domain/Protocol/LedgerOperationParser.js';
-import { LedgerOperationType } from '../../Domain/Enums/LedgerOperationType.js';
+} from '#electron/Application/Contracts/Services/ILedgerReplayService';
+import { IGroupKeyRepository } from '#electron/Application/Contracts/Repositories/IGroupKeyRepository';
+import { applyOperation, OperationContext, rejectReasonFor } from '#electron/Domain/Services/GroupReducer';
+import { GroupState } from '#electron/Domain/Projections/GroupState';
+import { LedgerEventRecord } from '#electron/Domain/Entities/LedgerEventRecord';
+import { LedgerOperation } from '#electron/Domain/Protocol/LedgerOperation';
+import { parseLedgerOperation, parseSignedLedgerOperation } from '#electron/Domain/Protocol/LedgerOperationParser';
+import { LedgerOperationType } from '#electron/Domain/Enums/LedgerOperationType';
 import {
     buildOperationSigningInput,
     buildSigningInput,

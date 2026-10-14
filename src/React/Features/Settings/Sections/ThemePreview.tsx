@@ -1,5 +1,5 @@
 import React from 'react';
-import { ResolvedTheme, Theme } from '../../../../Shared/Theme.ts';
+import { ResolvedTheme, Theme } from '@/Shared/Theme.ts';
 
 interface ThemePreviewProps {
     theme: Theme;

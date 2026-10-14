@@ -1,8 +1,8 @@
-import { IChatStore } from '../../Application/Contracts/Repositories/IChatStore.js';
-import { MessageSentCommand } from '../../Application/Features/Chat/Events/MessageSentEventHandler.js';
-import { Mediator } from '../../Application/Mediator/Mediator.js';
-import { DeliveryStatus } from '../../../Shared/Enums/DeliveryStatus.js';
-import { MessageSentEvent } from '../../Domain/Events/MessageSentEvent.js';
+import { IChatStore } from '#electron/Application/Contracts/Repositories/IChatStore';
+import { MessageSentCommand } from '#electron/Application/Features/Chat/Events/MessageSentEventHandler';
+import { Mediator } from '#electron/Application/Mediator/Mediator';
+import { DeliveryStatus } from '#shared/Enums/DeliveryStatus';
+import { MessageSentEvent } from '#electron/Domain/Events/MessageSentEvent';
 import { IOutboxRepository } from '../Interfaces/IOutboxRepository.js';
 import { SignalManager } from '../Signal/SignalManager.js';
 import { Pump } from './Pump.js';
@@ -45,7 +45,7 @@ export class MessagePump extends Pump {
                 continue;
             }
 
-            const result = await this.mediator.send<MessageSentCommand, DeliveryStatus>(
+            const result = await this.mediator.send(
                 new MessageSentCommand(
                     msgEvent.message,
                     msgEvent.connectionIds,

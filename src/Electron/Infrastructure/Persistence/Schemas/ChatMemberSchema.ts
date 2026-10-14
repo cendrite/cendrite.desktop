@@ -1,9 +1,9 @@
-﻿import {ChatMember} from "../../../Domain/Entities/ChatMember.js";
+﻿import {ChatMember} from "#electron/Domain/Entities/ChatMember";
 import {EntitySchema} from "typeorm";
 import {BaseSchema} from "./BaseSchema.js";
-import {ChatPrivileges} from "../../../../Shared/Enums/ChatPrivileges.js";
-import {Friend} from "../../../Domain/Aggregates/Friend.js";
-import { Chat } from "../../../Domain/Aggregates/Chat.js";
+import {ChatPrivileges} from "#shared/Enums/ChatPrivileges";
+import {Friend} from "#electron/Domain/Aggregates/Friend";
+import { Chat } from "#electron/Domain/Aggregates/Chat";
 
 export const ChatMemberSchema = new EntitySchema<ChatMember>({
     name: "ChatMember",

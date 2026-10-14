@@ -1,17 +1,17 @@
-import { Result } from '../../../Shared/Result/Result.js';
-import { ErrorMessage } from '../../../Shared/Result/ErrorMessage.js';
-import { IGroupKeyRepository } from '../../Application/Contracts/Repositories/IGroupKeyRepository.js';
-import { IGroupRepository } from '../../Application/Contracts/Repositories/IGroupRepository.js';
+import { Result } from '#shared/Result/Result';
+import { ErrorMessage } from '#shared/Result/ErrorMessage';
+import { IGroupKeyRepository } from '#electron/Application/Contracts/Repositories/IGroupKeyRepository';
+import { IGroupRepository } from '#electron/Application/Contracts/Repositories/IGroupRepository';
 import {
     ILedgerProvider,
     isLedgerConflict,
     LedgerAppend,
-} from '../../Application/Contracts/Providers/ILedgerProvider.js';
-import { ILedgerWriter } from '../../Application/Contracts/Services/ILedgerWriter.js';
-import { ILedgerSyncService } from '../../Application/Contracts/Services/ILedgerSyncService.js';
-import { LedgerOperationType } from '../../Domain/Enums/LedgerOperationType.js';
-import { LedgerOperation } from '../../Domain/Protocol/LedgerOperation.js';
-import { GroupState } from '../../Domain/Projections/GroupState.js';
+} from '#electron/Application/Contracts/Providers/ILedgerProvider';
+import { ILedgerWriter } from '#electron/Application/Contracts/Services/ILedgerWriter';
+import { ILedgerSyncService } from '#electron/Application/Contracts/Services/ILedgerSyncService';
+import { LedgerOperationType } from '#electron/Domain/Enums/LedgerOperationType';
+import { LedgerOperation } from '#electron/Domain/Protocol/LedgerOperation';
+import { GroupState } from '#electron/Domain/Projections/GroupState';
 import { buildOperationSigningInput, buildSigningInput, encryptPayload, hashEvent, signOuter } from '../Crypto/LedgerCodec.js';
 import { ILedgerIdentity } from '../Interfaces/ILedgerIdentity.js';
 

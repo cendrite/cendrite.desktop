@@ -4,6 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "main": "dist-electron/Electron/Main.js",
+  "imports": {
+    "#shared/*": "./dist-electron/Shared/*.js",
+    "#electron/*": "./dist-electron/Electron/*.js"
+  },
   "scripts": {
     "dev": "npm-run-all --parallel dev:react dev:electron",
     "test": "npm-run-all --parallel test:unit test:integration",

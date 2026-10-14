@@ -1,6 +1,6 @@
-﻿import { DeliveryStatus } from '../../../../Shared/Enums/DeliveryStatus.ts';
-import { useUser } from '../../../Context/User/UserContext.tsx';
-import { MessageViewModel } from '../../../Models/MessageViewModel.ts';
+﻿import { DeliveryStatus } from '@/Shared/Enums/DeliveryStatus.ts';
+import { useUser } from '@/React/Context/User/UserContext.tsx';
+import { MessageViewModel } from '@/React/Models/MessageViewModel.ts';
 import {
     IconCircleDashed,
     IconCircleChevronRight,

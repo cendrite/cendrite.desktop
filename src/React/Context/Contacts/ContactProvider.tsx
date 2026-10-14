@@ -3,13 +3,11 @@ import { ContactActionType, contactReducer } from "./ContactReducer";
 import { ContactContext } from "./ContactContext";
 import { useUser } from "../User/UserContext";
 import { useContactEvents } from "./ContactEvents";
-import { Result } from "../../../Shared/Result/Result";
-import { Contact } from "../../Models/Contact";
-import { FriendContract } from "../../../Shared/Models/FriendContract";
-import { SyncFriendsQuery } from "../../../Shared/Friends/SyncFriends";
+import { Contact } from "@/React/Models/Contact";
+import { SyncFriendsQuery } from "@/Shared/Friends/SyncFriends";
 
 const syncFriends = async (): Promise<Contact[]> => {
-    const result = await window.electron.sendRequestAsync<Result<FriendContract[]>>(new SyncFriendsQuery());
+    const result = await window.electron.sendRequestAsync(new SyncFriendsQuery());
 
     if (!result.success || !result.data) return [];
 

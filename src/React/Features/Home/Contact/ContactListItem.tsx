@@ -1,8 +1,8 @@
 import React from 'react';
-import { useHomePage } from '../../../Context/HomePage/HomePageContext.tsx';
-import { HomePageActionType } from '../../../Context/HomePage/HomePageReducer.ts';
-import { Contact } from '../../../Models/Contact.ts';
-import ContactCard from '../../../Common/Components/Cards/ContactCard.tsx';
+import { useHomePage } from '@/React/Context/HomePage/HomePageContext.tsx';
+import { HomePageActionType } from '@/React/Context/HomePage/HomePageReducer.ts';
+import { Contact } from '@/React/Models/Contact.ts';
+import ContactCard from '@/React/Common/Components/Cards/ContactCard.tsx';
 
 interface ContactListItemProps {
     contact: Contact;

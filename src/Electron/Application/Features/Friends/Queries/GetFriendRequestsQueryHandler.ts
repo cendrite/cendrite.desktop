@@ -1,7 +1,7 @@
-import { Result } from '../../../../../Shared/Result/Result.js';
-import { IFriendProvider } from '../../../Contracts/Providers/IFriendProvider.js';
-import { Handler } from '../../../Mediator/Handler.js';
-import { FriendRequestDto, GetFriendRequestsQuery } from '../../../../../Shared/Friends/GetFriendRequests.js';
+import { Result } from '#shared/Result/Result';
+import { IFriendProvider } from '#electron/Application/Contracts/Providers/IFriendProvider';
+import { Handler } from '#electron/Application/Mediator/Handler';
+import { FriendRequestDto, GetFriendRequestsQuery } from '#shared/Friends/GetFriendRequests';
 
 export class GetFriendRequestsQueryHandler implements Handler<GetFriendRequestsQuery, FriendRequestDto[]> {
     constructor(private readonly friendProvider: IFriendProvider) { }

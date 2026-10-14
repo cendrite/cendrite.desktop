@@ -1,13 +1,13 @@
-﻿import { Result } from '../../../../../Shared/Result/Result.js';
-import { Chat } from '../../../../Domain/Aggregates/Chat.js';
-import { ChatMember } from '../../../../Domain/Entities/ChatMember.js';
-import { ChatContract } from '../../../../../Shared/Models/ChatContract.js';
-import { ChatMemberContract } from '../../../../../Shared/Models/ChatMemberContract.js';
-import { IChatStore } from '../../../Contracts/Repositories/IChatStore.js';
-import { IFriendRepository } from '../../../Contracts/Repositories/IFriendRepository.js';
-import { Handler } from '../../../Mediator/Handler.js';
-import { CreateChatCommand } from '../../../../../Shared/Chat/CreateChat.js';
-import { IGroupService } from '../../../Services/GroupService.js';
+﻿import { Result } from '#shared/Result/Result';
+import { Chat } from '#electron/Domain/Aggregates/Chat';
+import { ChatMember } from '#electron/Domain/Entities/ChatMember';
+import { ChatContract } from '#shared/Models/ChatContract';
+import { ChatMemberContract } from '#shared/Models/ChatMemberContract';
+import { IChatStore } from '#electron/Application/Contracts/Repositories/IChatStore';
+import { IFriendRepository } from '#electron/Application/Contracts/Repositories/IFriendRepository';
+import { Handler } from '#electron/Application/Mediator/Handler';
+import { CreateChatCommand } from '#shared/Chat/CreateChat';
+import { IGroupService } from '#electron/Application/Services/GroupService';
 
 export class CreateChatCommandHandler implements Handler<CreateChatCommand, ChatContract> {
     constructor(

@@ -1,5 +1,5 @@
-import { Result } from "../../../Shared/Result/Result.js";
-import { CreatePreKeyBundleRequest, IKeyStoreProvider, PreKeyBundle } from "../../Application/Contracts/Providers/IKeyStoreProvider.js";
+import { Result } from "#shared/Result/Result";
+import { CreatePreKeyBundleRequest, IKeyStoreProvider, PreKeyBundle } from "#electron/Application/Contracts/Providers/IKeyStoreProvider";
 import { ApiClient } from "./Base/ApiClient.js";
 
 export class KeyStoreClient implements IKeyStoreProvider {

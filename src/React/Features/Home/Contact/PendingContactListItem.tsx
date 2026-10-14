@@ -1,11 +1,11 @@
 import React from 'react';
-import { NotificationActionType } from '../../../Context/Notification/NotificationReducer.ts';
-import NotificationBadge from '../../../Context/Notification/NotificationBadge.tsx';
-import { useNotifications } from '../../../Context/Notification/NotificationContext.tsx';
-import { useHomePage } from '../../../Context/HomePage/HomePageContext.tsx';
-import { HomePageActionType } from '../../../Context/HomePage/HomePageReducer.ts';
-import { PendingContact } from '../../../Models/PendingContact.ts';
-import ContactCard from '../../../Common/Components/Cards/ContactCard.tsx';
+import { NotificationActionType } from '@/React/Context/Notification/NotificationReducer.ts';
+import NotificationBadge from '@/React/Context/Notification/NotificationBadge.tsx';
+import { useNotifications } from '@/React/Context/Notification/NotificationContext.tsx';
+import { useHomePage } from '@/React/Context/HomePage/HomePageContext.tsx';
+import { HomePageActionType } from '@/React/Context/HomePage/HomePageReducer.ts';
+import { PendingContact } from '@/React/Models/PendingContact.ts';
+import ContactCard from '@/React/Common/Components/Cards/ContactCard.tsx';
 
 interface PendingContactListItemProps {
     contact: PendingContact;

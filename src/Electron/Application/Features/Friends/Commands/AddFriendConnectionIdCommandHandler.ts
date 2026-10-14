@@ -1,9 +1,9 @@
-﻿import { ErrorMessage } from '../../../../../Shared/Result/ErrorMessage.js';
-import { Result } from '../../../../../Shared/Result/Result.js';
-import { FriendConnectionId } from '../../../../Domain/Entities/FriendConnectionId.js';
-import { IFriendRepository } from '../../../Contracts/Repositories/IFriendRepository.js';
-import { Handler } from '../../../Mediator/Handler.js';
-import { AddFriendConnectionIdCommand } from '../../../../../Shared/Friends/AddFriendConnectionId.js';
+﻿import { ErrorMessage } from '#shared/Result/ErrorMessage';
+import { Result } from '#shared/Result/Result';
+import { FriendConnectionId } from '#electron/Domain/Entities/FriendConnectionId';
+import { IFriendRepository } from '#electron/Application/Contracts/Repositories/IFriendRepository';
+import { Handler } from '#electron/Application/Mediator/Handler';
+import { AddFriendConnectionIdCommand } from '#shared/Friends/AddFriendConnectionId';
 
 export class AddFriendConnectionIdCommandHandler implements Handler<AddFriendConnectionIdCommand> {
     constructor(private readonly friendRepository: IFriendRepository) { }

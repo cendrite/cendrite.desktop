@@ -2,12 +2,14 @@ import { MessageContract } from './Models/MessageContract';
 import { ChangeEvent } from './Events/ChangeEvent.ts';
 import { DeliveryStatus } from './Enums/DeliveryStatus.ts';
 import { Theme as AppTheme } from './Theme.ts';
+import { Result } from './Result/Result.ts';
 
 declare global {
     type ConnectionState = 'connected' | 'disconnected' | 'connecting';
 
-    type MediatorRequest = {
-        type: string;
+    type MediatorRequest<TResponse = unknown> = {
+        readonly type: string;
+        readonly _response?: TResponse;
     };
 
     type EventMessage =
@@ -29,7 +31,7 @@ declare global {
     interface Window {
         electron: {
             initialTheme: Theme;
-            sendRequestAsync: <TResponse>(request: MediatorRequest) => Promise<TResponse>;
+            sendRequestAsync: <TResponse>(request: MediatorRequest<TResponse>) => Promise<Result<TResponse>>;
             on: <TEvent extends AppEvent>(event: TEvent, callback: (data: AppEventMap[TEvent]) => void) => () => void;
         };
     }

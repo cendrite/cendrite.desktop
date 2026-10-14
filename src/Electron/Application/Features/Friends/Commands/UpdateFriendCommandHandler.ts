@@ -1,9 +1,10 @@
-﻿import { ErrorMessage } from '../../../../../Shared/Result/ErrorMessage.js';
-import { Result } from '../../../../../Shared/Result/Result.js';
-import { IFriendRepository } from '../../../Contracts/Repositories/IFriendRepository.js';
-import { Handler } from '../../../Mediator/Handler.js';
+﻿import { ErrorMessage } from '#shared/Result/ErrorMessage';
+import { Result } from '#shared/Result/Result';
+import { IFriendRepository } from '#electron/Application/Contracts/Repositories/IFriendRepository';
+import { Handler } from '#electron/Application/Mediator/Handler';
 
-export class UpdateFriendCommand implements MediatorRequest {
+export class UpdateFriendCommand implements MediatorRequest<void> {
+    declare readonly _response?: void;
     type = "UpdateFriendCommand";
     id: string;
     username: string | null;

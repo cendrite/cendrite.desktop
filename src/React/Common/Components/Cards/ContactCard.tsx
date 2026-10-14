@@ -1,6 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
-import { Contact } from '../../../Models/Contact.ts';
+import { Contact } from '@/React/Models/Contact.ts';
 import Avatar from '../Avatar/Avatar.tsx';
 
 export type ContactCardVariant = 'plain' | 'outlined';

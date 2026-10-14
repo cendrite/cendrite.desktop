@@ -1,11 +1,11 @@
 import { useCallback } from 'react';
-import { PendingContact } from '../../Models/PendingContact';
+import { PendingContact } from '@/React/Models/PendingContact';
 import { NotificationAction, NotificationActionType } from '../Notification/NotificationReducer';
 import { PendingContactAction, PendingContactActionType } from './PendingContactReducer';
-import { ChangeEvent } from '../../../Shared/Events/ChangeEvent';
-import { FriendRequestAcceptedEvent, FriendRequestEvent } from '../../../Shared/Events/EventData';
-import { ChangeEventType } from '../../../Shared/Events/ChangeEventType';
-import { useSignalEvent } from '../../Common/Utilities';
+import { ChangeEvent } from '@/Shared/Events/ChangeEvent';
+import { FriendRequestAcceptedEvent, FriendRequestEvent } from '@/Shared/Events/EventData';
+import { ChangeEventType } from '@/Shared/Events/ChangeEventType';
+import { useSignalEvent } from '@/React/Common/Utilities';
 
 export function usePendingContactEvents(
     pendingContactDispatch: React.Dispatch<PendingContactAction>,

@@ -1,4 +1,4 @@
-import { PendingContact } from "../../Models/PendingContact";
+import { PendingContact } from "@/React/Models/PendingContact";
 
 export enum PendingContactActionType {
     Initialize = -1,

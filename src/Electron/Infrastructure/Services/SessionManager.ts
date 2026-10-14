@@ -8,12 +8,12 @@ import {
     signalEncrypt,
     SignalMessage,
 } from '@signalapp/libsignal-client';
-import { IKeyStoreProvider } from '../../Application/Contracts/Providers/IKeyStoreProvider.js';
-import { IDeviceRepository } from '../../Application/Contracts/Repositories/IDeviceRepository.js';
-import { ISessionManager } from '../../Application/Contracts/Services/ISessionManager.js';
+import { IKeyStoreProvider } from '#electron/Application/Contracts/Providers/IKeyStoreProvider';
+import { IDeviceRepository } from '#electron/Application/Contracts/Repositories/IDeviceRepository';
+import { ISessionManager } from '#electron/Application/Contracts/Services/ISessionManager';
 import { SignalProtocolStore } from './SignalProtocolStore.js';
 import { mapToPreKeyBundle } from '../Mappers/KeyMapper.js';
-import { Envelope, Payload } from '../../Domain/Protocol/Payload.js';
+import { Envelope, Payload } from '#electron/Domain/Protocol/Payload';
 
 /**
  * Every client has exactly one device per connectionId, so the libsignal device id is fixed.
