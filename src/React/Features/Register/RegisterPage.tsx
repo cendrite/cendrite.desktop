@@ -22,12 +22,12 @@ const RegisterPage: React.FC = () => {
         if (result.success) {
             onBoardingData.updateOnboardingData({email: values.email});
             onBoardingData.updateOnboardingData({username: values.username});
-            onBoardingData.updateOnboardingData({UserId: result.data!.id});
+            onBoardingData.updateOnboardingData({UserId: result.data.id});
 
             navigate("/verifyUser");
         } else {
-            if (result.errorMessage!.message.includes(RegisterFieldName.Email)) {
-                setFieldError(RegisterFieldName.Email, result.errorMessage!.message);
+            if (result.errorMessage.message.includes(RegisterFieldName.Email)) {
+                setFieldError(RegisterFieldName.Email, result.errorMessage.message);
             }
         }
     };

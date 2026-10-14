@@ -21,12 +21,12 @@ export class LedgerSyncService implements ILedgerSyncService {
 
     public async sync(groupId: string): Promise<Result<ReplayResult>> {
         const fetched = await this.fetchNewEvents(groupId);
-        if (!fetched.success) return Result.fail<ReplayResult>(fetched.errorMessage!);
+        if (!fetched.success) return Result.fail<ReplayResult>(fetched.errorMessage);
 
         const events = await this.ledgerLogRepository.getAll(groupId);
         const replayed = await this.ledgerReplayService.replay(groupId, events);
 
-        await this.recordOutcome(groupId, replayed, fetched.data!);
+        await this.recordOutcome(groupId, replayed, fetched.data);
 
         return Result.success(replayed);
     }
@@ -38,14 +38,14 @@ export class LedgerSyncService implements ILedgerSyncService {
 
         while (hasMore) {
             const page = await this.ledgerProvider.getEvents(groupId, fromVersion, PAGE_SIZE);
-            if (!page.success) return Result.fail<boolean>(page.errorMessage!);
+            if (!page.success) return Result.fail<boolean>(page.errorMessage);
 
-            const { events } = page.data!;
-            archived = page.data!.archived;
+            const { events } = page.data;
+            archived = page.data.archived;
 
             await this.ledgerLogRepository.append(events.map((event) => toRecord(groupId, event)));
 
-            hasMore = page.data!.hasMore && events.length > 0;
+            hasMore = page.data.hasMore && events.length > 0;
 
             if (hasMore) fromVersion = events[events.length - 1].version + 1;
         }

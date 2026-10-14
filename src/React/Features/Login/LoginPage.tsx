@@ -19,17 +19,18 @@ const LoginPage: React.FC = () => {
             new LoginCommand(values.email, values.password),
         );
 
-        if (result.success && result.data) {
-            if (result.data!.isVerified) {
-                onboardingData.updateOnboardingData({ UserId: result.data!.userId });
-                navigate('/verifyLogin');
-            } else if (!result.data.isVerified) {
-                onboardingData.updateOnboardingData({ UserId: result.data!.userId });
-                onboardingData.updateOnboardingData({ email: values.email });
-                navigate('/verifyUser');
-            }
+        if (!result.success) {
+            setFieldError(LoginFieldName.Email, result.errorMessage.message);
+            return;
+        }
+
+        onboardingData.updateOnboardingData({ UserId: result.data.userId });
+
+        if (result.data.isVerified) {
+            navigate('/verifyLogin');
         } else {
-            setFieldError(LoginFieldName.Email, result.errorMessage!.message);
+            onboardingData.updateOnboardingData({ email: values.email });
+            navigate('/verifyUser');
         }
     };
 

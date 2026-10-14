@@ -29,25 +29,25 @@ export class LedgerWriter implements ILedgerWriter {
 
     public async createStream(groupId: string, keys: Buffer[], operation: LedgerOperation): Promise<Result<Buffer>> {
         const sealed = await this.seal(groupId, 1, GENESIS_PREVIOUS_HASH, operation, keys, []);
-        if (!sealed.success) return Result.fail<Buffer>(sealed.errorMessage!);
+        if (!sealed.success) return Result.fail<Buffer>(sealed.errorMessage);
 
-        const { payload, writeKey, signature, hash } = sealed.data!;
+        const { payload, writeKey, signature, hash } = sealed.data;
 
         const created = await this.ledgerProvider.createStream(groupId, payload, writeKey.publicKey, keys, signature);
 
-        return created.success ? Result.success(hash) : Result.fail<Buffer>(created.errorMessage!);
+        return created.success ? Result.success(hash) : Result.fail<Buffer>(created.errorMessage);
     }
 
     public async append(groupId: string, operation: LedgerOperation): Promise<Result<void>> {
         for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
             const synced = await this.ledgerSyncService.sync(groupId);
-            if (!synced.success) return Result.fail(synced.errorMessage!);
+            if (!synced.success) return Result.fail(synced.errorMessage);
 
             const group = await this.groupRepository.get(groupId);
             if (!group) return Result.fail(new ErrorMessage('LedgerWriter', `Unknown group ${groupId}`));
 
             const version = group.version + 1;
-            const keyChanges = keyChangesFor(operation, synced.data!.state);
+            const keyChanges = keyChangesFor(operation, synced.data.state);
 
             const sealed = await this.seal(
                 groupId,
@@ -57,9 +57,9 @@ export class LedgerWriter implements ILedgerWriter {
                 keyChanges.added,
                 keyChanges.removed,
             );
-            if (!sealed.success) return Result.fail(sealed.errorMessage!);
+            if (!sealed.success) return Result.fail(sealed.errorMessage);
 
-            const { payload, writeKey, signature } = sealed.data!;
+            const { payload, writeKey, signature } = sealed.data;
 
             const result = await this.ledgerProvider.appendEvent(
                 groupId,

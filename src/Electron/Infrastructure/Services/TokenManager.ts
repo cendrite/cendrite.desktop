@@ -115,13 +115,13 @@ export class TokenManager implements ITokenManager {
         }
 
         this.setTokens({
-            jwt: rtResponse.data!.jwt,
-            refreshToken: rtResponse.data!.refreshToken,
-            expiresAt: rtResponse.data!.expiresAt,
+            jwt: rtResponse.data.jwt,
+            refreshToken: rtResponse.data.refreshToken,
+            expiresAt: rtResponse.data.expiresAt,
         });
 
         await this.refreshTokenRepository.create(
-            new RefreshToken(rtResponse.data!.refreshToken, rtResponse.data!.expiresAt),
+            new RefreshToken(rtResponse.data.refreshToken, rtResponse.data.expiresAt),
         );
     }
 
@@ -139,12 +139,12 @@ export class TokenManager implements ITokenManager {
             throw new Error(`Failed to get nonce: ${nonceResponse.errorMessage}`);
         }
 
-        const signedNonce = await this.nonceSigner.signNonce(nonceResponse.data!.nonceValue);
+        const signedNonce = await this.nonceSigner.signNonce(nonceResponse.data.nonceValue);
 
         const verifyResponse = await this.tokenProvider.verifyNonce({
             userId: this.userId,
             deviceId: this.deviceId,
-            nonceId: nonceResponse.data!.nonceId,
+            nonceId: nonceResponse.data.nonceId,
             nonce: signedNonce,
         });
 
@@ -153,13 +153,13 @@ export class TokenManager implements ITokenManager {
         }
 
         this.setTokens({
-            jwt: verifyResponse.data!.jwt,
-            refreshToken: verifyResponse.data!.refreshToken,
-            expiresAt: verifyResponse.data!.expiresAt,
+            jwt: verifyResponse.data.jwt,
+            refreshToken: verifyResponse.data.refreshToken,
+            expiresAt: verifyResponse.data.expiresAt,
         });
 
         await this.refreshTokenRepository.create(
-            new RefreshToken(verifyResponse.data!.refreshToken, verifyResponse.data!.expiresAt),
+            new RefreshToken(verifyResponse.data.refreshToken, verifyResponse.data.expiresAt),
         );
     }
 

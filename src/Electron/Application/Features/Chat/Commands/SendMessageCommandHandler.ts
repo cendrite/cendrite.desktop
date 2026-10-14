@@ -39,7 +39,7 @@ export class SendMessageCommandHandler implements Handler<SendMessageCommand, Me
 
         if (cmd.isGroup) {
             const startGroupResult = await this.groupService.startGroup(cmd.chatId);
-            if (!startGroupResult.success) return Result.fail<MessageContract>(startGroupResult.errorMessage!);
+            if (!startGroupResult.success) return Result.fail<MessageContract>(startGroupResult.errorMessage);
 
             payloads = startGroupResult.data ?? {};
         }
