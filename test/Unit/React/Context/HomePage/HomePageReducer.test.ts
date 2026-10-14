@@ -58,6 +58,6 @@ describe('homePageReducer', () => {
     test('an unknown action throws', () => {
         const unknown = { type: 99 } as unknown as HomePageAction;
 
-        expect(() => homePageReducer({ type: 'none' }, unknown)).toThrow();
+        expect(() => homePageReducer({ type: 'none' }, unknown)).toThrow('Unknown action type in HomePageReducer');
     });
 });

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { ContactActionType, contactReducer } from '../../../../../src/React/Context/Contacts/ContactReducer.ts';
+import { ContactAction, ContactActionType, contactReducer } from '../../../../../src/React/Context/Contacts/ContactReducer.ts';
 import { Contact } from '../../../../../src/React/Models/Contact.ts';
 
 const alice = new Contact('a', 'alice', 'Alice', 'alice-key', ['d1']);
@@ -12,6 +12,12 @@ describe('contactReducer', () => {
 
     test('add appends to the end', () => {
         expect(contactReducer([alice], { type: ContactActionType.Add, payload: bob })).toEqual([alice, bob]);
+    });
+
+    test('adding a contact that is already there returns the same list', () => {
+        const before = [alice];
+
+        expect(contactReducer(before, { type: ContactActionType.Add, payload: alice })).toBe(before);
     });
 
     test('remove drops only the matching id', () => {
@@ -39,6 +45,17 @@ describe('contactReducer', () => {
         expect(alice.connectionIds).toEqual(['d1']);
     });
 
+    test('adding a connection id the contact already has returns the same list', () => {
+        const before = [alice];
+
+        const state = contactReducer(before, {
+            type: ContactActionType.AddConnectionId,
+            payload: { id: 'a', connectionId: 'd1' },
+        });
+
+        expect(state).toBe(before);
+    });
+
     test('adding a connection id for an unknown contact changes nothing', () => {
         const state = contactReducer([alice], {
             type: ContactActionType.AddConnectionId,
@@ -61,5 +78,11 @@ describe('contactReducer', () => {
 
     test('clear empties the list', () => {
         expect(contactReducer([alice, bob], { type: ContactActionType.Clear })).toEqual([]);
+    });
+
+    test('an unknown action throws', () => {
+        const unknown = { type: 99 } as unknown as ContactAction;
+
+        expect(() => contactReducer([], unknown)).toThrow('Unknown action type in ContactReducer');
     });
 });

@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import {
     initialThemeState,
+    ThemeAction,
     resolveTheme,
     ThemeActionType,
     themeReducer,
@@ -20,6 +21,12 @@ describe('themeReducer', () => {
         });
 
         expect(state).toEqual({ ...initialThemeState, systemPrefersDark: false });
+    });
+
+    test('an unknown action throws', () => {
+        const unknown = { type: 99 } as unknown as ThemeAction;
+
+        expect(() => themeReducer(initialThemeState, unknown)).toThrow('Unknown action type in ThemeReducer');
     });
 
     test('does not mutate the state it was given', () => {

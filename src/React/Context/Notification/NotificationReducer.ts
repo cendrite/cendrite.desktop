@@ -1,4 +1,5 @@
 ﻿import { ChatNotification, FriendRequestNotification, NotificationState } from './NotificationState';
+import { unknownAction } from '../unknownAction.ts';
 
 export enum NotificationActionType {
     AddChat = 0,
@@ -79,6 +80,6 @@ export function reducer(state: NotificationState, action: NotificationAction): N
             };
 
         default:
-            throw new Error(`Unknown action type in NotificationReducer.ts: ${(action as NotificationAction).type}`);
+            return unknownAction('NotificationReducer', action);
     }
 }

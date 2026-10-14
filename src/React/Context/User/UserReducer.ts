@@ -1,4 +1,5 @@
 import { User } from "@/React/Models/User";
+import { unknownAction } from "../unknownAction.ts";
 
 export enum UserActionType {
     Initialize = -1,
@@ -70,7 +71,7 @@ export const userReducer = (state: User | null, action: UserAction): User | null
             return state;
 
         case UserActionType.AddConnectionId:
-            if (state) {
+            if (state && !state.externalConnectionIds.includes(action.payload.connectionId)) {
                 return new User(
                     state.id,
                     state.username,
@@ -103,6 +104,6 @@ export const userReducer = (state: User | null, action: UserAction): User | null
 
 
         default:
-            return state;
+            return unknownAction('UserReducer', action);
     }
 };

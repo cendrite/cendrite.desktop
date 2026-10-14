@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { UserActionType, userReducer } from '../../../../../src/React/Context/User/UserReducer.ts';
+import { UserAction, UserActionType, userReducer } from '../../../../../src/React/Context/User/UserReducer.ts';
 import { User } from '../../../../../src/React/Models/User.ts';
 
 function user(): User {
@@ -55,6 +55,17 @@ describe('userReducer', () => {
         expect(state?.IsUserConnectionId('conn-b')).toBe(true);
     });
 
+    test('adding a connection id the user already has returns the same user', () => {
+        const before = user();
+
+        const state = userReducer(before, {
+            type: UserActionType.AddConnectionId,
+            payload: { connectionId: 'conn-a' },
+        });
+
+        expect(state).toBe(before);
+    });
+
     test('removing a connection id makes it no longer recognised', () => {
         const state = userReducer(user(), {
             type: UserActionType.RemoveConnectionId,
@@ -63,6 +74,12 @@ describe('userReducer', () => {
 
         expect(state?.externalConnectionIds).toEqual([]);
         expect(state?.IsUserConnectionId('conn-a')).toBe(false);
+    });
+
+    test('an unknown action throws', () => {
+        const unknown = { type: 99 } as unknown as UserAction;
+
+        expect(() => userReducer(user(), unknown)).toThrow('Unknown action type in UserReducer');
     });
 
     test('does not mutate the user it was given', () => {

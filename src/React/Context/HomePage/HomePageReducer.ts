@@ -2,6 +2,7 @@
 import { SelectedItem } from './HomePageContext.tsx';
 import { Contact } from '@/React/Models/Contact.ts';
 import { PendingContact } from '@/React/Models/PendingContact.ts';
+import { unknownAction } from '../unknownAction.ts';
 
 export enum HomePageActionType {
     SetSelectedContact = 0,
@@ -27,6 +28,6 @@ export const homePageReducer = (_state: SelectedItem, action: HomePageAction): S
         case HomePageActionType.Clear:
             return { type: 'none' };
         default:
-            throw new Error(`Unhandled action type`);
+            return unknownAction('HomePageReducer', action);
     }
 };

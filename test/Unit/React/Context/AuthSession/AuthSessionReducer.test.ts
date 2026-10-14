@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import {
+    AuthSessionAction,
     AuthSessionActionType,
     authSessionReducer,
     initialAuthSessionState,
@@ -51,5 +52,13 @@ describe('authSessionReducer', () => {
         );
 
         expect(state).toEqual(initialAuthSessionState);
+    });
+
+    test('an unknown action throws', () => {
+        const unknown = { type: 99 } as unknown as AuthSessionAction;
+
+        expect(() => authSessionReducer(initialAuthSessionState, unknown)).toThrow(
+            'Unknown action type in AuthSessionReducer',
+        );
     });
 });

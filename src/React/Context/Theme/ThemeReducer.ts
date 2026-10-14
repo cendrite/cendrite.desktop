@@ -1,4 +1,5 @@
 import { DEFAULT_THEME, ResolvedTheme, Theme } from '@/Shared/Theme.ts';
+import { unknownAction } from '../unknownAction.ts';
 
 export enum ThemeActionType {
     SetTheme,
@@ -26,7 +27,7 @@ export function themeReducer(state: ThemeState, action: ThemeAction): ThemeState
         case ThemeActionType.SetSystemPrefersDark:
             return { ...state, systemPrefersDark: action.payload };
         default:
-            return state;
+            return unknownAction('ThemeReducer', action);
     }
 }
 

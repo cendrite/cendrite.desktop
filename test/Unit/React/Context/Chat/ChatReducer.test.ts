@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { ChatActionType, chatReducer } from '../../../../../src/React/Context/Chat/ChatReducer.ts';
+import { ChatAction, ChatActionType, chatReducer } from '../../../../../src/React/Context/Chat/ChatReducer.ts';
 import { ChatState } from '../../../../../src/React/Context/Chat/ChatContext.tsx';
 import { ChatViewModel } from '../../../../../src/React/Models/ChatViewModel.ts';
 import { MessageViewModel } from '../../../../../src/React/Models/MessageViewModel.ts';
@@ -34,6 +34,12 @@ describe('chats', () => {
         expect(state.chats.map((c) => c.id)).toEqual(['a', 'b']);
     });
 
+    test('adding a chat that is already there returns the same state object', () => {
+        const before = stateOf([chat('a')]);
+
+        expect(chatReducer(before, { type: ChatActionType.AddChat, payload: chat('a') })).toBe(before);
+    });
+
     test('removing the active chat clears the active chat', () => {
         const state = chatReducer(stateOf([chat('a'), chat('b')], 'a'), {
             type: ChatActionType.RemoveChat,
@@ -65,6 +71,14 @@ describe('chats', () => {
         const state = chatReducer(stateOf([chat('a')], 'a'), { type: ChatActionType.Clear });
 
         expect(state).toEqual({ chats: [], activeChatId: null });
+    });
+});
+
+describe('unknown actions', () => {
+    test('throw', () => {
+        const unknown = { type: 99 } as unknown as ChatAction;
+
+        expect(() => chatReducer(stateOf([]), unknown)).toThrow('Unknown action type in ChatReducer');
     });
 });
 
