@@ -18,7 +18,6 @@ import { GetProfileByTagQueryHandler } from './Features/Friends/Queries/GetProfi
 import { GetMediaQueryHandler } from './Features/Files/Queries/GetMediaQueryHandler.js';
 import { CreateChatCommandHandler } from './Features/Chat/Commands/CreateChatCommandHandler.js';
 import { DeleteChatCommandHandler } from './Features/Chat/Commands/DeleteChatCommandHandler.js';
-import { AddMessageCommandHandler } from './Features/Chat/Commands/AddMessageCommandHandler.js';
 import { GetChatsQueryHandler } from './Features/Chat/Queries/GetChatsQueryhandler.js';
 import { GetMessagesQueryHandler } from './Features/Chat/Queries/GetMessagesQueryHandler.js';
 import { AddUserConnectionIdCommandHandler } from './Features/User/Commands/AddUserConnectionIdCommandHandler.js';
@@ -56,7 +55,6 @@ const authenticationHandlers = {
 };
 
 const chatHandlers = {
-    addMessageCommandHandler: asClass(AddMessageCommandHandler, { lifetime: Lifetime.SINGLETON }),
     getChatsQueryHandler: asClass(GetChatsQueryHandler, { lifetime: Lifetime.SINGLETON }),
     getMessagesQueryHandler: asClass(GetMessagesQueryHandler, { lifetime: Lifetime.SINGLETON }),
     createChatCommandHandler: asClass(CreateChatCommandHandler, { lifetime: Lifetime.SINGLETON }),
