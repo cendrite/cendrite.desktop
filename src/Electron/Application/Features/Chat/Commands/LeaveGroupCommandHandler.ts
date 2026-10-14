@@ -67,6 +67,10 @@ export class LeaveGroupCommandHandler implements Handler<LeaveGroupCommand, void
             );
         }
 
+        await this.messageHubHandler.sendMessage(msgs);
+
         this.groupRepository.delete(cmd.chatId);
+
+        return Result.success();
     }
 }
