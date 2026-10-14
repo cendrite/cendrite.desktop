@@ -103,14 +103,14 @@ export class GroupService implements IGroupService {
         }
 
         const payloads: Record<string, Payload[]> = {};
-        const headHash = created.data.toString('base64');
+        const headHash = created.data.headHash.toString('base64');
         const epochKeys = [epochKey.key.toString('base64')];
 
         const strapFor = (writeKeyPrivate: Buffer) =>
             new GroupStrapPayload(
                 group.groupId,
                 chat.groupName,
-                1,
+                created.data.version,
                 headHash,
                 epochKeys,
                 writeKeyPrivate.toString('base64'),

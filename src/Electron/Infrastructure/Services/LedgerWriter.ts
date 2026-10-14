@@ -7,12 +7,18 @@ import {
     isLedgerConflict,
     LedgerAppend,
 } from '#electron/Application/Contracts/Providers/ILedgerProvider';
-import { ILedgerWriter } from '#electron/Application/Contracts/Services/ILedgerWriter';
+import { ILedgerWriter, LedgerWrite } from '#electron/Application/Contracts/Services/ILedgerWriter';
 import { ILedgerSyncService } from '#electron/Application/Contracts/Services/ILedgerSyncService';
 import { LedgerOperationType } from '#electron/Domain/Enums/LedgerOperationType';
 import { LedgerOperation } from '#electron/Domain/Protocol/LedgerOperation';
 import { GroupState } from '#electron/Domain/Projections/GroupState';
-import { buildOperationSigningInput, buildSigningInput, encryptPayload, hashEvent, signOuter } from '../Crypto/LedgerCodec.js';
+import {
+    buildOperationSigningInput,
+    buildSigningInput,
+    encryptPayload,
+    hashEvent,
+    signOuter,
+} from '../Crypto/LedgerCodec.js';
 import { ILedgerIdentity } from '../Interfaces/ILedgerIdentity.js';
 
 const GENESIS_PREVIOUS_HASH = Buffer.alloc(32);
@@ -27,24 +33,30 @@ export class LedgerWriter implements ILedgerWriter {
         private readonly ledgerIdentity: ILedgerIdentity,
     ) { }
 
-    public async createStream(groupId: string, keys: Buffer[], operation: LedgerOperation): Promise<Result<Buffer>> {
+    public async createStream(
+        groupId: string,
+        keys: Buffer[],
+        operation: LedgerOperation,
+    ): Promise<Result<LedgerWrite>> {
         const sealed = await this.seal(groupId, 1, GENESIS_PREVIOUS_HASH, operation, keys, []);
-        if (!sealed.success) return Result.fail<Buffer>(sealed.errorMessage);
+        if (!sealed.success) return Result.fail<LedgerWrite>(sealed.errorMessage);
 
         const { payload, writeKey, signature, hash } = sealed.data;
 
         const created = await this.ledgerProvider.createStream(groupId, payload, writeKey.publicKey, keys, signature);
 
-        return created.success ? Result.success(hash) : Result.fail<Buffer>(created.errorMessage);
+        return created.success
+            ? Result.success<LedgerWrite>({ version: 1, headHash: hash })
+            : Result.fail<LedgerWrite>(created.errorMessage);
     }
 
-    public async append(groupId: string, operation: LedgerOperation): Promise<Result<void>> {
+    public async append(groupId: string, operation: LedgerOperation): Promise<Result<LedgerWrite>> {
         for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
             const synced = await this.ledgerSyncService.sync(groupId);
-            if (!synced.success) return Result.fail(synced.errorMessage);
+            if (!synced.success) return Result.fail<LedgerWrite>(synced.errorMessage);
 
             const group = await this.groupRepository.get(groupId);
-            if (!group) return Result.fail(new ErrorMessage('LedgerWriter', `Unknown group ${groupId}`));
+            if (!group) return Result.fail<LedgerWrite>(new ErrorMessage('LedgerWriter', `Unknown group ${groupId}`));
 
             const version = group.version + 1;
             const keyChanges = keyChangesFor(operation, synced.data.state);
@@ -57,9 +69,9 @@ export class LedgerWriter implements ILedgerWriter {
                 keyChanges.added,
                 keyChanges.removed,
             );
-            if (!sealed.success) return Result.fail(sealed.errorMessage);
+            if (!sealed.success) return Result.fail<LedgerWrite>(sealed.errorMessage);
 
-            const { payload, writeKey, signature } = sealed.data;
+            const { payload, writeKey, signature, hash } = sealed.data;
 
             const result = await this.ledgerProvider.appendEvent(
                 groupId,
@@ -74,10 +86,13 @@ export class LedgerWriter implements ILedgerWriter {
                 ),
             );
 
-            if (result.success || !isLedgerConflict(result)) return result;
+            if (result.success) return Result.success<LedgerWrite>({ version, headHash: hash });
+            if (!isLedgerConflict(result)) return Result.fail<LedgerWrite>(result.errorMessage);
         }
 
-        return Result.fail(new ErrorMessage('LedgerWriter', 'Gave up appending after repeated conflicts.'));
+        return Result.fail<LedgerWrite>(
+            new ErrorMessage('LedgerWriter', 'Gave up appending after repeated conflicts.'),
+        );
     }
 
     private async seal(

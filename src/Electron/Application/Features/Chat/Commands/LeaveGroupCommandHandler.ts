@@ -6,7 +6,7 @@ import { IChatStore } from "#electron/Application/Contracts/Repositories/IChatSt
 import { ILedgerWriter } from "#electron/Application/Contracts/Services/ILedgerWriter";
 import { MemberRemovedOperation } from "#electron/Domain/Protocol/LedgerOperation";
 import { ISessionManager } from "#electron/Application/Contracts/Services/ISessionManager";
-import { GroupUpdatedPayload } from "#electron/Domain/Protocol/Payload";
+import { Envelope, GroupUpdatedPayload } from "#electron/Domain/Protocol/Payload";
 import { IGroupRepository } from "#electron/Application/Contracts/Repositories/IGroupRepository";
 
 export class LeaveGroupCommandHandler implements Handler<LeaveGroupCommand, void> {
@@ -31,10 +31,14 @@ export class LeaveGroupCommandHandler implements Handler<LeaveGroupCommand, void
             throw new Error(`Group with ID ${cmd.chatId} not found`);
         }
 
-        await this.ledgerWriter.append(cmd.chatId, new MemberRemovedOperation(
+        const result = await this.ledgerWriter.append(cmd.chatId, new MemberRemovedOperation(
             cmd.userTag,
             cmd.userTag,
         ));
+
+        if (!result.success) {
+            return Result.fail<void>(result.errorMessage);
+        }
 
 
         const msgs: ServerMessage[] = [];
@@ -44,9 +48,25 @@ export class LeaveGroupCommandHandler implements Handler<LeaveGroupCommand, void
                 new GroupUpdatedPayload(
                     cmd.chatId,
                     chat.groupName,
+                    result.data.version,
+                    group.epoch,
+                    result.data.headHash.toString('base64'),
                 ),
             ]);
+
+            const cipher = await this.sessionManager.encrypt(envelope, connectionId);
+            
+            msgs.push(
+                new ServerMessage(
+                    // make this generic
+                    cmd.userTag,
+                    connectionId,
+                    cipher,
+                    new Date(),
+                )
+            );
         }
 
+        this.groupRepository.delete(cmd.chatId);
     }
 }

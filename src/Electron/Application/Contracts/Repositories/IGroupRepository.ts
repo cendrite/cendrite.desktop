@@ -7,5 +7,6 @@ export interface IGroupRepository {
     get(groupId: string): Promise<Group | null>;
     getByLifecycle(lifecycle: GroupLifecycle): Promise<Group[]>;
     getIds(): Promise<string[]>;
+    delete(groupId: string): Promise<void>;
     deleteAll(): Promise<void>;
 }

@@ -10,6 +10,9 @@ export class GroupRepository implements IGroupRepository {
     public constructor() {
         this.repository = getDbContext().getRepository(Group);
     }
+    public async delete(groupId: string): Promise<void> {
+        await this.repository.delete({ groupId });
+    }
 
     public async update(group: Group): Promise<void> {
         await this.repository.save(group);
