@@ -1,4 +1,3 @@
-import { ErrorMessage } from '../../../../../Shared/Result/ErrorMessage.js';
 import { Result } from '../../../../../Shared/Result/Result.js';
 import { IFriendProvider } from '../../../Contracts/Providers/IFriendProvider.js';
 import { Handler } from '../../../Mediator/Handler.js';
@@ -10,7 +9,7 @@ export class GetProfileByTagQueryHandler implements Handler<GetProfileByTagQuery
     public async handle(query: GetProfileByTagQuery): Promise<Result<ProfileDto | void>> {
         const result = await this.friendProvider.getProfile(query.tag);
 
-        if (result.success === false) return Result.fail<ProfileDto>(new ErrorMessage(null, 'Failed to load profile'));
+        if (!result.success) return Result.fail<ProfileDto>(result.errorMessage);
 
         // No user carries that tag.
         if (!result.data) return Result.success();

@@ -30,7 +30,8 @@ export class ErrorMessage {
         type: string;
         errors: {code: string; description: string; type: number}[];
     }): ErrorMessage {
-        return new ErrorMessage(problemDetails.title, ErrorMessage.TrimErrorMessageHelper(problemDetails.errors[0].description));
+        const description = problemDetails.errors?.[0]?.description ?? problemDetails.detail ?? problemDetails.title ?? 'An error occurred.';
+        return new ErrorMessage(problemDetails.title ?? null, ErrorMessage.TrimErrorMessageHelper(description));
     }
 
     // Removes backend error code defined in parentheses and double quotes from the error message
