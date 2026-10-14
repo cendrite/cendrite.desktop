@@ -29,7 +29,7 @@ export class ChatService {
         media: Media[] = [],
         isGroup: boolean = false,
     ): Promise<MessageViewModel | null> {
-        if (!text && !media) return null;
+        if (!text && media.length === 0) return null;
 
         const messageResult = await window.electron.sendRequestAsync<Result<MessageContract>>(
             new SendMessageCommand(

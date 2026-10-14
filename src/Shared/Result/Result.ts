@@ -1,28 +1,36 @@
 import { ErrorMessage } from "./ErrorMessage.js";
 
-export class Result<T = void> {
-    public readonly success: boolean;
-    public readonly errorMessage: ErrorMessage | null;
-    public readonly data: T | null;
+/**
+ * Outcome of an operation. Narrow on `success` to get `data` or `errorMessage`:
+ * ```typescript
+ * if (!result.success) return Result.fail(result.errorMessage);
+ * use(result.data);
+ * ```
+ * The absent member is declared as `?: undefined` so it can still be read without narrowing
+ * (e.g. `result.errorMessage?.message`), while a plain object keeps crossing the IPC boundary intact.
+ */
+export type Result<T = void> = Success<T> | Failure;
 
-    constructor(success: boolean, data: T | null = null, errorMessage: ErrorMessage | null = null) {
-        this.success = success;
-        this.data = data;
-        this.errorMessage = errorMessage;
-    }
-
-    public static success(): Result;
-    public static success<T>(data: T): Result<T>;
-
-    public static success<T>(data?: T): Result<T | void> {
-        return new Result<T | void>(true, data ?? null);
-    }
-
-    public static fail(errorMessage: ErrorMessage): Result;
-    public static fail<T>(errorMessage: ErrorMessage): Result<T>;
-    public static fail(): Result;
-
-    public static fail<T>(errorMessage?: ErrorMessage): Result<T | void> {
-        return new Result<T | void>(false, null, errorMessage);
-    }
+export interface Success<T> {
+    readonly success: true;
+    readonly data: T;
+    readonly errorMessage?: undefined;
 }
+
+export interface Failure {
+    readonly success: false;
+    readonly errorMessage: ErrorMessage;
+    readonly data?: undefined;
+}
+
+function success(): Result;
+function success<T>(data: T): Result<T>;
+function success<T>(data?: T): Result<T | void> {
+    return { success: true, data };
+}
+
+function fail<T = void>(errorMessage: ErrorMessage): Result<T> {
+    return { success: false, errorMessage };
+}
+
+export const Result = { success, fail };
