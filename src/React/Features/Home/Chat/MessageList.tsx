@@ -1,12 +1,12 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { MessageViewModel } from '../../../Models/MessageViewModel.ts';
+import { MessageViewModel } from '@/React/Models/MessageViewModel.ts';
 import MessageBubble from './MessageBubble.tsx';
-import { useUser } from '../../../Context/User/UserContext.tsx';
-import { useChatContext } from '../../../Context/Chat/ChatContext.tsx';
-import { useMessageService } from '../../../Common/Hooks/MessageService.ts';
-import { ChatViewModel } from '../../../Models/ChatViewModel.ts';
-import { ChatMemberViewModel } from '../../../Models/ChatMemberViewModel.ts';
-import { ChatActionType } from '../../../Context/Chat/ChatReducer.ts';
+import { useUser } from '@/React/Context/User/UserContext.tsx';
+import { useChatContext } from '@/React/Context/Chat/ChatContext.tsx';
+import { useMessageService } from '@/React/Common/Hooks/MessageService.ts';
+import { ChatViewModel } from '@/React/Models/ChatViewModel.ts';
+import { ChatMemberViewModel } from '@/React/Models/ChatMemberViewModel.ts';
+import { ChatActionType } from '@/React/Context/Chat/ChatReducer.ts';
 import { IconChevronDown } from '@tabler/icons-react';
 
 interface MessageListProps {

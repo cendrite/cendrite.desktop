@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 import LogoutModal from './LogoutModal.tsx';
-import { useUser } from '../../../Context/User/UserContext.tsx';
-import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
+import { useUser } from '@/React/Context/User/UserContext.tsx';
+import Avatar from '@/React/Common/Components/Avatar/Avatar.tsx';
 import AvatarModal from './AvatarModal.tsx';
-import Button from '../../../Common/Components/Button/Button.tsx';
+import Button from '@/React/Common/Components/Button/Button.tsx';
 import { XIcon } from '@phosphor-icons/react';
 
 interface UserModalProps {

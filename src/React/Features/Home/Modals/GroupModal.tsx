@@ -1,17 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 import clsx from 'clsx';
-import { Contact } from '../../../Models/Contact.ts';
-import { useContacts } from '../../../Context/Contacts/ContactContext.tsx';
-import ContactCard from '../../../Common/Components/Cards/ContactCard.tsx';
-import Button from '../../../Common/Components/Button/Button.tsx';
+import { Contact } from '@/React/Models/Contact.ts';
+import { useContacts } from '@/React/Context/Contacts/ContactContext.tsx';
+import ContactCard from '@/React/Common/Components/Cards/ContactCard.tsx';
+import Button from '@/React/Common/Components/Button/Button.tsx';
 import SearchBar from '../SearchBar.tsx';
 import { CheckIcon, XIcon } from '@phosphor-icons/react';
-import { ChatService } from '../../../Common/Services/ChatService.ts';
-import { useChatContext } from '../../../Context/Chat/ChatContext.tsx';
-import { ChatActionType } from '../../../Context/Chat/ChatReducer.ts';
-import { useHomePage } from '../../../Context/HomePage/HomePageContext.tsx';
-import { HomePageActionType } from '../../../Context/HomePage/HomePageReducer.ts';
+import { ChatService } from '@/React/Common/Services/ChatService.ts';
+import { useChatContext } from '@/React/Context/Chat/ChatContext.tsx';
+import { ChatActionType } from '@/React/Context/Chat/ChatReducer.ts';
+import { useHomePage } from '@/React/Context/HomePage/HomePageContext.tsx';
+import { HomePageActionType } from '@/React/Context/HomePage/HomePageReducer.ts';
 
 interface GroupModalProps {
     isOpen: boolean;

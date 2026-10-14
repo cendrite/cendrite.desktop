@@ -1,7 +1,7 @@
 ﻿import React, { Fragment } from 'react';
 import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react';
-import { ChatViewModel } from '../../../Models/ChatViewModel.ts';
-import { useChatSettings } from '../../../Common/Hooks/ChatSettings.ts';
+import { ChatViewModel } from '@/React/Models/ChatViewModel.ts';
+import { useChatSettings } from '@/React/Common/Hooks/ChatSettings.ts';
 import { DotsThreeIcon } from '@phosphor-icons/react';
 
 interface ChatSettingsMenu {

@@ -1,6 +1,7 @@
 import { DeliveryStatus } from "../Enums/DeliveryStatus.js";
 
-export class UpdateDeliveryStatusCommand implements MediatorRequest {
+export class UpdateDeliveryStatusCommand implements MediatorRequest<void> {
+    declare readonly _response?: void;
     type = UpdateDeliveryStatusCommand.name;
     constructor(
         public readonly chatId: string,

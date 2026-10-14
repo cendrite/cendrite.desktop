@@ -1,7 +1,7 @@
 import React from 'react';
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 import { useNavigate } from 'react-router-dom';
-import Button from '../../../Common/Components/Button/Button.tsx';
+import Button from '@/React/Common/Components/Button/Button.tsx';
 
 interface LogoutModalProps {
     isOpen: boolean;

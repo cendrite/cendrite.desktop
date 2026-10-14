@@ -7,7 +7,8 @@ import { Envelope, MessagePayload, Payload } from '../../../../Domain/Protocol/P
 import { Handler } from '../../../Mediator/Handler.js';
 import { IMediaService } from '../../../Services/Media/MediaService.js';
 
-export class MessageSentCommand implements MediatorRequest {
+export class MessageSentCommand implements MediatorRequest<DeliveryStatus> {
+    declare readonly _response?: DeliveryStatus;
     type = MessageSentCommand.name;
     public readonly message: MessageContract;
     public readonly connectionIds: string[];

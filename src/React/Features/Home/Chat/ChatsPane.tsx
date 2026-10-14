@@ -1,7 +1,7 @@
 import React from 'react';
-import { useChatContext } from '../../../Context/Chat/ChatContext.tsx';
+import { useChatContext } from '@/React/Context/Chat/ChatContext.tsx';
 import { ChatCard } from './ChatCard.tsx';
-import { ChatViewModel } from '../../../Models/ChatViewModel.ts';
+import { ChatViewModel } from '@/React/Models/ChatViewModel.ts';
 import CreateGroupButton from './CreateGroupButton.tsx';
 
 export const ChatsPane: React.FC = () => {

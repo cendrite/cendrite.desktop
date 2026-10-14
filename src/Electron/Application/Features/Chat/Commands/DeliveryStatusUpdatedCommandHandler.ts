@@ -6,7 +6,8 @@ import { DeliveryStatusPayload, Envelope } from "../../../../Domain/Protocol/Pay
 import { Handler } from "../../../Mediator/Handler.js";
 import { v4 as uuid } from 'uuid';
 
-export class DeliveryStatusUpdatedCommand implements MediatorRequest {
+export class DeliveryStatusUpdatedCommand implements MediatorRequest<void> {
+    declare readonly _response?: void;
     type = DeliveryStatusUpdatedCommand.name;
     constructor(
         public readonly senderId: string,

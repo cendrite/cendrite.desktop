@@ -1,15 +1,15 @@
-﻿import { useChatContext } from '../../Context/Chat/ChatContext.tsx';
-import { useNotifications } from '../../Context/Notification/NotificationContext.tsx';
-import { ChatViewModel } from '../../Models/ChatViewModel.ts';
-import { ChatActionType } from '../../Context/Chat/ChatReducer.ts';
-import { NotificationActionType } from '../../Context/Notification/NotificationReducer.ts';
+﻿import { useChatContext } from '@/React/Context/Chat/ChatContext.tsx';
+import { useNotifications } from '@/React/Context/Notification/NotificationContext.tsx';
+import { ChatViewModel } from '@/React/Models/ChatViewModel.ts';
+import { ChatActionType } from '@/React/Context/Chat/ChatReducer.ts';
+import { NotificationActionType } from '@/React/Context/Notification/NotificationReducer.ts';
 import { useCallback } from 'react';
-import { useUser } from '../../Context/User/UserContext.tsx';
+import { useUser } from '@/React/Context/User/UserContext.tsx';
 import React from 'react';
-import { DeliveryStatus } from '../../../Shared/Enums/DeliveryStatus.ts';
+import { DeliveryStatus } from '@/Shared/Enums/DeliveryStatus.ts';
 import { ChatService } from '../Services/ChatService.ts';
-import { Media } from '../../Models/Media.ts';
-import { MessageViewModel } from '../../Models/MessageViewModel.ts';
+import { Media } from '@/React/Models/Media.ts';
+import { MessageViewModel } from '@/React/Models/MessageViewModel.ts';
 
 export function useMessageService() {
     const { chatDispatch } = useChatContext();

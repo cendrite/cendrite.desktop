@@ -1,13 +1,12 @@
 import React from 'react';
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
-import { Result } from '../../../../Shared/Result/Result.ts';
-import { DeleteFriendCommand } from '../../../../Shared/Friends/DeleteFriend.ts';
-import { useHomePage } from '../../../Context/HomePage/HomePageContext.tsx';
-import { HomePageActionType } from '../../../Context/HomePage/HomePageReducer.ts';
-import { Contact } from '../../../Models/Contact.ts';
-import { useContacts } from '../../../Context/Contacts/ContactContext.tsx';
-import { ContactActionType } from '../../../Context/Contacts/ContactReducer.ts';
-import Button from '../../../Common/Components/Button/Button.tsx';
+import { DeleteFriendCommand } from '@/Shared/Friends/DeleteFriend.ts';
+import { useHomePage } from '@/React/Context/HomePage/HomePageContext.tsx';
+import { HomePageActionType } from '@/React/Context/HomePage/HomePageReducer.ts';
+import { Contact } from '@/React/Models/Contact.ts';
+import { useContacts } from '@/React/Context/Contacts/ContactContext.tsx';
+import { ContactActionType } from '@/React/Context/Contacts/ContactReducer.ts';
+import Button from '@/React/Common/Components/Button/Button.tsx';
 
 interface DeleteFriendModalProps {
     contact: Contact;
@@ -20,7 +19,7 @@ const DeleteFriendModal: React.FC<DeleteFriendModalProps> = ({ isOpen, onClose, 
     const { homeDispatch } = useHomePage();
 
     const handleDelete = () => {
-        window.electron.sendRequestAsync<Result>(new DeleteFriendCommand(contact.id)).then((result) => {
+        window.electron.sendRequestAsync(new DeleteFriendCommand(contact.id)).then((result) => {
             if (result.success) {
                 contactDispatch({ type: ContactActionType.Remove, payload: { id: contact.id } });
                 homeDispatch({ type: HomePageActionType.Clear });

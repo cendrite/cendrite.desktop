@@ -1,6 +1,8 @@
-﻿import { ChatPrivileges } from "../Enums/ChatPrivileges.js";
+import { ChatContract } from '../Models/ChatContract.js';
+import { ChatPrivileges } from "../Enums/ChatPrivileges.js";
 
-export class CreateChatCommand implements MediatorRequest {
+export class CreateChatCommand implements MediatorRequest<ChatContract> {
+    declare readonly _response?: ChatContract;
     type = CreateChatCommand.name;
     chatId: string;
     friendIds: string[];

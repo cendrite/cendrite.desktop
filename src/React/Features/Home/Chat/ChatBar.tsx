@@ -1,10 +1,10 @@
 ﻿import React, { useState } from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
-import { MediaType } from '../../../../Shared/Files/GetMedia.ts';
-import { ChatViewModel } from '../../../Models/ChatViewModel';
-import { Media } from '../../../Models/Media';
-import { useMessageService } from '../../../Common/Hooks/MessageService';
-import { MediaService } from '../../../Common/Services/MediaService';
+import { MediaType } from '@/Shared/Files/GetMedia.ts';
+import { ChatViewModel } from '@/React/Models/ChatViewModel';
+import { Media } from '@/React/Models/Media';
+import { useMessageService } from '@/React/Common/Hooks/MessageService';
+import { MediaService } from '@/React/Common/Services/MediaService';
 import { MediaItem } from './MediaBox';
 import { MicrophoneIcon, PaperclipIcon, SmileyIcon, XIcon } from '@phosphor-icons/react';
 

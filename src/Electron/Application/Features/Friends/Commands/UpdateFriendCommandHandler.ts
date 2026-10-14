@@ -3,7 +3,8 @@ import { Result } from '../../../../../Shared/Result/Result.js';
 import { IFriendRepository } from '../../../Contracts/Repositories/IFriendRepository.js';
 import { Handler } from '../../../Mediator/Handler.js';
 
-export class UpdateFriendCommand implements MediatorRequest {
+export class UpdateFriendCommand implements MediatorRequest<void> {
+    declare readonly _response?: void;
     type = "UpdateFriendCommand";
     id: string;
     username: string | null;

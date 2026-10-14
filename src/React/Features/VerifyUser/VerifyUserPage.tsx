@@ -2,13 +2,12 @@ import { Formik, Form, FormikHelpers } from 'formik';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { VerifyUserValidationSchema } from './Validation/VerifyUserFormValidation';
-import { CodeType } from '../../../Shared/Enums/CodeType.ts';
-import { VerifyUserCommand } from '../../../Shared/Authentication/VerifyUser.ts';
-import { Result } from '../../../Shared/Result/Result.ts';
-import { useOnboarding } from '../../Context/OnboardingContext.tsx';
-import ErrorTooltip from '../../Common/Components/Utility/ErrorToolTip.tsx';
-import FormButton from '../../Common/Components/Form/FormButton.tsx';
-import ResendCodeButton from '../../Common/Components/Form/ResendCodeButton.tsx';
+import { CodeType } from '@/Shared/Enums/CodeType.ts';
+import { VerifyUserCommand } from '@/Shared/Authentication/VerifyUser.ts';
+import { useOnboarding } from '@/React/Context/OnboardingContext.tsx';
+import ErrorTooltip from '@/React/Common/Components/Utility/ErrorToolTip.tsx';
+import FormButton from '@/React/Common/Components/Form/FormButton.tsx';
+import ResendCodeButton from '@/React/Common/Components/Form/ResendCodeButton.tsx';
 
 const VerifyUserPage: React.FC = () => {
     const navigate = useNavigate();
@@ -18,7 +17,7 @@ const VerifyUserPage: React.FC = () => {
         values: { verificationCode: string },
         { setFieldError }: FormikHelpers<{ verificationCode: string }>,
     ) => {
-        const result = await window.electron.sendRequestAsync<Result>(
+        const result = await window.electron.sendRequestAsync(
             new VerifyUserCommand(onboardingContext.onboardingData.UserId!, values.verificationCode),
         );
         if (result.success) {

@@ -12,9 +12,7 @@ const initialTheme = (process.argv.find((a) => a.startsWith(THEME_ARG))?.slice(T
 electron.contextBridge.exposeInMainWorld('electron', {
     initialTheme: initialTheme,
 
-    sendRequestAsync: async <TResponse,>(request: MediatorRequest): Promise<TResponse> => {
-        return await electron.ipcRenderer.invoke('mediator:send', request);
-    },
+    sendRequestAsync: (request: MediatorRequest) => electron.ipcRenderer.invoke('mediator:send', request),
 
     on: <E extends AppEvent>(event: E, callback: (data: AppEventMap[E]) => void): (() => void) => {
         if (!ALLOWED_EVENTS.includes(event)) {

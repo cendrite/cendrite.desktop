@@ -2,20 +2,20 @@ import { useNavigate } from 'react-router-dom';
 import React from 'react';
 import { Form, Formik, FormikHelpers } from 'formik';
 import { VerifyLoginValidationSchema } from './Validation/VerifyLoginValidationSchema';
-import { CodeType } from '../../../Shared/Enums/CodeType.ts';
-import { useOnboarding } from '../../Context/OnboardingContext.tsx';
-import ErrorTooltip from '../../Common/Components/Utility/ErrorToolTip.tsx';
-import FormButton from '../../Common/Components/Form/FormButton.tsx';
-import ResendCodeButton from '../../Common/Components/Form/ResendCodeButton.tsx';
-import { useUser } from '../../Context/User/UserContext.tsx';
-import { UserActionType } from '../../Context/User/UserReducer.ts';
-import { User } from '../../Models/User.ts';
-import { Result } from '../../../Shared/Result/Result.ts';
-import { VerifyLoginCommand } from '../../../Shared/Authentication/VerifyLogin.ts';
-import { UserContract } from '../../../Shared/Models/UserContract.ts';
+import { CodeType } from '@/Shared/Enums/CodeType.ts';
+import { useOnboarding } from '@/React/Context/OnboardingContext.tsx';
+import ErrorTooltip from '@/React/Common/Components/Utility/ErrorToolTip.tsx';
+import FormButton from '@/React/Common/Components/Form/FormButton.tsx';
+import ResendCodeButton from '@/React/Common/Components/Form/ResendCodeButton.tsx';
+import { useUser } from '@/React/Context/User/UserContext.tsx';
+import { UserActionType } from '@/React/Context/User/UserReducer.ts';
+import { User } from '@/React/Models/User.ts';
+import { Result } from '@/Shared/Result/Result.ts';
+import { VerifyLoginCommand } from '@/Shared/Authentication/VerifyLogin.ts';
+import { UserContract } from '@/Shared/Models/UserContract.ts';
 
 const createLocalUserProfile = (userId: string, code: string): Promise<Result<UserContract>> =>
-    window.electron.sendRequestAsync<Result<UserContract>>(new VerifyLoginCommand(userId, code));
+    window.electron.sendRequestAsync(new VerifyLoginCommand(userId, code));
 
 const VerifyLoginPage: React.FC = () => {
     const navigate = useNavigate();

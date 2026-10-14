@@ -33,7 +33,7 @@ export class DeliveryStatusUpdatePump extends Pump {
 
             console.log(`DeliveryUpdatePump: Processing delivery status update event ${deliveryEvent.id}`);
 
-            const result = await this.mediator.send<DeliveryStatusUpdatedCommand, void>(
+            const result = await this.mediator.send(
                 new DeliveryStatusUpdatedCommand(
                     deliveryEvent.senderId,
                     deliveryEvent.chatId,

@@ -1,10 +1,10 @@
 ﻿import React, { useEffect, useState } from 'react';
 import ChatHeader from './ChatHeader.tsx';
 import ChatBar from './ChatBar.tsx';
-import { useChatContext } from '../../../Context/Chat/ChatContext.tsx';
-import { DeliveryStatus } from '../../../../Shared/Enums/DeliveryStatus.ts';
-import { ChatActionType } from '../../../Context/Chat/ChatReducer.ts';
-import { useMessageService } from '../../../Common/Hooks/MessageService.ts';
+import { useChatContext } from '@/React/Context/Chat/ChatContext.tsx';
+import { DeliveryStatus } from '@/Shared/Enums/DeliveryStatus.ts';
+import { ChatActionType } from '@/React/Context/Chat/ChatReducer.ts';
+import { useMessageService } from '@/React/Common/Hooks/MessageService.ts';
 import MessageList from './MessageList.tsx';
 
 interface ChatPageProps {

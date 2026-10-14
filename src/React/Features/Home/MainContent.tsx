@@ -2,8 +2,8 @@
 import React from 'react';
 import PendingContactPage from './Contact/PendingContactPage.tsx';
 import ChatPage from './Chat/ChatPage.tsx';
-import { useHomePage } from '../../Context/HomePage/HomePageContext.tsx';
-import { HomePageActionType } from '../../Context/HomePage/HomePageReducer.ts';
+import { useHomePage } from '@/React/Context/HomePage/HomePageContext.tsx';
+import { HomePageActionType } from '@/React/Context/HomePage/HomePageReducer.ts';
 
 const MainContent: React.FC = () => {
     const { selectedItem, homeDispatch } = useHomePage();

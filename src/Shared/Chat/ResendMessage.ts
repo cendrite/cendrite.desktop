@@ -1,4 +1,5 @@
-export class ResendMessageCommand implements MediatorRequest {
+export class ResendMessageCommand implements MediatorRequest<void> {
+    declare readonly _response?: void;
     public readonly type: string = 'ResendMessageCommand'
     constructor(
         public readonly ChatId: string,

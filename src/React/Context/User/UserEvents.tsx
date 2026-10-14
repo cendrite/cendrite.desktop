@@ -1,12 +1,12 @@
 import { useCallback } from 'react';
-import { User } from '../../Models/User';
-import { AddUserConnectionIdCommand } from '../../../Shared/User/AddUserConnectionId.ts';
-import { RemoveUserConnectionIdCommand } from '../../../Shared/User/RemoveUserConnectionId.ts';
+import { User } from '@/React/Models/User';
+import { AddUserConnectionIdCommand } from '@/Shared/User/AddUserConnectionId.ts';
+import { RemoveUserConnectionIdCommand } from '@/Shared/User/RemoveUserConnectionId.ts';
 import { UserAction, UserActionType } from './UserReducer';
-import { AvatarUpdatedEvent, UserLoggedInEvent } from '../../../Shared/Events/EventData';
-import { ChangeEvent } from '../../../Shared/Events/ChangeEvent';
-import { ChangeEventType } from '../../../Shared/Events/ChangeEventType';
-import { useSignalEvent } from '../../Common/Utilities';
+import { AvatarUpdatedEvent, UserLoggedInEvent } from '@/Shared/Events/EventData';
+import { ChangeEvent } from '@/Shared/Events/ChangeEvent';
+import { ChangeEventType } from '@/Shared/Events/ChangeEventType';
+import { useSignalEvent } from '@/React/Common/Utilities';
 
 export function useUserEvents(user: User | null, dispatch: React.Dispatch<UserAction>) {
     const handleAvatarUpdate = useCallback(

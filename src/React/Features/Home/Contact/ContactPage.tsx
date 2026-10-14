@@ -1,10 +1,10 @@
 ﻿import React, { useEffect, useState } from 'react';
 import DeleteFriendModal from '../Modals/DeleteFriendModal.tsx';
-import MessageButton from '../../../Common/Components/CommunicationButtons/MessageButton.tsx';
-import VoiceCallButton from '../../../Common/Components/CommunicationButtons/VoiceCallButton.tsx';
-import VideoCallButton from '../../../Common/Components/CommunicationButtons/VideoCallButton.tsx';
-import { Contact } from '../../../Models/Contact.ts';
-import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
+import MessageButton from '@/React/Common/Components/CommunicationButtons/MessageButton.tsx';
+import VoiceCallButton from '@/React/Common/Components/CommunicationButtons/VoiceCallButton.tsx';
+import VideoCallButton from '@/React/Common/Components/CommunicationButtons/VideoCallButton.tsx';
+import { Contact } from '@/React/Models/Contact.ts';
+import Avatar from '@/React/Common/Components/Avatar/Avatar.tsx';
 import { BellSlashIcon, CaretLeftIcon, ClockIcon, PaintBrushIcon, PencilSimpleIcon, ProhibitIcon } from '@phosphor-icons/react';
 
 interface ContactPageProps {

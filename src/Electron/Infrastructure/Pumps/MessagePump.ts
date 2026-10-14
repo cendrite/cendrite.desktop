@@ -45,7 +45,7 @@ export class MessagePump extends Pump {
                 continue;
             }
 
-            const result = await this.mediator.send<MessageSentCommand, DeliveryStatus>(
+            const result = await this.mediator.send(
                 new MessageSentCommand(
                     msgEvent.message,
                     msgEvent.connectionIds,

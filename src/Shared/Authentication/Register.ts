@@ -1,4 +1,5 @@
-export class RegisterCommand implements MediatorRequest {
+export class RegisterCommand implements MediatorRequest<RegisterResponse> {
+    declare readonly _response?: RegisterResponse;
     public readonly type = 'RegisterCommand';
     constructor(
         public readonly username: string,

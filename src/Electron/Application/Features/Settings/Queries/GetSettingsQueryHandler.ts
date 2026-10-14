@@ -5,7 +5,8 @@ import { SettingsSection } from '../../../../../Shared/Enums/SettingsSection.js'
 import { SettingsDocument } from '../../../../../Shared/Settings/SettingsDocument.js';
 import { parseSettings } from '../SettingsDefaults.js';
 
-export class GetSettingsQuery implements MediatorRequest {
+export class GetSettingsQuery implements MediatorRequest<SettingsDocument> {
+    declare readonly _response?: SettingsDocument;
     public readonly type = 'GetSettingsQuery';
     constructor(public readonly section: SettingsSection) {}
 }

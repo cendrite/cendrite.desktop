@@ -1,23 +1,20 @@
-﻿import { ChatViewModel } from '../../Models/ChatViewModel.ts';
-import { Result } from '../../../Shared/Result/Result.ts';
-import { CreateChatCommand } from '../../../Shared/Chat/CreateChat.ts';
-import { ChatContract } from '../../../Shared/Models/ChatContract.ts';
-import { DeleteChatCommand } from '../../../Shared/Chat/DeleteChat.ts';
+﻿import { ChatViewModel } from '@/React/Models/ChatViewModel.ts';
+import { CreateChatCommand } from '@/Shared/Chat/CreateChat.ts';
+import { DeleteChatCommand } from '@/Shared/Chat/DeleteChat.ts';
 import { v4 as uuid } from 'uuid';
-import { ChatPrivileges } from '../../../Shared/Enums/ChatPrivileges.ts';
-import { ChatMemberViewModel } from '../../Models/ChatMemberViewModel.ts';
-import { GetChatsQuery } from '../../../Shared/Chat/GetChats.ts';
-import { Contact } from '../../Models/Contact.ts';
-import { User } from '../../Models/User.ts';
-import { sha256 } from '../../../Shared/HelperFunctions.ts';
-import { MessageViewModel } from '../../Models/MessageViewModel.ts';
-import { DeliveryStatus } from '../../../Shared/Enums/DeliveryStatus.ts';
-import { GetMessagesQuery } from '../../../Shared/Chat/GetMessages.ts';
-import { Media } from '../../Models/Media.ts';
-import { SendMessageCommand } from '../../../Shared/Chat/SendMessage.ts';
-import { ResendMessageCommand } from '../../../Shared/Chat/ResendMessage.ts';
-import { MessageContract } from '../../../Shared/Models/MessageContract.ts';
-import { UpdateDeliveryStatusCommand } from '../../../Shared/Chat/UpdateDeliveryStatus.ts';
+import { ChatPrivileges } from '@/Shared/Enums/ChatPrivileges.ts';
+import { ChatMemberViewModel } from '@/React/Models/ChatMemberViewModel.ts';
+import { GetChatsQuery } from '@/Shared/Chat/GetChats.ts';
+import { Contact } from '@/React/Models/Contact.ts';
+import { User } from '@/React/Models/User.ts';
+import { sha256 } from '@/Shared/HelperFunctions.ts';
+import { MessageViewModel } from '@/React/Models/MessageViewModel.ts';
+import { DeliveryStatus } from '@/Shared/Enums/DeliveryStatus.ts';
+import { GetMessagesQuery } from '@/Shared/Chat/GetMessages.ts';
+import { Media } from '@/React/Models/Media.ts';
+import { SendMessageCommand } from '@/Shared/Chat/SendMessage.ts';
+import { ResendMessageCommand } from '@/Shared/Chat/ResendMessage.ts';
+import { UpdateDeliveryStatusCommand } from '@/Shared/Chat/UpdateDeliveryStatus.ts';
 
 export class ChatService {
     public async sendMessage(
@@ -31,7 +28,7 @@ export class ChatService {
     ): Promise<MessageViewModel | null> {
         if (!text && media.length === 0) return null;
 
-        const messageResult = await window.electron.sendRequestAsync<Result<MessageContract>>(
+        const messageResult = await window.electron.sendRequestAsync(
             new SendMessageCommand(
                 chatId,
                 uuid().toString(),
@@ -55,7 +52,7 @@ export class ChatService {
     }
 
     public async resendMessage(chatId: string, messageId: string, connectionIds: string[], recipientTags: string[]) {
-        const result = await window.electron.sendRequestAsync<Result<void>>(
+        const result = await window.electron.sendRequestAsync(
             new ResendMessageCommand(chatId, messageId, connectionIds, recipientTags),
         );
 
@@ -101,7 +98,7 @@ export class ChatService {
 
     public async initializeChat(user: User, contact: Contact): Promise<ChatViewModel> {
         const chatId = await this.deriveChatId(user.userTag, contact.id);
-        const result = await window.electron.sendRequestAsync<Result<ChatContract>>(
+        const result = await window.electron.sendRequestAsync(
             new CreateChatCommand(chatId, [contact.id],  ChatPrivileges.Admin),
         );
 
@@ -124,7 +121,7 @@ export class ChatService {
     public async createGroupChat(contacts: Contact[], groupName: string | null): Promise<ChatViewModel> {
         const chatId = uuid().toString();
 
-        const result = await window.electron.sendRequestAsync<Result<ChatContract>>(
+        const result = await window.electron.sendRequestAsync(
             new CreateChatCommand(
                 chatId,
                 contacts.map((c) => c.id),
@@ -154,7 +151,7 @@ export class ChatService {
     }
 
     public async getChats(contacts: Contact[]): Promise<ChatViewModel[]> {
-        const chatsResult = await window.electron.sendRequestAsync<Result<ChatContract[]>>(new GetChatsQuery(30, 20));
+        const chatsResult = await window.electron.sendRequestAsync(new GetChatsQuery(30, 20));
 
         if (!chatsResult.success) {
             throw new Error('Failed to get chats');
@@ -190,7 +187,7 @@ export class ChatService {
     }
 
     public async getMessages(chatId: string, offset: number, take: number): Promise<MessageViewModel[]> {
-        const messages = await window.electron.sendRequestAsync<Result<MessageContract[]>>(
+        const messages = await window.electron.sendRequestAsync(
             new GetMessagesQuery(chatId, offset, take),
         );
 

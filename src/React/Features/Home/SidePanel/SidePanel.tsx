@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import SidePanelToggle from './SidePanelToggle';
 import PanelButton from './SidePanelButton';
 import UserModal from '../Modals/UserModal.tsx';
-import NotificationBadge from '../../../Context/Notification/NotificationBadge.tsx';
-import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
-import { useUser } from '../../../Context/User/UserContext.tsx';
-import SettingsModal from '../../Settings/SettingsModal.tsx';
+import NotificationBadge from '@/React/Context/Notification/NotificationBadge.tsx';
+import Avatar from '@/React/Common/Components/Avatar/Avatar.tsx';
+import { useUser } from '@/React/Context/User/UserContext.tsx';
+import SettingsModal from '@/React/Features/Settings/SettingsModal.tsx';
 import { AddressBookIcon, ChatCircleIcon, GearSixIcon } from '@phosphor-icons/react';
 
 export interface SidePanelProps {

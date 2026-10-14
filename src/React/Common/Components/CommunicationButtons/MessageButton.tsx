@@ -1,11 +1,11 @@
 ﻿import React from "react";
-import { ChatService } from "../../Services/ChatService.ts";
-import {useChatContext} from "../../../Context/Chat/ChatContext.tsx";
-import { ChatActionType } from "../../../Context/Chat/ChatReducer.ts";
-import {useHomePage} from "../../../Context/HomePage/HomePageContext.tsx";
-import {HomePageActionType} from "../../../Context/HomePage/HomePageReducer.ts";
-import { Contact } from "../../../Models/Contact.ts";
-import { useUser } from "../../../Context/User/UserContext.tsx";
+import { ChatService } from "@/React/Common/Services/ChatService.ts";
+import {useChatContext} from "@/React/Context/Chat/ChatContext.tsx";
+import { ChatActionType } from "@/React/Context/Chat/ChatReducer.ts";
+import {useHomePage} from "@/React/Context/HomePage/HomePageContext.tsx";
+import {HomePageActionType} from "@/React/Context/HomePage/HomePageReducer.ts";
+import { Contact } from "@/React/Models/Contact.ts";
+import { useUser } from "@/React/Context/User/UserContext.tsx";
 import { ChatCircleIcon } from "@phosphor-icons/react";
 
 

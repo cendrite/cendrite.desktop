@@ -2,10 +2,9 @@ import React, { useCallback, useEffect } from 'react';
 import { AuthSessionActionType, authSessionReducer, initialAuthSessionState } from './AuthSessionReducer';
 import { AuthSessionContext } from './AuthSessionContext';
 import { useUser } from '../User/UserContext';
-import { Result } from '../../../Shared/Result/Result';
 import { UserActionType } from '../User/UserReducer';
-import { User } from '../../Models/User';
-import { StartupDto, StartupCommand } from '../../../Shared/Authentication/Startup';
+import { User } from '@/React/Models/User';
+import { StartupCommand } from '@/Shared/Authentication/Startup';
 import {v4 as uuid } from 'uuid';
 
 export const AuthSessionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -15,7 +14,7 @@ export const AuthSessionProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
     const initializeApp = useCallback(async (): Promise<boolean> => {
         try {
-            const startUpResult = await window.electron.sendRequestAsync<Result<StartupDto>>(new StartupCommand());
+            const startUpResult = await window.electron.sendRequestAsync(new StartupCommand());
             if (!startUpResult.success) {
                 console.error('Error during startup', startUpResult.errorMessage);
                 return false;
