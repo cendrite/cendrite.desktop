@@ -8,7 +8,7 @@
     "dev": "npm-run-all --parallel dev:react dev:electron",
     "test": "npm-run-all --parallel test:unit test:integration",
     "dev:react": "vite",
-    "dev:electron": "npm run transpile:electron && cross-env NODE_ENV=development electron .",
+    "dev:electron": "npm run transpile:electron && cross-env NODE_ENV=development electron . --no-sandbox",
     "build": "npm run transpile:electron && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
