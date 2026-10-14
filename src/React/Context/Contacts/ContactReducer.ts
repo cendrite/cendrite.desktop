@@ -1,4 +1,5 @@
 import { Contact } from '@/React/Models/Contact';
+import { unknownAction } from '../unknownAction.ts';
 
 export enum ContactActionType {
     Initialize = -1,
@@ -23,22 +24,26 @@ export const contactReducer = (state: Contact[], action: ContactAction): Contact
             return action.payload;
 
         case ContactActionType.Add:
+            if (state.some((contact) => contact.id === action.payload.id)) return state;
             return [...state, action.payload];
 
         case ContactActionType.Remove:
             return state.filter((contact) => contact.id !== action.payload.id);
 
-        case ContactActionType.AddConnectionId:
+        case ContactActionType.AddConnectionId: {
+            const target = state.find((contact) => contact.id === action.payload.id);
+            if (!target || target.connectionIds.includes(action.payload.connectionId)) return state;
+
             return state.map((contact) =>
-                contact.id === action.payload.id
+                contact === target
                     ? new Contact(
-                        contact.id, 
-                        contact.username, 
-                        contact.displayName, 
-                        contact.avatarKey, 
-                        [...contact.connectionIds,
-                        action.payload.connectionId])
+                        contact.id,
+                        contact.username,
+                        contact.displayName,
+                        contact.avatarKey,
+                        [...contact.connectionIds, action.payload.connectionId])
                     : contact);
+        }
 
         case ContactActionType.RemoveConnectionId:
             return state.map((contact) =>
@@ -55,6 +60,6 @@ export const contactReducer = (state: Contact[], action: ContactAction): Contact
             return [];
 
         default:
-            return state;
+            return unknownAction('ContactReducer', action);
     }
 };

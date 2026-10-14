@@ -1,4 +1,5 @@
 import { PendingContact } from "@/React/Models/PendingContact";
+import { unknownAction } from "../unknownAction.ts";
 
 export enum PendingContactActionType {
     Initialize = -1,
@@ -24,6 +25,7 @@ export const pendingContactReducer = (
             return action.payload;
 
         case PendingContactActionType.Add:
+            if (state.some((pending) => pending.id === action.payload.id)) return state;
             return [...state, action.payload];
 
         case PendingContactActionType.Remove:
@@ -44,6 +46,6 @@ export const pendingContactReducer = (
             return [];
 
         default:
-            return state;
+            return unknownAction('PendingContactReducer', action);
     }
 };

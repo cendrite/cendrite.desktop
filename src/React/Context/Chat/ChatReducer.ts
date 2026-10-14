@@ -2,6 +2,7 @@
 import { MessageViewModel } from '@/React/Models/MessageViewModel.ts';
 import { DeliveryStatus } from '@/Shared/Enums/DeliveryStatus.ts';
 import { ChatState } from './ChatContext.tsx';
+import { unknownAction } from '../unknownAction.ts';
 
 export enum ChatActionType {
     Init = -1,
@@ -53,6 +54,7 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
             return { ...state, activeChatId: null };
 
         case ChatActionType.AddChat:
+            if (state.chats.some((c) => c.id === action.payload.id)) return state;
             return { ...state, chats: [...state.chats, action.payload] };
 
         case ChatActionType.RemoveChat: {
@@ -171,6 +173,6 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
             return { chats: [], activeChatId: null };
 
         default:
-            return state;
+            return unknownAction('ChatReducer', action);
     }
 };

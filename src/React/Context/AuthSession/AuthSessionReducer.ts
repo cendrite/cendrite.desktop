@@ -1,4 +1,6 @@
 
+import { unknownAction } from '../unknownAction.ts';
+
 export enum AuthSessionActionType {
     Initialize = -1,
     SetSessionId = 0,
@@ -40,7 +42,7 @@ export function authSessionReducer(
             return { sessionId: null, loading: false };
 
         default:
-            return state;
+            return unknownAction('AuthSessionReducer', action);
     }
 }
 
