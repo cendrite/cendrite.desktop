@@ -103,21 +103,33 @@ export class GroupService implements IGroupService {
         }
 
         const payloads: Record<string, Payload[]> = {};
+        const headHash = created.data.toString('base64');
+        const epochKeys = [epochKey.key.toString('base64')];
 
-        for (const member of chat.members) {
-            const strap = new GroupStrapPayload(
+        const strapFor = (writeKeyPrivate: Buffer) =>
+            new GroupStrapPayload(
                 group.groupId,
                 chat.groupName,
                 1,
-                created.data.toString('base64'),
-                [epochKey.key.toString('base64')],
-                minted.get(member.userTag)!.privateKey.toString('base64'),
+                headHash,
+                epochKeys,
+                writeKeyPrivate.toString('base64'),
                 members,
             );
+
+        for (const member of chat.members) {
+            const strap = strapFor(minted.get(member.userTag)!.privateKey);
 
             for (const connectionId of member.devices) {
                 payloads[connectionId] = [strap];
             }
+        }
+
+        // Our other devices are the same member, so they hold the same write key rather than a minted one.
+        const ownStrap = strapFor(ownWriteKey.privateKey);
+
+        for (const connectionId of members[0].connectionIds) {
+            if (connectionId !== device.connectionId) payloads[connectionId] = [ownStrap];
         }
 
         group.lifecycle = GroupLifecycle.Active;
