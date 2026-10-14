@@ -28,7 +28,6 @@ export default defineConfig(
             '@typescript-eslint/no-explicit-any': 'off',
         },
     },
-    // Process boundary: renderer <-> main talk only through src/Shared.
     {
         files: ['src/React/**/*.{ts,tsx}'],
         rules: {
