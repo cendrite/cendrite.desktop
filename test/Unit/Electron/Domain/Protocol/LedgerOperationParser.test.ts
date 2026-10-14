@@ -44,6 +44,13 @@ describe('parseLedgerOperation', () => {
         expect(parseLedgerOperation(json)?.type).toBe(LedgerOperationType.GroupCreated);
     });
 
+    it('accepts a member whose optional avatar and group name were omitted from the JSON', () => {
+        const { avatarKey: _avatarKey, ...withoutAvatar } = member;
+        const json = JSON.stringify({ ...base, type: LedgerOperationType.GroupCreated, members: [withoutAvatar] });
+
+        expect(parseLedgerOperation(json)?.type).toBe(LedgerOperationType.GroupCreated);
+    });
+
     it('accepts a device list', () => {
         const json = JSON.stringify({
             ...base,

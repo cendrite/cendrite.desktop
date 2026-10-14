@@ -22,7 +22,7 @@ export function parseLedgerOperation(json: string): LedgerOperation | null {
 
     switch (value.type) {
         case LedgerOperationType.GroupCreated:
-            return (value.name === null || typeof value.name === 'string') &&
+            return isNullableString(value.name) &&
                 isArrayOf(value.members, isMemberRef)
                 ? (value as unknown as LedgerOperation)
                 : null;
@@ -37,7 +37,7 @@ export function parseLedgerOperation(json: string): LedgerOperation | null {
                 ? (value as unknown as LedgerOperation)
                 : null;
         case LedgerOperationType.SettingsChanged:
-            return (value.name === null || typeof value.name === 'string') &&
+            return isNullableString(value.name) &&
                 (value.messageTtl === null || isNumber(value.messageTtl))
                 ? (value as unknown as LedgerOperation)
                 : null;
@@ -65,7 +65,7 @@ function isMemberRef(value: unknown): value is GroupMemberRef {
         typeof value.userTag === 'string' &&
         typeof value.displayName === 'string' &&
         isPrivilege(value.privilege) &&
-        (value.avatarKey === null || typeof value.avatarKey === 'string') &&
+        isNullableString(value.avatarKey) &&
         typeof value.identityKey === 'string' &&
         typeof value.writeKeyPublic === 'string' &&
         isArrayOf(value.connectionIds, isString)
@@ -82,6 +82,10 @@ function isObject(value: unknown): value is Json {
 
 function isNumber(value: unknown): value is number {
     return typeof value === 'number' && Number.isFinite(value);
+}
+
+function isNullableString(value: unknown): value is string | null | undefined {
+    return value === null || value === undefined || typeof value === 'string';
 }
 
 function isString(value: unknown): value is string {

@@ -11,8 +11,7 @@ export class Mediator {
         const key = this.handlerKey(request);
 
         if (!this.container.hasRegistration(key)) {
-            console.error(`No handler registered for request type ${request.type}`);
-            return Result.fail<TResponse>(new ErrorMessage(null, `No handler registered for request type ${request.type}`));
+            throw new Error(`No handler registered for request type ${request.type}`);
         }
 
         const handler = this.container.resolve<Handler<MediatorRequest<TResponse>, TResponse>>(key);
