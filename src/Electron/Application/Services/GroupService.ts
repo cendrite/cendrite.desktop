@@ -2,7 +2,7 @@ import { Result } from '../../../Shared/Result/Result.js';
 import { GroupEpochKey } from '../../Domain/Encryption/GroupEpochKey.js';
 import { GroupWriteKey } from '../../Domain/Encryption/GroupWriteKey.js';
 import { Group } from '../../Domain/Entities/Group.js';
-import { ChatPrivileges } from '../../../Shared/Contracts/Enums/ChatPrivileges.js';
+import { ChatPrivileges } from '../../../Shared/Enums/ChatPrivileges.js';
 import { GroupLifecycle } from '../../Domain/Enums/GroupLifecycle.js';
 import { GroupCreatedOperation, GroupMemberRef } from '../../Domain/Protocol/LedgerOperation.js';
 import { generateEpochKey, generateWriteKeyPair, WriteKeyPair } from '../../Infrastructure/Crypto/LedgerCodec.js';

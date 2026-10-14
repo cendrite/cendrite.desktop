@@ -1,6 +1,6 @@
 ﻿import React, { useState } from 'react';
-import { FriendshipStatus } from '../../../../Shared/Contracts/Enums/FriendshipStatus.ts';
-import { FriendshipDirection } from '../../../../Shared/Contracts/Enums/FriendshipDirection.ts';
+import { FriendshipStatus } from '../../../../Shared/Enums/FriendshipStatus.ts';
+import { FriendshipDirection } from '../../../../Shared/Enums/FriendshipDirection.ts';
 import { delay } from '../../../../Shared/HelperFunctions.ts';
 import ToolTip from '../Utility/ToolTip.tsx';
 import { useContacts } from '../../../Context/Contacts/ContactContext.tsx';
@@ -8,10 +8,10 @@ import { ContactActionType } from '../../../Context/Contacts/ContactReducer.ts';
 import { useUser } from '../../../Context/User/UserContext.tsx';
 import Avatar from '../Avatar/Avatar.tsx';
 import { Result } from '../../../../Shared/Result/Result.ts';
-import { SendFriendRequestCommand } from '../../../../Shared/Contracts/Friends/SendFriendRequest.ts';
-import { DeclineFriendRequestCommand } from '../../../../Shared/Contracts/Friends/DeclineFriendRequest.ts';
-import { AcceptFriendRequestCommand } from '../../../../Shared/Contracts/Friends/AcceptFriendRequest.ts';
-import { FriendContract } from '../../../../Shared/Contracts/Models/FriendContract.ts';
+import { SendFriendRequestCommand } from '../../../../Shared/Friends/SendFriendRequest.ts';
+import { DeclineFriendRequestCommand } from '../../../../Shared/Friends/DeclineFriendRequest.ts';
+import { AcceptFriendRequestCommand } from '../../../../Shared/Friends/AcceptFriendRequest.ts';
+import { FriendContract } from '../../../../Shared/Models/FriendContract.ts';
 import { Contact } from '../../../Models/Contact.ts';
 import { CheckIcon, PlusIcon, XIcon } from '@phosphor-icons/react';
 

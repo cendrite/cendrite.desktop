@@ -4,7 +4,7 @@ import { IEventRepository } from '../../../Contracts/Providers/IEventRepository.
 import { IChatStore } from '../../../Contracts/Repositories/IChatStore.js';
 import { IPump } from '../../../Contracts/Services/IPump.js';
 import { Handler } from '../../../Mediator/Handler.js';
-import { UpdateDeliveryStatusCommand } from '../../../../../Shared/Contracts/Chat/UpdateDeliveryStatus.js';
+import { UpdateDeliveryStatusCommand } from '../../../../../Shared/Chat/UpdateDeliveryStatus.js';
 import { v4 as uuid } from 'uuid';
 
 export class UpdateDeliveryStatusCommandHandler implements Handler<UpdateDeliveryStatusCommand> {

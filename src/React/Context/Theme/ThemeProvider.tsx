@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useReducer } from 'react';
 import { ThemeContext } from './ThemeContext.tsx';
 import { initialThemeState, resolveTheme, ThemeActionType, themeReducer, ThemeState } from './ThemeReducer.ts';
 import { Theme, THEME_APPEARANCE } from '../../../Shared/Theme.ts';
-import { UpdateSettingsCommand } from '../../../Shared/Contracts/Settings/UpdateSettings.ts';
+import { UpdateSettingsCommand } from '../../../Shared/Settings/UpdateSettings.ts';
 
 const SYSTEM_DARK_QUERY = '(prefers-color-scheme: dark)';
 

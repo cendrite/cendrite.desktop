@@ -1,6 +1,6 @@
-import { MessageContract } from './Contracts/Models/MessageContract';
-import { ChangeEvent } from './Contracts/Events/ChangeEvent.ts';
-import { DeliveryStatus } from './Contracts/Enums/DeliveryStatus.ts';
+import { MessageContract } from './Models/MessageContract';
+import { ChangeEvent } from './Events/ChangeEvent.ts';
+import { DeliveryStatus } from './Enums/DeliveryStatus.ts';
 import { Theme as AppTheme } from './Theme.ts';
 
 declare global {

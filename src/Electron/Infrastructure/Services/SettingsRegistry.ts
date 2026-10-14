@@ -1,6 +1,6 @@
 import { ISettingsRegistry } from '../../Application/Contracts/Services/ISettingsRegistry.js';
 import { ISettingsRepository } from '../../Application/Contracts/Repositories/ISettingsRepository.js';
-import { SettingsSection } from '../../../Shared/Contracts/Enums/SettingsSection.js';
+import { SettingsSection } from '../../../Shared/Enums/SettingsSection.js';
 import { settingsScopes } from '../../Application/Features/Settings/SettingsScope.js';
 import { AppearanceSettingsRepository } from '../Persistence/Repositories/AppearanceSettingsRepository.js';
 

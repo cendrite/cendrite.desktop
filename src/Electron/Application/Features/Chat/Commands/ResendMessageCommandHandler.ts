@@ -1,15 +1,15 @@
 import { ErrorMessage } from '../../../../../Shared/Result/ErrorMessage.js';
 import { Result } from '../../../../../Shared/Result/Result.js';
-import { DeliveryStatus } from '../../../../../Shared/Contracts/Enums/DeliveryStatus.js';
+import { DeliveryStatus } from '../../../../../Shared/Enums/DeliveryStatus.js';
 import { MessageSentEvent } from '../../../../Domain/Events/MessageSentEvent.js';
-import { MediaContract } from '../../../../../Shared/Contracts/Models/MediaContract.js';
-import { MessageContract } from '../../../../../Shared/Contracts/Models/MessageContract.js';
+import { MediaContract } from '../../../../../Shared/Models/MediaContract.js';
+import { MessageContract } from '../../../../../Shared/Models/MessageContract.js';
 import { IEventRepository } from '../../../Contracts/Providers/IEventRepository.js';
 import { IChatStore } from '../../../Contracts/Repositories/IChatStore.js';
 import { IMediaStore } from '../../../Contracts/Repositories/IMediaStore.js';
 import { IPump } from '../../../Contracts/Services/IPump.js';
 import { Handler } from '../../../Mediator/Handler.js';
-import { ResendMessageCommand } from '../../../../../Shared/Contracts/Chat/ResendMessage.js';
+import { ResendMessageCommand } from '../../../../../Shared/Chat/ResendMessage.js';
 import { v4 as uuid } from 'uuid';
 
 export class ResendMessageCommandHandler implements Handler<ResendMessageCommand> {

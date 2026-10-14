@@ -1,6 +1,6 @@
 import { Result } from '../../../../../Shared/Result/Result.js';
-import { DeliveryStatus } from '../../../../../Shared/Contracts/Enums/DeliveryStatus.js';
-import { MessageContract } from '../../../../../Shared/Contracts/Models/MessageContract.js';
+import { DeliveryStatus } from '../../../../../Shared/Enums/DeliveryStatus.js';
+import { MessageContract } from '../../../../../Shared/Models/MessageContract.js';
 import { ISessionManager } from '../../../Contracts/Services/ISessionManager.js';
 import { IMessageHubHandler, ServerMessage } from '../../../Contracts/Services/IMessageHubHandler.js';
 import { Envelope, MessagePayload, Payload } from '../../../../Domain/Protocol/Payload.js';

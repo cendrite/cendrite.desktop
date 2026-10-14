@@ -3,7 +3,7 @@ import { IHubHandler } from '../IHubHandler.js';
 import { HubKey } from '../SignalRHubPath.js';
 import { HubMethods } from '../HubMethods.js';
 import { IMessageHubHandler, ServerMessage } from '../../../Application/Contracts/Services/IMessageHubHandler.js';
-import { DeliveryStatus } from '../../../../Shared/Contracts/Enums/DeliveryStatus.js';
+import { DeliveryStatus } from '../../../../Shared/Enums/DeliveryStatus.js';
 import { IMessageReceiver } from './MessageReceiver.js';
 
 type ServerMessageDto = {

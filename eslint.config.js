@@ -37,7 +37,7 @@ export default defineConfig(
                     patterns: [
                         {
                             group: ['**/Electron/**'],
-                            message: 'The renderer must not import main-process code. Put shared contracts in src/Shared/Contracts.',
+                            message: 'The renderer must not import main-process code. Put shared contracts in src/Shared.',
                         },
                     ],
                 },
@@ -53,7 +53,7 @@ export default defineConfig(
                     patterns: [
                         {
                             group: ['**/React/**'],
-                            message: 'The main process must not import renderer code. Put shared contracts in src/Shared/Contracts.',
+                            message: 'The main process must not import renderer code. Put shared contracts in src/Shared.',
                         },
                     ],
                 },

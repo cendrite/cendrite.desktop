@@ -6,9 +6,9 @@ import { usePendingContacts } from '../../../Context/PendingContact/PendingConta
 import { PendingContactActionType } from '../../../Context/PendingContact/PendingContactReducer.ts';
 import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
 import { Result } from '../../../../Shared/Result/Result.ts';
-import { FriendContract } from '../../../../Shared/Contracts/Models/FriendContract.ts';
-import { AcceptFriendRequestCommand } from '../../../../Shared/Contracts/Friends/AcceptFriendRequest.ts';
-import { DeclineFriendRequestCommand } from '../../../../Shared/Contracts/Friends/DeclineFriendRequest.ts';
+import { FriendContract } from '../../../../Shared/Models/FriendContract.ts';
+import { AcceptFriendRequestCommand } from '../../../../Shared/Friends/AcceptFriendRequest.ts';
+import { DeclineFriendRequestCommand } from '../../../../Shared/Friends/DeclineFriendRequest.ts';
 import { CaretLeftIcon, CheckIcon, ProhibitIcon, WarningIcon, XIcon } from '@phosphor-icons/react';
 
 interface PendingContactPage {

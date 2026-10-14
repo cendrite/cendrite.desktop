@@ -1,7 +1,7 @@
 import React from 'react';
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 import { Result } from '../../../../Shared/Result/Result.ts';
-import { DeleteFriendCommand } from '../../../../Shared/Contracts/Friends/DeleteFriend.ts';
+import { DeleteFriendCommand } from '../../../../Shared/Friends/DeleteFriend.ts';
 import { useHomePage } from '../../../Context/HomePage/HomePageContext.tsx';
 import { HomePageActionType } from '../../../Context/HomePage/HomePageReducer.ts';
 import { Contact } from '../../../Models/Contact.ts';

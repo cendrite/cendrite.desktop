@@ -1,15 +1,15 @@
 import { Result } from "../../../../../Shared/Result/Result.js";
 import { Chat } from "../../../../Domain/Aggregates/Chat.js";
 import { Message } from "../../../../Domain/Entities/Message.js";
-import { ChatContract } from "../../../../../Shared/Contracts/Models/ChatContract.js";
-import { ChatMemberContract } from "../../../../../Shared/Contracts/Models/ChatMemberContract.js";
-import { MediaContract } from "../../../../../Shared/Contracts/Models/MediaContract.js";
-import { MessageContract } from "../../../../../Shared/Contracts/Models/MessageContract.js";
+import { ChatContract } from "../../../../../Shared/Models/ChatContract.js";
+import { ChatMemberContract } from "../../../../../Shared/Models/ChatMemberContract.js";
+import { MediaContract } from "../../../../../Shared/Models/MediaContract.js";
+import { MessageContract } from "../../../../../Shared/Models/MessageContract.js";
 import { IChatStore } from "../../../Contracts/Repositories/IChatStore.js";
 import { IGroupRepository } from "../../../Contracts/Repositories/IGroupRepository.js";
 import { IMediaStore } from "../../../Contracts/Repositories/IMediaStore.js";
 import { Handler } from "../../../Mediator/Handler.js";
-import { GetChatsQuery } from "../../../../../Shared/Contracts/Chat/GetChats.js";
+import { GetChatsQuery } from "../../../../../Shared/Chat/GetChats.js";
 
 export class GetChatsQueryHandler implements Handler<GetChatsQuery, ChatContract[]> {
     constructor(

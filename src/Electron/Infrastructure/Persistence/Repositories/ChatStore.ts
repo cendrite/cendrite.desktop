@@ -3,7 +3,7 @@ import { Chat } from '../../../Domain/Aggregates/Chat.js';
 import { getDbContext } from '../Context/DatabaseContext.js';
 import { ChatMember } from '../../../Domain/Entities/ChatMember.js';
 import { Message } from '../../../Domain/Entities/Message.js';
-import { DeliveryStatus } from '../../../../Shared/Contracts/Enums/DeliveryStatus.js';
+import { DeliveryStatus } from '../../../../Shared/Enums/DeliveryStatus.js';
 import { IChatStore } from '../../../Application/Contracts/Repositories/IChatStore.js';
 
 export class ChatStore implements IChatStore {

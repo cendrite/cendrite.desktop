@@ -1,6 +1,6 @@
 ﻿import { ChatViewModel } from '../../Models/ChatViewModel.ts';
 import { MessageViewModel } from '../../Models/MessageViewModel.ts';
-import { DeliveryStatus } from '../../../Shared/Contracts/Enums/DeliveryStatus.ts';
+import { DeliveryStatus } from '../../../Shared/Enums/DeliveryStatus.ts';
 import { ChatState } from './ChatContext.tsx';
 
 export enum ChatActionType {

@@ -5,7 +5,7 @@ import { useUser } from '../User/UserContext';
 import { Result } from '../../../Shared/Result/Result';
 import { UserActionType } from '../User/UserReducer';
 import { User } from '../../Models/User';
-import { StartupDto, StartupCommand } from '../../../Shared/Contracts/Authentication/Startup';
+import { StartupDto, StartupCommand } from '../../../Shared/Authentication/Startup';
 import {v4 as uuid } from 'uuid';
 
 export const AuthSessionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

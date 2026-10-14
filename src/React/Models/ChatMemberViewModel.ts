@@ -1,4 +1,4 @@
-﻿import {ChatPrivileges} from "../../Shared/Contracts/Enums/ChatPrivileges.ts";
+﻿import {ChatPrivileges} from "../../Shared/Enums/ChatPrivileges.ts";
 import { Contact } from "./Contact.ts";
 
 export class ChatMemberViewModel {

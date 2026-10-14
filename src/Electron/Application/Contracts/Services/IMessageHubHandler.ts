@@ -1,4 +1,4 @@
-import { DeliveryStatus } from '../../../../Shared/Contracts/Enums/DeliveryStatus.js';
+import { DeliveryStatus } from '../../../../Shared/Enums/DeliveryStatus.js';
 
 export interface IMessageHubHandler {
     sendMessage(messages: ServerMessage[]): Promise<DeliveryStatus>;

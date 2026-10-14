@@ -1,15 +1,15 @@
 import { useCallback } from 'react';
-import { CreateFriendCommand } from '../../../Shared/Contracts/Friends/CreateFriend.js';
+import { CreateFriendCommand } from '../../../Shared/Friends/CreateFriend.js';
 import { Contact } from '../../Models/Contact';
 import { User } from '../../Models/User';
 import { ContactAction, ContactActionType } from './ContactReducer';
 import { getById } from './ContactSelectors';
-import { DeleteFriendCommand } from '../../../Shared/Contracts/Friends/DeleteFriend.js';
-import { RemoveFriendConnectionIdCommand } from '../../../Shared/Contracts/Friends/RemoveFriendConnectionId.js';
-import { AddFriendConnectionIdCommand } from '../../../Shared/Contracts/Friends/AddFriendConnectionId.js';
-import { ChangeEvent } from '../../../Shared/Contracts/Events/ChangeEvent';
-import { FriendDeletedEvent, FriendRequestAcceptedEvent, UserLoggedInEvent, UserLoggedOutEvent } from '../../../Shared/Contracts/Events/EventData';
-import { ChangeEventType } from '../../../Shared/Contracts/Events/ChangeEventType';
+import { DeleteFriendCommand } from '../../../Shared/Friends/DeleteFriend.js';
+import { RemoveFriendConnectionIdCommand } from '../../../Shared/Friends/RemoveFriendConnectionId.js';
+import { AddFriendConnectionIdCommand } from '../../../Shared/Friends/AddFriendConnectionId.js';
+import { ChangeEvent } from '../../../Shared/Events/ChangeEvent';
+import { FriendDeletedEvent, FriendRequestAcceptedEvent, UserLoggedInEvent, UserLoggedOutEvent } from '../../../Shared/Events/EventData';
+import { ChangeEventType } from '../../../Shared/Events/ChangeEventType';
 import { useSignalEvent } from '../../Common/Utilities';
 
 export function useContactEvents(

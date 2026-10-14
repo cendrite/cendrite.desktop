@@ -1,5 +1,5 @@
 import { Result } from "../../../../../Shared/Result/Result.js";
-import { DeliveryStatus } from "../../../../../Shared/Contracts/Enums/DeliveryStatus.js";
+import { DeliveryStatus } from "../../../../../Shared/Enums/DeliveryStatus.js";
 import { ISessionManager } from "../../../Contracts/Services/ISessionManager.js";
 import { IMessageHubHandler, ServerMessage } from "../../../Contracts/Services/IMessageHubHandler.js";
 import { DeliveryStatusPayload, Envelope } from "../../../../Domain/Protocol/Payload.js";

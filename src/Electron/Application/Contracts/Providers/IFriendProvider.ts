@@ -1,6 +1,6 @@
 import { Result } from '../../../../Shared/Result/Result.js';
-import { FriendshipDirection } from '../../../../Shared/Contracts/Enums/FriendshipDirection.js';
-import { FriendshipStatus } from '../../../../Shared/Contracts/Enums/FriendshipStatus.js';
+import { FriendshipDirection } from '../../../../Shared/Enums/FriendshipDirection.js';
+import { FriendshipStatus } from '../../../../Shared/Enums/FriendshipStatus.js';
 
 export interface GetProfileResponse {
     username: string;

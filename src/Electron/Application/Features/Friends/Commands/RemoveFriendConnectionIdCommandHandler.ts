@@ -2,7 +2,7 @@
 import { Result } from '../../../../../Shared/Result/Result.js';
 import { IFriendRepository } from '../../../Contracts/Repositories/IFriendRepository.js';
 import { Handler } from '../../../Mediator/Handler.js';
-import { RemoveFriendConnectionIdCommand } from '../../../../../Shared/Contracts/Friends/RemoveFriendConnectionId.js';
+import { RemoveFriendConnectionIdCommand } from '../../../../../Shared/Friends/RemoveFriendConnectionId.js';
 
 export class RemoveFriendConnectionIdCommandHandler implements Handler<RemoveFriendConnectionIdCommand> {
     constructor(private readonly friendRepository: IFriendRepository) { }

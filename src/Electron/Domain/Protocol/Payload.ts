@@ -1,4 +1,4 @@
-import { DeliveryStatus } from '../../../Shared/Contracts/Enums/DeliveryStatus.js';
+import { DeliveryStatus } from '../../../Shared/Enums/DeliveryStatus.js';
 import { GroupMemberRef } from './LedgerOperation.js';
 
 export enum PayloadType {

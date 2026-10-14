@@ -1,8 +1,8 @@
 import { Handler } from '../../../Mediator/Handler.js';
 import { Result } from '../../../../../Shared/Result/Result.js';
 import { ISettingsRegistry } from '../../../Contracts/Services/ISettingsRegistry.js';
-import { SettingsSection } from '../../../../../Shared/Contracts/Enums/SettingsSection.js';
-import { SettingsDocument } from '../../../../../Shared/Contracts/Settings/SettingsDocument.js';
+import { SettingsSection } from '../../../../../Shared/Enums/SettingsSection.js';
+import { SettingsDocument } from '../../../../../Shared/Settings/SettingsDocument.js';
 import { parseSettings } from '../SettingsDefaults.js';
 
 export class GetSettingsQuery implements MediatorRequest {

@@ -1,4 +1,4 @@
-﻿import { DeliveryStatus } from '../../../../Shared/Contracts/Enums/DeliveryStatus.ts';
+﻿import { DeliveryStatus } from '../../../../Shared/Enums/DeliveryStatus.ts';
 import { useUser } from '../../../Context/User/UserContext.tsx';
 import { MessageViewModel } from '../../../Models/MessageViewModel.ts';
 import {

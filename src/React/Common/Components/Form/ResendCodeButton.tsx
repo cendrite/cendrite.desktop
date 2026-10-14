@@ -1,6 +1,6 @@
 ﻿import React, {useState} from "react";
-import {CodeType} from "../../../../Shared/Contracts/Enums/CodeType.ts";
-import {ResendVerificationCodeCommand} from "../../../../Shared/Contracts/Authentication/ResendVerificationCode.ts";
+import {CodeType} from "../../../../Shared/Enums/CodeType.ts";
+import {ResendVerificationCodeCommand} from "../../../../Shared/Authentication/ResendVerificationCode.ts";
 import {Result} from "../../../../Shared/Result/Result.ts";
 
 interface ResendCodeButtonProps {

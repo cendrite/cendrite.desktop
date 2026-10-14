@@ -6,8 +6,8 @@ import { FriendResponse, IFriendProvider } from '../../../Contracts/Providers/IF
 import { IChatStore } from '../../../Contracts/Repositories/IChatStore.js';
 import { IFriendRepository } from '../../../Contracts/Repositories/IFriendRepository.js';
 import { Handler } from '../../../Mediator/Handler.js';
-import { SyncFriendsQuery } from '../../../../../Shared/Contracts/Friends/SyncFriends.js';
-import { FriendContract } from '../../../../../Shared/Contracts/Models/FriendContract.js';
+import { SyncFriendsQuery } from '../../../../../Shared/Friends/SyncFriends.js';
+import { FriendContract } from '../../../../../Shared/Models/FriendContract.js';
 
 export class SyncFriendsQueryHandler implements Handler<SyncFriendsQuery, FriendContract[]> {
     constructor(

@@ -1,7 +1,7 @@
 ﻿import {ChatMember} from "../../../Domain/Entities/ChatMember.js";
 import {EntitySchema} from "typeorm";
 import {BaseSchema} from "./BaseSchema.js";
-import {ChatPrivileges} from "../../../../Shared/Contracts/Enums/ChatPrivileges.js";
+import {ChatPrivileges} from "../../../../Shared/Enums/ChatPrivileges.js";
 import {Friend} from "../../../Domain/Aggregates/Friend.js";
 import { Chat } from "../../../Domain/Aggregates/Chat.js";
 

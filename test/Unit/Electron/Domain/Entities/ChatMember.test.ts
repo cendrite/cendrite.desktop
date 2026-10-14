@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { ChatMember } from '../../../../../src/Electron/Domain/Entities/ChatMember.js';
 import { Friend } from '../../../../../src/Electron/Domain/Aggregates/Friend.js';
 import { FriendConnectionId } from '../../../../../src/Electron/Domain/Entities/FriendConnectionId.js';
-import { ChatPrivileges } from '../../../../../src/Shared/Contracts/Enums/ChatPrivileges.js';
+import { ChatPrivileges } from '../../../../../src/Shared/Enums/ChatPrivileges.js';
 
 function friend(): Friend {
     const f = new Friend();

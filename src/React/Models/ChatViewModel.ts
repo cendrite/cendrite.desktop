@@ -1,6 +1,6 @@
 ﻿import { MessageViewModel } from './MessageViewModel.ts';
 import { ChatMemberViewModel } from './ChatMemberViewModel.ts';
-import { DeliveryStatus } from '../../Shared/Contracts/Enums/DeliveryStatus.ts';
+import { DeliveryStatus } from '../../Shared/Enums/DeliveryStatus.ts';
 
 export class ChatViewModel {
     id: string;

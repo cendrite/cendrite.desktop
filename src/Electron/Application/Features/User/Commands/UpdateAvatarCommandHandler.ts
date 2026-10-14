@@ -3,7 +3,7 @@ import { Result } from '../../../../../Shared/Result/Result.js';
 import { IUserProvider } from '../../../Contracts/Providers/IUserProvider.js';
 import { IUserRepository } from '../../../Contracts/Repositories/IUserRepository.js';
 import { Handler } from '../../../Mediator/Handler.js';
-import { UpdateAvatarCommand } from '../../../../../Shared/Contracts/User/UpdateAvatar.js';
+import { UpdateAvatarCommand } from '../../../../../Shared/User/UpdateAvatar.js';
 
 export class UpdateAvatarCommandHandler implements Handler<UpdateAvatarCommand, string> {
     constructor(

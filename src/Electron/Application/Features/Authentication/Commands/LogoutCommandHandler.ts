@@ -6,7 +6,7 @@ import { IPump } from '../../../Contracts/Services/IPump.js';
 import { Handler } from '../../../Mediator/Handler.js';
 import { IPurgeLocalData } from '../../../Contracts/Services/IPurgeLocalData.js';
 import { LogoutManager } from '../../../Services/LogoutManager/LogoutManager.js';
-import { LogoutCommand } from '../../../../../Shared/Contracts/Authentication/Logout.js';
+import { LogoutCommand } from '../../../../../Shared/Authentication/Logout.js';
 
 export class LogoutCommandHandler implements Handler<LogoutCommand, void> {
     constructor(

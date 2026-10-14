@@ -1,7 +1,7 @@
 import { IChatStore } from '../../Application/Contracts/Repositories/IChatStore.js';
 import { MessageSentCommand } from '../../Application/Features/Chat/Events/MessageSentEventHandler.js';
 import { Mediator } from '../../Application/Mediator/Mediator.js';
-import { DeliveryStatus } from '../../../Shared/Contracts/Enums/DeliveryStatus.js';
+import { DeliveryStatus } from '../../../Shared/Enums/DeliveryStatus.js';
 import { MessageSentEvent } from '../../Domain/Events/MessageSentEvent.js';
 import { IOutboxRepository } from '../Interfaces/IOutboxRepository.js';
 import { SignalManager } from '../Signal/SignalManager.js';

@@ -1,12 +1,12 @@
 ﻿import { Result } from '../../../../../Shared/Result/Result.js';
 import { Chat } from '../../../../Domain/Aggregates/Chat.js';
 import { ChatMember } from '../../../../Domain/Entities/ChatMember.js';
-import { ChatContract } from '../../../../../Shared/Contracts/Models/ChatContract.js';
-import { ChatMemberContract } from '../../../../../Shared/Contracts/Models/ChatMemberContract.js';
+import { ChatContract } from '../../../../../Shared/Models/ChatContract.js';
+import { ChatMemberContract } from '../../../../../Shared/Models/ChatMemberContract.js';
 import { IChatStore } from '../../../Contracts/Repositories/IChatStore.js';
 import { IFriendRepository } from '../../../Contracts/Repositories/IFriendRepository.js';
 import { Handler } from '../../../Mediator/Handler.js';
-import { CreateChatCommand } from '../../../../../Shared/Contracts/Chat/CreateChat.js';
+import { CreateChatCommand } from '../../../../../Shared/Chat/CreateChat.js';
 import { IGroupService } from '../../../Services/GroupService.js';
 
 export class CreateChatCommandHandler implements Handler<CreateChatCommand, ChatContract> {
