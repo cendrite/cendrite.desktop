@@ -7,12 +7,12 @@ import { IDeviceRepository } from '../../../Contracts/Repositories/IDeviceReposi
 import { IAuthenticationProvider } from '../../../Contracts/Providers/IAuthenticationProvider.js';
 import { IDeviceProvider } from '../../../Contracts/Providers/IDeviceProvider.js';
 import { Handler } from '../../../Mediator/Handler.js';
-import { VerifyLoginCommand } from '../Contracts/VerifyLogin.js';
+import { VerifyLoginCommand } from '../../../../../Shared/Authentication/VerifyLogin.js';
 import { IKeyGenerator } from '../../../Contracts/Services/IKeyGenerator.js';
 import { ISignalManager } from '../../../Contracts/Services/ISignalManager.js';
 import { IUserRepository } from '../../../Contracts/Repositories/IUserRepository.js';
 import { IUserProvider } from '../../../Contracts/Providers/IUserProvider.js';
-import { UserContract } from '../../../Contracts/Models/UserContract.js';
+import { UserContract } from '../../../../../Shared/Models/UserContract.js';
 import { User } from '../../../../Domain/Aggregates/User.js';
 import { UserConnectionId } from '../../../../Domain/Entities/UserConnectionId.js';
 import { IPump } from '../../../Contracts/Services/IPump.js';

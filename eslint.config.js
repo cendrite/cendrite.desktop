@@ -28,5 +28,53 @@ export default defineConfig(
             '@typescript-eslint/no-explicit-any': 'off',
         },
     },
+    {
+        files: ['src/React/**/*.{ts,tsx}'],
+        rules: {
+            'no-restricted-imports': [
+                'error',
+                {
+                    patterns: [
+                        {
+                            group: ['**/Electron/**'],
+                            message: 'The renderer must not import main-process code. Put shared contracts in src/Shared.',
+                        },
+                    ],
+                },
+            ],
+        },
+    },
+    {
+        files: ['src/Electron/**/*.{ts,cts}'],
+        rules: {
+            'no-restricted-imports': [
+                'error',
+                {
+                    patterns: [
+                        {
+                            group: ['**/React/**'],
+                            message: 'The main process must not import renderer code. Put shared contracts in src/Shared.',
+                        },
+                    ],
+                },
+            ],
+        },
+    },
+    {
+        files: ['src/Shared/**/*.ts'],
+        rules: {
+            'no-restricted-imports': [
+                'error',
+                {
+                    patterns: [
+                        {
+                            group: ['**/Electron/**', '**/React/**'],
+                            message: 'src/Shared is the dependency-free kernel; it must not import from either process.',
+                        },
+                    ],
+                },
+            ],
+        },
+    },
 );
 ;

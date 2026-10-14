@@ -1,5 +1,5 @@
-import { DeliveryStatus } from '../../../Domain/Enums/DeliveryStatus.js';
-import { GroupMemberRef } from '../../../Domain/Operations/LedgerOperation.js';
+import { DeliveryStatus } from '../../../Shared/Enums/DeliveryStatus.js';
+import { GroupMemberRef } from './LedgerOperation.js';
 
 export enum PayloadType {
     ChatMessage = 0,

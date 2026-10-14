@@ -1,7 +1,5 @@
 ﻿import { ChangeEventType } from "./ChangeEventType.js";
 
-export type ChangeEventHandler = (event: ChangeEvent) => void;
-
 export interface ChangeEvent<T = unknown>
 {
     id: string;

@@ -1,4 +1,4 @@
-import { CodeType } from '../../../Contracts/Enums/CodeType.js';
+import { CodeType } from '../Enums/CodeType.js';
 
 export class ResendVerificationCodeCommand implements MediatorRequest {
     public readonly type = 'ResendVerificationCodeCommand';

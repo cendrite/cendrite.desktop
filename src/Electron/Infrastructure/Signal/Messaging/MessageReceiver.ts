@@ -3,17 +3,17 @@ import { ISessionManager } from '../../../Application/Contracts/Services/ISessio
 import { IChatStore } from '../../../Application/Contracts/Repositories/IChatStore.js';
 import { IMediaStore } from '../../../Application/Contracts/Repositories/IMediaStore.js';
 import { IMediaService } from '../../../Application/Services/Media/MediaService.js';
-import { ServerMessage } from '../../../Application/Contracts/Messaging/ServerMessage.js';
+import { ServerMessage } from '../../../Application/Contracts/Services/IMessageHubHandler.js';
 import {
     DeliveryStatusPayload,
     GroupStrapPayload,
     MessagePayload,
     PayloadType,
-} from '../../../Application/Contracts/Messaging/Payload.js';
+} from '../../../Domain/Protocol/Payload.js';
 import { Message } from '../../../Domain/Entities/Message.js';
 import { MessageMedia } from '../../../Domain/Entities/MessageMedia.js';
-import { DeliveryStatus } from '../../../Domain/Enums/DeliveryStatus.js';
-import { MessageContract } from '../../../Application/Contracts/Models/MessageContract.js';
+import { DeliveryStatus } from '../../../../Shared/Enums/DeliveryStatus.js';
+import { MessageContract } from '../../../../Shared/Models/MessageContract.js';
 import { IFriendRepository } from '../../../Application/Contracts/Repositories/IFriendRepository.js';
 import { IUserRepository } from '../../../Application/Contracts/Repositories/IUserRepository.js';
 import { IGroupRepository } from '../../../Application/Contracts/Repositories/IGroupRepository.js';
@@ -25,7 +25,7 @@ import { GroupLifecycle } from '../../../Domain/Enums/GroupLifecycle.js';
 import { publicKeyFromPrivate } from '../../Crypto/LedgerCodec.js';
 import { Chat } from '../../../Domain/Aggregates/Chat.js';
 import { ChatMember } from '../../../Domain/Entities/ChatMember.js';
-import { ChatPrivileges } from '../../../Domain/Enums/ChatPrivileges.js';
+import { ChatPrivileges } from '../../../../Shared/Enums/ChatPrivileges.js';
 import { v4 as uuid } from 'uuid';
 
 export interface IMessageReceiver {

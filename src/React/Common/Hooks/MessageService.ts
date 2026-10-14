@@ -6,7 +6,7 @@ import { NotificationActionType } from '../../Context/Notification/NotificationR
 import { useCallback } from 'react';
 import { useUser } from '../../Context/User/UserContext.tsx';
 import React from 'react';
-import { DeliveryStatus } from '../../../Electron/Domain/Enums/DeliveryStatus.ts';
+import { DeliveryStatus } from '../../../Shared/Enums/DeliveryStatus.ts';
 import { ChatService } from '../Services/ChatService.ts';
 import { Media } from '../../Models/Media.ts';
 import { MessageViewModel } from '../../Models/MessageViewModel.ts';

@@ -19,9 +19,9 @@ import {
     GroupMemberRef,
     LedgerOperation,
     MemberAddedOperation,
-} from '../../../../../src/Electron/Domain/Operations/LedgerOperation.js';
+} from '../../../../../src/Electron/Domain/Protocol/LedgerOperation.js';
 import { LedgerOperationType } from '../../../../../src/Electron/Domain/Enums/LedgerOperationType.js';
-import { ChatPrivileges } from '../../../../../src/Electron/Domain/Enums/ChatPrivileges.js';
+import { ChatPrivileges } from '../../../../../src/Shared/Enums/ChatPrivileges.js';
 
 const GROUP_ID = '0199673a-3c1e-7c2b-9f2e-5d8b1a4c7e10';
 const EPOCH = 1;

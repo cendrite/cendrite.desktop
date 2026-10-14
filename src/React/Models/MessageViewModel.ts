@@ -1,7 +1,7 @@
-﻿import { DeliveryStatus } from '../../Electron/Domain/Enums/DeliveryStatus.ts';
+﻿import { DeliveryStatus } from '../../Shared/Enums/DeliveryStatus.ts';
 import { v4 as uuid } from 'uuid';
 import { Media } from './Media.ts';
-import { MessageContract } from '../../Electron/Application/Contracts/Models/MessageContract.ts';
+import { MessageContract } from '../../Shared/Models/MessageContract.ts';
 
 export class MessageViewModel {
     id: string;

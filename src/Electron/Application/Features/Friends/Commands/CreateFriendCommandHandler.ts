@@ -3,7 +3,7 @@ import { Friend } from '../../../../Domain/Aggregates/Friend.js';
 import { FriendConnectionId } from '../../../../Domain/Entities/FriendConnectionId.js';
 import { IFriendRepository } from '../../../Contracts/Repositories/IFriendRepository.js';
 import { Handler } from '../../../Mediator/Handler.js';
-import { CreateFriendCommand } from '../Contracts/CreateFriend.js';
+import { CreateFriendCommand } from '../../../../../Shared/Friends/CreateFriend.js';
 
 export class CreateFriendCommandHandler implements Handler<CreateFriendCommand> {
 

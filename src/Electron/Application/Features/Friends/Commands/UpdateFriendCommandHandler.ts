@@ -2,7 +2,25 @@
 import { Result } from '../../../../../Shared/Result/Result.js';
 import { IFriendRepository } from '../../../Contracts/Repositories/IFriendRepository.js';
 import { Handler } from '../../../Mediator/Handler.js';
-import { UpdateFriendCommand } from '../Contracts/UpdateFriend.js';
+
+export class UpdateFriendCommand implements MediatorRequest {
+    type = "UpdateFriendCommand";
+    id: string;
+    username: string | null;
+    displayName: string | null;
+    avatarKey: string | null;
+    constructor(
+        id: string,
+        username: string | null = null,
+        displayName: string | null = null,
+        avatarKey: string | null = null
+    ) {
+        this.id = id;
+        this.username = username;
+        this.displayName = displayName;
+        this.avatarKey = avatarKey;
+    }
+}
 
 export class UpdateFriendCommandHandler implements Handler<UpdateFriendCommand> {
     constructor(private readonly friendRepository: IFriendRepository) { }

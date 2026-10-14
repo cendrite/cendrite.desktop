@@ -1,4 +1,4 @@
-import { LedgerOperation } from '../Operations/LedgerOperation.js';
+import { LedgerOperation } from '../Protocol/LedgerOperation.js';
 import { DomainEvent, registerDomainEvent } from './IDomainEvent.js';
 
 /**

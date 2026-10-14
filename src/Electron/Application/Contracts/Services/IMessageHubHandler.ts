@@ -1,6 +1,16 @@
-import { DeliveryStatus } from '../../../Domain/Enums/DeliveryStatus.js';
-import { ServerMessage } from '../Messaging/ServerMessage.js';
+import { DeliveryStatus } from '../../../../Shared/Enums/DeliveryStatus.js';
 
 export interface IMessageHubHandler {
     sendMessage(messages: ServerMessage[]): Promise<DeliveryStatus>;
+}
+
+export class ServerMessage {
+    constructor(
+        public readonly id: string,
+        public readonly senderId: string,
+        public readonly recipientId: string,
+        public readonly payload: string,
+        public readonly timestamp: Date,
+        public readonly messageToken: string | null = null,
+    ) { }
 }

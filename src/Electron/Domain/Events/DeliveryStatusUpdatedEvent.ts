@@ -1,4 +1,4 @@
-import { DeliveryStatus } from '../Enums/DeliveryStatus.js';
+import { DeliveryStatus } from '../../../Shared/Enums/DeliveryStatus.js';
 import { DomainEvent, registerDomainEvent } from './IDomainEvent.js';
 
 export class DeliveryStatusUpdatedEvent extends DomainEvent {

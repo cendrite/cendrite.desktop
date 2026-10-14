@@ -4,7 +4,7 @@ import { IFriendProvider } from "../../../Contracts/Providers/IFriendProvider.js
 import { IChatStore } from "../../../Contracts/Repositories/IChatStore.js";
 import { IFriendRepository } from "../../../Contracts/Repositories/IFriendRepository.js";
 import { Handler } from "../../../Mediator/Handler.js";
-import { DeleteFriendCommand } from "../Contracts/DeleteFriend.js";
+import { DeleteFriendCommand } from "../../../../../Shared/Friends/DeleteFriend.js";
 
 export class DeleteFriendCommandHandler implements Handler<DeleteFriendCommand> {
     constructor(

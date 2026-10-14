@@ -2,7 +2,7 @@ import { ErrorMessage } from '../../../../../Shared/Result/ErrorMessage.js';
 import { Result } from '../../../../../Shared/Result/Result.js';
 import { IFriendProvider } from '../../../Contracts/Providers/IFriendProvider.js';
 import { Handler } from '../../../Mediator/Handler.js';
-import { GetProfileByTagQuery, ProfileDto } from '../Contracts/GetProfileByTag.js';
+import { GetProfileByTagQuery, ProfileDto } from '../../../../../Shared/Friends/GetProfileByTag.js';
 
 export class GetProfileByTagQueryHandler implements Handler<GetProfileByTagQuery, ProfileDto | void> {
     constructor(private readonly friendProvider: IFriendProvider) { }

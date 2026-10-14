@@ -1,8 +1,8 @@
 import { ISessionManager } from '../../Contracts/Services/ISessionManager.js';
-import { MediaPointer } from '../../Contracts/Messaging/Payload.js';
-import { MediaContract } from '../../Contracts/Models/MediaContract.js';
+import { MediaPointer } from '../../../Domain/Protocol/Payload.js';
+import { MediaContract } from '../../../../Shared/Models/MediaContract.js';
 import { IMediaProvider } from '../../Contracts/Providers/IMediaProvider.js';
-import { MediaType } from '../../Features/Files/Contracts/GetMedia.js';
+import { MediaType } from '../../../../Shared/Files/GetMedia.js';
 
 export interface IMediaService {
     getLocal(type: MediaType): Promise<MediaContract[]>;

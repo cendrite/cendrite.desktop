@@ -5,8 +5,8 @@ import { FriendConnectionId } from '../../../../Domain/Entities/FriendConnection
 import { IFriendProvider } from '../../../Contracts/Providers/IFriendProvider.js';
 import { IFriendRepository } from '../../../Contracts/Repositories/IFriendRepository.js';
 import { Handler } from '../../../Mediator/Handler.js';
-import { AcceptFriendRequestCommand } from '../Contracts/AcceptFriendRequest.js';
-import { FriendContract } from '../../../Contracts/Models/FriendContract.js';
+import { AcceptFriendRequestCommand } from '../../../../../Shared/Friends/AcceptFriendRequest.js';
+import { FriendContract } from '../../../../../Shared/Models/FriendContract.js';
 
 export class AcceptFriendRequestCommandHandler implements Handler<AcceptFriendRequestCommand, FriendContract> {
     constructor(

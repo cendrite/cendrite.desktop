@@ -7,7 +7,7 @@ import { useOnboarding } from '../../Context/OnboardingContext.tsx';
 import ErrorTooltip from '../../Common/Components/Utility/ErrorToolTip.tsx';
 import InputBox from '../../Common/Components/Form/InputBox.tsx';
 import FormButton from '../../Common/Components/Form/FormButton.tsx';
-import { LoginResponse, LoginCommand } from '../../../Electron/Application/Features/Authentication/Contracts/Login.ts';
+import { LoginResponse, LoginCommand } from '../../../Shared/Authentication/Login.ts';
 import { Result } from '../../../Shared/Result/Result.ts';
 
 const LoginPage: React.FC = () => {

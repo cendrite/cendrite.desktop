@@ -1,11 +1,22 @@
 ﻿import { HubConnection } from '@microsoft/signalr';
 import { IHubHandler } from '../IHubHandler.js';
 import { HubKey } from '../SignalRHubPath.js';
-import { ServerMessage, ServerMessageDto } from '../../../Application/Contracts/Messaging/ServerMessage.js';
 import { HubMethods } from '../HubMethods.js';
-import { IMessageHubHandler } from '../../../Application/Contracts/Services/IMessageHubHandler.js';
-import { DeliveryStatus } from '../../../Domain/Enums/DeliveryStatus.js';
+import { IMessageHubHandler, ServerMessage } from '../../../Application/Contracts/Services/IMessageHubHandler.js';
+import { DeliveryStatus } from '../../../../Shared/Enums/DeliveryStatus.js';
 import { IMessageReceiver } from './MessageReceiver.js';
+
+type ServerMessageDto = {
+    id: string;
+    senderId: string;
+    recipientId: string;
+    payload: string;
+    timestamp: Date;
+    messageToken: string | null;
+};
+
+const toServerMessage = (dto: ServerMessageDto): ServerMessage =>
+    new ServerMessage(dto.id, dto.senderId, dto.recipientId, dto.payload, dto.timestamp, dto.messageToken);
 
 export class MessageHubHandler implements IHubHandler, IMessageHubHandler {
     public readonly key: HubKey = 'Messaging';
@@ -20,7 +31,7 @@ export class MessageHubHandler implements IHubHandler, IMessageHubHandler {
         }
 
         connection.on(HubMethods.ReceiveMessage, (message: ServerMessageDto) => {
-            const concreteMessage = ServerMessage.fromDto(message);
+            const concreteMessage = toServerMessage(message);
             console.log('Server message', message);
             this.publish(concreteMessage);
         });

@@ -1,4 +1,4 @@
-﻿import { DeliveryStatus } from '../Enums/DeliveryStatus.js';
+﻿import { DeliveryStatus } from '../../../Shared/Enums/DeliveryStatus.js';
 import { Chat } from '../Aggregates/Chat.js';
 import { MessageMedia } from './MessageMedia.js';
 

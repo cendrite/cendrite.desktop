@@ -4,9 +4,9 @@ import {
     serializeEvent,
 } from '../../../../../../src/Electron/Infrastructure/Persistence/Repositories/EventRepository.js';
 import { MessageSentEvent } from '../../../../../../src/Electron/Domain/Events/MessageSentEvent.js';
-import { MessageContract } from '../../../../../../src/Electron/Application/Contracts/Models/MessageContract.js';
-import { MediaContract } from '../../../../../../src/Electron/Application/Contracts/Models/MediaContract.js';
-import { DeliveryStatus } from '../../../../../../src/Electron/Domain/Enums/DeliveryStatus.js';
+import { MessageContract } from '../../../../../../src/Shared/Models/MessageContract.js';
+import { MediaContract } from '../../../../../../src/Shared/Models/MediaContract.js';
+import { DeliveryStatus } from '../../../../../../src/Shared/Enums/DeliveryStatus.js';
 
 describe('EventRepository serialization', () => {
     test('media content survives the outbox round-trip as a Uint8Array', () => {

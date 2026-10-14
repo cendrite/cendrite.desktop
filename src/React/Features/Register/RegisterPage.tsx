@@ -5,7 +5,7 @@ import {RegisterFieldName, RegisterFormValues} from "./Form/RegisterFormValues";
 import {initialRegisterValues} from "./Form/InitialRegisterFormValues";
 import {RegisterValidationSchema} from "./Validation/RegisterFormValidation";
 import {Result} from "../../../Shared/Result/Result.ts";
-import {RegisterCommand, RegisterResponse} from "../../../Electron/Application/Features/Authentication/Contracts/Register.ts";
+import {RegisterCommand, RegisterResponse} from "../../../Shared/Authentication/Register.ts";
 import {useOnboarding} from "../../Context/OnboardingContext.tsx";
 import ErrorTooltip from "../../Common/Components/Utility/ErrorToolTip.tsx";
 import InputBox from "../../Common/Components/Form/InputBox.tsx";

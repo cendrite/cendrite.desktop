@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
-import { MediaType } from '../../../../Electron/Application/Features/Files/Contracts/GetMedia.ts';
+import { MediaType } from '../../../../Shared/Files/GetMedia.ts';
 import { useUser } from '../../../Context/User/UserContext.tsx';
 import { UserActionType } from '../../../Context/User/UserReducer.ts';
 import Avatar from '../../../Common/Components/Avatar/Avatar.tsx';
@@ -8,7 +8,7 @@ import { Media } from '../../../Models/Media.ts';
 import { MediaService } from '../../../Common/Services/MediaService.ts';
 import { MediaItem } from '../Chat/MediaBox.tsx';
 import { Result } from '../../../../Shared/Result/Result.ts';
-import { UpdateAvatarCommand } from '../../../../Electron/Application/Features/User/Contracts/UpdateAvatar.ts';
+import { UpdateAvatarCommand } from '../../../../Shared/User/UpdateAvatar.ts';
 import Button from '../../../Common/Components/Button/Button.tsx';
 import { ImageIcon, PencilSimpleIcon, XIcon } from '@phosphor-icons/react';
 

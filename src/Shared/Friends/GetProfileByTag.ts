@@ -1,5 +1,5 @@
-import { FriendshipDirection } from '../../../Contracts/Enums/FriendshipDirection.js';
-import { FriendshipStatus } from '../../../Contracts/Enums/FriendshipStatus.js';
+import { FriendshipDirection } from '../Enums/FriendshipDirection.js';
+import { FriendshipStatus } from '../Enums/FriendshipStatus.js';
 
 export class GetProfileByTagQuery implements MediatorRequest {
     public readonly type = 'GetProfileByTagQuery';

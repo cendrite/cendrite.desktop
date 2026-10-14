@@ -1,12 +1,12 @@
 import { Result } from '../../../../../Shared/Result/Result.js';
 import { ITokenManager } from '../../../Contracts/Services/ITokenManager.js';
 import { ISignalManager } from '../../../Contracts/Services/ISignalManager.js';
-import { UserContract } from '../../../Contracts/Models/UserContract.js';
+import { UserContract } from '../../../../../Shared/Models/UserContract.js';
 import { IDeviceRepository } from '../../../Contracts/Repositories/IDeviceRepository.js';
 import { IUserRepository } from '../../../Contracts/Repositories/IUserRepository.js';
 import { IPump } from '../../../Contracts/Services/IPump.js';
 import { Handler } from '../../../Mediator/Handler.js';
-import { StartupCommand, StartupDto } from '../Contracts/Startup.js';
+import { StartupCommand, StartupDto } from '../../../../../Shared/Authentication/Startup.js';
 
 export class StartupCommandHandler implements Handler<StartupCommand, StartupDto> {
     constructor(

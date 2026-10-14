@@ -1,10 +1,10 @@
 import { Result } from "../../../../../Shared/Result/Result.js";
-import { MediaContract } from "../../../Contracts/Models/MediaContract.js";
-import { MessageContract } from "../../../Contracts/Models/MessageContract.js";
+import { MediaContract } from "../../../../../Shared/Models/MediaContract.js";
+import { MessageContract } from "../../../../../Shared/Models/MessageContract.js";
 import { IChatStore } from "../../../Contracts/Repositories/IChatStore.js";
 import { IMediaStore } from "../../../Contracts/Repositories/IMediaStore.js";
 import { Handler } from "../../../Mediator/Handler.js";
-import { GetMessagesQuery } from "../Contracts/GetMessages.js";
+import { GetMessagesQuery } from "../../../../../Shared/Chat/GetMessages.js";
 
 export class GetMessagesQueryHandler implements Handler<GetMessagesQuery, MessageContract[]> {
     constructor(

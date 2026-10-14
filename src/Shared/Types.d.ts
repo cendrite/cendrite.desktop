@@ -1,6 +1,6 @@
-import { MessageContract } from '../Electron/Application/Contracts/Models/MessageContract';
-import { ChangeEvent } from '../Electron/Infrastructure/Signal/ChangeEvent/ChangeEvent.ts';
-import { DeliveryStatus } from '../Electron/Domain/Enums/DeliveryStatus.ts';
+import { MessageContract } from './Models/MessageContract';
+import { ChangeEvent } from './Events/ChangeEvent.ts';
+import { DeliveryStatus } from './Enums/DeliveryStatus.ts';
 import { Theme as AppTheme } from './Theme.ts';
 
 declare global {

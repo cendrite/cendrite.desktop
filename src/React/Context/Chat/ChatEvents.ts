@@ -10,9 +10,9 @@ import { ChatService } from '../../Common/Services/ChatService';
 import React from 'react';
 import { HomePageAction, HomePageActionType } from '../HomePage/HomePageReducer';
 import { MessageViewModel } from '../../Models/MessageViewModel';
-import { ChangeEvent } from '../../../Electron/Infrastructure/Signal/ChangeEvent/ChangeEvent';
-import { FriendDeletedEvent } from '../../../Electron/Infrastructure/Signal/ChangeEvent/EventData';
-import { ChangeEventType } from '../../../Electron/Infrastructure/Signal/ChangeEvent/ChangeEventType';
+import { ChangeEvent } from '../../../Shared/Events/ChangeEvent';
+import { FriendDeletedEvent } from '../../../Shared/Events/EventData';
+import { ChangeEventType } from '../../../Shared/Events/ChangeEventType';
 import { useMessageEdit, useSignalEvent } from '../../Common/Utilities';
 
 export function useChatEvents(

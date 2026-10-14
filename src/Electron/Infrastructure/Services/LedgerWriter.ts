@@ -10,7 +10,7 @@ import {
 import { ILedgerWriter } from '../../Application/Contracts/Services/ILedgerWriter.js';
 import { ILedgerSyncService } from '../../Application/Contracts/Services/ILedgerSyncService.js';
 import { LedgerOperationType } from '../../Domain/Enums/LedgerOperationType.js';
-import { LedgerOperation } from '../../Domain/Operations/LedgerOperation.js';
+import { LedgerOperation } from '../../Domain/Protocol/LedgerOperation.js';
 import { GroupState } from '../../Domain/Projections/GroupState.js';
 import { buildOperationSigningInput, buildSigningInput, encryptPayload, hashEvent, signOuter } from '../Crypto/LedgerCodec.js';
 import { ILedgerIdentity } from '../Interfaces/ILedgerIdentity.js';

@@ -1,7 +1,7 @@
 import { Result } from '../../../../../Shared/Result/Result.js';
 import { IAuthenticationProvider } from '../../../Contracts/Providers/IAuthenticationProvider.js';
 import { Handler } from '../../../Mediator/Handler.js';
-import { RegisterCommand, RegisterResponse } from '../Contracts/Register.js';
+import { RegisterCommand, RegisterResponse } from '../../../../../Shared/Authentication/Register.js';
 
 export class RegisterCommandHandler implements Handler<RegisterCommand, RegisterResponse> {
     constructor(private readonly authenticationProvider: IAuthenticationProvider) { }

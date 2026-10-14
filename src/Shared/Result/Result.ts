@@ -1,14 +1,5 @@
 import { ErrorMessage } from "./ErrorMessage.js";
 
-/**
- * Outcome of an operation. Narrow on `success` to get `data` or `errorMessage`:
- * ```typescript
- * if (!result.success) return Result.fail(result.errorMessage);
- * use(result.data);
- * ```
- * The absent member is declared as `?: undefined` so it can still be read without narrowing
- * (e.g. `result.errorMessage?.message`), while a plain object keeps crossing the IPC boundary intact.
- */
 export type Result<T = void> = Success<T> | Failure;
 
 export interface Success<T> {
