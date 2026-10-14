@@ -3,7 +3,7 @@ import { Message } from '../../../../Domain/Entities/Message.js';
 import { MessageMedia } from '../../../../Domain/Entities/MessageMedia.js';
 import { DeliveryStatus } from '../../../../../Shared/Contracts/Enums/DeliveryStatus.js';
 import { MessageSentEvent } from '../../../../Domain/Events/MessageSentEvent.js';
-import {  Payload } from '../../../Contracts/Messaging/Payload.js';
+import {  Payload } from '../../../../Domain/Protocol/Payload.js';
 import { MessageContract } from '../../../../../Shared/Contracts/Models/MessageContract.js';
 import { IEventRepository } from '../../../Contracts/Providers/IEventRepository.js';
 import { IChatStore } from '../../../Contracts/Repositories/IChatStore.js';

@@ -1,5 +1,5 @@
 import { IChatStore } from '../../Application/Contracts/Repositories/IChatStore.js';
-import { MessageSentCommand } from '../../Application/Features/Chat/Contracts/MessageSent.js';
+import { MessageSentCommand } from '../../Application/Features/Chat/Events/MessageSentEventHandler.js';
 import { Mediator } from '../../Application/Mediator/Mediator.js';
 import { DeliveryStatus } from '../../../Shared/Contracts/Enums/DeliveryStatus.js';
 import { MessageSentEvent } from '../../Domain/Events/MessageSentEvent.js';

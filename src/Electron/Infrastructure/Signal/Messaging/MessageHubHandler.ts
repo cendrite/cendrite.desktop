@@ -1,9 +1,8 @@
 ﻿import { HubConnection } from '@microsoft/signalr';
 import { IHubHandler } from '../IHubHandler.js';
 import { HubKey } from '../SignalRHubPath.js';
-import { ServerMessage, ServerMessageDto } from '../../../Application/Contracts/Messaging/ServerMessage.js';
 import { HubMethods } from '../HubMethods.js';
-import { IMessageHubHandler } from '../../../Application/Contracts/Services/IMessageHubHandler.js';
+import { IMessageHubHandler, ServerMessage, ServerMessageDto } from '../../../Application/Contracts/Services/IMessageHubHandler.js';
 import { DeliveryStatus } from '../../../../Shared/Contracts/Enums/DeliveryStatus.js';
 import { IMessageReceiver } from './MessageReceiver.js';
 

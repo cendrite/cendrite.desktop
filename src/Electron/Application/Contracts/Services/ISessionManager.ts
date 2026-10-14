@@ -1,4 +1,4 @@
-import { Envelope, Payload } from "../Messaging/Payload.js";
+import { Envelope, Payload } from "../../../Domain/Protocol/Payload.js";
 
 export interface ISessionManager {
     encrypt(envelope: Envelope<Payload>, connectionId: string): Promise<string>;

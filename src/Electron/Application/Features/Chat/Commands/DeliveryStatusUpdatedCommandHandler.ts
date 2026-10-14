@@ -1,11 +1,22 @@
 import { Result } from "../../../../../Shared/Result/Result.js";
+import { DeliveryStatus } from "../../../../../Shared/Contracts/Enums/DeliveryStatus.js";
 import { ISessionManager } from "../../../Contracts/Services/ISessionManager.js";
-import { IMessageHubHandler } from "../../../Contracts/Services/IMessageHubHandler.js";
-import { ServerMessage } from "../../../Contracts/Messaging/ServerMessage.js";
-import { DeliveryStatusPayload, Envelope } from "../../../Contracts/Messaging/Payload.js";
+import { IMessageHubHandler, ServerMessage } from "../../../Contracts/Services/IMessageHubHandler.js";
+import { DeliveryStatusPayload, Envelope } from "../../../../Domain/Protocol/Payload.js";
 import { Handler } from "../../../Mediator/Handler.js";
-import { DeliveryStatusUpdatedCommand } from "../Contracts/DeliveryStatusUpdated.js";
 import { v4 as uuid } from 'uuid';
+
+export class DeliveryStatusUpdatedCommand implements MediatorRequest {
+    type = DeliveryStatusUpdatedCommand.name;
+    constructor(
+        public readonly senderId: string,
+        public readonly chatId: string,
+        public readonly messageIds: string[],
+        public readonly connectionIds: string[],
+        public readonly participants: string[],
+        public readonly deliveryStatus: DeliveryStatus,
+    ) { }
+}
 
 export class DeliveryStatusUpdatedCommandHandler implements Handler<DeliveryStatusUpdatedCommand> {
     constructor(

@@ -3,13 +3,13 @@ import { ISessionManager } from '../../../Application/Contracts/Services/ISessio
 import { IChatStore } from '../../../Application/Contracts/Repositories/IChatStore.js';
 import { IMediaStore } from '../../../Application/Contracts/Repositories/IMediaStore.js';
 import { IMediaService } from '../../../Application/Services/Media/MediaService.js';
-import { ServerMessage } from '../../../Application/Contracts/Messaging/ServerMessage.js';
+import { ServerMessage } from '../../../Application/Contracts/Services/IMessageHubHandler.js';
 import {
     DeliveryStatusPayload,
     GroupStrapPayload,
     MessagePayload,
     PayloadType,
-} from '../../../Application/Contracts/Messaging/Payload.js';
+} from '../../../Domain/Protocol/Payload.js';
 import { Message } from '../../../Domain/Entities/Message.js';
 import { MessageMedia } from '../../../Domain/Entities/MessageMedia.js';
 import { DeliveryStatus } from '../../../../Shared/Contracts/Enums/DeliveryStatus.js';

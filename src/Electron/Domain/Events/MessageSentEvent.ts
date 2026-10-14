@@ -1,5 +1,5 @@
 import { MessageContract } from '../../../Shared/Contracts/Models/MessageContract.js';
-import { Payload } from '../../Application/Contracts/Messaging/Payload.js';
+import { Payload } from '../Protocol/Payload.js';
 import { DomainEvent, registerDomainEvent } from './IDomainEvent.js';
 
 export class MessageSentEvent extends DomainEvent {

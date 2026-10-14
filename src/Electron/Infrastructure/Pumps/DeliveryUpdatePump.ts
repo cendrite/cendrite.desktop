@@ -1,4 +1,4 @@
-import { DeliveryStatusUpdatedCommand } from '../../Application/Features/Chat/Contracts/DeliveryStatusUpdated.js';
+import { DeliveryStatusUpdatedCommand } from '../../Application/Features/Chat/Commands/DeliveryStatusUpdatedCommandHandler.js';
 import { Mediator } from '../../Application/Mediator/Mediator.js';
 import { DeliveryStatusUpdatedEvent } from '../../Domain/Events/DeliveryStatusUpdatedEvent.js';
 import { IOutboxRepository } from '../Interfaces/IOutboxRepository.js';

@@ -19,7 +19,7 @@ import {
     GroupMemberRef,
     LedgerOperation,
     MemberAddedOperation,
-} from '../../../../../src/Electron/Domain/Operations/LedgerOperation.js';
+} from '../../../../../src/Electron/Domain/Protocol/LedgerOperation.js';
 import { LedgerOperationType } from '../../../../../src/Electron/Domain/Enums/LedgerOperationType.js';
 import { ChatPrivileges } from '../../../../../src/Shared/Contracts/Enums/ChatPrivileges.js';
 

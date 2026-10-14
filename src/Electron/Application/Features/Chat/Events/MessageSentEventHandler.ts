@@ -1,12 +1,31 @@
 import { Result } from '../../../../../Shared/Result/Result.js';
 import { DeliveryStatus } from '../../../../../Shared/Contracts/Enums/DeliveryStatus.js';
+import { MessageContract } from '../../../../../Shared/Contracts/Models/MessageContract.js';
 import { ISessionManager } from '../../../Contracts/Services/ISessionManager.js';
-import { IMessageHubHandler } from '../../../Contracts/Services/IMessageHubHandler.js';
-import { ServerMessage } from '../../../Contracts/Messaging/ServerMessage.js';
-import { Envelope, MessagePayload } from '../../../Contracts/Messaging/Payload.js';
+import { IMessageHubHandler, ServerMessage } from '../../../Contracts/Services/IMessageHubHandler.js';
+import { Envelope, MessagePayload, Payload } from '../../../../Domain/Protocol/Payload.js';
 import { Handler } from '../../../Mediator/Handler.js';
 import { IMediaService } from '../../../Services/Media/MediaService.js';
-import { MessageSentCommand } from '../Contracts/MessageSent.js';
+
+export class MessageSentCommand implements MediatorRequest {
+    type = MessageSentCommand.name;
+    public readonly message: MessageContract;
+    public readonly connectionIds: string[];
+    public readonly participants: string[];
+    public readonly payloads: Record<string, Payload[]>;
+
+    public constructor(
+        message: MessageContract,
+        connectionIds: string[],
+        participants: string[],
+        payloads: Record<string, Payload[]>,
+    ) {
+        this.message = message;
+        this.connectionIds = connectionIds;
+        this.participants = participants;
+        this.payloads = payloads;
+    }
+}
 
 export class MessageSentCommandHandler implements Handler<MessageSentCommand, DeliveryStatus> {
     constructor(

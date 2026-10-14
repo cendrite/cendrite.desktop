@@ -18,7 +18,7 @@ import { EcPreKey } from '../../../../../src/Electron/Domain/Encryption/EcPreKey
 import { KyberPreKey } from '../../../../../src/Electron/Domain/Encryption/KyberPreKey.js';
 import { SessionRecord } from '../../../../../src/Electron/Domain/Encryption/SessionRecord.js';
 import { IdentityCache } from '../../../../../src/Electron/Domain/Encryption/IdentityCache.js';
-import { Envelope, Payload, PayloadType } from '../../../../../src/Electron/Application/Contracts/Messaging/Payload.js';
+import { Envelope, Payload, PayloadType } from '../../../../../src/Electron/Domain/Protocol/Payload.js';
 import { Result } from '../../../../../src/Shared/Result/Result.js';
 import { ErrorMessage } from '../../../../../src/Shared/Result/ErrorMessage.js';
 

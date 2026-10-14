@@ -2,7 +2,7 @@ import { ChatPrivileges } from '../../../Shared/Contracts/Enums/ChatPrivileges.j
 import { LedgerOperationType } from '../Enums/LedgerOperationType.js';
 import { GroupMember } from '../Projections/GroupMember.js';
 import { GroupState } from '../Projections/GroupState.js';
-import { LedgerOperation } from '../Operations/LedgerOperation.js';
+import { LedgerOperation } from '../Protocol/LedgerOperation.js';
 
 export interface OperationContext {
     version: number;

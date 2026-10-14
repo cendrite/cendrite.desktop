@@ -1,3 +1,3 @@
-﻿import { ServerMessage } from "../../../Application/Contracts/Messaging/ServerMessage.js";
+﻿import { ServerMessage } from "../../../Application/Contracts/Services/IMessageHubHandler.js";
 
 export type MessageHandler = (message: ServerMessage) => void;

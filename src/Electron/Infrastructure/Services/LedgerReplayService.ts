@@ -8,7 +8,7 @@ import { IGroupKeyRepository } from '../../Application/Contracts/Repositories/IG
 import { applyOperation, OperationContext, rejectReasonFor } from '../../Domain/Services/GroupReducer.js';
 import { GroupState } from '../../Domain/Projections/GroupState.js';
 import { LedgerEventRecord } from '../../Domain/Entities/LedgerEventRecord.js';
-import { LedgerOperation, SignedLedgerOperation } from '../../Domain/Operations/LedgerOperation.js';
+import { LedgerOperation, SignedLedgerOperation } from '../../Domain/Protocol/LedgerOperation.js';
 import { LedgerOperationType } from '../../Domain/Enums/LedgerOperationType.js';
 import {
     buildOperationSigningInput,

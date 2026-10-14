@@ -1,5 +1,5 @@
 import { ISessionManager } from '../../Contracts/Services/ISessionManager.js';
-import { MediaPointer } from '../../Contracts/Messaging/Payload.js';
+import { MediaPointer } from '../../../Domain/Protocol/Payload.js';
 import { MediaContract } from '../../../../Shared/Contracts/Models/MediaContract.js';
 import { IMediaProvider } from '../../Contracts/Providers/IMediaProvider.js';
 import { MediaType } from '../../../../Shared/Contracts/Files/GetMedia.js';
