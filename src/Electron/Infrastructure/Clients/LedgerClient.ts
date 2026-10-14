@@ -82,9 +82,9 @@ export class LedgerClient implements ILedgerProvider {
             params: limit === undefined ? { fromVersion } : { fromVersion, limit },
         });
 
-        if (!result.success) return Result.fail<LedgerEventsPage>(result.errorMessage!);
+        if (!result.success) return Result.fail<LedgerEventsPage>(result.errorMessage);
 
-        const page = result.data!;
+        const page = result.data;
 
         return Result.success({
             version: page.version,
@@ -112,9 +112,9 @@ export class LedgerClient implements ILedgerProvider {
             method: 'GET',
         });
 
-        if (!result.success) return Result.fail<LedgerHead>(result.errorMessage!);
+        if (!result.success) return Result.fail<LedgerHead>(result.errorMessage);
 
-        const head = result.data!;
+        const head = result.data;
 
         return Result.success({
             version: head.version,

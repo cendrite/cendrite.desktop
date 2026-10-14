@@ -56,7 +56,7 @@ export class MessagePump extends Pump {
 
             let deliveryStatus: DeliveryStatus;
             if (result.success) {
-                deliveryStatus = result.data!;
+                deliveryStatus = result.data;
             } else {
                 deliveryStatus = DeliveryStatus.Failed;
             }

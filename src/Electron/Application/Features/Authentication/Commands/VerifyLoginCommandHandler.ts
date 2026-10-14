@@ -41,7 +41,7 @@ export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, Us
         if (!verifyLoginResult.success) {
             console.log('Login verification failed:', verifyLoginResult.errorMessage);
             return Result.fail<UserContract>(
-                new ErrorMessage(null, verifyLoginResult.errorMessage?.message || 'Failed to verify login'),
+                new ErrorMessage(null, verifyLoginResult.errorMessage.message || 'Failed to verify login'),
             );
         }
 
@@ -49,8 +49,8 @@ export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, Us
 
         const deviceRegistrationResult = await this.deviceProvider.createDevice({
             userId: cmd.userId,
-            loginNonceId: verifyLoginResult.data!.nonceId,
-            loginNonce: verifyLoginResult.data!.nonce,
+            loginNonceId: verifyLoginResult.data.nonceId,
+            loginNonce: verifyLoginResult.data.nonce,
             deviceAppVersion: '1.0', // Replace with actual app version
             deviceType: 1, // Replace with actual device type
             devicePlatform: 1, // Replace with actual platform
@@ -63,8 +63,8 @@ export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, Us
         }
 
         const device = new Device(
-            deviceRegistrationResult.data!.deviceId,
-            deviceRegistrationResult.data!.deviceConnectionId,
+            deviceRegistrationResult.data.deviceId,
+            deviceRegistrationResult.data.deviceConnectionId,
             devPk.privateKey,
             devPk.publicKey,
         );
@@ -81,19 +81,19 @@ export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, Us
             exclusiveConnectionId: device.connectionId,
         });
 
-        if (!userProfileResponse) {
+        if (!userProfileResponse.success || !userProfileResponse.data) {
             return Result.fail<UserContract>(new ErrorMessage(null, 'Failed to retrieve user profile from provider'));
         }
 
         const user = new User(
-            userProfileResponse.data!.id,
-            userProfileResponse.data!.username,
-            userProfileResponse.data!.userTag,
-            userProfileResponse.data!.avatarKey,
-            userProfileResponse.data!.displayName,
+            userProfileResponse.data.id,
+            userProfileResponse.data.username,
+            userProfileResponse.data.userTag,
+            userProfileResponse.data.avatarKey,
+            userProfileResponse.data.displayName,
         );
 
-        user.connectionIds = userProfileResponse.data!.connectionIds.map(
+        user.connectionIds = userProfileResponse.data.connectionIds.map(
             (connectionId) => new UserConnectionId(connectionId, user),
         );
 

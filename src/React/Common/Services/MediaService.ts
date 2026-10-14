@@ -8,7 +8,7 @@ export class MediaService {
     public async getLocalMedia(type: MediaType): Promise<Media[]> {
         const result = await window.electron.sendRequestAsync<Result<MediaContract[]>>(new GetMediaQuery(type));
         if (result.success) {
-            return result.data!.map((mediaDto) => new Media(mediaDto.id, mediaDto.type, mediaDto.content));
+            return result.data.map((mediaDto) => new Media(mediaDto.id, mediaDto.type, mediaDto.content));
         } else {
             console.error(result.errorMessage);
             return [];

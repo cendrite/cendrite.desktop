@@ -1,4 +1,3 @@
-import { ErrorMessage } from '../../../Shared/Result/ErrorMessage.js';
 import { Result } from '../../../Shared/Result/Result.js';
 import { GroupEpochKey } from '../../Domain/Encryption/GroupEpochKey.js';
 import { GroupWriteKey } from '../../Domain/Encryption/GroupWriteKey.js';
@@ -99,7 +98,7 @@ export class GroupService implements IGroupService {
 
         if (!created.success) {
             return Result.fail<Record<string, Payload[]> | null>(
-                created.errorMessage ?? new ErrorMessage('SendMessage', 'Could not create the group stream.'),
+                created.errorMessage,
             );
         }
 
@@ -110,7 +109,7 @@ export class GroupService implements IGroupService {
                 group.groupId,
                 chat.groupName,
                 1,
-                created.data!.toString('base64'),
+                created.data.toString('base64'),
                 [epochKey.key.toString('base64')],
                 minted.get(member.userTag)!.privateKey.toString('base64'),
                 members,

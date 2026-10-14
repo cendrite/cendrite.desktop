@@ -28,8 +28,8 @@ export class MediaProvider implements IMediaProvider {
             responseType: 'arraybuffer',
         });
 
-        if (!result.success) return Result.fail<Uint8Array>(result.errorMessage!);
-        return Result.success(new Uint8Array(result.data!));
+        if (!result.success) return Result.fail<Uint8Array>(result.errorMessage);
+        return Result.success(new Uint8Array(result.data));
     }
 
     public async ack(id: string): Promise<Result> {

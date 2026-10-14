@@ -29,7 +29,7 @@ export class ChatService {
         media: Media[] = [],
         isGroup: boolean = false,
     ): Promise<MessageViewModel | null> {
-        if (!text && !media) return null;
+        if (!text && media.length === 0) return null;
 
         const messageResult = await window.electron.sendRequestAsync<Result<MessageContract>>(
             new SendMessageCommand(
@@ -49,7 +49,7 @@ export class ChatService {
             return null;
         }
 
-        const message = MessageViewModel.mapFromContract(messageResult.data!);
+        const message = MessageViewModel.mapFromContract(messageResult.data);
 
         return message;
     }
@@ -107,7 +107,7 @@ export class ChatService {
 
         if (!result.success) throw new Error('Failed to create chat');
 
-        const memberDto = result.data!.members[0];
+        const memberDto = result.data.members[0];
         const chatMember = new ChatMemberViewModel(
             memberDto.id,
             memberDto.privelege,
@@ -118,7 +118,7 @@ export class ChatService {
             memberDto.avatarKey,
         );
 
-        return new ChatViewModel(result.data!.id, [chatMember]);
+        return new ChatViewModel(result.data.id, [chatMember]);
     }
 
     public async createGroupChat(contacts: Contact[], groupName: string | null): Promise<ChatViewModel> {
@@ -136,7 +136,7 @@ export class ChatService {
 
         if (!result.success) throw new Error('Failed to create group chat');
 
-        const members = result.data!.members.map((memberDto) => {
+        const members = result.data.members.map((memberDto) => {
             const contact = contacts.find((c) => c.id === memberDto.friendId) ?? null;
 
             return new ChatMemberViewModel(
@@ -150,7 +150,7 @@ export class ChatService {
             );
         });
 
-        return new ChatViewModel(result.data!.id, members, [], true, groupName);
+        return new ChatViewModel(result.data.id, members, [], true, groupName);
     }
 
     public async getChats(contacts: Contact[]): Promise<ChatViewModel[]> {
@@ -160,7 +160,7 @@ export class ChatService {
             throw new Error('Failed to get chats');
         }
 
-        return chatsResult.data!.map((chatDto) => {
+        return chatsResult.data.map((chatDto) => {
             const members = chatDto.members.map((memberDto) => {
                 const contact = contacts.find((c) => c.id === memberDto.friendId) ?? null;
 
@@ -198,7 +198,7 @@ export class ChatService {
             throw new Error('Failed to get messages');
         }
 
-        return messages.data!.map((c) => MessageViewModel.mapFromContract(c));
+        return messages.data.map((c) => MessageViewModel.mapFromContract(c));
     }
 
     public async deriveChatId(a: string, b: string): Promise<string> {

@@ -23,12 +23,12 @@ export class UpdateAvatarCommandHandler implements Handler<UpdateAvatarCommand, 
         if (remoteResult.success == false)
             return Result.fail<string>(new ErrorMessage(null, 'Failed to update avatar on remote server'));
 
-        user.setAvatar(remoteResult.data!.fileKey);
+        user.setAvatar(remoteResult.data.fileKey);
 
-        console.log('Updating avatar in local repository with fileKey:', remoteResult.data!.fileKey);
+        console.log('Updating avatar in local repository with fileKey:', remoteResult.data.fileKey);
 
         await this.userRepository.update(user);
 
-        return Result.success(remoteResult.data!.fileKey);
+        return Result.success(remoteResult.data.fileKey);
     }
 }

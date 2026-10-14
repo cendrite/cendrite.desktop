@@ -25,7 +25,7 @@ const VerifyUserPage: React.FC = () => {
             navigate('/login');
         } else {
             console.error(result.errorMessage);
-            setFieldError('verificationCode', result.errorMessage!.message);
+            setFieldError('verificationCode', result.errorMessage.message);
         }
     };
 

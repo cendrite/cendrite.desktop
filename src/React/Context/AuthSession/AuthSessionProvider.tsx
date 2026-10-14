@@ -21,12 +21,12 @@ export const AuthSessionProvider: React.FC<{ children: React.ReactNode }> = ({ c
                 return false;
             }
 
-            if (!startUpResult.data!.user) {
+            if (!startUpResult.data.user) {
                 console.log('No user found during startup');
                 return false;
             }
 
-            const user = startUpResult.data!.user;
+            const user = startUpResult.data.user;
          
             userDispatch({
                 type: UserActionType.Initialize,

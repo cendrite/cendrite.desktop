@@ -65,10 +65,10 @@ export class SessionManager implements ISessionManager {
 
         const preKeyBundleResult = await this.keyProvider.getPreKeyBundle(address.name());
         if (!preKeyBundleResult.success) {
-            throw new Error('Failed to retrieve pre-key bundle: ' + preKeyBundleResult.errorMessage?.message);
+            throw new Error('Failed to retrieve pre-key bundle: ' + preKeyBundleResult.errorMessage.message);
         }
 
-        const bundle = mapToPreKeyBundle(preKeyBundleResult.data!, DEVICE_ID);
+        const bundle = mapToPreKeyBundle(preKeyBundleResult.data, DEVICE_ID);
 
         await processPreKeyBundle(bundle, address, localAddress, this.store, this.store);
     }

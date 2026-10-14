@@ -33,21 +33,21 @@ const VerifyLoginPage: React.FC = () => {
 
         if (!result.success) {
             console.error(result.errorMessage);
-            setFieldError('verificationCode', result.errorMessage!.message);
+            setFieldError('verificationCode', result.errorMessage.message);
             return;
         }
 
         userDispatch({
             type: UserActionType.Initialize,
             payload: new User(
-                result.data!.id,
-                result.data!.username,
-                result.data!.tag,
-                result.data!.deviceId,
-                result.data!.connectionId,
-                result.data!.externalConnectionIds,
-                result.data!.avatarKey,
-                result.data!.displayName,
+                result.data.id,
+                result.data.username,
+                result.data.tag,
+                result.data.deviceId,
+                result.data.connectionId,
+                result.data.externalConnectionIds,
+                result.data.avatarKey,
+                result.data.displayName,
             ),
         });
 
