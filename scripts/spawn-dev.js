@@ -3,15 +3,29 @@ import path from "path";
 import os from "os";
 import { execSync } from "child_process";
 
-// Parse command-line arguments to get instance count (default: 4)
-const args = process.argv.slice(2);
-let instanceCount = 4;
-args.forEach(arg => {
-    if (arg.startsWith("--instances=")) {
-        const value = arg.split("=")[1];
-        instanceCount = parseInt(value, 10) || 4;
+const DEFAULT_INSTANCES = 4;
+const BASE_VITE_PORT = 8082;
+
+function parseInstanceCount(args) {
+    for (let i = 0; i < args.length; i++) {
+        const arg = args[i];
+        let value;
+        if (arg.startsWith("--instances=")) value = arg.split("=")[1];
+        else if (arg === "--instances" || arg === "-n") value = args[i + 1];
+        else if (/^\d+$/.test(arg)) value = arg;
+        if (value !== undefined) {
+            const count = parseInt(value, 10);
+            if (!Number.isInteger(count) || count < 1) {
+                console.error(`Invalid instance count: ${value}`);
+                process.exit(1);
+            }
+            return count;
+        }
     }
-});
+    return DEFAULT_INSTANCES;
+}
+
+const instanceCount = parseInstanceCount(process.argv.slice(2));
 
 console.log(`Spawning ${instanceCount} Electron instance(s) with corresponding Vite servers...`);
 
@@ -25,9 +39,6 @@ const crossEnvCmd = os.platform() === "win32" ? "cross-env.cmd" : "cross-env";
 // Ensure Electron code is transpiled first:
 console.log("Transpiling Electron code...");
 execSync("npm run transpile:electron", { stdio: "inherit" });
-
-// Define the ports to use for Vite. Expand this array as needed.
-const vitePorts = [8082, 8083, 8084, 8085];
 
 function runVite(port) {
     console.log(`▶ Starting Vite server on port ${port}...`);
@@ -43,7 +54,7 @@ function runVite(port) {
 
 function runElectron(instanceIndex, port) {
     console.log(`🚀 Starting Electron instance ${instanceIndex} (using VITE_PORT=${port})`);
-    const proc = spawn("npx", ["electron", electronEntry], {
+    const proc = spawn("npx", ["electron", electronEntry, "--no-sandbox"], {
         cwd: baseDir,
         stdio: "inherit",
         shell: true,
@@ -59,10 +70,8 @@ function runElectron(instanceIndex, port) {
     });
 }
 
-// Launch the specified number of instances. We'll assume that instanceCount does not exceed the number of provided Vite ports.
 for (let i = 0; i < instanceCount; i++) {
-    // Cycle through the defined Vite ports if more instances are requested.
-    const port = vitePorts[i % vitePorts.length];
+    const port = BASE_VITE_PORT + i;
     // Start a Vite server on the chosen port.
     runVite(port);
     // Delay launching the Electron instance to give the Vite server time to start.

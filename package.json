@@ -19,7 +19,7 @@
     "test:integration": "playwright test && rimraf test-results && rimraf playwright-report",
     "test:full": "start containers && playwright test && stop containers",
     "test:unit": "vitest --run ./test/Unit",
-    "dev:spawn": "node scripts/spawn-dev.js --instances=4"
+    "dev:spawn": "node scripts/spawn-dev.js"
   },
   "dependencies": {
     "@fontsource/inter": "^5.1.1",
