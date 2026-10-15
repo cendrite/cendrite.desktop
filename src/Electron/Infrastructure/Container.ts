@@ -36,6 +36,7 @@ import { FriendClient } from './Clients/FriendClient.js';
 import { EventRepository } from './Persistence/Repositories/EventRepository.js';
 import { AppearanceSettingsRepository } from './Persistence/Repositories/AppearanceSettingsRepository.js';
 import { SettingsRegistry } from './Services/SettingsRegistry.js';
+import { PendingLoginStore } from './Services/PendingLoginStore.js';
 import { MessagePump } from './Pumps/MessagePump.js';
 import { DeliveryStatusUpdatePump } from './Pumps/DeliveryUpdatePump.js';
 
@@ -47,6 +48,7 @@ const services = {
     purgeLocalDataService: asClass(PurgeLocalDataService, { lifetime: Lifetime.SINGLETON }),
     sessionManager: asClass(SessionManager, { lifetime: Lifetime.SINGLETON }),
     settingsRegistry: asClass(SettingsRegistry, { lifetime: Lifetime.SINGLETON }),
+    pendingLoginStore: asClass(PendingLoginStore, { lifetime: Lifetime.SINGLETON }),
 };
 
 const persistence = {

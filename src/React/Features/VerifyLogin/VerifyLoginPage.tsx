@@ -33,6 +33,10 @@ const VerifyLoginPage: React.FC = () => {
 
         if (!result.success) {
             console.error(result.errorMessage);
+            if (result.errorMessage.code === 'Unauthorized') {
+                navigate('/login');
+                return;
+            }
             setFieldError('verificationCode', result.errorMessage.message);
             return;
         }
@@ -107,7 +111,11 @@ const VerifyLoginPage: React.FC = () => {
                     )}
                 </Formik>
 
-                <ResendCodeButton codeType={CodeType.Login} userId={onboardingContext.onboardingData.UserId!} />
+                <ResendCodeButton
+                    codeType={CodeType.Login}
+                    userId={onboardingContext.onboardingData.UserId!}
+                    onUnauthorized={() => navigate('/login')}
+                />
             </div>
         </div>
     );
