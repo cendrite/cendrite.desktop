@@ -10,7 +10,7 @@ export class DeviceClient implements IDeviceProvider {
     }
 
     createDevice(req: CreateDeviceRequest): Promise<Result<CreateDeviceApiResponse>> {
-        return this.client.handle<CreateDeviceApiResponse>({
+        return this.client.handleConduit<CreateDeviceApiResponse>({
             method: "POST",
             data: req 
         });
