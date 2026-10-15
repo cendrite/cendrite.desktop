@@ -16,6 +16,7 @@ import { UserContract } from '#shared/Models/UserContract';
 import { User } from '#electron/Domain/Aggregates/User';
 import { UserConnectionId } from '#electron/Domain/Entities/UserConnectionId';
 import { IPump } from '#electron/Application/Contracts/Services/IPump';
+import { IPendingLoginStore } from '#electron/Application/Contracts/Services/IPendingLoginStore';
 
 export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, UserContract> {
     constructor(
@@ -30,20 +31,30 @@ export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, Us
         private readonly userProvider: IUserProvider,
         private readonly messagePump: IPump,
         private readonly deliveryStatusUpdatePump: IPump,
+        private readonly pendingLoginStore: IPendingLoginStore,
     ) { }
 
     public async handle(cmd: VerifyLoginCommand): Promise<Result<UserContract>> {
+        const pendingLogin = this.pendingLoginStore.get(cmd.userId);
+        if (!pendingLogin) {
+            return Result.fail<UserContract>(new ErrorMessage('Unauthorized', 'Your login has expired. Please log in again.'));
+        }
+
         const verifyLoginResult = await this.authenticationProvider.verifyLogin({
             userId: cmd.userId,
             loginVerificationCode: cmd.loginVerificationCode,
+            nonceId: pendingLogin.nonceId,
+            nonce: pendingLogin.nonce,
         });
 
         if (!verifyLoginResult.success) {
             console.log('Login verification failed:', verifyLoginResult.errorMessage);
             return Result.fail<UserContract>(
-                new ErrorMessage(null, verifyLoginResult.errorMessage.message || 'Failed to verify login'),
+                new ErrorMessage(verifyLoginResult.errorMessage.code, verifyLoginResult.errorMessage.message || 'Failed to verify login'),
             );
         }
+
+        this.pendingLoginStore.clear();
 
         const devPk = this.nonceSigner.generateDeviceKeys();
 
@@ -59,7 +70,7 @@ export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, Us
 
         if (!deviceRegistrationResult.success) {
             console.log('Device registration failed:', deviceRegistrationResult.errorMessage);
-            return Result.fail<UserContract>(new ErrorMessage(null, 'Failed to register device'));
+            return Result.fail<UserContract>(new ErrorMessage(deviceRegistrationResult.errorMessage.code, 'Failed to register device'));
         }
 
         const device = new Device(

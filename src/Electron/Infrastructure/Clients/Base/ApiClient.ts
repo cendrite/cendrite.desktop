@@ -113,6 +113,9 @@ export class ApiClient {
             if (error instanceof AxiosError && error.response) {
                 const data = error.response.data as ProblemDetails;
                 console.error('Api call failed:', error.response.status, JSON.stringify(data));
+                if (error.response.status === 401) {
+                    return Result.fail<T>(new ErrorMessage('Unauthorized', 'Unauthorized'));
+                }
                 return Result.fail<T>(ErrorMessage.fromProblemDetails(data));
             }
             console.error('Unexpected error during api call:', error);

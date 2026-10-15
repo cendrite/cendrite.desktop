@@ -9,11 +9,15 @@ export interface LoginRequest {
 export interface LoginResponse {
     userId: string;
     isVerified: boolean;
+    nonceId: string | null;
+    nonce: string | null;
 }
 
 export interface VerifyLoginRequest {
     userId: string;
     loginVerificationCode: string;
+    nonceId: string;
+    nonce: string;
 }
 
 export interface VerifyLoginResponse {
@@ -40,6 +44,8 @@ export interface VerifyUserRequest {
 export interface ResendVerificationCodeRequest {
     userId: string;
     codeType: CodeType;
+    nonceId?: string;
+    nonce?: string;
 }
 
 export interface IAuthenticationProvider {

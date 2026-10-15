@@ -5,8 +5,9 @@ import {ResendVerificationCodeCommand} from "@/Shared/Authentication/ResendVerif
 interface ResendCodeButtonProps {
     userId: string;
     codeType: CodeType;
+    onUnauthorized?: () => void;
 }
-const ResendCodeButton: React.FC<ResendCodeButtonProps> = ({userId, codeType}) => {
+const ResendCodeButton: React.FC<ResendCodeButtonProps> = ({userId, codeType, onUnauthorized}) => {
     const [isCooldown, setIsCooldown] = useState(false);
     const [, setCooldownTime] = useState(5);
 
@@ -23,6 +24,9 @@ const ResendCodeButton: React.FC<ResendCodeButtonProps> = ({userId, codeType}) =
         if (!resendCodeResult.success) {
             console.error(resendCodeResult.errorMessage);
             setIsCooldown(false);
+            if (resendCodeResult.errorMessage.code === 'Unauthorized' && onUnauthorized) {
+                onUnauthorized();
+            }
             return;
         }
 
