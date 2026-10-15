@@ -54,14 +54,14 @@ export class AuthenticationClient implements IAuthenticationProvider {
     }
 
     register(req: RegisterRequest): Promise<Result<RegisterResponse>> {
-        return this.identityUserClient.handle<RegisterResponse>({
+        return this.identityUserClient.handleConduit<RegisterResponse>({
             method: 'POST',
             data: req,
         });
     }
 
     verifyUser(req: VerifyUserRequest): Promise<Result> {
-        return this.identityUserClient.handle<void>({
+        return this.identityUserClient.handleConduit<void>({
             method: 'PUT',
             url: 'verify',
             data: req,
@@ -69,7 +69,7 @@ export class AuthenticationClient implements IAuthenticationProvider {
     }
 
     resendVerificationCode(req: ResendVerificationCodeRequest): Promise<Result> {
-        return this.identityUserClient.handle<void>({
+        return this.identityUserClient.handleConduit<void>({
             method: 'PUT',
             url: 'resend-verification',
             data: req,
