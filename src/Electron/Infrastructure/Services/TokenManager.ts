@@ -1,13 +1,10 @@
 import { ITokenProvider } from '#electron/Application/Contracts/Providers/ITokenProvider';
 import { ITokenManager } from '#electron/Application/Contracts/Services/ITokenManager';
-import { RefreshToken } from '#electron/Domain/Entities/RefreshToken';
-import { IRefreshTokenRepository } from '../Interfaces/IRefreshTokenRepository.js';
 import { INonceSigner } from '#electron/Application/Contracts/Services/INonceSigner';
 import { NonceSigner } from './NonceSigner.js';
 
 export interface Tokens {
     jwt: string | null;
-    refreshToken: string | null;
     expiresAt: string | null;
 }
 
@@ -21,19 +18,15 @@ export class TokenManager implements ITokenManager {
 
     private readonly tokenProvider: ITokenProvider;
     private readonly nonceSigner: INonceSigner;
-    private readonly refreshTokenRepository: IRefreshTokenRepository;
 
     public constructor(
         tokenProvider: ITokenProvider,
         nonceSigner: NonceSigner,
-        refreshTokenRepository: IRefreshTokenRepository,
     ) {
         this.tokenProvider = tokenProvider;
         this.nonceSigner = nonceSigner;
-        this.refreshTokenRepository = refreshTokenRepository;
         this.tokens = {
             jwt: null,
-            refreshToken: null,
             expiresAt: null,
         };
     }
@@ -62,14 +55,7 @@ export class TokenManager implements ITokenManager {
         this.setUserId(userId);
         this.setDeviceId(deviceId);
         console.log(`TokenManager initialized with userId: ${userId} and deviceId: ${deviceId}`);
-        const refreshToken = await this.refreshTokenRepository.get();
-        if (refreshToken) {
-            this.tokens.refreshToken = refreshToken.token;
-            await this.refreshTokens();
-        } else {
-            console.log('No refresh token found. Generating new nonce and refresh token.');
-            await this.generateTokensViaNonce();
-        }
+        await this.generateTokensViaNonce(true);
 
         await this.startBackgroundTokenRefresh();
     }
@@ -96,36 +82,10 @@ export class TokenManager implements ITokenManager {
     }
 
     private async refreshTokensInternal(): Promise<void> {
-        if (this.tokens.refreshToken === null) {
-            console.log('Refresh token is null, generating new tokens via nonce');
-            await this.generateTokensViaNonce();
-            return;
-        }
-
-        const rtResponse = await this.tokenProvider.refreshToken({
-            userId: this.userId!,
-            deviceId: this.deviceId!,
-            refreshToken: this.tokens.refreshToken,
-        });
-
-        if (!rtResponse.success) {
-            console.error('Failed to refresh tokens:', rtResponse.errorMessage);
-            await this.generateTokensViaNonce();
-            return;
-        }
-
-        this.setTokens({
-            jwt: rtResponse.data.jwt,
-            refreshToken: rtResponse.data.refreshToken,
-            expiresAt: rtResponse.data.expiresAt,
-        });
-
-        await this.refreshTokenRepository.create(
-            new RefreshToken(rtResponse.data.refreshToken, rtResponse.data.expiresAt),
-        );
+        await this.generateTokensViaNonce(false);
     }
 
-    private async generateTokensViaNonce(): Promise<void> {
+    private async generateTokensViaNonce(announce: boolean): Promise<void> {
         if (!this.userId || !this.deviceId) {
             throw new Error('UserId or DeviceId is not set. Cannot generate tokens.');
         }
@@ -146,6 +106,7 @@ export class TokenManager implements ITokenManager {
             deviceId: this.deviceId,
             nonceId: nonceResponse.data.nonceId,
             nonce: signedNonce,
+            announce,
         });
 
         if (!verifyResponse.success) {
@@ -154,13 +115,8 @@ export class TokenManager implements ITokenManager {
 
         this.setTokens({
             jwt: verifyResponse.data.jwt,
-            refreshToken: verifyResponse.data.refreshToken,
             expiresAt: verifyResponse.data.expiresAt,
         });
-
-        await this.refreshTokenRepository.create(
-            new RefreshToken(verifyResponse.data.refreshToken, verifyResponse.data.expiresAt),
-        );
     }
 
     private async startBackgroundTokenRefresh(): Promise<void> {
@@ -180,8 +136,7 @@ export class TokenManager implements ITokenManager {
                 return;
             }
 
-            if (this.tokens.refreshToken === null) {
-                console.warn('how the fuck is the token null?');
+            if (this.stopRefreshLoop) {
                 return;
             }
             await this.refreshTokens();
@@ -203,7 +158,6 @@ export class TokenManager implements ITokenManager {
         this.deviceId = null;
         this.tokens = {
             jwt: null,
-            refreshToken: null,
             expiresAt: null,
         };
     }
