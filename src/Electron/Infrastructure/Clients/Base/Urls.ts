@@ -14,13 +14,12 @@ export const API_URLS = {
     },
     IDENTITY: {
         AUTH: 'https://conduit.xhykl49jkg.org/api/identity',
-        DEVICE: 'https://identity.xhykl49jkg.org/api/User/device',
+        DEVICE: 'https://conduit.xhykl49jkg.org/api/identity/user/device',
         USER: {
-            BASE: 'https://identity.xhykl49jkg.org/api/User',
-            REGISTER: 'https://identity.xhykl49jkg.org/api/User',
-            VERIFY_USER: 'https://identity.xhykl49jkg.org/api/User/verify',
-            RESEND_VERIFICATION: 'https://identity.xhykl49jkg.org/api/User/resend-verification',
-            GET_DEVICES: 'https://identity.xhykl49jkg.org/api/User/device',
+            BASE: 'https://conduit.xhykl49jkg.org/api/identity/user',
+            REGISTER: 'https://conduit.xhykl49jkg.org/api/identity/user',
+            VERIFY_USER: 'https://conduit.xhykl49jkg.org/api/identity/user/verify',
+            RESEND_VERIFICATION: 'https://conduit.xhykl49jkg.org/api/identity/user/resend-verification',
         },
     },
     FRIEND: {
