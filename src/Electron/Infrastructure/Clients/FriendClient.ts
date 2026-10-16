@@ -10,39 +10,37 @@ import { ApiClient } from './Base/ApiClient.js';
 
 export class FriendClient implements IFriendProvider {
     private readonly friendClient: ApiClient;
-    private readonly friendshipClient: ApiClient;
     private readonly profileClient: ApiClient;
 
-    constructor(friendApiClient: ApiClient, friendshipApiClient: ApiClient, userApiClient: ApiClient) {
+    constructor(friendApiClient: ApiClient, userApiClient: ApiClient) {
         this.friendClient = friendApiClient;
-        this.friendshipClient = friendshipApiClient;
         this.profileClient = userApiClient;
     }
 
     public sendFriendRequest(userTag: string): Promise<Result> {
-        return this.friendshipClient.handle<void>({
+        return this.friendClient.handleConduit<void>({
             method: 'POST',
             data: { friendTag: userTag },
         }, true);
     }
 
     public getFriendRequests(): Promise<Result<FriendRequestResponse[]>> {
-        return this.friendshipClient.handle<FriendRequestResponse[]>({
+        return this.friendClient.handleConduit<FriendRequestResponse[]>({
             method: 'GET',
             url: 'requests',
         });
     }
 
     public declineFriendRequest(userTag: string): Promise<Result> {
-        return this.friendshipClient.handle<void>({
+        return this.friendClient.handleConduit<void>({
             method: 'DELETE',
             url: 'reject',
-            params: { friendTag: userTag },
+            params: { tag: userTag },
         }, true);
     }
 
     public acceptFriendRequest(userTag: string): Promise<Result<AcceptFriendRequestResponse>> {
-        return this.friendshipClient.handle<AcceptFriendRequestResponse>({
+        return this.friendClient.handleConduit<AcceptFriendRequestResponse>({
             method: 'PUT',
             url: 'accept',
             data: { friendTag: userTag },
@@ -50,10 +48,9 @@ export class FriendClient implements IFriendProvider {
     }
 
     public deleteFriend(userTag: string): Promise<Result> {
-        return this.friendshipClient.handle<void>({
+        return this.friendClient.handleConduit<void>({
             method: 'DELETE',
-            url: 'delete',
-            params: { friendTag: userTag },
+            params: { tag: userTag },
         }, true);
     }
 

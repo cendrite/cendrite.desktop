@@ -30,7 +30,7 @@ export interface AcceptFriendRequestResponse {
     username: string;
     tag: string;
     displayName: string | null;
-    profilePictureUrl?: string;
+    avatarKey: string | null;
     connectionIds: string[];
 }
 
