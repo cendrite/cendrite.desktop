@@ -24,7 +24,7 @@ export class AcceptFriendRequestCommandHandler implements Handler<AcceptFriendRe
         friend.id = acceptResult.data.tag;
         friend.username = acceptResult.data.username;
         friend.displayName = acceptResult.data.displayName;
-        friend.avatarKey = acceptResult.data.profilePictureUrl ?? null;
+        friend.avatarKey = acceptResult.data.avatarKey ?? null;
         friend.connectionIds = acceptResult.data.connectionIds.map((id) => new FriendConnectionId(id, friend));
 
         await this.friendRepository.create(friend);

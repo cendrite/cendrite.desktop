@@ -127,10 +127,6 @@ const httpClients = {
     friendApiClient: asFunction(
         (tokenManager: TokenManager) => new ApiClient(API_URLS.FRIEND.BASE, tokenManager),
     ).singleton(),
-
-    friendshipApiClient: asFunction(
-        (tokenManager: TokenManager) => new ApiClient(API_URLS.FRIEND.FRIENDSHIP, tokenManager),
-    ).singleton(),
 };
 
 export const infrastructureResolvers = {

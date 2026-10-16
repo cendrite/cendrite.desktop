@@ -5,12 +5,7 @@ export const API_URLS = {
         GET_BY_TAG: 'https://conduit.xhykl49jkg.org/api/profile/tag',
         UPDATE_AVATAR: 'https://conduit.xhykl49jkg.org/api/profile/avatar',
         GET_AVATAR: 'https://conduit.xhykl49jkg.org/api/profile/avatar',
-        SEND_FRIEND_REQUEST: 'https://social.xhykl49jkg.org/api/UserProfile/friendship',
-        DELETE_FRIENDSHIP: 'https://social.xhykl49jkg.org/api/UserProfile/friendship/delete',
-        DECLINE_FRIEND_REQUEST: 'https://social.xhykl49jkg.org/api/UserProfile/friendship/reject',
-        ACCEPT_FRIENDSHIP: 'https://social.xhykl49jkg.org/api/UserProfile/friendship/accept',
         GET_FRIENDS: 'https://conduit.xhykl49jkg.org/api/friend/list',
-        GET_FRIEND_REQUESTS: 'https://social.xhykl49jkg.org/api/UserProfile/friendship/requests',
     },
     IDENTITY: {
         AUTH: 'https://conduit.xhykl49jkg.org/api/identity',
@@ -24,7 +19,6 @@ export const API_URLS = {
     },
     FRIEND: {
         BASE: 'https://conduit.xhykl49jkg.org/api/friend',
-        FRIENDSHIP: 'https://social.xhykl49jkg.org/api/UserProfile/friendship',
     },
     LEDGER: {
         BASE: 'https://conduit.xhykl49jkg.org/api/ledger/streams',
