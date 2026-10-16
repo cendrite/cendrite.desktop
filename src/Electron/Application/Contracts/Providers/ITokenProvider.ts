@@ -16,11 +16,11 @@ export interface VerifyNonceRequest {
     deviceId: string;
     nonceId: string;
     nonce: string;
+    announce: boolean;
 }
 
 export interface VerifyNonceResponse {
     jwt: string;
-    refreshToken: string;
     expiresAt: string;
 }
 
