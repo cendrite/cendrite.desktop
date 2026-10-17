@@ -5,7 +5,15 @@ import {
     LedgerEvent,
     LedgerEventsPage,
     LedgerHead,
+    LedgerReadProof,
 } from '../../../../../src/Electron/Application/Contracts/Providers/ILedgerProvider.js';
+import { IGroupKeyRepository } from '../../../../../src/Electron/Application/Contracts/Repositories/IGroupKeyRepository.js';
+import { GroupWriteKey } from '../../../../../src/Electron/Domain/Encryption/GroupWriteKey.js';
+import {
+    buildReadSigningInput,
+    generateWriteKeyPair,
+    verifyOuter,
+} from '../../../../../src/Electron/Infrastructure/Crypto/LedgerCodec.js';
 import { ILedgerLogRepository } from '../../../../../src/Electron/Application/Contracts/Repositories/ILedgerLogRepository.js';
 import { IGroupRepository } from '../../../../../src/Electron/Application/Contracts/Repositories/IGroupRepository.js';
 import {
@@ -73,18 +81,34 @@ function replayService(result: Partial<ReplayResult> = {}): ILedgerReplayService
     };
 }
 
-function provider(pages: LedgerEventsPage[]): { provider: ILedgerProvider; requested: number[] } {
+const WRITE_KEY = generateWriteKeyPair();
+
+function groupKeys(writeKey: GroupWriteKey | null = new GroupWriteKey(GROUP_ID, WRITE_KEY.publicKey, WRITE_KEY.privateKey)): IGroupKeyRepository {
+    return {
+        saveWriteKey: async () => undefined,
+        getWriteKey: async () => writeKey,
+        saveEpochKey: async () => undefined,
+        getEpochKey: async () => null,
+        getEpochKeys: async () => [],
+        deleteAll: async () => undefined,
+    };
+}
+
+function provider(pages: LedgerEventsPage[]): { provider: ILedgerProvider; requested: number[]; proofs: LedgerReadProof[] } {
     const requested: number[] = [];
+    const proofs: LedgerReadProof[] = [];
     let index = 0;
 
     return {
         requested,
+        proofs,
         provider: {
             createStream: async () => Result.success<void>(),
             appendEvent: async () => Result.success<void>(),
             archiveStream: async () => Result.success<void>(),
-            getEvents: async (_groupId, fromVersion) => {
+            getEvents: async (_groupId, fromVersion, proof) => {
                 requested.push(fromVersion);
+                proofs.push(proof);
                 return Result.success(pages[Math.min(index++, pages.length - 1)]);
             },
             getHead: async (): Promise<Result<LedgerHead>> =>
@@ -102,7 +126,7 @@ describe('syncing', () => {
         state.headHash = Buffer.alloc(32, 0xcc);
 
         const { provider: p } = provider([{ version: 2, archived: false, hasMore: false, events: [event(1), event(2)] }]);
-        const sut = new LedgerSyncService(p, log.repository, groups.repository, replayService({ state }));
+        const sut = new LedgerSyncService(p, log.repository, groups.repository, replayService({ state }), groupKeys());
 
         const result = await sut.sync(GROUP_ID);
 
@@ -119,7 +143,7 @@ describe('syncing', () => {
         ]);
 
         const { provider: p, requested } = provider([{ version: 1, archived: false, hasMore: false, events: [] }]);
-        const sut = new LedgerSyncService(p, log.repository, groupRepository().repository, replayService());
+        const sut = new LedgerSyncService(p, log.repository, groupRepository().repository, replayService(), groupKeys());
 
         await sut.sync(GROUP_ID);
 
@@ -133,7 +157,7 @@ describe('syncing', () => {
             { version: 3, archived: false, hasMore: false, events: [event(3)] },
         ]);
 
-        const sut = new LedgerSyncService(p, log.repository, groupRepository().repository, replayService());
+        const sut = new LedgerSyncService(p, log.repository, groupRepository().repository, replayService(), groupKeys());
 
         await sut.sync(GROUP_ID);
 
@@ -150,6 +174,7 @@ describe('syncing', () => {
             log.repository,
             groupRepository().repository,
             replayService({ rejected: [{ version: 1, reason: 'author is not an admin' }] }),
+            groupKeys(),
         );
 
         await sut.sync(GROUP_ID);
@@ -168,6 +193,7 @@ describe('syncing', () => {
             log.repository,
             groupRepository().repository,
             replayService({ stalledAt: 1 }),
+            groupKeys(),
         );
 
         await sut.sync(GROUP_ID);
@@ -180,7 +206,7 @@ describe('syncing', () => {
         const groups = groupRepository();
         const { provider: p } = provider([{ version: 1, archived: true, hasMore: false, events: [event(1)] }]);
 
-        const sut = new LedgerSyncService(p, log.repository, groups.repository, replayService());
+        const sut = new LedgerSyncService(p, log.repository, groups.repository, replayService(), groupKeys());
 
         await sut.sync(GROUP_ID);
 
@@ -197,11 +223,43 @@ describe('syncing', () => {
             getHead: async () => Result.fail(new ErrorMessage('ApiError', 'offline')),
         };
 
-        const sut = new LedgerSyncService(failing, log.repository, groupRepository().repository, replayService());
+        const sut = new LedgerSyncService(failing, log.repository, groupRepository().repository, replayService(), groupKeys());
 
         const result = await sut.sync(GROUP_ID);
 
         expect(result.success).toBe(false);
+        expect(log.stored).toEqual([]);
+    });
+
+    test('signs every page request with the group write key', async () => {
+        const log = logRepository();
+        const { provider: p, proofs } = provider([
+            { version: 3, archived: false, hasMore: true, events: [event(1), event(2)] },
+            { version: 3, archived: false, hasMore: false, events: [event(3)] },
+        ]);
+
+        const sut = new LedgerSyncService(p, log.repository, groupRepository().repository, replayService(), groupKeys());
+
+        await sut.sync(GROUP_ID);
+
+        expect(proofs).toHaveLength(2);
+        for (const proof of proofs) {
+            expect(proof.writeKeyPublic).toEqual(WRITE_KEY.publicKey);
+            expect(Math.abs(proof.timestamp - Math.floor(Date.now() / 1000))).toBeLessThanOrEqual(5);
+            expect(verifyOuter(WRITE_KEY.publicKey, buildReadSigningInput(GROUP_ID, proof.timestamp), proof.signature)).toBe(true);
+        }
+    });
+
+    test('fails without asking the server when there is no write key for the group', async () => {
+        const log = logRepository();
+        const { provider: p, requested } = provider([{ version: 1, archived: false, hasMore: false, events: [event(1)] }]);
+
+        const sut = new LedgerSyncService(p, log.repository, groupRepository().repository, replayService(), groupKeys(null));
+
+        const result = await sut.sync(GROUP_ID);
+
+        expect(result.success).toBe(false);
+        expect(requested).toEqual([]);
         expect(log.stored).toEqual([]);
     });
 });

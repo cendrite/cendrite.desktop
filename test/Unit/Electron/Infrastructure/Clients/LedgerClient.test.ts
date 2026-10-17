@@ -8,6 +8,12 @@ import { ErrorMessage } from '../../../../../src/Shared/Result/ErrorMessage.js';
 
 const GROUP_ID = '0199673a-3c1e-7c2b-9f2e-5d8b1a4c7e10';
 
+const PROOF = {
+    writeKeyPublic: Buffer.alloc(32, 0x0a),
+    timestamp: 1760000000,
+    signature: Buffer.alloc(64, 0x0b),
+};
+
 function fakeClient(result: Result<unknown> = Result.success()) {
     const calls: AxiosRequestConfig[] = [];
 
@@ -127,7 +133,7 @@ describe('getEvents', () => {
 
         const { calls, sut } = fakeClient(Result.success(page));
 
-        const result = await sut.getEvents(GROUP_ID, 2, 100);
+        const result = await sut.getEvents(GROUP_ID, 2, PROOF, 100);
 
         expect(calls[0].method).toBe('GET');
         expect(calls[0].url).toBe(`${GROUP_ID}/events`);
@@ -145,7 +151,7 @@ describe('getEvents', () => {
     test('omits the limit when the caller does not set one', async () => {
         const { calls, sut } = fakeClient(Result.success({ version: 1, archived: false, hasMore: false, events: [] }));
 
-        await sut.getEvents(GROUP_ID, 1);
+        await sut.getEvents(GROUP_ID, 1, PROOF);
 
         expect(calls[0].params).toEqual({ fromVersion: 1 });
     });
@@ -153,10 +159,36 @@ describe('getEvents', () => {
     test('passes a failure through untouched', async () => {
         const { sut } = fakeClient(Result.fail(new ErrorMessage('Not Found', 'Could not find ledger.')));
 
-        const result = await sut.getEvents(GROUP_ID, 1);
+        const result = await sut.getEvents(GROUP_ID, 1, PROOF);
 
         expect(result.success).toBe(false);
         expect(result.errorMessage?.message).toBe('Could not find ledger.');
+    });
+});
+
+describe('read proof', () => {
+    const expectedHeaders = {
+        'X-Ledger-Key': PROOF.writeKeyPublic.toString('base64'),
+        'X-Ledger-Timestamp': '1760000000',
+        'X-Ledger-Signature': PROOF.signature.toString('base64'),
+    };
+
+    test('sends the read proof headers when fetching events', async () => {
+        const { calls, sut } = fakeClient(Result.success({ version: 1, archived: false, hasMore: false, events: [] }));
+
+        await sut.getEvents(GROUP_ID, 1, PROOF);
+
+        expect(calls[0].headers).toEqual(expectedHeaders);
+    });
+
+    test('sends the read proof headers when fetching the head', async () => {
+        const { calls, sut } = fakeClient(
+            Result.success({ version: 1, hash: Buffer.alloc(32).toString('base64'), archived: false }),
+        );
+
+        await sut.getHead(GROUP_ID, PROOF);
+
+        expect(calls[0].headers).toEqual(expectedHeaders);
     });
 });
 
@@ -167,7 +199,7 @@ describe('getHead', () => {
             Result.success({ version: 12, hash: hash.toString('base64'), archived: true }),
         );
 
-        const result = await sut.getHead(GROUP_ID);
+        const result = await sut.getHead(GROUP_ID, PROOF);
 
         expect(calls[0].url).toBe(`${GROUP_ID}/head`);
         expect(result.data).toEqual({ version: 12, hash, archived: true });
