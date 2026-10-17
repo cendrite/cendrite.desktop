@@ -4,7 +4,6 @@ import { ChatMember } from '#electron/Domain/Entities/ChatMember';
 import { FriendSchema } from '../Schemas/FriendSchema.js';
 import { FriendConnectionIdSchema } from '../Schemas/FriendConnectionIdSchema.js';
 import { DeviceSchema } from '../Schemas/DeviceSchema.js';
-import { RefreshTokenSchema } from '../Schemas/RefreshTokenSchema.js';
 import { UserSchema } from '../Schemas/UserSchema.js';
 import { ChatSchema } from '../Schemas/ChatSchema.js';
 import { ChatMemberSchema } from '../Schemas/ChatMemberSchema.js';
@@ -36,7 +35,6 @@ export async function initializeDatabase(dbPath: string | null = null): Promise<
         entities: [
             UserSchema,
             UserConnectionIdSchema,
-            RefreshTokenSchema,
             DeviceSchema,
             FriendSchema,
             FriendConnectionIdSchema,

@@ -1,5 +1,5 @@
 import { Result } from "#shared/Result/Result";
-import { GetNonceRequest, GetNonceResponse, ITokenProvider, RefreshTokenRequest, RefreshTokenResponse, VerifyNonceRequest, VerifyNonceResponse } from "#electron/Application/Contracts/Providers/ITokenProvider";
+import { GetNonceRequest, GetNonceResponse, ITokenProvider, VerifyNonceRequest, VerifyNonceResponse } from "#electron/Application/Contracts/Providers/ITokenProvider";
 import { ApiClient } from "./Base/ApiClient.js";
 
 export class TokenClient implements ITokenProvider {
@@ -24,13 +24,4 @@ export class TokenClient implements ITokenProvider {
             data: req,
         });
     }
-
-    refreshToken(req: RefreshTokenRequest): Promise<Result<RefreshTokenResponse>> {
-        return this.tokenClient.handleConduit<RefreshTokenResponse>({
-            method: 'POST',
-            url: "refresh-token",
-            data: req,
-        });
-    }
-
 }

@@ -1,5 +1,4 @@
 import { asClass, asFunction, Lifetime } from 'awilix';
-import { RefreshTokenRepository } from './Persistence/Repositories/RefreshTokenRepository.js';
 import { DeviceRepository } from './Persistence/Repositories/DeviceRepository.js';
 import { ProtocolStore } from './Persistence/Repositories/ProtocolStore.js';
 import { ChatStore } from './Persistence/Repositories/ChatStore.js';
@@ -52,7 +51,6 @@ const services = {
 };
 
 const persistence = {
-    refreshTokenRepository: asClass(RefreshTokenRepository, { lifetime: Lifetime.SINGLETON }),
     deviceRepository: asClass(DeviceRepository, { lifetime: Lifetime.SINGLETON }),
     protocolStore: asClass(ProtocolStore, { lifetime: Lifetime.SINGLETON }),
     chatStore: asClass(ChatStore, { lifetime: Lifetime.SINGLETON }),
