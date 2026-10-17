@@ -58,4 +58,16 @@ describe('LoginCommandHandler', () => {
         expect(result.success).toBe(false);
         expect(pendingLoginStore.get('user-1')).toBeNull();
     });
+
+    test('shows Invalid Credentials when login is rejected with 401', async () => {
+        const { handler, pendingLoginStore } = createHandler(
+            vi.fn().mockResolvedValue(Result.fail(new ErrorMessage('Unauthorized', 'Unauthorized'))),
+        );
+
+        const result = await handler.handle(new LoginCommand('test@mail.dk', 'wrong'));
+
+        expect(result.success).toBe(false);
+        expect(result.errorMessage).toEqual(new ErrorMessage('Unauthorized', 'Invalid Credentials'));
+        expect(pendingLoginStore.get('user-1')).toBeNull();
+    });
 });
