@@ -1,4 +1,5 @@
 import { Result } from '#shared/Result/Result';
+import { ErrorMessage } from '#shared/Result/ErrorMessage';
 import { IAuthenticationProvider } from '#electron/Application/Contracts/Providers/IAuthenticationProvider';
 import { IPendingLoginStore } from '#electron/Application/Contracts/Services/IPendingLoginStore';
 import { Handler } from '#electron/Application/Mediator/Handler';
@@ -17,7 +18,12 @@ export class LoginCommandHandler implements Handler<LoginCommand, LoginResponse>
             password: cmd.password,
         });
 
-        if (!result.success) return result;
+        if (!result.success) {
+            if (result.errorMessage.code === 'Unauthorized') {
+                return Result.fail<LoginResponse>(new ErrorMessage('Unauthorized', 'Invalid Credentials'));
+            }
+            return result;
+        }
 
         this.pendingLoginStore.clear();
 
