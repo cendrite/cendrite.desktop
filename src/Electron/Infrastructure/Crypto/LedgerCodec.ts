@@ -18,6 +18,7 @@ export const SIGNATURE_BYTES = 64;
 
 const DOMAIN_PREFIX = Buffer.from('ledger-v1', 'ascii');
 const OPERATION_PREFIX = Buffer.from('ledger-op-v1', 'ascii');
+const READ_PREFIX = Buffer.from('ledger-read-v1', 'ascii');
 const PKCS8_ED25519_PREFIX = Buffer.from('302e020100300506032b657004220420', 'hex');
 const GCM_TAG_BYTES = 16;
 const EPOCH_KEY_BYTES = 32;
@@ -69,6 +70,13 @@ export function buildSigningInput(parts: SigningInputParts): Buffer {
         writeKeyList(keysRemoved),
         payload,
     ]);
+}
+
+export function buildReadSigningInput(groupId: string, timestamp: number): Buffer {
+    const timestampBytes = Buffer.alloc(8);
+    timestampBytes.writeBigInt64BE(BigInt(timestamp));
+
+    return Buffer.concat([READ_PREFIX, uuidToBytes(groupId), timestampBytes]);
 }
 
 /**

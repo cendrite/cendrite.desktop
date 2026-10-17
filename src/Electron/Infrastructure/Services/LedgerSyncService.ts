@@ -1,5 +1,7 @@
 import { Result } from '#shared/Result/Result';
-import { ILedgerProvider } from '#electron/Application/Contracts/Providers/ILedgerProvider';
+import { ErrorMessage } from '#shared/Result/ErrorMessage';
+import { ILedgerProvider, LedgerReadProof } from '#electron/Application/Contracts/Providers/ILedgerProvider';
+import { IGroupKeyRepository } from '#electron/Application/Contracts/Repositories/IGroupKeyRepository';
 import { IGroupRepository } from '#electron/Application/Contracts/Repositories/IGroupRepository';
 import { ILedgerLogRepository } from '#electron/Application/Contracts/Repositories/ILedgerLogRepository';
 import { ILedgerReplayService, ReplayResult } from '#electron/Application/Contracts/Services/ILedgerReplayService';
@@ -7,7 +9,8 @@ import { ILedgerSyncService } from '#electron/Application/Contracts/Services/ILe
 import { Group } from '#electron/Domain/Entities/Group';
 import { LedgerEventRecord } from '#electron/Domain/Entities/LedgerEventRecord';
 import { LedgerEventStatus } from '#electron/Domain/Enums/LedgerEventStatus';
-import { buildSigningInput, hashEvent } from '../Crypto/LedgerCodec.js';
+import { GroupWriteKey } from '#electron/Domain/Encryption/GroupWriteKey';
+import { buildReadSigningInput, buildSigningInput, hashEvent, signOuter } from '../Crypto/LedgerCodec.js';
 
 const PAGE_SIZE = 500;
 
@@ -17,6 +20,7 @@ export class LedgerSyncService implements ILedgerSyncService {
         private readonly ledgerLogRepository: ILedgerLogRepository,
         private readonly groupRepository: IGroupRepository,
         private readonly ledgerReplayService: ILedgerReplayService,
+        private readonly groupKeyRepository: IGroupKeyRepository,
     ) { }
 
     public async sync(groupId: string): Promise<Result<ReplayResult>> {
@@ -32,12 +36,15 @@ export class LedgerSyncService implements ILedgerSyncService {
     }
 
     private async fetchNewEvents(groupId: string): Promise<Result<boolean>> {
+        const writeKey = await this.groupKeyRepository.getWriteKey(groupId);
+        if (!writeKey) return Result.fail<boolean>(new ErrorMessage('LedgerSyncService', `No write key for group ${groupId}`));
+
         let fromVersion = (await this.ledgerLogRepository.getLastVersion(groupId)) + 1;
         let archived = false;
         let hasMore = true;
 
         while (hasMore) {
-            const page = await this.ledgerProvider.getEvents(groupId, fromVersion, PAGE_SIZE);
+            const page = await this.ledgerProvider.getEvents(groupId, fromVersion, readProof(groupId, writeKey), PAGE_SIZE);
             if (!page.success) return Result.fail<boolean>(page.errorMessage);
 
             const { events } = page.data;
@@ -101,4 +108,14 @@ function toRecord(groupId: string, event: { version: number; previousHash: Buffe
         event.keysAdded.map((key) => key.toString('base64')),
         event.keysRemoved.map((key) => key.toString('base64')),
     );
+}
+
+function readProof(groupId: string, writeKey: GroupWriteKey): LedgerReadProof {
+    const timestamp = Math.floor(Date.now() / 1000);
+
+    return {
+        writeKeyPublic: writeKey.publicKey,
+        timestamp,
+        signature: signOuter(writeKey.privateKey, buildReadSigningInput(groupId, timestamp)),
+    };
 }

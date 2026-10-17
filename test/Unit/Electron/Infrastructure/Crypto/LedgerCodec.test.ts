@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import {
+    buildReadSigningInput,
     buildSigningInput,
     bytesToUuid,
     decryptPayload,
@@ -41,6 +42,16 @@ const GOLDEN = {
     signatureHex:
         'a0e9075a9436dd6b43deffb7c49364d6fcc3bfe42321b0da2e86e749b4fbb874' +
         '6026004c9bd6962ce70d873326f93e1986834d845cb427f14654afb8f7e8bc08',
+};
+
+const READ_GOLDEN = {
+    groupId: GOLDEN.groupId,
+    timestamp: 1760000000,
+    seed: GOLDEN.seed,
+    signingInputHex: '6c65646765722d726561642d76310199673a3c1e7c2b9f2e5d8b1a4c7e100000000068e77800',
+    signatureHex:
+        '1fd2a0108fac44a4cb4a517a234d2f6c77a4735ccc5fb1c54b9d75219685b09c' +
+        '5af061e8eb38c16811f4f37d84c9a7ed18e26e86dcd51be5c24cc9dc529b6004',
 };
 
 function fill(value: number, length: number): Buffer {
@@ -190,6 +201,27 @@ describe('signatures', () => {
         const input = goldenInput();
 
         expect(verifyOuter(Buffer.alloc(31), input, signOuter(privateKey, input))).toBe(false);
+    });
+});
+
+describe('read signing input', () => {
+    test('matches the vector produced with the Ledger service layout and library', () => {
+        const input = buildReadSigningInput(READ_GOLDEN.groupId, READ_GOLDEN.timestamp);
+
+        expect(input.toString('hex')).toBe(READ_GOLDEN.signingInputHex);
+    });
+
+    test('produces the same read signature the server verifies', () => {
+        const signature = signOuter(READ_GOLDEN.seed, buildReadSigningInput(READ_GOLDEN.groupId, READ_GOLDEN.timestamp));
+
+        expect(signature.toString('hex')).toBe(READ_GOLDEN.signatureHex);
+    });
+
+    test('cannot be confused with an append signing input', () => {
+        const read = buildReadSigningInput(READ_GOLDEN.groupId, READ_GOLDEN.timestamp);
+
+        expect(read.subarray(0, 14).toString('ascii')).toBe('ledger-read-v1');
+        expect(goldenInput().subarray(0, 14).toString('ascii')).not.toBe('ledger-read-v1');
     });
 });
 

@@ -6,6 +6,7 @@ import {
     LedgerEventsPageDto,
     LedgerHead,
     LedgerHeadDto,
+    LedgerReadProof,
 } from '#electron/Application/Contracts/Providers/ILedgerProvider';
 import { LedgerEvent } from '#electron/Application/Contracts/Providers/ILedgerProvider';
 import { ApiClient } from './Base/ApiClient.js';
@@ -75,11 +76,17 @@ export class LedgerClient implements ILedgerProvider {
         ) as Promise<Result<void>>;
     }
 
-    public async getEvents(groupId: string, fromVersion: number, limit?: number): Promise<Result<LedgerEventsPage>> {
+    public async getEvents(
+        groupId: string,
+        fromVersion: number,
+        proof: LedgerReadProof,
+        limit?: number,
+    ): Promise<Result<LedgerEventsPage>> {
         const result = await this.client.handleConduit<LedgerEventsPageDto>({
             url: `${groupId}/events`,
             method: 'GET',
             params: limit === undefined ? { fromVersion } : { fromVersion, limit },
+            headers: readHeaders(proof),
         });
 
         if (!result.success) return Result.fail<LedgerEventsPage>(result.errorMessage);
@@ -106,10 +113,11 @@ export class LedgerClient implements ILedgerProvider {
         });
     }
 
-    public async getHead(groupId: string): Promise<Result<LedgerHead>> {
+    public async getHead(groupId: string, proof: LedgerReadProof): Promise<Result<LedgerHead>> {
         const result = await this.client.handleConduit<LedgerHeadDto>({
             url: `${groupId}/head`,
             method: 'GET',
+            headers: readHeaders(proof),
         });
 
         if (!result.success) return Result.fail<LedgerHead>(result.errorMessage);
@@ -122,6 +130,14 @@ export class LedgerClient implements ILedgerProvider {
             archived: head.archived,
         });
     }
+}
+
+function readHeaders(proof: LedgerReadProof): Record<string, string> {
+    return {
+        'X-Ledger-Key': toBase64(proof.writeKeyPublic),
+        'X-Ledger-Timestamp': proof.timestamp.toString(),
+        'X-Ledger-Signature': toBase64(proof.signature),
+    };
 }
 
 function toBase64(value: Buffer): string {

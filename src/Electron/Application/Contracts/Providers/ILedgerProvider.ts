@@ -43,6 +43,12 @@ export interface LedgerEventsPage {
     events: LedgerEvent[];
 }
 
+export interface LedgerReadProof {
+    writeKeyPublic: Buffer;
+    timestamp: number;
+    signature: Buffer;
+}
+
 export interface LedgerHead {
     version: number;
     hash: Buffer;
@@ -65,8 +71,8 @@ export interface ILedgerProvider {
     createStream(groupId: string, payload: Buffer, writeKey: Buffer, keysAdded: Buffer[], signature: Buffer): Promise<Result<void>>;
     appendEvent(groupId: string, append: LedgerAppend): Promise<Result<void>>;
     archiveStream(groupId: string, append: LedgerAppend): Promise<Result<void>>;
-    getEvents(groupId: string, fromVersion: number, limit?: number): Promise<Result<LedgerEventsPage>>;
-    getHead(groupId: string): Promise<Result<LedgerHead>>;
+    getEvents(groupId: string, fromVersion: number, proof: LedgerReadProof, limit?: number): Promise<Result<LedgerEventsPage>>;
+    getHead(groupId: string, proof: LedgerReadProof): Promise<Result<LedgerHead>>;
 }
 
 /**
