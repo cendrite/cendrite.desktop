@@ -7,14 +7,12 @@ import { IDeviceRepository } from '#electron/Application/Contracts/Repositories/
 import { IFriendRepository } from '#electron/Application/Contracts/Repositories/IFriendRepository';
 import { IUserRepository } from '#electron/Application/Contracts/Repositories/IUserRepository';
 import { IProtocolStore } from '../Interfaces/IProtocolStore.js';
-import { IRefreshTokenRepository } from '../Interfaces/IRefreshTokenRepository.js';
 import { ISettingsRegistry } from '#electron/Application/Contracts/Services/ISettingsRegistry';
 
 export class PurgeLocalDataService implements IPurgeLocalData {
     constructor(
         private readonly userRepository: IUserRepository,
         private readonly deviceRepository: IDeviceRepository,
-        private readonly refreshTokenRepository: IRefreshTokenRepository,
         private readonly friendRepository: IFriendRepository,
         private readonly chatStore: IChatStore,
         private readonly protocolStore: IProtocolStore,
@@ -29,7 +27,6 @@ export class PurgeLocalDataService implements IPurgeLocalData {
 
         await this.userRepository.delete();
         await this.deviceRepository.delete();
-        await this.refreshTokenRepository.delete();
         await this.friendRepository.deleteAll();
         await this.chatStore.clear();
         await this.protocolStore.deleteAll();
