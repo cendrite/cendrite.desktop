@@ -44,8 +44,8 @@ export class CryptographyService {
 
         if (!hasProtectedStorage()) {
             throw new CryptoError(
-                'No OS keyring is available to protect the encryption key. Cypherly needs a keyring such as GNOME Keyring or KWallet to run.',
-                'NO_KEYRING'
+                "Your system's secure credential storage is unavailable, so Cypherly can't protect its encryption key. Make sure it is available and unlocked, then restart Cypherly.",
+                'SECURE_STORAGE_UNAVAILABLE'
             );
         }
 
