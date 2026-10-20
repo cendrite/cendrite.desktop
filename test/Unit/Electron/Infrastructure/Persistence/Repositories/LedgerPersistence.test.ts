@@ -1,6 +1,6 @@
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 
-// CryptographyService loads keytar, a native binding to the OS keyring that does not exist on CI.
+// CryptographyService uses Electron's safeStorage, which only exists inside a running Electron app.
 // Mocking the module keeps it out of the graph entirely rather than stubbing it after it loads.
 vi.mock('../../../../../../src/Electron/Infrastructure/Persistence/Encryption/CryptographyService.js', () => ({
     CryptographyService: {
