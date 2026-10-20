@@ -1,6 +1,6 @@
 // noinspection ES6MissingAwait
 import 'reflect-metadata';
-import { app, BrowserWindow, nativeTheme } from 'electron';
+import { app, BrowserWindow, dialog, nativeTheme } from 'electron';
 import path from 'path';
 import { getAppUrl, getPreloadPath, isAppUrl } from './Utilities.js';
 import { LogoutManager } from './Application/Services/LogoutManager/LogoutManager.js';
@@ -13,6 +13,7 @@ import { AppearanceSettingsRepository } from './Infrastructure/Persistence/Repos
 import { parseSettings } from './Application/Features/Settings/SettingsDefaults.js';
 import { AppearanceSettings } from './Application/Features/Settings/AppearanceSettings.js';
 import { ResolvedTheme, Theme, WINDOW_BACKGROUND } from '../Shared/Theme.js';
+import { CryptographyService } from './Infrastructure/Persistence/Encryption/CryptographyService.js';
 
 if (process.env.ELECTRON_INSTANCE_ID) {
     console.log(`ELECTRON_INSTANCE_ID: ${process.env.ELECTRON_INSTANCE_ID}`);
@@ -25,6 +26,14 @@ if (process.env.ELECTRON_INSTANCE_ID) {
     console.log(`User data path set to: ${app.getPath('userData')}`);
 }
 
+if (
+    process.platform === 'linux' &&
+    !app.commandLine.hasSwitch('password-store') &&
+    !/kde/i.test(process.env.XDG_CURRENT_DESKTOP ?? '')
+) {
+    app.commandLine.appendSwitch('password-store', 'gnome-libsecret');
+}
+
 app.on('web-contents-created', (_event, contents) => {
     contents.setWindowOpenHandler(() => ({ action: 'deny' }));
     contents.on('will-navigate', (event, url) => {
@@ -34,6 +43,14 @@ app.on('web-contents-created', (_event, contents) => {
 });
 
 app.on('ready', async () => {
+    try {
+        await CryptographyService.getInstance().initializeEncryptionKey();
+    } catch (err) {
+        dialog.showErrorBox('Cypherly cannot start', (err as Error).message);
+        app.quit();
+        return;
+    }
+
     const dbPath = process.env.ELECTRON_INSTANCE_ID ? path.join(app.getPath('userData'), 'msg.sqlite') : null;
     await initializeDatabase(dbPath);
 

@@ -1,10 +1,11 @@
 import * as crypto from 'crypto';
-import keytar from 'keytar';
+import * as fs from 'node:fs';
+import path from 'path';
+import { app, safeStorage } from 'electron';
 
 const ALGORITHM = 'aes-256-gcm';
 const KEY_LENGTH = 32;
-const APP_NAME = 'Cypherly.Desktop';
-const ACCOUNT_NAME = 'Cypherly.Desktop.EncryptionKey';
+const KEY_FILE_NAME = 'encryption.key';
 
 export class CryptoError extends Error {
     constructor(message: string, public readonly code: string) {
@@ -41,15 +42,24 @@ export class CryptographyService {
     async initializeEncryptionKey(): Promise<void> {
         if (this.initialized) return;
 
+        if (!hasProtectedStorage()) {
+            throw new CryptoError(
+                "Your system's secure credential storage is unavailable, so Cypherly can't protect its encryption key. Make sure it is available and unlocked, then restart Cypherly.",
+                'SECURE_STORAGE_UNAVAILABLE'
+            );
+        }
+
         try {
-            let storedKey = await keytar.getPassword(APP_NAME, ACCOUNT_NAME);
-            if (storedKey === null) {
+            const keyFile = path.join(app.getPath('userData'), KEY_FILE_NAME);
+
+            if (fs.existsSync(keyFile)) {
+                this.cryptoKey = Buffer.from(safeStorage.decryptString(fs.readFileSync(keyFile)), 'hex');
+            } else {
                 const newKey = crypto.randomBytes(KEY_LENGTH);
-                storedKey = newKey.toString('hex');
-                await keytar.setPassword(APP_NAME, ACCOUNT_NAME, storedKey);
+                fs.writeFileSync(keyFile, safeStorage.encryptString(newKey.toString('hex')), { mode: 0o600 });
+                this.cryptoKey = newKey;
             }
 
-            this.cryptoKey = Buffer.from(storedKey, 'hex');
             this.initialized = true;
         } catch (err) {
             const error = err as Error;
@@ -138,4 +148,10 @@ export class CryptographyService {
             );
         }
     }
+}
+
+function hasProtectedStorage(): boolean {
+    if (!safeStorage.isEncryptionAvailable()) return false;
+
+    return process.platform !== 'linux' || safeStorage.getSelectedStorageBackend() !== 'basic_text';
 }
