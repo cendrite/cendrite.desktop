@@ -157,7 +157,7 @@ export class MessageReceiver implements IMessageReceiver {
                 message.senderId,
                 message.timestamp,
                 payload.text,
-                media.map((m) => new MessageMedia(m.id, m.type, message.id)),
+                media.map((m) => new MessageMedia(m.id, m.type, payload.messageId)),
                 DeliveryStatus.Received,
                 message.messageToken,
             ),
@@ -170,7 +170,7 @@ export class MessageReceiver implements IMessageReceiver {
         this.mainWindow.webContents.send('eventMessage', {
             kind: 'message',
             message: new MessageContract(
-                message.id,
+                payload.messageId,
                 payload.chatId,
                 message.senderId,
                 payload.text,
