@@ -42,7 +42,6 @@ export class DeliveryStatusUpdatedCommandHandler implements Handler<DeliveryStat
                     cmd.senderId,
                     conId,
                     cipher,
-                    new Date(),
                 )
             );
         }

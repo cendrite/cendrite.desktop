@@ -6,6 +6,7 @@ import { IMessageHubHandler, ServerMessage } from '#electron/Application/Contrac
 import { Envelope, MessagePayload, Payload } from '#electron/Domain/Protocol/Payload';
 import { Handler } from '#electron/Application/Mediator/Handler';
 import { IMediaService } from '#electron/Application/Services/Media/MediaService';
+import { v4 as uuid } from 'uuid';
 
 export class MessageSentCommand implements MediatorRequest<DeliveryStatus> {
     declare readonly _response?: DeliveryStatus;
@@ -48,29 +49,22 @@ export class MessageSentCommandHandler implements Handler<MessageSentCommand, De
             const envelope = new Envelope([
                 ...(cmd.payloads[conId] ?? []),
                 new MessagePayload(
+                    cmd.message.id,
                     cmd.message.chatId,
                     cmd.message.text,
                     m_pointers,
                     cmd.participants,
                     cmd.message.deliveryStatus,
+                    cmd.message.messageToken,
+                    cmd.message.date,
                 ),
             ]);
 
-            console.log("payload count for connection", conId, envelope.payloads.length);
-
+            console.log('payload count for connection', conId, envelope.payloads.length);
 
             const cipher = await this.sessionManager.encrypt(envelope, conId);
 
-            messages.push(
-                new ServerMessage(
-                    cmd.message.id,
-                    cmd.message.senderId,
-                    conId,
-                    cipher,
-                    cmd.message.date,
-                    cmd.message.messageToken,
-                ),
-            );
+            messages.push(new ServerMessage(uuid().toString(), cmd.message.senderId, conId, cipher));
         }
 
         const receipt = await this.messageHubHandler.sendMessage(messages);

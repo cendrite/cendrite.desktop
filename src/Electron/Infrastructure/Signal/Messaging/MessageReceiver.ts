@@ -152,14 +152,14 @@ export class MessageReceiver implements IMessageReceiver {
 
         await this.chatStore.storeMessage(
             new Message(
-                message.id,
+                payload.messageId,
                 payload.chatId,
                 message.senderId,
-                message.timestamp,
+                payload.timestamp,
                 payload.text,
-                media.map((m) => new MessageMedia(m.id, m.type, message.id)),
+                media.map((m) => new MessageMedia(m.id, m.type, payload.messageId)),
                 DeliveryStatus.Received,
-                message.messageToken,
+                payload.messageToken,
             ),
         );
 
@@ -170,14 +170,14 @@ export class MessageReceiver implements IMessageReceiver {
         this.mainWindow.webContents.send('eventMessage', {
             kind: 'message',
             message: new MessageContract(
-                message.id,
+                payload.messageId,
                 payload.chatId,
                 message.senderId,
                 payload.text,
-                message.timestamp,
+                payload.timestamp,
                 media,
                 DeliveryStatus.Received,
-                message.messageToken,
+                payload.messageToken,
             ),
         });
     }

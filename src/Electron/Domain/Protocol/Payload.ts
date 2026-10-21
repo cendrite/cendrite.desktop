@@ -29,11 +29,14 @@ export abstract class Payload {
 export class MessagePayload extends Payload {
     type = PayloadType.ChatMessage;
     constructor(
-        public chatId: string,
-        public text: string,
-        public media: MediaPointer[],
-        public participants: string[],
-        public deliveryStatus: DeliveryStatus,
+        public readonly messageId: string,
+        public readonly chatId: string,
+        public readonly text: string,
+        public readonly media: MediaPointer[],
+        public readonly participants: string[],
+        public readonly deliveryStatus: DeliveryStatus,
+        public readonly messageToken: string,
+        public readonly timestamp: Date,
     ) {
         super(participants);
     }
@@ -42,10 +45,10 @@ export class MessagePayload extends Payload {
 export class DeliveryStatusPayload extends Payload {
     type = PayloadType.DeliveryStatus;
     constructor(
-        public chatId: string,
-        public messageIds: string[],
-        public deliveryStatus: DeliveryStatus,
-        public participants: string[],
+        public readonly chatId: string,
+        public readonly messageIds: string[],
+        public readonly deliveryStatus: DeliveryStatus,
+        public readonly participants: string[],
     ) {
         super(participants);
     }
