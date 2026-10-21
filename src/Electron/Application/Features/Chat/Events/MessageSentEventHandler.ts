@@ -56,6 +56,7 @@ export class MessageSentCommandHandler implements Handler<MessageSentCommand, De
                     cmd.participants,
                     cmd.message.deliveryStatus,
                     cmd.message.messageToken,
+                    cmd.message.date,
                 ),
             ]);
 
@@ -63,7 +64,7 @@ export class MessageSentCommandHandler implements Handler<MessageSentCommand, De
 
             const cipher = await this.sessionManager.encrypt(envelope, conId);
 
-            messages.push(new ServerMessage(uuid().toString(), cmd.message.senderId, conId, cipher, cmd.message.date));
+            messages.push(new ServerMessage(uuid().toString(), cmd.message.senderId, conId, cipher));
         }
 
         const receipt = await this.messageHubHandler.sendMessage(messages);

@@ -16,7 +16,7 @@ type ServerMessageDto = {
 };
 
 const toServerMessage = (dto: ServerMessageDto): ServerMessage =>
-    new ServerMessage(dto.id, dto.senderId, dto.recipientId, dto.payload, dto.timestamp);
+    new ServerMessage(dto.id, dto.senderId, dto.recipientId, dto.payload);
 
 export class MessageHubHandler implements IHubHandler, IMessageHubHandler {
     public readonly key: HubKey = 'Messaging';

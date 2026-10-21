@@ -36,6 +36,7 @@ export class MessagePayload extends Payload {
         public readonly participants: string[],
         public readonly deliveryStatus: DeliveryStatus,
         public readonly messageToken: string,
+        public readonly timestamp: Date,
     ) {
         super(participants);
     }
