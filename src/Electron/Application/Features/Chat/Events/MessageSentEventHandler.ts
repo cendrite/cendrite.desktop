@@ -55,24 +55,15 @@ export class MessageSentCommandHandler implements Handler<MessageSentCommand, De
                     m_pointers,
                     cmd.participants,
                     cmd.message.deliveryStatus,
+                    cmd.message.messageToken,
                 ),
             ]);
 
-            console.log("payload count for connection", conId, envelope.payloads.length);
-
+            console.log('payload count for connection', conId, envelope.payloads.length);
 
             const cipher = await this.sessionManager.encrypt(envelope, conId);
 
-            messages.push(
-                new ServerMessage(
-                    uuid().toString(),
-                    cmd.message.senderId,
-                    conId,
-                    cipher,
-                    cmd.message.date,
-                    cmd.message.messageToken,
-                ),
-            );
+            messages.push(new ServerMessage(uuid().toString(), cmd.message.senderId, conId, cipher, cmd.message.date));
         }
 
         const receipt = await this.messageHubHandler.sendMessage(messages);

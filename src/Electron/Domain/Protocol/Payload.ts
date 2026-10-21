@@ -35,6 +35,7 @@ export class MessagePayload extends Payload {
         public readonly media: MediaPointer[],
         public readonly participants: string[],
         public readonly deliveryStatus: DeliveryStatus,
+        public readonly messageToken: string,
     ) {
         super(participants);
     }

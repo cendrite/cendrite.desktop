@@ -11,6 +11,5 @@ export class ServerMessage {
         public readonly recipientId: string,
         public readonly payload: string,
         public readonly timestamp: Date,
-        public readonly messageToken: string | null = null,
     ) { }
 }

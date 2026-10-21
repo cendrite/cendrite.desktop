@@ -159,7 +159,7 @@ export class MessageReceiver implements IMessageReceiver {
                 payload.text,
                 media.map((m) => new MessageMedia(m.id, m.type, payload.messageId)),
                 DeliveryStatus.Received,
-                message.messageToken,
+                payload.messageToken,
             ),
         );
 
@@ -177,7 +177,7 @@ export class MessageReceiver implements IMessageReceiver {
                 message.timestamp,
                 media,
                 DeliveryStatus.Received,
-                message.messageToken,
+                payload.messageToken,
             ),
         });
     }
