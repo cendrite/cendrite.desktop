@@ -6,6 +6,7 @@ import { IMessageHubHandler, ServerMessage } from '#electron/Application/Contrac
 import { Envelope, MessagePayload, Payload } from '#electron/Domain/Protocol/Payload';
 import { Handler } from '#electron/Application/Mediator/Handler';
 import { IMediaService } from '#electron/Application/Services/Media/MediaService';
+import { v4 as uuid } from 'uuid';
 
 export class MessageSentCommand implements MediatorRequest<DeliveryStatus> {
     declare readonly _response?: DeliveryStatus;
@@ -48,6 +49,7 @@ export class MessageSentCommandHandler implements Handler<MessageSentCommand, De
             const envelope = new Envelope([
                 ...(cmd.payloads[conId] ?? []),
                 new MessagePayload(
+                    cmd.message.id,
                     cmd.message.chatId,
                     cmd.message.text,
                     m_pointers,
@@ -63,7 +65,7 @@ export class MessageSentCommandHandler implements Handler<MessageSentCommand, De
 
             messages.push(
                 new ServerMessage(
-                    cmd.message.id,
+                    uuid().toString(),
                     cmd.message.senderId,
                     conId,
                     cipher,

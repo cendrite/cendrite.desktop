@@ -152,7 +152,7 @@ export class MessageReceiver implements IMessageReceiver {
 
         await this.chatStore.storeMessage(
             new Message(
-                message.id,
+                payload.messageId,
                 payload.chatId,
                 message.senderId,
                 message.timestamp,
