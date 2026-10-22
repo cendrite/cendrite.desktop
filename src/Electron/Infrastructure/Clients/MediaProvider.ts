@@ -33,11 +33,4 @@ export class MediaProvider implements IMediaProvider {
         if (!result.success) return Result.fail<Uint8Array>(result.errorMessage);
         return Result.success(new Uint8Array(result.data));
     }
-
-    public async ack(id: string): Promise<Result> {
-        return this.client.handle({
-            url: `${id}/ack`,
-            method: 'POST',
-        });
-    }
 }
