@@ -10,7 +10,7 @@ export class MediaProvider implements IMediaProvider {
     }
 
     public async upload(cipher: Uint8Array): Promise<Result<string>> {
-        return this.client.handleConduit<string>({
+        const result = await this.client.handleConduit<{ mediaId: string }>({
             url: 'upload',
             method: 'POST',
             data: cipher,
@@ -18,6 +18,9 @@ export class MediaProvider implements IMediaProvider {
                 'Content-Type': 'application/octet-stream',
             },
         });
+
+        if (!result.success) return Result.fail<string>(result.errorMessage);
+        return Result.success(result.data.mediaId);
     }
 
     public async get(id: string): Promise<Result<Uint8Array>> {
