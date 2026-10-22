@@ -3,11 +3,12 @@ import { MediaPointer } from '#electron/Domain/Protocol/Payload';
 import { MediaContract } from '#shared/Models/MediaContract';
 import { IMediaProvider } from '#electron/Application/Contracts/Providers/IMediaProvider';
 import { MediaType } from '#shared/Files/GetMedia';
+import { Result } from '#shared/Result/Result';
 
 export interface IMediaService {
     getLocal(type: MediaType): Promise<MediaContract[]>;
     get(mediaPointers: MediaPointer[]): Promise<MediaContract[]>;
-    upload(media: MediaContract[]): Promise<MediaPointer[]>;
+    upload(media: MediaContract[]): Promise<Result<MediaPointer[]>>;
 }
 
 export class MediaService implements IMediaService {
@@ -33,13 +34,15 @@ export class MediaService implements IMediaService {
         return media;
     }
 
-    public async upload(media: MediaContract[]): Promise<MediaPointer[]> {
+    public async upload(media: MediaContract[]): Promise<Result<MediaPointer[]>> {
         const mediaPointers: MediaPointer[] = [];
         for (const m of media) {
             const { cipher, key, iv } = await this.sessionManager.encryptBlob(m.content);
-            await this.mediaProvider.upload(m.id, cipher);
-            mediaPointers.push(new MediaPointer(m.id, m.type, iv, key));
+            const result = await this.mediaProvider.upload(cipher);
+            if (!result.success) return Result.fail<MediaPointer[]>(result.errorMessage);
+
+            mediaPointers.push(new MediaPointer(result.data, m.type, iv, key));
         }
-        return mediaPointers;
+        return Result.success(mediaPointers);
     }
 }
