@@ -41,7 +41,10 @@ export class MessageSentCommandHandler implements Handler<MessageSentCommand, De
             throw new Error('Cannot send chat message without a token');
         }
 
-        const m_pointers = await this.mediaService.upload(cmd.message.media);
+        const upload = await this.mediaService.upload(cmd.message.media);
+        if (!upload.success) return Result.fail<DeliveryStatus>(upload.errorMessage);
+
+        const m_pointers = upload.data;
 
         const messages: ServerMessage[] = [];
 

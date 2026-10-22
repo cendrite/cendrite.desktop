@@ -9,11 +9,10 @@ export class MediaProvider implements IMediaProvider {
         this.client = mediaApiClient;
     }
 
-    public async upload(id: string, cipher: Uint8Array): Promise<Result> {
-        return this.client.handle({
+    public async upload(cipher: Uint8Array): Promise<Result<string>> {
+        return this.client.handleConduit<string>({
             url: 'upload',
             method: 'POST',
-            params: { mediaId: id },
             data: cipher,
             headers: {
                 'Content-Type': 'application/octet-stream',
