@@ -8,6 +8,14 @@ export class KeyStoreClient implements IKeyStoreProvider {
     constructor(keyStoreApiClient: ApiClient) {
         this.client = keyStoreApiClient;
     }
+    getPreKeyCount(id: string): Promise<Result<{KeyCount: number}>> {
+        return this.client.handleConduit<{KeyCount: number}>({
+            url: 'session/count',
+            method: 'GET',
+            params: { id },
+        });
+
+    }
 
     createKeyBundle(req: CreatePreKeyBundleRequest): Promise<Result<void>> {
         return this.client.handleConduit<void>({

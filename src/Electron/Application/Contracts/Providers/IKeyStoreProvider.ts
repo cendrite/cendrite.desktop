@@ -29,4 +29,5 @@ export interface CreatePreKeyBundleRequest {
 export interface IKeyStoreProvider {
     createKeyBundle(req: CreatePreKeyBundleRequest): Promise<Result<void>>;
     getPreKeyBundle(accessKey: string): Promise<Result<PreKeyBundle>>;
+    getPreKeyCount(id: string): Promise<Result<{ KeyCount: number }>>;
 }
