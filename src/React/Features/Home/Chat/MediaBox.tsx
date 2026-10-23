@@ -14,6 +14,10 @@ export const MediaItem: React.FC<{ media: Media; className?: string }> = ({ medi
         return () => URL.revokeObjectURL(objectUrl);
     }, [media]);
 
+    if (media.content.length === 0) {
+        return <p className="text-xs italic opacity-70">Media no longer available</p>;
+    }
+
     if (!url) return null;
 
     if (media.type.startsWith("image/")) return <img src={url} alt="media" className={className} />;
