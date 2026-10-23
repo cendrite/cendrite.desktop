@@ -25,7 +25,10 @@ export class MediaService implements IMediaService {
         const media: MediaContract[] = [];
         for (const mp of mediaPointers) {
             const result = await this.mediaProvider.get(mp.id);
-            if (!result.success) continue;
+            if (!result.success) {
+                media.push(new MediaContract(mp.id, mp.type, new Uint8Array()));
+                continue;
+            }
 
             const decryptedMedia = await this.sessionManager.decryptBlob(result.data, mp.key, mp.iv);
 
