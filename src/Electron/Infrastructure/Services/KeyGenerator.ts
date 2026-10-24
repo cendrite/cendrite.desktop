@@ -30,17 +30,7 @@ export class KeyGenerator implements IKeyGenerator {
         const signedPreKeyPublic = signedPreKeyPrivate.getPublicKey();
         const signedPreKeySignature = identityKeyPair.privateKey.sign(signedPreKeyPublic.serialize());
 
-        const ecPreKeys: EcPreKey[] = [];
-        for (let i = 1; i <= 100; i++) {
-            const preKeyPrivate = PrivateKey.generate();
-            ecPreKeys.push(
-                new EcPreKey(
-                    baseKeyId + i,
-                    Buffer.from(preKeyPrivate.serialize()),
-                    Buffer.from(preKeyPrivate.getPublicKey().serialize()),
-                ),
-            );
-        }
+        const ecPreKeys = this.generatePreKeys(baseKeyId + 1, 100);
 
         // Last-resort Kyber prekey for PQXDH; the server hands it out with every bundle.
         const kyberKeyPair = KEMKeyPair.generate();
@@ -90,6 +80,21 @@ export class KeyGenerator implements IKeyGenerator {
             ecPreKeys,
             new KyberPreKey(kyberPreKey.id(), Buffer.from(kyberPreKey.serialize())),
         );
+    }
+
+    public generatePreKeys(startId: number, count: number): EcPreKey[] {
+        const preKeys: EcPreKey[] = [];
+        for (let i = 0; i < count; i++) {
+            const preKeyPrivate = PrivateKey.generate();
+            preKeys.push(
+                new EcPreKey(
+                    startId + i,
+                    Buffer.from(preKeyPrivate.serialize()),
+                    Buffer.from(preKeyPrivate.getPublicKey().serialize()),
+                ),
+            );
+        }
+        return preKeys;
     }
 
     /**

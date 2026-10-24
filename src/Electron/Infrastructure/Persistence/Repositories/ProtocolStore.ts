@@ -94,6 +94,14 @@ export class ProtocolStore implements IProtocolStore {
         return await this.kyberPreKeyRepository.findOne({ where: { id } });
     }
 
+    public async getMaxPreKeyId(): Promise<number | null> {
+        return await this.ecPreKeyRepository.maximum('id');
+    }
+
+    public async storePreKeys(preKeys: EcPreKey[]): Promise<void> {
+        await this.ecPreKeyRepository.save(preKeys);
+    }
+
     /**
      * Clear all stored cryptographic data: signed prekeys,
      * EC prekeys, Kyber prekeys, session records,

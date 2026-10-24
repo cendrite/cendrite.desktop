@@ -86,6 +86,8 @@ function createKeyStoreServer() {
                 kyberPreKeySignature: req.kyberPreKeySignature,
             });
         }),
+        getPreKeyCount: vi.fn(async () => Result.success({ keyCount: 0 })),
+        uploadPreKeys: vi.fn(async () => Result.success()),
     };
 
     return provider;
