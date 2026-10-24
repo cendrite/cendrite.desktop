@@ -6,13 +6,13 @@ import { GetMediaQuery, MediaType } from '#shared/Files/GetMedia';
 import { Result } from '#shared/Result/Result';
 import { ErrorMessage } from '#shared/Result/ErrorMessage';
 import { MediaContract } from '#shared/Models/MediaContract';
-import { IMediaMetadataStripper } from '#electron/Application/Contracts/Services/IMediaMetadataStripper';
+import { IMetaDataStripper } from '#electron/Application/Contracts/Services/IMetaDataStripper';
 
 export class GetMediaQueryHandler implements Handler<GetMediaQuery, MediaContract[]> {
     private readonly mainWindow: BrowserWindow;
-    private readonly mediaMetadataStripper: IMediaMetadataStripper;
+    private readonly mediaMetadataStripper: IMetaDataStripper;
 
-    constructor(mainWindow: BrowserWindow, mediaMetadataStripper: IMediaMetadataStripper) {
+    constructor(mainWindow: BrowserWindow, mediaMetadataStripper: IMetaDataStripper) {
         this.mainWindow = mainWindow;
         this.mediaMetadataStripper = mediaMetadataStripper;
     }

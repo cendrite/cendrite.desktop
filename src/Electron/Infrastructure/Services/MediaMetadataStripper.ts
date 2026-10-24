@@ -1,14 +1,14 @@
+import { IMetaDataStripper } from '#electron/Application/Contracts/Services/IMetaDataStripper';
 import { nativeImage, NativeImage } from 'electron';
-import { IMediaMetadataStripper } from '#electron/Application/Contracts/Services/IMediaMetadataStripper';
 
-export class MediaMetadataStripper implements IMediaMetadataStripper {
+export class MetaDataStripper implements IMetaDataStripper {
     private static readonly JpegQuality = 90;
     private static readonly OrientationTag = 0x0112;
 
     public strip(content: Buffer, mimeType: string): Buffer {
         if (mimeType === 'image/jpeg') {
             const image = this.decode(content);
-            return this.orient(image, this.readJpegOrientation(content)).toJPEG(MediaMetadataStripper.JpegQuality);
+            return this.orient(image, this.readJpegOrientation(content)).toJPEG(MetaDataStripper.JpegQuality);
         }
 
         if (mimeType === 'image/png') {
@@ -104,7 +104,7 @@ export class MediaMetadataStripper implements IMediaMetadataStripper {
             const entry = ifd + 2 + i * 12;
             if (entry + 12 > end) return 1;
 
-            if (u16(entry) === MediaMetadataStripper.OrientationTag) {
+            if (u16(entry) === MetaDataStripper.OrientationTag) {
                 const orientation = u16(entry + 8);
                 return orientation >= 1 && orientation <= 8 ? orientation : 1;
             }

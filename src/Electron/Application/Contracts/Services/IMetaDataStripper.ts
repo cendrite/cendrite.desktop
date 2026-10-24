@@ -1,3 +1,3 @@
-export interface IMediaMetadataStripper {
+export interface IMetaDataStripper {
     strip(content: Buffer, mimeType: string): Buffer;
 }
