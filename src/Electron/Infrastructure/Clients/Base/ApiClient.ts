@@ -3,6 +3,7 @@ import { Envelope } from './Envelope.js';
 import { Result } from '#shared/Result/Result';
 import { ErrorMessage } from '#shared/Result/ErrorMessage';
 import { TokenManager } from '#electron/Infrastructure/Services/TokenManager';
+import { Agent } from 'node:https';
 
 export class ApiClient {
     protected api: AxiosInstance;
@@ -11,17 +12,19 @@ export class ApiClient {
     /**
      * Creates an instance of ApiClient.
      * @param baseURL The base url of the api.
-     * @param requiresAuth A boolean indicating if the api requires authentication.
+     * @param tokenManager Adds the jwt to every request and refreshes it on a 401. Pass null for an unauthenticated client.
+     * @param httpsAgent Optional connection pool for this client. Without one, requests use Node's global agent and can reuse connections opened by other clients.
      * @returns An instance of ApiClient.
      * @example
      * ```typescript
-     * const client = new ApiClient("https://api.example.com", true);
+     * const client = new ApiClient("https://api.example.com", tokenManager);
+     * const anonymous = new ApiClient("https://api.example.com", null, new Agent({ keepAlive: true }));
      * ```
-     * Using the tokenManager parameter, will add an interceptor to the api instance to add the jwt token to the request headers. If no tokenManager is provided, the api client will not add any authentication headers.
     * */
-    public constructor(baseURL: string, tokenManager: TokenManager | null) {
+    public constructor(baseURL: string, tokenManager: TokenManager | null, httpsAgent?: Agent) {
         this.api = axios.create({
             baseURL,
+            httpsAgent,
             headers: {
                 'Content-Type': 'application/json',
             },

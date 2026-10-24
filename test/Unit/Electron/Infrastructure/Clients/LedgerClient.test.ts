@@ -14,17 +14,23 @@ const PROOF = {
     signature: Buffer.alloc(64, 0x0b),
 };
 
-function fakeClient(result: Result<unknown> = Result.success()) {
-    const calls: AxiosRequestConfig[] = [];
-
-    const client = {
+function recordingClient(calls: AxiosRequestConfig[], result: Result<unknown>): ApiClient {
+    return {
         handleConduit: vi.fn((config: AxiosRequestConfig) => {
             calls.push(config);
             return Promise.resolve(result);
         }),
     } as unknown as ApiClient;
+}
 
-    return { client, calls, sut: new LedgerClient(client) };
+function fakeClient(result: Result<unknown> = Result.success()) {
+    const calls: AxiosRequestConfig[] = [];
+    const createCalls: AxiosRequestConfig[] = [];
+
+    const client = recordingClient(calls, result);
+    const createClient = recordingClient(createCalls, result);
+
+    return { client, calls, createCalls, sut: new LedgerClient(client, createClient) };
 }
 
 function append(): LedgerAppend {
@@ -41,7 +47,7 @@ function append(): LedgerAppend {
 
 describe('createStream', () => {
     test('posts the stream with base64 encoded bytes', async () => {
-        const { calls, sut } = fakeClient();
+        const { createCalls: calls, sut } = fakeClient();
 
         await sut.createStream(
             GROUP_ID,
@@ -60,6 +66,20 @@ describe('createStream', () => {
             signature: Buffer.alloc(64, 0x7f).toString('base64'),
             keysAdded: [Buffer.alloc(32, 0xb2).toString('base64')],
         });
+    });
+
+    test('is the only call that goes through the authenticated client', async () => {
+        const { calls, createCalls, sut } = fakeClient(
+            Result.success({ version: 1, hash: Buffer.alloc(32).toString('base64'), archived: false }),
+        );
+
+        await sut.createStream(GROUP_ID, Buffer.from([1]), Buffer.alloc(32), [], Buffer.alloc(64));
+        await sut.appendEvent(GROUP_ID, append());
+        await sut.archiveStream(GROUP_ID, append());
+        await sut.getHead(GROUP_ID, PROOF);
+
+        expect(createCalls.map((call) => call.method)).toEqual(['POST']);
+        expect(calls.map((call) => call.method)).toEqual(['PUT', 'PUT', 'GET']);
     });
 });
 
