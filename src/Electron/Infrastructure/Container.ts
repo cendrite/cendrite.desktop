@@ -13,6 +13,7 @@ import { ApiClient } from './Clients/Base/ApiClient.js';
 import { API_URLS } from './Clients/Base/Urls.js';
 import { TokenManager } from './Services/TokenManager.js';
 import { NonceSigner } from './Services/NonceSigner.js';
+import { MediaMetadataStripper } from './Services/MediaMetadataStripper.js';
 import { SignalProtocolStore } from './Services/SignalProtocolStore.js';
 import { KeyGenerator } from './Services/KeyGenerator.js';
 import { PurgeLocalDataService } from './Services/PurgeLocalDataService.js';
@@ -43,6 +44,7 @@ import { PreKeyPump } from './Pumps/PreKeyPump.js';
 const services = {
     tokenManager: asClass(TokenManager, { lifetime: Lifetime.SINGLETON }),
     nonceSigner: asClass(NonceSigner, { lifetime: Lifetime.SINGLETON }),
+    mediaMetadataStripper: asClass(MediaMetadataStripper, { lifetime: Lifetime.SINGLETON }),
     signalProtocolStore: asClass(SignalProtocolStore, { lifetime: Lifetime.SINGLETON }),
     keyGenerator: asClass(KeyGenerator, { lifetime: Lifetime.SINGLETON }),
     purgeLocalDataService: asClass(PurgeLocalDataService, { lifetime: Lifetime.SINGLETON }),

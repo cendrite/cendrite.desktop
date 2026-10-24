@@ -6,12 +6,15 @@ import { GetMediaQuery, MediaType } from '#shared/Files/GetMedia';
 import { Result } from '#shared/Result/Result';
 import { ErrorMessage } from '#shared/Result/ErrorMessage';
 import { MediaContract } from '#shared/Models/MediaContract';
+import { IMediaMetadataStripper } from '#electron/Application/Contracts/Services/IMediaMetadataStripper';
 
 export class GetMediaQueryHandler implements Handler<GetMediaQuery, MediaContract[]> {
     private readonly mainWindow: BrowserWindow;
+    private readonly mediaMetadataStripper: IMediaMetadataStripper;
 
-    constructor(mainWindow: BrowserWindow) {
+    constructor(mainWindow: BrowserWindow, mediaMetadataStripper: IMediaMetadataStripper) {
         this.mainWindow = mainWindow;
+        this.mediaMetadataStripper = mediaMetadataStripper;
     }
 
     public async handle(request: GetMediaQuery): Promise<Result<MediaContract[]>> {
@@ -39,8 +42,8 @@ export class GetMediaQueryHandler implements Handler<GetMediaQuery, MediaContrac
 
     private ToMediaDto(filePath: string): MediaContract {
         const fileExtension = filePath.split('.').pop()?.toLowerCase() ?? '';
-        const content = fs.readFileSync(filePath);
         const mime = this.MimeForExtension(fileExtension);
+        const content = this.mediaMetadataStripper.strip(fs.readFileSync(filePath), mime);
 
         return new MediaContract(randomUUID(), mime, content);
     }
