@@ -39,10 +39,12 @@ import { PendingLoginStore } from './Services/PendingLoginStore.js';
 import { MessagePump } from './Pumps/MessagePump.js';
 import { DeliveryStatusUpdatePump } from './Pumps/DeliveryUpdatePump.js';
 import { PreKeyPump } from './Pumps/PreKeyPump.js';
+import { MetaDataStripper } from './Services/MediaMetadataStripper.js';
 
 const services = {
     tokenManager: asClass(TokenManager, { lifetime: Lifetime.SINGLETON }),
     nonceSigner: asClass(NonceSigner, { lifetime: Lifetime.SINGLETON }),
+    mediaMetadataStripper: asClass(MetaDataStripper, { lifetime: Lifetime.SINGLETON }),
     signalProtocolStore: asClass(SignalProtocolStore, { lifetime: Lifetime.SINGLETON }),
     keyGenerator: asClass(KeyGenerator, { lifetime: Lifetime.SINGLETON }),
     purgeLocalDataService: asClass(PurgeLocalDataService, { lifetime: Lifetime.SINGLETON }),
