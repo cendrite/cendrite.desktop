@@ -18,6 +18,7 @@ import { GroupEpochKeySchema } from '../Schemas/GroupEpochKeySchema.js';
 import { GroupWriteKeySchema } from '../Schemas/GroupWriteKeySchema.js';
 import { LedgerEventRecordSchema } from '../Schemas/LedgerEventRecordSchema.js';
 import { GroupRecordSchema } from '../Schemas/GroupRecordSchema.js';
+import { PrivateTokenSchema } from '../Schemas/PrivateTokenSchema.js';
 import { MessageMediaSchema } from '../Schemas/MessageMediaSchema.js';
 import { OutboxEventSchema } from '../Schemas/OutboxEventSchema.js';
 import { KyberPreKeySchema } from '../Schemas/KyberPreKeySchema.js';
@@ -53,7 +54,8 @@ export async function initializeDatabase(dbPath: string | null = null): Promise<
             GroupEpochKeySchema,
             GroupWriteKeySchema,
             LedgerEventRecordSchema,
-            GroupRecordSchema
+            GroupRecordSchema,
+            PrivateTokenSchema,
         ],
         migrations: [],
         synchronize: true,

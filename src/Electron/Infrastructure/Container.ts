@@ -24,6 +24,7 @@ import { LedgerSyncService } from './Services/LedgerSyncService.js';
 import { LedgerWriter } from './Services/LedgerWriter.js';
 import { LedgerReplayService } from './Services/LedgerReplayService.js';
 import { GroupKeyRepository } from './Persistence/Repositories/GroupKeyRepository.js';
+import { PrivateTokenRepository } from './Persistence/Repositories/PrivateTokenRepository.js';
 import { GroupRepository } from './Persistence/Repositories/GroupRepository.js';
 import { LedgerLogRepository } from './Persistence/Repositories/LedgerLogRepository.js';
 import { KeyStoreClient } from './Clients/KeyStoreClient.js';
@@ -81,6 +82,7 @@ const ledgerServices = {
 
 const ledgerPersistence = {
     groupKeyRepository: asClass(GroupKeyRepository, { lifetime: Lifetime.SINGLETON }),
+    privateTokenRepository: asClass(PrivateTokenRepository, { lifetime: Lifetime.SINGLETON }),
     groupRepository: asClass(GroupRepository, { lifetime: Lifetime.SINGLETON }),
     ledgerLogRepository: asClass(LedgerLogRepository, { lifetime: Lifetime.SINGLETON }),
 };
