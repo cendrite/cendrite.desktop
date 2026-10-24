@@ -8,7 +8,6 @@ import { KyberPreKey } from '#electron/Domain/Encryption/KyberPreKey';
 import { IProtocolStore } from '#electron/Infrastructure/Interfaces/IProtocolStore';
 
 export class ProtocolStore implements IProtocolStore {
-
     private readonly signedPreKeysRepository = getDbContext().getRepository(SignedPreKey);
     private readonly ecPreKeyRepository = getDbContext().getRepository(EcPreKey);
     private readonly kyberPreKeyRepository = getDbContext().getRepository(KyberPreKey);
@@ -95,8 +94,8 @@ export class ProtocolStore implements IProtocolStore {
         return await this.kyberPreKeyRepository.findOne({ where: { id } });
     }
 
-    public async getPrekeyCount(): Promise<number> {
-        return await this.ecPreKeyRepository.count();
+    public async getMaxPreKeyId(): Promise<number | null> {
+        return await this.ecPreKeyRepository.maximum('id');
     }
 
     public async storePreKeys(preKeys: EcPreKey[]): Promise<void> {

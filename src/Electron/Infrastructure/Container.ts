@@ -38,6 +38,7 @@ import { SettingsRegistry } from './Services/SettingsRegistry.js';
 import { PendingLoginStore } from './Services/PendingLoginStore.js';
 import { MessagePump } from './Pumps/MessagePump.js';
 import { DeliveryStatusUpdatePump } from './Pumps/DeliveryUpdatePump.js';
+import { PreKeyPump } from './Pumps/PreKeyPump.js';
 
 const services = {
     tokenManager: asClass(TokenManager, { lifetime: Lifetime.SINGLETON }),
@@ -95,6 +96,7 @@ const providers = {
 const jobs = {
     messagePump: asClass(MessagePump, { lifetime: Lifetime.SINGLETON }),
     deliveryStatusUpdatePump: asClass(DeliveryStatusUpdatePump, { lifetime: Lifetime.SINGLETON }),
+    preKeyPump: asClass(PreKeyPump, { lifetime: Lifetime.SINGLETON }),
 }
 
 const httpClients = {

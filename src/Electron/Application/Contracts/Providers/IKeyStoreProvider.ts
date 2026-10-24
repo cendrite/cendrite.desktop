@@ -31,10 +31,9 @@ export interface PublicPreKey {
     publicKey: string;
 }
 
-
 export interface IKeyStoreProvider {
     createKeyBundle(req: CreatePreKeyBundleRequest): Promise<Result<void>>;
     getPreKeyBundle(accessKey: string): Promise<Result<PreKeyBundle>>;
-    getPreKeyCount(id: string): Promise<Result<{ KeyCount: number }>>;
+    getPreKeyCount(): Promise<Result<{ keyCount: number }>>;
     uploadPreKeys(keys: PublicPreKey[]): Promise<Result<void>>;
 }

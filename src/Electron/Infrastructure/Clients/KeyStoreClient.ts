@@ -14,11 +14,10 @@ export class KeyStoreClient implements IKeyStoreProvider {
         this.client = keyStoreApiClient;
     }
 
-    public async getPreKeyCount(id: string): Promise<Result<{ KeyCount: number }>> {
-        return this.client.handleConduit<{ KeyCount: number }>({
-            url: 'session/count',
+    public async getPreKeyCount(): Promise<Result<{ keyCount: number }>> {
+        return this.client.handleConduit<{ keyCount: number }>({
+            url: 'otps/count',
             method: 'GET',
-            params: { id },
         });
     }
 
@@ -39,7 +38,7 @@ export class KeyStoreClient implements IKeyStoreProvider {
 
     public async uploadPreKeys(preKeys: PublicPreKey[]): Promise<Result<void>> {
         return this.client.handleConduit<void>({
-            url: 'opts/',
+            url: 'otps',
             method: 'POST',
             data: { preKeys },
         });

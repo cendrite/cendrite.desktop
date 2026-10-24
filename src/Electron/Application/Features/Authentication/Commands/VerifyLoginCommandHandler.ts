@@ -31,6 +31,7 @@ export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, Us
         private readonly userProvider: IUserProvider,
         private readonly messagePump: IPump,
         private readonly deliveryStatusUpdatePump: IPump,
+        private readonly preKeyPump: IPump,
         private readonly pendingLoginStore: IPendingLoginStore,
     ) { }
 
@@ -123,6 +124,7 @@ export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, Us
 
         this.messagePump.start();
         this.deliveryStatusUpdatePump.start();
+        this.preKeyPump.start();
 
         return Result.success<UserContract>(userContract);
     }
