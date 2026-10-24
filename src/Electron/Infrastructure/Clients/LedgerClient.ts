@@ -13,9 +13,11 @@ import { ApiClient } from './Base/ApiClient.js';
 
 export class LedgerClient implements ILedgerProvider {
     private readonly client: ApiClient;
+    private readonly createClient: ApiClient;
 
-    constructor(ledgerApiClient: ApiClient) {
+    constructor(ledgerApiClient: ApiClient, ledgerCreateApiClient: ApiClient) {
         this.client = ledgerApiClient;
+        this.createClient = ledgerCreateApiClient;
     }
 
     public createStream(
@@ -25,7 +27,7 @@ export class LedgerClient implements ILedgerProvider {
         keys: Buffer[],
         signature: Buffer,
     ): Promise<Result<void>> {
-        return this.client.handleConduit<void>(
+        return this.createClient.handleConduit<void>(
             {
                 method: 'POST',
                 data: {

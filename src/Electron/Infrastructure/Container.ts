@@ -10,6 +10,7 @@ import { MessageHubHandler } from './Signal/Messaging/MessageHubHandler.js';
 import { ChangeEventHubHandler } from './Signal/ChangeEvent/ChangeEventHubHandler.js';
 import { MessageReceiver } from './Signal/Messaging/MessageReceiver.js';
 import { ApiClient } from './Clients/Base/ApiClient.js';
+import { Agent } from 'node:https';
 import { API_URLS } from './Clients/Base/Urls.js';
 import { TokenManager } from './Services/TokenManager.js';
 import { NonceSigner } from './Services/NonceSigner.js';
@@ -117,6 +118,10 @@ const httpClients = {
     ).singleton(),
 
     ledgerApiClient: asFunction(
+        () => new ApiClient(API_URLS.LEDGER.BASE, null, new Agent({ keepAlive: true })),
+    ).singleton(),
+
+    ledgerCreateApiClient: asFunction(
         (tokenManager: TokenManager) => new ApiClient(API_URLS.LEDGER.BASE, tokenManager),
     ).singleton(),
 
