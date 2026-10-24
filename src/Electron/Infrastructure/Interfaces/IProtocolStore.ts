@@ -25,5 +25,7 @@ export interface IProtocolStore {
     storeSession(record: SessionRecord): Promise<void>;
     getIdentityCache(encodedAddress: string): Promise<IdentityCache | null>;
     saveIdentity(identity: IdentityCache): Promise<void>;
+    getPrekeyCount(): Promise<number>;
+    storePreKeys(preKeys: EcPreKey[]): Promise<void>;
     deleteAll(): Promise<void>;
 }

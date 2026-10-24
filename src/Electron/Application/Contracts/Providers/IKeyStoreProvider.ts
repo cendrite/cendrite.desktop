@@ -26,8 +26,15 @@ export interface CreatePreKeyBundleRequest {
     kyberPreKeySignature: string;
 }
 
+export interface PublicPreKey {
+    keyId: number;
+    publicKey: string;
+}
+
+
 export interface IKeyStoreProvider {
     createKeyBundle(req: CreatePreKeyBundleRequest): Promise<Result<void>>;
     getPreKeyBundle(accessKey: string): Promise<Result<PreKeyBundle>>;
     getPreKeyCount(id: string): Promise<Result<{ KeyCount: number }>>;
+    uploadPreKeys(keys: PublicPreKey[]): Promise<Result<void>>;
 }

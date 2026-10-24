@@ -1,6 +1,11 @@
-import { Result } from "#shared/Result/Result";
-import { CreatePreKeyBundleRequest, IKeyStoreProvider, PreKeyBundle } from "#electron/Application/Contracts/Providers/IKeyStoreProvider";
-import { ApiClient } from "./Base/ApiClient.js";
+import { Result } from '#shared/Result/Result';
+import {
+    CreatePreKeyBundleRequest,
+    IKeyStoreProvider,
+    PreKeyBundle,
+    PublicPreKey,
+} from '#electron/Application/Contracts/Providers/IKeyStoreProvider';
+import { ApiClient } from './Base/ApiClient.js';
 
 export class KeyStoreClient implements IKeyStoreProvider {
     private readonly client: ApiClient;
@@ -8,27 +13,35 @@ export class KeyStoreClient implements IKeyStoreProvider {
     constructor(keyStoreApiClient: ApiClient) {
         this.client = keyStoreApiClient;
     }
-    getPreKeyCount(id: string): Promise<Result<{KeyCount: number}>> {
-        return this.client.handleConduit<{KeyCount: number}>({
+
+    public async getPreKeyCount(id: string): Promise<Result<{ KeyCount: number }>> {
+        return this.client.handleConduit<{ KeyCount: number }>({
             url: 'session/count',
             method: 'GET',
             params: { id },
         });
-
     }
 
-    createKeyBundle(req: CreatePreKeyBundleRequest): Promise<Result<void>> {
+    public async createKeyBundle(req: CreatePreKeyBundleRequest): Promise<Result<void>> {
         return this.client.handleConduit<void>({
             method: 'POST',
             data: req,
         });
     }
 
-    getPreKeyBundle(accessKey: string): Promise<Result<PreKeyBundle>> {
+    public async getPreKeyBundle(accessKey: string): Promise<Result<PreKeyBundle>> {
         return this.client.handleConduit<PreKeyBundle>({
             url: 'session',
             method: 'GET',
             params: { accessKey },
+        });
+    }
+
+    public async uploadPreKeys(preKeys: PublicPreKey[]): Promise<Result<void>> {
+        return this.client.handleConduit<void>({
+            url: 'opts/',
+            method: 'POST',
+            data: { preKeys },
         });
     }
 }
