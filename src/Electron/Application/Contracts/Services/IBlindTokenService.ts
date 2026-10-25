@@ -1,3 +1,5 @@
+export const LEDGER_TOKEN_ORIGIN = 'ledger';
+
 export interface TokenIssuance {
     readonly origin: string;
     readonly tokenRequests: string[];

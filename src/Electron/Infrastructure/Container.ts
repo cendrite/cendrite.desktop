@@ -1,4 +1,5 @@
 import { asClass, asFunction, Lifetime } from 'awilix';
+import { app } from 'electron';
 import { DeviceRepository } from './Persistence/Repositories/DeviceRepository.js';
 import { ProtocolStore } from './Persistence/Repositories/ProtocolStore.js';
 import { ChatStore } from './Persistence/Repositories/ChatStore.js';
@@ -42,6 +43,10 @@ import { MessagePump } from './Pumps/MessagePump.js';
 import { DeliveryStatusUpdatePump } from './Pumps/DeliveryUpdatePump.js';
 import { PreKeyPump } from './Pumps/PreKeyPump.js';
 import { MetaDataStripper } from './Services/MediaMetadataStripper.js';
+import { BlindTokenService } from './Services/BlindTokenService.js';
+import { PinnedTokenIssuerKey } from './Services/PinnedTokenIssuerKey.js';
+import { FetchedTokenIssuerKey } from './Services/FetchedTokenIssuerKey.js';
+import { TOKEN_ISSUER_PUBLIC_KEY } from './Clients/Base/TokenIssuer.js';
 
 const services = {
     tokenManager: asClass(TokenManager, { lifetime: Lifetime.SINGLETON }),
@@ -53,6 +58,10 @@ const services = {
     sessionManager: asClass(SessionManager, { lifetime: Lifetime.SINGLETON }),
     settingsRegistry: asClass(SettingsRegistry, { lifetime: Lifetime.SINGLETON }),
     pendingLoginStore: asClass(PendingLoginStore, { lifetime: Lifetime.SINGLETON }),
+    blindTokenService: asClass(BlindTokenService, { lifetime: Lifetime.SINGLETON }),
+    tokenIssuerKeyProvider: asFunction((tokenIssuerApiClient: ApiClient) =>
+        app.isPackaged ? new PinnedTokenIssuerKey(TOKEN_ISSUER_PUBLIC_KEY) : new FetchedTokenIssuerKey(tokenIssuerApiClient),
+    ).singleton(),
 };
 
 const persistence = {
@@ -123,9 +132,7 @@ const httpClients = {
         () => new ApiClient(API_URLS.LEDGER.BASE, null, new Agent({ keepAlive: true })),
     ).singleton(),
 
-    ledgerCreateApiClient: asFunction(
-        (tokenManager: TokenManager) => new ApiClient(API_URLS.LEDGER.BASE, tokenManager),
-    ).singleton(),
+    tokenIssuerApiClient: asFunction(() => new ApiClient(API_URLS.PRIVACY_PASS.ISSUER_DIRECTORY, null)).singleton(),
 
     mediaApiClient: asFunction(
         (tokenManager: TokenManager) => new ApiClient(API_URLS.MEDIA.BASE, tokenManager),

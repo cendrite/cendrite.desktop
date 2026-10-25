@@ -14,23 +14,19 @@ const PROOF = {
     signature: Buffer.alloc(64, 0x0b),
 };
 
-function recordingClient(calls: AxiosRequestConfig[], result: Result<unknown>): ApiClient {
-    return {
+const PRIVATE_TOKEN = Buffer.alloc(354, 0xfb);
+
+function fakeClient(result: Result<unknown> = Result.success()) {
+    const calls: AxiosRequestConfig[] = [];
+
+    const client = {
         handleConduit: vi.fn((config: AxiosRequestConfig) => {
             calls.push(config);
             return Promise.resolve(result);
         }),
     } as unknown as ApiClient;
-}
 
-function fakeClient(result: Result<unknown> = Result.success()) {
-    const calls: AxiosRequestConfig[] = [];
-    const createCalls: AxiosRequestConfig[] = [];
-
-    const client = recordingClient(calls, result);
-    const createClient = recordingClient(createCalls, result);
-
-    return { client, calls, createCalls, sut: new LedgerClient(client, createClient) };
+    return { client, calls, sut: new LedgerClient(client) };
 }
 
 function append(): LedgerAppend {
@@ -47,7 +43,7 @@ function append(): LedgerAppend {
 
 describe('createStream', () => {
     test('posts the stream with base64 encoded bytes', async () => {
-        const { createCalls: calls, sut } = fakeClient();
+        const { calls, sut } = fakeClient();
 
         await sut.createStream(
             GROUP_ID,
@@ -55,6 +51,7 @@ describe('createStream', () => {
             Buffer.alloc(32, 0xa1),
             [Buffer.alloc(32, 0xb2)],
             Buffer.alloc(64, 0x7f),
+            PRIVATE_TOKEN,
         );
 
         expect(calls[0].method).toBe('POST');
@@ -68,18 +65,12 @@ describe('createStream', () => {
         });
     });
 
-    test('is the only call that goes through the authenticated client', async () => {
-        const { calls, createCalls, sut } = fakeClient(
-            Result.success({ version: 1, hash: Buffer.alloc(32).toString('base64'), archived: false }),
-        );
+    test('redeems the private token in a PrivateToken authorization header', async () => {
+        const { calls, sut } = fakeClient();
 
-        await sut.createStream(GROUP_ID, Buffer.from([1]), Buffer.alloc(32), [], Buffer.alloc(64));
-        await sut.appendEvent(GROUP_ID, append());
-        await sut.archiveStream(GROUP_ID, append());
-        await sut.getHead(GROUP_ID, PROOF);
+        await sut.createStream(GROUP_ID, Buffer.from([1]), Buffer.alloc(32), [], Buffer.alloc(64), PRIVATE_TOKEN);
 
-        expect(createCalls.map((call) => call.method)).toEqual(['POST']);
-        expect(calls.map((call) => call.method)).toEqual(['PUT', 'PUT', 'GET']);
+        expect(calls[0].headers).toEqual({ Authorization: `PrivateToken token=${PRIVATE_TOKEN.toString('base64url')}` });
     });
 });
 

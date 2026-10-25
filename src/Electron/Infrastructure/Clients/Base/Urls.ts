@@ -30,4 +30,7 @@ export const API_URLS = {
     MEDIA: {
         BASE: 'https://chatserver.xhykl49jkg.org/api/media',
     },
+    PRIVACY_PASS: {
+        ISSUER_DIRECTORY: 'https://conduit.xhykl49jkg.org/.well-known/private-token-issuer-directory',
+    },
 };

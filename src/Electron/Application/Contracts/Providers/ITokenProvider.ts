@@ -17,11 +17,13 @@ export interface VerifyNonceRequest {
     nonceId: string;
     nonce: string;
     announce: boolean;
+    tokenRequests: string[];
 }
 
 export interface VerifyNonceResponse {
     jwt: string;
     expiresAt: string;
+    tokenResponses?: string[];
 }
 
 export interface ITokenProvider {

@@ -1,5 +1,6 @@
 import { publicVerif, TOKEN_TYPES, TokenChallenge } from '@cloudflare/privacypass-ts';
 import { IBlindTokenService, TokenIssuance } from '#electron/Application/Contracts/Services/IBlindTokenService';
+import { ITokenIssuerKeyProvider } from '#electron/Application/Contracts/Services/ITokenIssuerKeyProvider';
 
 export const BLIND_TOKEN_ISSUER = 'identity.cypherly';
 
@@ -12,17 +13,18 @@ class PendingTokenIssuance implements TokenIssuance {
 }
 
 export class BlindTokenService implements IBlindTokenService {
-    constructor(private readonly issuerPublicKey: Uint8Array) { }
+    constructor(private readonly tokenIssuerKeyProvider: ITokenIssuerKeyProvider) { }
 
     public async createTokenRequests(origin: string, count: number): Promise<TokenIssuance> {
         const challenge = new TokenChallenge(TOKEN_TYPES.BLIND_RSA.value, BLIND_TOKEN_ISSUER, new Uint8Array(0), [origin]);
+        const issuerPublicKey = await this.tokenIssuerKeyProvider.getPublicKey();
 
         const clients: publicVerif.Client[] = [];
         const tokenRequests: string[] = [];
 
         for (let i = 0; i < count; i++) {
             const client = new publicVerif.Client(publicVerif.BlindRSAMode.PSS);
-            const tokenRequest = await client.createTokenRequest(challenge, this.issuerPublicKey);
+            const tokenRequest = await client.createTokenRequest(challenge, issuerPublicKey);
 
             clients.push(client);
             tokenRequests.push(Buffer.from(tokenRequest.serialize()).toString('base64'));

@@ -9,6 +9,8 @@ import {
 } from '#electron/Application/Contracts/Providers/ILedgerProvider';
 import { ILedgerWriter } from '#electron/Application/Contracts/Services/ILedgerWriter';
 import { ILedgerSyncService } from '#electron/Application/Contracts/Services/ILedgerSyncService';
+import { LEDGER_TOKEN_ORIGIN } from '#electron/Application/Contracts/Services/IBlindTokenService';
+import { IPrivateTokenRepository } from '#electron/Application/Contracts/Repositories/IPrivateTokenRepository';
 import { LedgerOperationType } from '#electron/Domain/Enums/LedgerOperationType';
 import { LedgerOperation } from '#electron/Domain/Protocol/LedgerOperation';
 import { GroupState } from '#electron/Domain/Projections/GroupState';
@@ -25,6 +27,7 @@ export class LedgerWriter implements ILedgerWriter {
         private readonly groupRepository: IGroupRepository,
         private readonly ledgerSyncService: ILedgerSyncService,
         private readonly ledgerIdentity: ILedgerIdentity,
+        private readonly privateTokenRepository: IPrivateTokenRepository,
     ) { }
 
     public async createStream(groupId: string, keys: Buffer[], operation: LedgerOperation): Promise<Result<Buffer>> {
@@ -33,7 +36,12 @@ export class LedgerWriter implements ILedgerWriter {
 
         const { payload, writeKey, signature, hash } = sealed.data;
 
-        const created = await this.ledgerProvider.createStream(groupId, payload, writeKey.publicKey, keys, signature);
+        const privateToken = await this.privateTokenRepository.take(LEDGER_TOKEN_ORIGIN);
+        if (!privateToken) {
+            return Result.fail<Buffer>(new ErrorMessage('LedgerWriter', 'No private token is available to create a group yet'));
+        }
+
+        const created = await this.ledgerProvider.createStream(groupId, payload, writeKey.publicKey, keys, signature, privateToken);
 
         return created.success ? Result.success(hash) : Result.fail<Buffer>(created.errorMessage);
     }

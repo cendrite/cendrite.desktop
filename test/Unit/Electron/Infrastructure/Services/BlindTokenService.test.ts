@@ -15,7 +15,8 @@ let sut: BlindTokenService;
 beforeAll(async () => {
     keys = await Issuer.generateKey(BlindRSAMode.PSS, { modulusLength: 2048, publicExponent: Uint8Array.from([1, 0, 1]) });
     issuer = new Issuer(BlindRSAMode.PSS, BLIND_TOKEN_ISSUER, keys.privateKey, keys.publicKey);
-    sut = new BlindTokenService(await getPublicKeyBytes(keys.publicKey));
+    const issuerPublicKey = await getPublicKeyBytes(keys.publicKey);
+    sut = new BlindTokenService({ getPublicKey: async () => issuerPublicKey });
 });
 
 function own(bytes: Uint8Array): Uint8Array {
