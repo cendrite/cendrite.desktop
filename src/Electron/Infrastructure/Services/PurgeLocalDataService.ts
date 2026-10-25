@@ -3,6 +3,7 @@ import { IChatStore } from '#electron/Application/Contracts/Repositories/IChatSt
 import { IGroupKeyRepository } from '#electron/Application/Contracts/Repositories/IGroupKeyRepository';
 import { IGroupRepository } from '#electron/Application/Contracts/Repositories/IGroupRepository';
 import { ILedgerLogRepository } from '#electron/Application/Contracts/Repositories/ILedgerLogRepository';
+import { IPrivateTokenRepository } from '#electron/Application/Contracts/Repositories/IPrivateTokenRepository';
 import { IDeviceRepository } from '#electron/Application/Contracts/Repositories/IDeviceRepository';
 import { IFriendRepository } from '#electron/Application/Contracts/Repositories/IFriendRepository';
 import { IUserRepository } from '#electron/Application/Contracts/Repositories/IUserRepository';
@@ -20,6 +21,7 @@ export class PurgeLocalDataService implements IPurgeLocalData {
         private readonly groupKeyRepository: IGroupKeyRepository,
         private readonly groupRepository: IGroupRepository,
         private readonly ledgerLogRepository: ILedgerLogRepository,
+        private readonly privateTokenRepository: IPrivateTokenRepository,
     ) { }
 
     public async purgeLocalData(): Promise<void> {
@@ -33,6 +35,7 @@ export class PurgeLocalDataService implements IPurgeLocalData {
         await this.ledgerLogRepository.deleteAll();
         await this.groupRepository.deleteAll();
         await this.groupKeyRepository.deleteAll();
+        await this.privateTokenRepository.deleteAll();
 
         // Device-scoped settings (theme, window prefs) deliberately survive logout.
         for (const settings of this.settingsRegistry.accountScoped()) {

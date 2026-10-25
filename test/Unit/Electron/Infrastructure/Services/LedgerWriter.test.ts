@@ -35,6 +35,7 @@ import {
 } from '../../../../../src/Electron/Infrastructure/Crypto/LedgerCodec.js';
 import { Result } from '../../../../../src/Shared/Result/Result.js';
 import { ErrorMessage } from '../../../../../src/Shared/Result/ErrorMessage.js';
+import { IPrivateTokenRepository } from '../../../../../src/Electron/Application/Contracts/Repositories/IPrivateTokenRepository.js';
 
 const GROUP_ID = '0199673a-3c1e-7c2b-9f2e-5d8b1a4c7e10';
 
@@ -58,7 +59,7 @@ const keyRepository: IGroupKeyRepository = {
 };
 
 class FakeProvider implements ILedgerProvider {
-    public created: { payload: Buffer; writeKey: Buffer; keys: Buffer[]; signature: Buffer } | null = null;
+    public created: { payload: Buffer; writeKey: Buffer; keys: Buffer[]; signature: Buffer; privateToken: Buffer } | null = null;
     public appends: LedgerAppend[] = [];
     public conflictsLeft = 0;
 
@@ -68,8 +69,9 @@ class FakeProvider implements ILedgerProvider {
         writeKey: Buffer,
         keys: Buffer[],
         signature: Buffer,
+        privateToken: Buffer,
     ) {
-        this.created = { payload, writeKey, keys, signature };
+        this.created = { payload, writeKey, keys, signature, privateToken };
         return Result.success<void>();
     }
 
@@ -95,6 +97,22 @@ class FakeProvider implements ILedgerProvider {
     public async getHead(): Promise<Result<LedgerHead>> {
         return Result.success({ version: 0, hash: Buffer.alloc(32), archived: false });
     }
+}
+
+const PRIVATE_TOKEN = Buffer.alloc(354, 0xfb);
+
+function wallet(token: Buffer | null = PRIVATE_TOKEN): IPrivateTokenRepository & { taken: string[] } {
+    const taken: string[] = [];
+    return {
+        taken,
+        store: async () => undefined,
+        count: async () => (token ? 1 : 0),
+        take: async (origin: string) => {
+            taken.push(origin);
+            return token;
+        },
+        deleteAll: async () => undefined,
+    };
 }
 
 function groupRepository(record: Group): IGroupRepository {
@@ -147,6 +165,7 @@ describe('creating a stream', () => {
             groupRepository(new Group(GROUP_ID)),
             syncService(new GroupState(GROUP_ID)),
             ledgerIdentity,
+            wallet(),
         );
 
         const result = await sut.createStream(GROUP_ID, [writeKeyPair.publicKey], created());
@@ -190,12 +209,47 @@ describe('creating a stream', () => {
             groupRepository(new Group(GROUP_ID)),
             syncService(new GroupState(GROUP_ID)),
             ledgerIdentity,
+            wallet(),
         );
 
         await sut.createStream(GROUP_ID, [writeKeyPair.publicKey], created());
 
         expect(provider.created!.writeKey).toEqual(writeKeyPair.publicKey);
         expect(provider.created!.signature).toHaveLength(64);
+    });
+
+    test('redeems a private token for the ledger', async () => {
+        const tokens = wallet();
+        const sut = new LedgerWriter(
+            provider,
+            keyRepository,
+            groupRepository(new Group(GROUP_ID)),
+            syncService(new GroupState(GROUP_ID)),
+            ledgerIdentity,
+            tokens,
+        );
+
+        await sut.createStream(GROUP_ID, [writeKeyPair.publicKey], created());
+
+        expect(tokens.taken).toEqual(['ledger']);
+        expect(provider.created!.privateToken).toEqual(PRIVATE_TOKEN);
+    });
+
+    test('fails without calling the ledger when the wallet is empty', async () => {
+        const sut = new LedgerWriter(
+            provider,
+            keyRepository,
+            groupRepository(new Group(GROUP_ID)),
+            syncService(new GroupState(GROUP_ID)),
+            ledgerIdentity,
+            wallet(null),
+        );
+
+        const result = await sut.createStream(GROUP_ID, [writeKeyPair.publicKey], created());
+
+        expect(result.success).toBe(false);
+        expect(result.errorMessage?.message).toContain('No private token');
+        expect(provider.created).toBeNull();
     });
 });
 
@@ -208,6 +262,7 @@ describe('appending', () => {
             groupRepository(new Group(GROUP_ID, 0, 4, head)),
             syncService(new GroupState(GROUP_ID)),
             ledgerIdentity,
+            wallet(),
         );
 
         await sut.append(GROUP_ID, settingsChanged());
@@ -227,6 +282,7 @@ describe('appending', () => {
             groupRepository(new Group(GROUP_ID, 0, 1, Buffer.alloc(32, 0x11))),
             syncService(new GroupState(GROUP_ID), () => syncs++),
             ledgerIdentity,
+            wallet(),
         );
 
         const result = await sut.append(GROUP_ID, settingsChanged());
@@ -245,6 +301,7 @@ describe('appending', () => {
             groupRepository(new Group(GROUP_ID, 0, 1, Buffer.alloc(32, 0x11))),
             syncService(new GroupState(GROUP_ID)),
             ledgerIdentity,
+            wallet(),
         );
 
         const result = await sut.append(GROUP_ID, settingsChanged());
@@ -271,6 +328,7 @@ describe('appending', () => {
             groupRepository(new Group(GROUP_ID, 0, 2, Buffer.alloc(32, 0x11))),
             syncService(state),
             ledgerIdentity,
+            wallet(),
         );
 
         await sut.append(GROUP_ID, {
@@ -291,6 +349,7 @@ describe('appending', () => {
             groupRepository(new Group(GROUP_ID, 0, 1, Buffer.alloc(32, 0x11))),
             syncService(new GroupState(GROUP_ID)),
             ledgerIdentity,
+            wallet(),
         );
 
         const result = await sut.append(GROUP_ID, settingsChanged());

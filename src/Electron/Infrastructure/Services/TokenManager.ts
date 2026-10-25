@@ -1,7 +1,15 @@
 import { ITokenProvider } from '#electron/Application/Contracts/Providers/ITokenProvider';
 import { ITokenManager } from '#electron/Application/Contracts/Services/ITokenManager';
 import { INonceSigner } from '#electron/Application/Contracts/Services/INonceSigner';
+import {
+    IBlindTokenService,
+    LEDGER_TOKEN_ORIGIN,
+    TokenIssuance,
+} from '#electron/Application/Contracts/Services/IBlindTokenService';
+import { IPrivateTokenRepository } from '#electron/Application/Contracts/Repositories/IPrivateTokenRepository';
 import { NonceSigner } from './NonceSigner.js';
+
+const PRIVATE_TOKEN_WALLET_SIZE = 3;
 
 export interface Tokens {
     jwt: string | null;
@@ -18,13 +26,19 @@ export class TokenManager implements ITokenManager {
 
     private readonly tokenProvider: ITokenProvider;
     private readonly nonceSigner: INonceSigner;
+    private readonly blindTokenService: IBlindTokenService;
+    private readonly privateTokenRepository: IPrivateTokenRepository;
 
     public constructor(
         tokenProvider: ITokenProvider,
         nonceSigner: NonceSigner,
+        blindTokenService: IBlindTokenService,
+        privateTokenRepository: IPrivateTokenRepository,
     ) {
         this.tokenProvider = tokenProvider;
         this.nonceSigner = nonceSigner;
+        this.blindTokenService = blindTokenService;
+        this.privateTokenRepository = privateTokenRepository;
         this.tokens = {
             jwt: null,
             expiresAt: null,
@@ -100,6 +114,7 @@ export class TokenManager implements ITokenManager {
         }
 
         const signedNonce = await this.nonceSigner.signNonce(nonceResponse.data.nonceValue);
+        const issuance = await this.createTokenIssuance();
 
         const verifyResponse = await this.tokenProvider.verifyNonce({
             userId: this.userId,
@@ -107,6 +122,7 @@ export class TokenManager implements ITokenManager {
             nonceId: nonceResponse.data.nonceId,
             nonce: signedNonce,
             announce,
+            tokenRequests: issuance?.tokenRequests ?? [],
         });
 
         if (!verifyResponse.success) {
@@ -117,6 +133,31 @@ export class TokenManager implements ITokenManager {
             jwt: verifyResponse.data.jwt,
             expiresAt: verifyResponse.data.expiresAt,
         });
+
+        if (issuance) await this.storePrivateTokens(issuance, verifyResponse.data.tokenResponses ?? []);
+    }
+
+    private async createTokenIssuance(): Promise<TokenIssuance | null> {
+        try {
+            const missing = PRIVATE_TOKEN_WALLET_SIZE - (await this.privateTokenRepository.count(LEDGER_TOKEN_ORIGIN));
+            if (missing <= 0) return null;
+
+            return await this.blindTokenService.createTokenRequests(LEDGER_TOKEN_ORIGIN, missing);
+        } catch (error) {
+            console.error('Could not create private token requests:', error);
+            return null;
+        }
+    }
+
+    private async storePrivateTokens(issuance: TokenIssuance, tokenResponses: string[]): Promise<void> {
+        if (tokenResponses.length === 0) return;
+
+        try {
+            const tokens = await this.blindTokenService.finalize(issuance, tokenResponses);
+            await this.privateTokenRepository.store(issuance.origin, tokens);
+        } catch (error) {
+            console.error('Could not finalize private tokens:', error);
+        }
     }
 
     private async startBackgroundTokenRefresh(): Promise<void> {

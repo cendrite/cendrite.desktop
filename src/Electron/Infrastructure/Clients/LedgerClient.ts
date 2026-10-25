@@ -13,11 +13,9 @@ import { ApiClient } from './Base/ApiClient.js';
 
 export class LedgerClient implements ILedgerProvider {
     private readonly client: ApiClient;
-    private readonly createClient: ApiClient;
 
-    constructor(ledgerApiClient: ApiClient, ledgerCreateApiClient: ApiClient) {
+    constructor(ledgerApiClient: ApiClient) {
         this.client = ledgerApiClient;
-        this.createClient = ledgerCreateApiClient;
     }
 
     public createStream(
@@ -26,10 +24,12 @@ export class LedgerClient implements ILedgerProvider {
         writeKey: Buffer,
         keys: Buffer[],
         signature: Buffer,
+        privateToken: Buffer,
     ): Promise<Result<void>> {
-        return this.createClient.handleConduit<void>(
+        return this.client.handleConduit<void>(
             {
                 method: 'POST',
+                headers: { Authorization: `PrivateToken token=${privateToken.toString('base64url')}` },
                 data: {
                     ledgerId: groupId,
                     payload: toBase64(payload),
