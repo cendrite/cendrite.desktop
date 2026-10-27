@@ -6,14 +6,9 @@ import AccountSection from './Sections/AccountSection.tsx';
 import AppearanceSection from './Sections/AppearanceSection.tsx';
 import NotificationsSection from './Sections/NotificationsSection.tsx';
 import PrivacySection from './Sections/PrivacySection.tsx';
+import DevicesSection from './Sections/DevicesSection.tsx';
+import { useDevices } from '@/React/Common/Hooks/Devices';
 import { XIcon } from '@phosphor-icons/react';
-
-const sectionComponents: Record<SettingsSection, React.FC> = {
-    account: AccountSection,
-    appearance: AppearanceSection,
-    notifications: NotificationsSection,
-    privacy: PrivacySection,
-};
 
 interface SettingsModalProps {
     isOpen: boolean;
@@ -22,7 +17,15 @@ interface SettingsModalProps {
 
 const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     const [active, setActive] = useState<SettingsSection>('account');
-    const ActiveSection = sectionComponents[active];
+    const { devices, failed: devicesFailed } = useDevices(isOpen);
+
+    const sections: Record<SettingsSection, React.ReactNode> = {
+        account: <AccountSection />,
+        appearance: <AppearanceSection />,
+        notifications: <NotificationsSection />,
+        privacy: <PrivacySection />,
+        devices: <DevicesSection devices={devices} failed={devicesFailed} />,
+    };
 
     return (
         <Dialog open={isOpen} onClose={onClose} className="relative z-[1000]">
@@ -45,7 +48,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                             {settingsSections.find((s) => s.id === active)?.label}
                         </h2>
 
-                        <ActiveSection />
+                        {sections[active]}
                     </div>
                 </DialogPanel>
             </div>

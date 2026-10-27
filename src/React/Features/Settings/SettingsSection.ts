@@ -1,4 +1,4 @@
-export type SettingsSection = 'account' | 'appearance' | 'notifications' | 'privacy';
+export type SettingsSection = 'account' | 'appearance' | 'notifications' | 'privacy' | 'devices';
 
 export interface SettingsSectionDescriptor {
     id: SettingsSection;
@@ -10,4 +10,5 @@ export const settingsSections: SettingsSectionDescriptor[] = [
     { id: 'appearance', label: 'Appearance' },
     { id: 'notifications', label: 'Notifications' },
     { id: 'privacy', label: 'Privacy' },
+    { id: 'devices', label: 'Devices' },
 ];
