@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
     AndroidLogoIcon,
     AppleLogoIcon,
@@ -7,7 +7,7 @@ import {
     LinuxLogoIcon,
     WindowsLogoIcon,
 } from '@phosphor-icons/react';
-import { DeviceDto, GetDevicesQuery } from '@/Shared/Devices/GetDevices';
+import { DeviceDto } from '@/Shared/Devices/GetDevices';
 
 const platformIcons: Record<string, React.ElementType> = {
     Windows: WindowsLogoIcon,
@@ -54,37 +54,20 @@ const DeviceRow: React.FC<{ device: DeviceDto }> = ({ device }) => {
     );
 };
 
-const DevicesSection: React.FC = () => {
-    const [devices, setDevices] = useState<DeviceDto[] | null>(null);
-    const [failed, setFailed] = useState(false);
+interface DevicesSectionProps {
+    devices: DeviceDto[] | null;
+    failed: boolean;
+}
 
-    useEffect(() => {
-        let cancelled = false;
-
-        window.electron.sendRequestAsync(new GetDevicesQuery()).then((result) => {
-            if (cancelled) return;
-
-            if (!result.success) {
-                setFailed(true);
-                return;
-            }
-
-            setDevices(result.data);
-        });
-
-        return () => {
-            cancelled = true;
-        };
-    }, []);
-
+const DevicesSection: React.FC<DevicesSectionProps> = ({ devices, failed }) => {
     return (
         <section>
             <h3 className="text-sm font-medium text-fg-muted">Your devices</h3>
             <p className="mt-1 text-sm text-fg-subtle">Devices that are signed in to your account.</p>
 
-            {failed && <p className="mt-4 text-sm text-danger-fg">Could not load your devices.</p>}
+            {devices === null && failed && <p className="mt-4 text-sm text-danger-fg">Could not load your devices.</p>}
 
-            {!failed && devices === null && <p className="mt-4 text-sm text-fg-subtle">Loading devices…</p>}
+            {devices === null && !failed && <p className="mt-4 text-sm text-fg-subtle">Loading devices…</p>}
 
             {devices && (
                 <ul className="mt-4 space-y-2">
