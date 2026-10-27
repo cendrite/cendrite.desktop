@@ -1,4 +1,5 @@
 import { Result } from "#shared/Result/Result";
+import { DeviceDto } from "#shared/Devices/GetDevices";
 
 export interface CreateDeviceApiRequest {
     userId: string;
@@ -15,6 +16,11 @@ export interface CreateDeviceApiResponse {
     deviceConnectionId: string;
 }
 
+export interface GetDevicesApiResponse {
+    devices: DeviceDto[];
+}
+
 export interface IDeviceProvider {
     createDevice(req: CreateDeviceApiRequest): Promise<Result<CreateDeviceApiResponse>>;
+    getDevices(): Promise<Result<GetDevicesApiResponse>>;
 }

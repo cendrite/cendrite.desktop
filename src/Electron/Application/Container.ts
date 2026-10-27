@@ -15,6 +15,7 @@ import { AcceptFriendRequestCommandHandler } from './Features/Friends/Commands/A
 import { GetFriendRequestsQueryHandler } from './Features/Friends/Queries/GetFriendRequestsQueryHandler.js';
 import { SyncFriendsQueryHandler } from './Features/Friends/Queries/SyncFriendsQueryHandler.js';
 import { GetProfileByTagQueryHandler } from './Features/Friends/Queries/GetProfileByTagQueryHandler.js';
+import { GetDevicesQueryHandler } from './Features/Devices/Queries/GetDevicesQueryHandler.js';
 import { GetMediaQueryHandler } from './Features/Files/Queries/GetMediaQueryHandler.js';
 import { CreateChatCommandHandler } from './Features/Chat/Commands/CreateChatCommandHandler.js';
 import { DeleteChatCommandHandler } from './Features/Chat/Commands/DeleteChatCommandHandler.js';
@@ -90,6 +91,10 @@ const friendHandlers = {
     createFriendCommandHandler: asClass(CreateFriendCommandHandler, { lifetime: Lifetime.SINGLETON }),
 };
 
+const deviceHandlers = {
+    getDevicesQueryHandler: asClass(GetDevicesQueryHandler, { lifetime: Lifetime.SINGLETON }),
+};
+
 const settingsHandlers = {
     getSettingsQueryHandler: asClass(GetSettingsQueryHandler, { lifetime: Lifetime.SINGLETON }),
     updateSettingsCommandHandler: asClass(UpdateSettingsCommandHandler, { lifetime: Lifetime.SINGLETON }),
@@ -103,4 +108,5 @@ export const applicationResolvers = {
     ...chatHandlers,
     ...mediaHandlers,
     ...settingsHandlers,
+    ...deviceHandlers,
 };

@@ -120,6 +120,10 @@ const httpClients = {
     verifyLoginApiClient: asFunction(() => new ApiClient(API_URLS.IDENTITY.AUTH, null)).singleton(),
     identityUserApiClient: asFunction(() => new ApiClient(API_URLS.IDENTITY.USER.BASE, null)).singleton(),
 
+    deviceManagementApiClient: asFunction(
+        (tokenManager: TokenManager) => new ApiClient(API_URLS.IDENTITY.USER.BASE, tokenManager),
+    ).singleton(),
+
     logoutApiClient: asFunction(
         (tokenManager: TokenManager) => new ApiClient(API_URLS.IDENTITY.AUTH, tokenManager),
     ).singleton(),
