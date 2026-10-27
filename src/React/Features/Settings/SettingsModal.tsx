@@ -6,6 +6,7 @@ import AccountSection from './Sections/AccountSection.tsx';
 import AppearanceSection from './Sections/AppearanceSection.tsx';
 import NotificationsSection from './Sections/NotificationsSection.tsx';
 import PrivacySection from './Sections/PrivacySection.tsx';
+import DevicesSection from './Sections/DevicesSection.tsx';
 import { XIcon } from '@phosphor-icons/react';
 
 const sectionComponents: Record<SettingsSection, React.FC> = {
@@ -13,6 +14,7 @@ const sectionComponents: Record<SettingsSection, React.FC> = {
     appearance: AppearanceSection,
     notifications: NotificationsSection,
     privacy: PrivacySection,
+    devices: DevicesSection,
 };
 
 interface SettingsModalProps {
