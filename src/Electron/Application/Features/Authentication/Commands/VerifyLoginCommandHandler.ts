@@ -1,3 +1,4 @@
+import { app } from 'electron';
 import { ErrorMessage } from '#shared/Result/ErrorMessage';
 import { Result } from '#shared/Result/Result';
 import { Device } from '#electron/Domain/Entities/Device';
@@ -17,6 +18,24 @@ import { User } from '#electron/Domain/Aggregates/User';
 import { UserConnectionId } from '#electron/Domain/Entities/UserConnectionId';
 import { IPump } from '#electron/Application/Contracts/Services/IPump';
 import { IPendingLoginStore } from '#electron/Application/Contracts/Services/IPendingLoginStore';
+
+// Mirrors Identity.Domain.Enums.DeviceType / DevicePlatform on the backend.
+const DESKTOP_DEVICE_TYPE = 2;
+
+function currentDevicePlatform(): number {
+    switch (process.platform) {
+        case 'win32': return 1;
+        case 'darwin': return 4;
+        case 'linux': return 5;
+        default: return 6;
+    }
+}
+
+// Backend only accepts "major.minor" (^\d+\.\d{1,3}$), so drop the patch segment.
+function currentAppVersion(): string {
+    const [major, minor] = app.getVersion().split('.');
+    return `${major}.${minor}`;
+}
 
 export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, UserContract> {
     constructor(
@@ -63,9 +82,9 @@ export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, Us
             userId: cmd.userId,
             loginNonceId: verifyLoginResult.data.nonceId,
             loginNonce: verifyLoginResult.data.nonce,
-            deviceAppVersion: '1.0', // Replace with actual app version
-            deviceType: 1, // Replace with actual device type
-            devicePlatform: 1, // Replace with actual platform
+            deviceAppVersion: currentAppVersion(),
+            deviceType: DESKTOP_DEVICE_TYPE,
+            devicePlatform: currentDevicePlatform(),
             base64DevicePublicKey: devPk.publicKey,
         });
 
