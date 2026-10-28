@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { DeviceDto, GetDevicesQuery } from '@/Shared/Devices/GetDevices';
+import { DeleteDeviceCommand } from '@/Shared/Devices/DeleteDevice';
 
 export function useDevices(isOpen: boolean) {
     const [devices, setDevices] = useState<DeviceDto[] | null>(null);
@@ -27,5 +28,14 @@ export function useDevices(isOpen: boolean) {
         };
     }, [isOpen]);
 
-    return { devices, failed };
+    const deleteDevice = useCallback(async (deviceId: string): Promise<boolean> => {
+        const result = await window.electron.sendRequestAsync(new DeleteDeviceCommand(deviceId));
+
+        if (!result.success) return false;
+
+        setDevices((current) => current?.filter((d) => d.id !== deviceId) ?? null);
+        return true;
+    }, []);
+
+    return { devices, failed, deleteDevice };
 }

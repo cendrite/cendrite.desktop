@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     AndroidLogoIcon,
     AppleLogoIcon,
     DesktopIcon,
     DeviceMobileIcon,
     LinuxLogoIcon,
+    TrashIcon,
     WindowsLogoIcon,
 } from '@phosphor-icons/react';
 import { DeviceDto } from '@/Shared/Devices/GetDevices';
 import { useUser } from '@/React/Context/User/UserContext';
+import DeleteDeviceModal from '../Modals/DeleteDeviceModal.tsx';
 
 const platformIcons: Record<string, React.ElementType> = {
     Windows: WindowsLogoIcon,
@@ -27,7 +29,13 @@ function formatLastSeen(lastSeen: string | null): string {
     })}`;
 }
 
-const DeviceRow: React.FC<{ device: DeviceDto; isCurrent: boolean }> = ({ device, isCurrent }) => {
+interface DeviceRowProps {
+    device: DeviceDto;
+    isCurrent: boolean;
+    onRemove: () => void;
+}
+
+const DeviceRow: React.FC<DeviceRowProps> = ({ device, isCurrent, onRemove }) => {
     const Icon = platformIcons[device.platform] ?? (device.type === 'Mobile' ? DeviceMobileIcon : DesktopIcon);
 
     return (
@@ -57,6 +65,16 @@ const DeviceRow: React.FC<{ device: DeviceDto; isCurrent: boolean }> = ({ device
                     formatLastSeen(device.lastSeen)
                 )}
             </div>
+
+            {!isCurrent && (
+                <button
+                    onClick={onRemove}
+                    className="shrink-0 rounded-md p-1.5 text-fg-subtle hover:bg-danger/10 hover:text-danger-fg"
+                    aria-label={`Remove ${device.name}`}
+                >
+                    <TrashIcon className="h-4 w-4" />
+                </button>
+            )}
         </li>
     );
 };
@@ -64,10 +82,12 @@ const DeviceRow: React.FC<{ device: DeviceDto; isCurrent: boolean }> = ({ device
 interface DevicesSectionProps {
     devices: DeviceDto[] | null;
     failed: boolean;
+    onDelete: (deviceId: string) => Promise<boolean>;
 }
 
-const DevicesSection: React.FC<DevicesSectionProps> = ({ devices, failed }) => {
+const DevicesSection: React.FC<DevicesSectionProps> = ({ devices, failed, onDelete }) => {
     const { user } = useUser();
+    const [deviceToRemove, setDeviceToRemove] = useState<DeviceDto | null>(null);
     const currentDeviceId = user?.deviceId;
 
     const sortedDevices = devices
@@ -89,10 +109,17 @@ const DevicesSection: React.FC<DevicesSectionProps> = ({ devices, failed }) => {
             {sortedDevices && (
                 <ul className="mt-4 space-y-2">
                     {sortedDevices.map((device) => (
-                        <DeviceRow key={device.id} device={device} isCurrent={device.id === currentDeviceId} />
+                        <DeviceRow
+                            key={device.id}
+                            device={device}
+                            isCurrent={device.id === currentDeviceId}
+                            onRemove={() => setDeviceToRemove(device)}
+                        />
                     ))}
                 </ul>
             )}
+
+            <DeleteDeviceModal device={deviceToRemove} onClose={() => setDeviceToRemove(null)} onDelete={onDelete} />
         </section>
     );
 };

@@ -37,3 +37,7 @@ export interface UserLoggedOutEvent {
     connectionId: string;
     userTag: string;
 }
+
+export interface ClientDeletedEvent {
+    connectionId: string;
+}

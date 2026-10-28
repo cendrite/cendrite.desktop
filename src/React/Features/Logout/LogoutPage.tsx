@@ -1,5 +1,5 @@
 ﻿import React, { useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Lottie from 'lottie-react';
 import boxAnimation from '@/React/Assets/Animations/box_load_animation.json';
 import { useUser } from '@/React/Context/User/UserContext.tsx';
@@ -20,6 +20,7 @@ import { LogoutCommand } from '@/Shared/Authentication/Logout.ts';
 
 const LogoutPage: React.FC = () => {
     const navigate = useNavigate();
+    const revoked = (useLocation().state as { revoked?: boolean } | null)?.revoked === true;
     const { authSessionDispatch } = useAuthSession();
     const { contactDispatch } = useContacts();
     const { pendingContactDispatch } = usePendingContacts();
@@ -77,7 +78,9 @@ const LogoutPage: React.FC = () => {
         <div className="flex items-center justify-center h-screen bg-canvas">
             <div>
                 <Lottie animationData={boxAnimation} />
-                <h1 className="text-fg text-center">Please wait while we log you out</h1>
+                <h1 className="text-fg text-center">
+                    {revoked ? 'This device was removed from your account. Signing out…' : 'Please wait while we log you out'}
+                </h1>
             </div>
         </div>
     );

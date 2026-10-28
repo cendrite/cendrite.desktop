@@ -5,7 +5,7 @@ import { Theme as AppTheme } from './Theme.ts';
 import { Result } from './Result/Result.ts';
 
 declare global {
-    type ConnectionState = 'connected' | 'disconnected' | 'connecting';
+    type ConnectionState = 'connected' | 'disconnected' | 'connecting' | 'revoked';
 
     type MediatorRequest<TResponse = unknown> = {
         readonly type: string;

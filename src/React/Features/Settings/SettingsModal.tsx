@@ -17,14 +17,14 @@ interface SettingsModalProps {
 
 const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     const [active, setActive] = useState<SettingsSection>('account');
-    const { devices, failed: devicesFailed } = useDevices(isOpen);
+    const { devices, failed: devicesFailed, deleteDevice } = useDevices(isOpen);
 
     const sections: Record<SettingsSection, React.ReactNode> = {
         account: <AccountSection />,
         appearance: <AppearanceSection />,
         notifications: <NotificationsSection />,
         privacy: <PrivacySection />,
-        devices: <DevicesSection devices={devices} failed={devicesFailed} />,
+        devices: <DevicesSection devices={devices} failed={devicesFailed} onDelete={deleteDevice} />,
     };
 
     return (
