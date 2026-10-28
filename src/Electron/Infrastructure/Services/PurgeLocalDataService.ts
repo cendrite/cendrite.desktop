@@ -7,7 +7,9 @@ import { IPrivateTokenRepository } from '#electron/Application/Contracts/Reposit
 import { IDeviceRepository } from '#electron/Application/Contracts/Repositories/IDeviceRepository';
 import { IFriendRepository } from '#electron/Application/Contracts/Repositories/IFriendRepository';
 import { IUserRepository } from '#electron/Application/Contracts/Repositories/IUserRepository';
+import { IMediaStore } from '#electron/Application/Contracts/Repositories/IMediaStore';
 import { IProtocolStore } from '../Interfaces/IProtocolStore.js';
+import { IOutboxRepository } from '../Interfaces/IOutboxRepository.js';
 import { ISettingsRegistry } from '#electron/Application/Contracts/Services/ISettingsRegistry';
 
 export class PurgeLocalDataService implements IPurgeLocalData {
@@ -22,6 +24,8 @@ export class PurgeLocalDataService implements IPurgeLocalData {
         private readonly groupRepository: IGroupRepository,
         private readonly ledgerLogRepository: ILedgerLogRepository,
         private readonly privateTokenRepository: IPrivateTokenRepository,
+        private readonly eventRepository: IOutboxRepository,
+        private readonly mediaStore: IMediaStore,
     ) { }
 
     public async purgeLocalData(): Promise<void> {
@@ -36,6 +40,8 @@ export class PurgeLocalDataService implements IPurgeLocalData {
         await this.groupRepository.deleteAll();
         await this.groupKeyRepository.deleteAll();
         await this.privateTokenRepository.deleteAll();
+        await this.eventRepository.deleteAll();
+        await this.mediaStore.clear();
 
         // Device-scoped settings (theme, window prefs) deliberately survive logout.
         for (const settings of this.settingsRegistry.accountScoped()) {

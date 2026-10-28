@@ -38,10 +38,7 @@ export class MessagePump extends Pump {
                 console.error(
                     `MessagePump: Message with ID ${msgEvent.message.id} not found in chat ${msgEvent.message.chatId}`,
                 );
-                await this.eventRepository.markAsFailed(
-                    msgEvent.id,
-                    `Message with ID ${msgEvent.message.id} not found in chat ${msgEvent.message.chatId}`,
-                );
+                await this.eventRepository.deleteEvent(msgEvent.id);
                 continue;
             }
 
@@ -62,7 +59,7 @@ export class MessagePump extends Pump {
             }
 
             await this.chatStore.markMessage(pendingMessage.id, deliveryStatus);
-            await this.eventRepository.markEventAsProcessed(msgEvent.id);
+            await this.eventRepository.deleteEvent(msgEvent.id);
 
             this.mainWindow.webContents.send('eventMessage', {
                 kind: 'deliveryStatus',

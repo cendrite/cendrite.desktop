@@ -84,11 +84,11 @@ export class EventRepository implements IEventRepository, IOutboxRepository {
         return deserializer(parseEventContent(event.content), event.occurredOn) as T;
     }
 
-    public async markEventAsProcessed(id: string): Promise<void> {
-        await this.ctx.update({ id }, { processedOn: new Date() });
+    public async deleteEvent(id: string): Promise<void> {
+        await this.ctx.delete({ id });
     }
 
-    public async markAsFailed(id: string, error: string): Promise<void> {
-        await this.ctx.update({ id }, { error, processedOn: new Date() });
+    public async deleteAll(): Promise<void> {
+        await this.ctx.clear();
     }
 }

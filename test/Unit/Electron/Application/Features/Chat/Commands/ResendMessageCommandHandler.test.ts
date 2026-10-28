@@ -29,6 +29,7 @@ function createHandler(overrides: { chatStore?: Partial<IChatStore> } = {}) {
         store: vi.fn(),
         get: vi.fn(),
         delete: vi.fn(),
+        clear: vi.fn(),
     };
 
     const handler = new ResendMessageCommandHandler(eventRepository, chatStore, messagePump, mediaStore);
