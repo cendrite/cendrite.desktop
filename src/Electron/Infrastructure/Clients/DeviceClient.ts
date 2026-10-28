@@ -24,4 +24,11 @@ export class DeviceClient implements IDeviceProvider {
             url: "devices",
         });
     }
+
+    deleteDevice(deviceId: string): Promise<Result> {
+        return this.managementClient.handleConduit<void>({
+            method: "DELETE",
+            url: `device/${deviceId}`,
+        }, true);
+    }
 }

@@ -23,4 +23,5 @@ export interface GetDevicesApiResponse {
 export interface IDeviceProvider {
     createDevice(req: CreateDeviceApiRequest): Promise<Result<CreateDeviceApiResponse>>;
     getDevices(): Promise<Result<GetDevicesApiResponse>>;
+    deleteDevice(deviceId: string): Promise<Result>;
 }
