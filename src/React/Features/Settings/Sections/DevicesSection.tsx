@@ -8,6 +8,7 @@ import {
     WindowsLogoIcon,
 } from '@phosphor-icons/react';
 import { DeviceDto } from '@/Shared/Devices/GetDevices';
+import { useUser } from '@/React/Context/User/UserContext';
 
 const platformIcons: Record<string, React.ElementType> = {
     Windows: WindowsLogoIcon,
@@ -26,21 +27,27 @@ function formatLastSeen(lastSeen: string | null): string {
     })}`;
 }
 
-const DeviceRow: React.FC<{ device: DeviceDto }> = ({ device }) => {
+const DeviceRow: React.FC<{ device: DeviceDto; isCurrent: boolean }> = ({ device, isCurrent }) => {
     const Icon = platformIcons[device.platform] ?? (device.type === 'Mobile' ? DeviceMobileIcon : DesktopIcon);
 
     return (
-        <li className="flex items-center gap-3 rounded-lg border border-line p-3">
-            <Icon className="h-6 w-6 shrink-0 text-fg-muted" />
+        <li className="flex items-center gap-4 rounded-lg border border-line px-4 py-4">
+            <Icon className="h-8 w-8 shrink-0 text-fg-muted" />
 
-            <div className="min-w-0 flex-1">
-                <p className="truncate text-sm text-fg">{device.name}</p>
-                <p className="text-xs text-fg-subtle">
+            <div className="min-w-0">
+                <p className="truncate text-sm font-medium text-fg">{device.name}</p>
+                <p className="mt-0.5 text-xs text-fg-subtle">
                     {device.platform} · {device.type}
                 </p>
             </div>
 
-            <div className="flex items-center gap-2 text-xs text-fg-subtle">
+            {isCurrent && (
+                <span className="shrink-0 rounded-full bg-accent/10 px-2.5 py-0.5 text-xs font-medium text-accent ring-1 ring-inset ring-accent/25">
+                    This device
+                </span>
+            )}
+
+            <div className="ml-auto flex shrink-0 items-center gap-2 text-xs text-fg-subtle">
                 {device.online ? (
                     <>
                         <span className="h-2 w-2 rounded-full bg-success" />
@@ -60,6 +67,16 @@ interface DevicesSectionProps {
 }
 
 const DevicesSection: React.FC<DevicesSectionProps> = ({ devices, failed }) => {
+    const { user } = useUser();
+    const currentDeviceId = user?.deviceId;
+
+    const sortedDevices = devices
+        ? [
+              ...devices.filter((d) => d.id === currentDeviceId),
+              ...devices.filter((d) => d.id !== currentDeviceId),
+          ]
+        : null;
+
     return (
         <section>
             <h3 className="text-sm font-medium text-fg-muted">Your devices</h3>
@@ -69,10 +86,10 @@ const DevicesSection: React.FC<DevicesSectionProps> = ({ devices, failed }) => {
 
             {devices === null && !failed && <p className="mt-4 text-sm text-fg-subtle">Loading devices…</p>}
 
-            {devices && (
+            {sortedDevices && (
                 <ul className="mt-4 space-y-2">
-                    {devices.map((device) => (
-                        <DeviceRow key={device.id} device={device} />
+                    {sortedDevices.map((device) => (
+                        <DeviceRow key={device.id} device={device} isCurrent={device.id === currentDeviceId} />
                     ))}
                 </ul>
             )}
