@@ -8,6 +8,8 @@ import { ISignalManager } from '#electron/Application/Contracts/Services/ISignal
 import { BrowserWindow } from 'electron';
 import { InfiniteRetryPolicy } from './RetryPolicy.js';
 
+const REVOKED_CLOSE_REASON = 'client.revoked';
+
 export class SignalManager implements ISignalManager {
     private readonly tokenManager: TokenManager;
     private readonly mainWindow: BrowserWindow;
@@ -37,7 +39,12 @@ export class SignalManager implements ISignalManager {
 
             connection.onreconnecting(() => this.mainWindow.webContents.send('connectionState', 'connecting'));
             connection.onreconnected(() => this.mainWindow.webContents.send('connectionState', 'connected'));
-            connection.onclose(() => this.mainWindow.webContents.send('connectionState', 'disconnected'));
+            connection.onclose((error) =>
+                this.mainWindow.webContents.send(
+                    'connectionState',
+                    error?.message.includes(REVOKED_CLOSE_REASON) ? 'revoked' : 'disconnected',
+                ),
+            );
 
             try {
                 if (this._connections.has(key as HubKey)) {

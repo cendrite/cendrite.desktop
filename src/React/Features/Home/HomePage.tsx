@@ -5,12 +5,15 @@ import MainContent from './MainContent';
 import { useHomePage } from '@/React/Context/HomePage/HomePageContext.tsx';
 import { HomePageActionType } from '@/React/Context/HomePage/HomePageReducer.ts';
 import { Contact } from '@/React/Models/Contact.ts';
+import { useDeviceRevocation } from '@/React/Common/Hooks/DeviceRevocation';
 
 const HomePage: React.FC = () => {
     const { selectedItem, homeDispatch } = useHomePage();
     const [isPaneVisible, setIsPaneVisible] = useState(true);
     const [paneType, setPaneType] = useState<'chats' | 'contacts'>('chats');
     const [savedContact, setSavedContact] = useState<Contact | null>(null);
+
+    useDeviceRevocation();
 
     const togglePane = () => {
         setIsPaneVisible((prev) => !prev);

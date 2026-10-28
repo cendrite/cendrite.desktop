@@ -9,5 +9,6 @@
     UserBlocked = 7,
     UserUnblocked = 8,
     UserLoggedOut = 9,
-    UserLoggedIn = 10
+    UserLoggedIn = 10,
+    Deleted = 11,
 }
