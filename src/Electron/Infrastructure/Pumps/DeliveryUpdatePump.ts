@@ -48,14 +48,11 @@ export class DeliveryStatusUpdatePump extends Pump {
                 console.log(
                     `DeliveryUpdatePump: Failed to process delivery status update event ${deliveryEvent.id}: ${result.errorMessage?.message ?? 'Unknown error'}`,
                 );
-                await this.eventRepository.markAsFailed(
-                    deliveryEvent.id,
-                    result.errorMessage?.message ?? 'Unknown error',
-                );
+                await this.eventRepository.deleteEvent(deliveryEvent.id);
                 continue;
             }
 
-            await this.eventRepository.markEventAsProcessed(deliveryEvent.id);
+            await this.eventRepository.deleteEvent(deliveryEvent.id);
             console.log(`DeliveryUpdatePump: Successfully processed delivery status update event ${deliveryEvent.id}`);
         }
     }

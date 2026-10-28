@@ -1,6 +1,7 @@
 import 'reflect-metadata';
-import { DataSource } from 'typeorm';
+import { DataSource, IsNull, Not } from 'typeorm';
 import { ChatMember } from '#electron/Domain/Entities/ChatMember';
+import { OutboxEvent } from '#electron/Infrastructure/Models/OutboxEvent';
 import { FriendSchema } from '../Schemas/FriendSchema.js';
 import { FriendConnectionIdSchema } from '../Schemas/FriendConnectionIdSchema.js';
 import { DeviceSchema } from '../Schemas/DeviceSchema.js';
@@ -64,6 +65,7 @@ export async function initializeDatabase(dbPath: string | null = null): Promise<
         await newDbContext.initialize();
         dbContext = newDbContext;
         await backfillChatMemberUserTags(newDbContext);
+        await removeLegacyData(newDbContext);
         console.log('Connected to the database at:', finalDbPath);
         return dbContext;
     } catch (error) {
@@ -85,6 +87,11 @@ async function backfillChatMemberUserTags(ctx: DataSource): Promise<void> {
     await ctx.query(
         `UPDATE "${table}" SET "${userTag}" = "${friendId}" WHERE "${userTag}" IS NULL AND "${friendId}" IS NOT NULL`,
     );
+}
+
+async function removeLegacyData(ctx: DataSource): Promise<void> {
+    await ctx.getRepository(OutboxEvent).delete({ processedOn: Not(IsNull()) });
+    await ctx.query('DROP TABLE IF EXISTS "refresh_token"');
 }
 
 export function getDbContext(): DataSource {
