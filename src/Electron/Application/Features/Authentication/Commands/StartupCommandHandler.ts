@@ -1,5 +1,6 @@
 import { Result } from '#shared/Result/Result';
-import { ITokenManager } from '#electron/Application/Contracts/Services/ITokenManager';
+import { DeviceRevokedError, ITokenManager } from '#electron/Application/Contracts/Services/ITokenManager';
+import { IPurgeLocalData } from '#electron/Application/Contracts/Services/IPurgeLocalData';
 import { ISignalManager } from '#electron/Application/Contracts/Services/ISignalManager';
 import { UserContract } from '#shared/Models/UserContract';
 import { IDeviceRepository } from '#electron/Application/Contracts/Repositories/IDeviceRepository';
@@ -17,6 +18,7 @@ export class StartupCommandHandler implements Handler<StartupCommand, StartupDto
         private readonly messagePump: IPump,
         private readonly deliveryStatusUpdatePump: IPump,
         private readonly preKeyPump: IPump,
+        private readonly purgeLocalDataService: IPurgeLocalData,
     ) { }
 
     public async handle(_cmd: StartupCommand): Promise<Result<StartupDto>> {
@@ -43,7 +45,19 @@ export class StartupCommandHandler implements Handler<StartupCommand, StartupDto
             user.displayName,
         );
 
-        await this.tokenManager.init(returnUsr.id, returnUsr.deviceId);
+        try {
+            await this.tokenManager.init(returnUsr.id, returnUsr.deviceId);
+        } catch (error) {
+            if (!(error instanceof DeviceRevokedError)) throw error;
+
+            console.warn('StartupCommandHandler.handle: Device has been revoked, purging local data');
+            this.tokenManager.disableAndClear();
+            await this.purgeLocalDataService.purgeLocalData();
+
+            return Result.success({
+                user: null,
+            });
+        }
         await this.signalManager.connect();
         this.messagePump.start();
         this.deliveryStatusUpdatePump.start();

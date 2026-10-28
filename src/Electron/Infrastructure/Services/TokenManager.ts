@@ -1,5 +1,6 @@
 import { ITokenProvider } from '#electron/Application/Contracts/Providers/ITokenProvider';
-import { ITokenManager } from '#electron/Application/Contracts/Services/ITokenManager';
+import { BrowserWindow } from 'electron';
+import { DEVICE_REVOKED_CODE, DeviceRevokedError, ITokenManager } from '#electron/Application/Contracts/Services/ITokenManager';
 import { INonceSigner } from '#electron/Application/Contracts/Services/INonceSigner';
 import {
     IBlindTokenService,
@@ -28,17 +29,20 @@ export class TokenManager implements ITokenManager {
     private readonly nonceSigner: INonceSigner;
     private readonly blindTokenService: IBlindTokenService;
     private readonly privateTokenRepository: IPrivateTokenRepository;
+    private readonly mainWindow: BrowserWindow;
 
     public constructor(
         tokenProvider: ITokenProvider,
         nonceSigner: NonceSigner,
         blindTokenService: IBlindTokenService,
         privateTokenRepository: IPrivateTokenRepository,
+        mainWindow: BrowserWindow,
     ) {
         this.tokenProvider = tokenProvider;
         this.nonceSigner = nonceSigner;
         this.blindTokenService = blindTokenService;
         this.privateTokenRepository = privateTokenRepository;
+        this.mainWindow = mainWindow;
         this.tokens = {
             jwt: null,
             expiresAt: null,
@@ -126,6 +130,7 @@ export class TokenManager implements ITokenManager {
         });
 
         if (!verifyResponse.success) {
+            if (verifyResponse.errorMessage.errorCode === DEVICE_REVOKED_CODE) throw new DeviceRevokedError();
             throw new Error(`Failed to verify nonce: ${verifyResponse.errorMessage.message}`);
         }
 
@@ -162,6 +167,7 @@ export class TokenManager implements ITokenManager {
 
     private async startBackgroundTokenRefresh(): Promise<void> {
         const REFRESH_INTERVAL = 1000 * 60 * 10; // 10 minutes
+        const REFRESH_RETRY_INTERVAL = 1000 * 30; // 30 seconds
         let isFirstRun = true;
 
         if (this.stopRefreshLoop) {
@@ -173,14 +179,27 @@ export class TokenManager implements ITokenManager {
             if (isFirstRun) {
                 console.log('Skipping first refresh loop');
                 isFirstRun = false;
-                setTimeout(refreshLoop, REFRESH_INTERVAL);
+                this.refreshLoopTimer = setTimeout(refreshLoop, REFRESH_INTERVAL);
                 return;
             }
 
             if (this.stopRefreshLoop) {
                 return;
             }
-            await this.refreshTokens();
+            try {
+                await this.refreshTokens();
+            } catch (error) {
+                if (error instanceof DeviceRevokedError) {
+                    console.warn('Device has been revoked. Stopping token refresh.');
+                    this.stopRefreshLoop = true;
+                    this.mainWindow.webContents.send('connectionState', 'revoked');
+                    return;
+                }
+
+                console.error('Token refresh failed, retrying:', error);
+                this.refreshLoopTimer = setTimeout(refreshLoop, REFRESH_RETRY_INTERVAL);
+                return;
+            }
 
             this.refreshLoopTimer = setTimeout(refreshLoop, REFRESH_INTERVAL);
         };
