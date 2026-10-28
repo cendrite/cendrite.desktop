@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
-import LogoutModal from './LogoutModal.tsx';
 import { useUser } from '@/React/Context/User/UserContext.tsx';
 import Avatar from '@/React/Common/Components/Avatar/Avatar.tsx';
 import AvatarModal from './AvatarModal.tsx';
-import Button from '@/React/Common/Components/Button/Button.tsx';
 import { XIcon } from '@phosphor-icons/react';
 
 interface UserModalProps {
@@ -14,12 +12,11 @@ interface UserModalProps {
 
 const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose }) => {
     const { user } = useUser();
-    const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
     const [isProfilePictureModalOpen, setIsProfilePictureModalOpen] = useState(false);
 
     // Stay closed while a child modal is up so the two panels never stack; reopens by itself
-    // once the child closes, which is why neither child needs to report back.
-    const isChildOpen = isLogoutModalOpen || isProfilePictureModalOpen;
+    // once the child closes, which is why the child doesn't need to report back.
+    const isChildOpen = isProfilePictureModalOpen;
 
     return (
         <>
@@ -71,15 +68,9 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose }) => {
                                 at dele dit telefonnummer.
                             </p>
                         </div>
-
-                        <div className="mt-auto flex items-center justify-center">
-                            <Button onClick={() => setIsLogoutModalOpen(true)}>Logout</Button>
-                        </div>
                     </DialogPanel>
                 </div>
             </Dialog>
-
-            <LogoutModal isOpen={isLogoutModalOpen} onClose={() => setIsLogoutModalOpen(false)} />
 
             <AvatarModal isOpen={isProfilePictureModalOpen} onClose={() => setIsProfilePictureModalOpen(false)} />
         </>
