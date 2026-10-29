@@ -75,12 +75,13 @@ export const MessageBubble: React.FC<ChatBubbleProps> = ({ message, showStatus, 
                             setMenuOpen(true);
                         }}
                         onClick={handleToggleInfo}
-                        className={`
-                            break-words whitespace-pre-wrap cursor-pointer ${bubbleClass}
-                        `}
+                        className={`flex flex-col gap-1 cursor-pointer ${isMine ? 'items-end' : 'items-start'}`}
                     >
+                        {/* Media sits outside the bubble even when the same message also carries text. */}
                         <MediaBox media={message.media} />
-                        {message.text}
+                        {message.text && (
+                            <div className={`break-words whitespace-pre-wrap ${bubbleClass}`}>{message.text}</div>
+                        )}
                     </div>
 
                     <MessageSettingsMenu
