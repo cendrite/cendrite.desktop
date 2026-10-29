@@ -86,7 +86,7 @@ export const GifPicker: React.FC<GifPickerProps> = ({ onGifSelect }) => {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 maxLength={50}
-                placeholder="Search GIPHY"
+                placeholder="Search KLIPY"
                 aria-label="Search GIFs"
                 className="mx-2 mt-2 appearance-none rounded-md bg-field px-2.5 py-2 text-sm text-fg placeholder:text-fg-faint focus:outline-none"
             />
@@ -138,9 +138,9 @@ export const GifPicker: React.FC<GifPickerProps> = ({ onGifSelect }) => {
                 {sendFailed ? (
                     <span className="text-danger-fg">Couldn’t send that GIF</span>
                 ) : (
-                    <span className="text-fg-faint">Searches go to GIPHY</span>
+                    <span className="text-fg-faint">Searches go to KLIPY</span>
                 )}
-                <span className="font-semibold tracking-wide text-fg-muted">Powered by GIPHY</span>
+                <span className="font-semibold tracking-wide text-fg-muted">Powered by KLIPY</span>
             </div>
         </div>
     );

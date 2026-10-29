@@ -13,9 +13,9 @@ import type {
 const gif = (id: string): GifResult => ({
     id,
     title: `GIF ${id}`,
-    preview: { url: `https://media.giphy.com/${id}/100w.webp`, width: 100, height: 80 },
+    preview: { url: `https://static.klipy.com/${id}/sm.webp`, width: 100, height: 80 },
     previewType: 'image/webp',
-    send: { url: `https://media.giphy.com/${id}/downsized.gif`, width: 200, height: 160 },
+    send: { url: `https://static.klipy.com/${id}/md.gif`, width: 200, height: 160 },
 });
 
 const provider = (overrides: Partial<IGifProvider> = {}): IGifProvider => ({
@@ -70,7 +70,7 @@ describe('getting a GIF to send', () => {
 
         const result = await new GetGifQueryHandler(gifs, stripper).handle(new GetGifQuery('a'));
 
-        expect(gifs.download).toHaveBeenCalledWith('https://media.giphy.com/a/downsized.gif');
+        expect(gifs.download).toHaveBeenCalledWith('https://static.klipy.com/a/md.gif');
         expect(stripper.strip).toHaveBeenCalledWith(Buffer.from([7]), 'image/gif');
         expect(result.success && result.data.type).toBe('image/gif');
         expect(result.success && Buffer.from(result.data.content)).toEqual(Buffer.from([9, 9]));

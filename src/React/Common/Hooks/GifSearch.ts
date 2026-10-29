@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { GifPreview, SearchGifsQuery } from '@/Shared/Gifs/SearchGifs';
 
-// Debounced generously: beta GIPHY keys allow only 100 calls an hour.
+// Debounced generously: KLIPY test keys allow only 100 calls an hour.
 const SEARCH_DEBOUNCE_MS = 450;
 
 export type GifSearchError = { code: string | null; message: string };
@@ -12,7 +12,7 @@ export function useGifSearch() {
     const [nextOffset, setNextOffset] = useState<number | null>(0);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<GifSearchError | null>(null);
-    // Each new query bumps the generation so late responses for an older query are dropped.
+
     const generation = useRef(0);
     const loadingRef = useRef(false);
 
@@ -41,7 +41,6 @@ export function useGifSearch() {
         setNextOffset(0);
 
         const term = query.trim();
-        // Trending loads immediately; typed searches wait for the user to pause.
         const timer = setTimeout(() => void fetchPage(term, 0, gen), term ? SEARCH_DEBOUNCE_MS : 0);
         return () => clearTimeout(timer);
     }, [query, fetchPage]);

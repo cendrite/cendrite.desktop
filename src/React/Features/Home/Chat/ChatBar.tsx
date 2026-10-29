@@ -48,7 +48,6 @@ export const ChatBar: React.FC<ChatBarProps> = ({ chat }) => {
 
     const autocomplete = useShortcodeAutocomplete(applyEdit);
 
-    // The textarea keeps its selection while the picker has focus, so emoji land at the caret.
     const insertEmoji = (emoji: string) => {
         const textarea = textareaRef.current;
         const start = textarea?.selectionStart ?? message.length;
@@ -103,7 +102,7 @@ export const ChatBar: React.FC<ChatBarProps> = ({ chat }) => {
                                         </Tab>
                                     ))}
                                 </TabList>
-                                {/* Panels unmount when hidden, so GIPHY is only contacted once the GIF tab is opened. */}
+                                {/* Panels unmount when hidden, so KLIPY is only contacted once the GIF tab is opened. */}
                                 <TabPanels>
                                     <TabPanel>
                                         <EmojiPicker onEmojiSelect={insertEmoji} />
