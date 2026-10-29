@@ -24,6 +24,7 @@ import { MessageMediaSchema } from '../Schemas/MessageMediaSchema.js';
 import { OutboxEventSchema } from '../Schemas/OutboxEventSchema.js';
 import { KyberPreKeySchema } from '../Schemas/KyberPreKeySchema.js';
 import { AppearanceSettingsSchema } from '../Schemas/AppearanceSettingsSchema.js';
+import { EmojiSettingsSchema } from '../Schemas/EmojiSettingsSchema.js';
 
 let dbContext: DataSource;
 
@@ -52,6 +53,7 @@ export async function initializeDatabase(dbPath: string | null = null): Promise<
             KyberPreKeySchema,
             OutboxEventSchema,
             AppearanceSettingsSchema,
+            EmojiSettingsSchema,
             GroupEpochKeySchema,
             GroupWriteKeySchema,
             LedgerEventRecordSchema,

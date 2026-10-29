@@ -1,15 +1,9 @@
 import { Handler } from '#electron/Application/Mediator/Handler';
 import { Result } from '#shared/Result/Result';
 import { ISettingsRegistry } from '#electron/Application/Contracts/Services/ISettingsRegistry';
-import { SettingsSection } from '#shared/Enums/SettingsSection';
 import { SettingsDocument } from '#shared/Settings/SettingsDocument';
+import { GetSettingsQuery } from '#shared/Settings/GetSettings';
 import { parseSettings } from '../SettingsDefaults.js';
-
-export class GetSettingsQuery implements MediatorRequest<SettingsDocument> {
-    declare readonly _response?: SettingsDocument;
-    public readonly type = 'GetSettingsQuery';
-    constructor(public readonly section: SettingsSection) {}
-}
 
 export class GetSettingsQueryHandler implements Handler<GetSettingsQuery, SettingsDocument> {
     private readonly settingsRegistry: ISettingsRegistry;

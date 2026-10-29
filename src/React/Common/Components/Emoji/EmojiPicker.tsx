@@ -1,26 +1,10 @@
 import React, { useState } from 'react';
-import { EmojiPicker as Picker, type EmojiPickerListComponents, type SkinTone } from 'frimousse';
+import { EmojiPicker as Picker, type EmojiPickerListComponents } from 'frimousse';
 import { resolveEmojiData } from '@/React/Common/Emoji/EmojiData';
+import { useEmojiSettings } from '@/React/Context/Emoji/EmojiSettingsContext';
+import { SKIN_TONES } from '@/React/Context/Emoji/EmojiSettingsProvider';
 
-const SKIN_TONE_STORAGE_KEY = 'cypherly/emoji-skin-tone';
-const SKIN_TONES: SkinTone[] = ['none', 'light', 'medium-light', 'medium', 'medium-dark', 'dark'];
-
-function readSkinTone(): SkinTone {
-    try {
-        const stored = localStorage.getItem(SKIN_TONE_STORAGE_KEY);
-        return SKIN_TONES.find((t) => t === stored) ?? 'none';
-    } catch {
-        return 'none';
-    }
-}
-
-function storeSkinTone(skinTone: SkinTone): void {
-    try {
-        localStorage.setItem(SKIN_TONE_STORAGE_KEY, skinTone);
-    } catch {
-        // Only a convenience; the picker still works without persistence.
-    }
-}
+const MAX_RECENT_SHOWN = 18;
 
 const listComponents: Partial<EmojiPickerListComponents> = {
     CategoryHeader: ({ category, ...props }) => (
@@ -49,17 +33,15 @@ export interface EmojiPickerProps {
 }
 
 export const EmojiPicker: React.FC<EmojiPickerProps> = ({ onEmojiSelect, className }) => {
-    const [skinTone, setSkinTone] = useState<SkinTone>(readSkinTone);
+    const { skinTone, setSkinTone, recent } = useEmojiSettings();
+    const [search, setSearch] = useState('');
+    const recentShown = search ? [] : recent.slice(0, MAX_RECENT_SHOWN);
 
-    const cycleSkinTone = () => {
-        const next = SKIN_TONES[(SKIN_TONES.indexOf(skinTone) + 1) % SKIN_TONES.length];
-        setSkinTone(next);
-        storeSkinTone(next);
-    };
+    const cycleSkinTone = () => setSkinTone(SKIN_TONES[(SKIN_TONES.indexOf(skinTone) + 1) % SKIN_TONES.length]);
 
     return (
         <Picker.Root
-            className={`isolate flex h-[368px] w-fit flex-col bg-overlay ${className ?? ''}`}
+            className={`isolate flex h-[420px] w-fit flex-col bg-overlay ${className ?? ''}`}
             columns={9}
             skinTone={skinTone}
             resolveEmojiData={resolveEmojiData}
@@ -68,8 +50,29 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({ onEmojiSelect, classNa
             <Picker.Search
                 autoFocus
                 placeholder="Search emoji"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
                 className="z-10 mx-2 mt-2 appearance-none rounded-md bg-field px-2.5 py-2 text-sm text-fg placeholder:text-fg-faint focus:outline-none"
             />
+            {recentShown.length > 0 && (
+                <div className="flex-none border-b border-line pb-1.5">
+                    <div className="px-3 pt-3 pb-1.5 text-xs font-medium text-fg-subtle">Recently used</div>
+                    <div className="grid grid-cols-9 px-1.5">
+                        {recentShown.map((emoji) => (
+                            <button
+                                key={emoji}
+                                type="button"
+                                aria-label={emoji}
+                                onClick={() => onEmojiSelect(emoji)}
+                                onPointerDown={(e) => e.preventDefault()}
+                                className="flex size-8 items-center justify-center rounded-md text-xl hover:bg-surface-hover"
+                            >
+                                {emoji}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
             <Picker.Viewport className="relative flex-1 outline-none">
                 <Picker.Loading className="absolute inset-0 flex items-center justify-center text-sm text-fg-faint">
                     Loading…

@@ -7,6 +7,9 @@ import { Media } from '@/React/Models/Media';
 import { useMessageService } from '@/React/Common/Hooks/MessageService';
 import { MediaService } from '@/React/Common/Services/MediaService';
 import { EmojiPicker } from '@/React/Common/Components/Emoji/EmojiPicker';
+import { ShortcodeSuggestions } from '@/React/Common/Components/Emoji/ShortcodeSuggestions';
+import { type TextEdit, useShortcodeAutocomplete } from '@/React/Common/Hooks/ShortcodeAutocomplete';
+import { useEmojiSettings } from '@/React/Context/Emoji/EmojiSettingsContext';
 import { MediaItem } from './MediaBox';
 import { MicrophoneIcon, PaperclipIcon, SmileyIcon, XIcon } from '@phosphor-icons/react';
 
@@ -35,18 +38,22 @@ export const ChatBar: React.FC<ChatBarProps> = ({ chat }) => {
     const [media, setMedia] = useState<Media[]>([]);
     const [message, setMessage] = useState<string>('');
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const { skinTone, recordUsage } = useEmojiSettings();
+
+    const applyEdit = ({ text, caret }: TextEdit) => {
+        setMessage(text);
+        requestAnimationFrame(() => textareaRef.current?.setSelectionRange(caret, caret));
+    };
+
+    const autocomplete = useShortcodeAutocomplete(applyEdit);
 
     // The textarea keeps its selection while the picker has focus, so emoji land at the caret.
     const insertEmoji = (emoji: string) => {
         const textarea = textareaRef.current;
         const start = textarea?.selectionStart ?? message.length;
         const end = textarea?.selectionEnd ?? message.length;
-        setMessage((prev) => prev.slice(0, start) + emoji + prev.slice(end));
-
-        requestAnimationFrame(() => {
-            const caret = start + emoji.length;
-            textareaRef.current?.setSelectionRange(caret, caret);
-        });
+        recordUsage(emoji);
+        applyEdit({ text: message.slice(0, start) + emoji + message.slice(end), caret: start + emoji.length });
     };
 
     const handleImpageUpload = async () => {
@@ -79,7 +86,14 @@ export const ChatBar: React.FC<ChatBarProps> = ({ chat }) => {
                     </PopoverPanel>
                 </Popover>
 
-                <div className="flex-1 bg-field rounded-3xl px-3 py-2">
+                <div className="relative flex-1 bg-field rounded-3xl px-3 py-2">
+                    <ShortcodeSuggestions
+                        matches={autocomplete.matches}
+                        activeIndex={autocomplete.activeIndex}
+                        skinTone={skinTone}
+                        onHover={autocomplete.setActiveIndex}
+                        onSelect={(index) => autocomplete.accept(message, index)}
+                    />
                     {media.length > 0 && (
                         <div className="flex flex-wrap gap-2 mb-2">
                             {media.map((m, index) => (
@@ -100,8 +114,15 @@ export const ChatBar: React.FC<ChatBarProps> = ({ chat }) => {
                         onFocus={() => setPlaceholderText('')}
                         onBlur={() => setPlaceholderText('message')}
                         value={message}
-                        onChange={(e) => setMessage(e.target.value)}
+                        onChange={(e) => {
+                            const { value, selectionStart } = e.target;
+                            if (!autocomplete.handleChange(value, selectionStart)) setMessage(value);
+                        }}
+                        onSelect={(e) =>
+                            autocomplete.updateQuery(e.currentTarget.value, e.currentTarget.selectionStart)
+                        }
                         onKeyDown={(e) => {
+                            if (autocomplete.handleKeyDown(e)) return;
                             if (e.key === 'Enter' && !e.shiftKey) {
                                 e.preventDefault();
                                 onSendMessage();

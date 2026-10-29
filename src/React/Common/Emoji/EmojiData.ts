@@ -1,4 +1,5 @@
 import type { EmojiData, EmojiDataResolver } from 'frimousse';
+import type { ShortcodeEntry } from './Shortcodes';
 
 // Emoji data is bundled rather than fetched: the app is served from file:// under a
 // strict CSP, and a messenger should not leak emoji usage to a CDN.
@@ -8,20 +9,29 @@ const COMPONENT_GROUP_KEY = 'component';
 const FLAG_SUBGROUP_KEYS = ['country-flag', 'subdivision-flag'];
 const EMOJI_FONT = "'Apple Color Emoji', 'Noto Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif";
 
-let cached: Promise<EmojiData> | null = null;
+export type EmojiCatalog = {
+    picker: EmojiData;
+    shortcodes: ShortcodeEntry[];
+};
 
-export const resolveEmojiData: EmojiDataResolver = () => {
-    cached ??= loadEmojiData().catch((error) => {
+let cached: Promise<EmojiCatalog> | null = null;
+
+// Loaded once and shared by the picker and shortcode autocomplete, so both offer the same emoji.
+export function loadEmojiCatalog(): Promise<EmojiCatalog> {
+    cached ??= buildEmojiCatalog().catch((error) => {
         cached = null;
         throw error;
     });
     return cached;
-};
+}
 
-async function loadEmojiData(): Promise<EmojiData> {
-    const [{ default: emojis }, { default: messages }] = await Promise.all([
+export const resolveEmojiData: EmojiDataResolver = async () => (await loadEmojiCatalog()).picker;
+
+async function buildEmojiCatalog(): Promise<EmojiCatalog> {
+    const [{ default: emojis }, { default: messages }, { default: shortcodes }] = await Promise.all([
         import('emojibase-data/en/data.json'),
         import('emojibase-data/en/messages.json'),
+        import('emojibase-data/en/shortcodes/emojibase.json'),
     ]);
 
     const groups = messages.groups.filter((g) => g.key !== COMPONENT_GROUP_KEY);
@@ -33,16 +43,18 @@ async function loadEmojiData(): Promise<EmojiData> {
     const maxVersion = detectSupportedVersion(grouped);
     const flagsSupported = canRender('🇪🇺');
 
+    const supported = grouped
+        .filter((e) => e.version <= maxVersion)
+        .filter((e) => flagsSupported || e.subgroup === undefined || !flagSubgroups.has(e.subgroup));
+
     return {
-        locale: 'en',
-        categories: groups.map((g) => ({ index: g.order, label: capitalize(g.message) })),
-        skinTones: Object.fromEntries(
-            messages.skinTones.map((t) => [t.key, capitalize(t.message)]),
-        ) as EmojiData['skinTones'],
-        emojis: grouped
-            .filter((e) => e.version <= maxVersion)
-            .filter((e) => flagsSupported || e.subgroup === undefined || !flagSubgroups.has(e.subgroup))
-            .map((e) => ({
+        picker: {
+            locale: 'en',
+            categories: groups.map((g) => ({ index: g.order, label: capitalize(g.message) })),
+            skinTones: Object.fromEntries(
+                messages.skinTones.map((t) => [t.key, capitalize(t.message)]),
+            ) as EmojiData['skinTones'],
+            emojis: supported.map((e) => ({
                 emoji: e.emoji,
                 category: e.group!,
                 version: e.version,
@@ -50,6 +62,19 @@ async function loadEmojiData(): Promise<EmojiData> {
                 tags: e.tags ?? [],
                 skins: toSkins(e.skins),
             })),
+        },
+        shortcodes: supported.flatMap((e) => {
+            const codes = shortcodes[e.hexcode];
+            if (!codes) return [];
+            return [
+                {
+                    emoji: e.emoji,
+                    label: capitalize(e.label),
+                    shortcodes: Array.isArray(codes) ? codes : [codes],
+                    skins: toSkins(e.skins),
+                },
+            ];
+        }),
     };
 }
 
