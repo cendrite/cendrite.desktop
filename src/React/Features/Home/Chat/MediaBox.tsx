@@ -49,11 +49,11 @@ const MediaFan: React.FC<{ media: Media[] }> = ({ media }) => {
 
     return (
         // Sized to hold the fully spread fan, so hovering never pushes a card past the edge and scrolls the chat.
-        <div className="group relative h-60 w-[296px]">
+        <div className="group relative h-[268px] w-[336px]">
             {fanned.map((m, i) => (
                 <div
                     key={m.id}
-                    className="absolute inset-0 m-auto h-48 w-36 origin-bottom overflow-hidden rounded-2xl bg-surface
+                    className="absolute inset-0 m-auto h-56 w-44 origin-bottom overflow-hidden rounded-2xl bg-surface
                         ring-2 ring-canvas transition-transform duration-500 ease-out
                         [transform:translateX(var(--shift))_rotate(var(--rotate))]
                         group-hover:[transform:translateX(calc(var(--shift)*1.2))_rotate(calc(var(--rotate)*1.2))]"
