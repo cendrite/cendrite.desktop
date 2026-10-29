@@ -10,8 +10,8 @@ import { initializeDatabase } from './Infrastructure/Persistence/Context/Databas
 import { Mediator } from './Application/Mediator/Mediator.js';
 import { ipcMain } from 'electron/main';
 import { AppearanceSettingsRepository } from './Infrastructure/Persistence/Repositories/AppearanceSettingsRepository.js';
-import { parseSettings } from './Application/Features/Settings/SettingsDefaults.js';
-import { AppearanceSettings } from './Application/Features/Settings/AppearanceSettings.js';
+import { parseSettings } from './Application/Services/Settings/SettingsDefaults.js';
+import { AppearanceSettings } from '../Shared/Settings/AppearanceSettings.js';
 import { ResolvedTheme, Theme, WINDOW_BACKGROUND } from '../Shared/Theme.js';
 import { CryptographyService } from './Infrastructure/Persistence/Encryption/CryptographyService.js';
 

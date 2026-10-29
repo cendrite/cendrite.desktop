@@ -6,6 +6,7 @@ import { useHomePage } from '@/React/Context/HomePage/HomePageContext.tsx';
 import { HomePageActionType } from '@/React/Context/HomePage/HomePageReducer.ts';
 import { Contact } from '@/React/Models/Contact.ts';
 import { useDeviceRevocation } from '@/React/Common/Hooks/DeviceRevocation';
+import { EmojiSettingsProvider } from '@/React/Context/Emoji/EmojiSettingsProvider.tsx';
 
 const HomePage: React.FC = () => {
     const { selectedItem, homeDispatch } = useHomePage();
@@ -38,15 +39,17 @@ const HomePage: React.FC = () => {
     }, [paneType]);
 
     return (
-        <div className="flex h-screen w-scree bg-canvas overflow-x-hidden">
-            <SidePanel onTogglePane={togglePane} paneType={paneType} setPaneType={selectPane} />
+        <EmojiSettingsProvider>
+            <div className="flex h-screen w-scree bg-canvas overflow-x-hidden">
+                <SidePanel onTogglePane={togglePane} paneType={paneType} setPaneType={selectPane} />
 
-            {isPaneVisible && <ParentPane paneType={paneType} />}
+                {isPaneVisible && <ParentPane paneType={paneType} />}
 
-            <div className="flex-1 bg-canvas relative">
-                <MainContent />
+                <div className="flex-1 bg-canvas relative">
+                    <MainContent />
+                </div>
             </div>
-        </div>
+        </EmojiSettingsProvider>
     );
 };
 

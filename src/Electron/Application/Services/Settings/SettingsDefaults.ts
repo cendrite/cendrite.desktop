@@ -1,9 +1,11 @@
 import { SettingsSection } from '#shared/Enums/SettingsSection';
 import { SettingsDocument } from '#shared/Settings/SettingsDocument';
-import { defaultAppearanceSettings } from './AppearanceSettings.js';
+import { defaultAppearanceSettings } from '#shared/Settings/AppearanceSettings';
+import { defaultEmojiSettings } from '#shared/Settings/EmojiSettings';
 
 export const settingsDefaults: Record<SettingsSection, SettingsDocument> = {
     appearance: defaultAppearanceSettings,
+    emoji: defaultEmojiSettings,
 };
 
 export function parseSettings(section: SettingsSection, stored: string | null): SettingsDocument {

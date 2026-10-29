@@ -1,4 +1,4 @@
-import { DEFAULT_THEME, Theme } from '#shared/Theme';
+import { DEFAULT_THEME, Theme } from '../Theme.js';
 
 export type AppearanceSettings = {
     theme: Theme;

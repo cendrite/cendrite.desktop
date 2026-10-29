@@ -37,6 +37,7 @@ import { UserClient } from './Clients/UserClient.js';
 import { FriendClient } from './Clients/FriendClient.js';
 import { EventRepository } from './Persistence/Repositories/EventRepository.js';
 import { AppearanceSettingsRepository } from './Persistence/Repositories/AppearanceSettingsRepository.js';
+import { EmojiSettingsRepository } from './Persistence/Repositories/EmojiSettingsRepository.js';
 import { SettingsRegistry } from './Services/SettingsRegistry.js';
 import { PendingLoginStore } from './Services/PendingLoginStore.js';
 import { MessagePump } from './Pumps/MessagePump.js';
@@ -73,6 +74,7 @@ const persistence = {
     friendRepository: asClass(FriendRepository, { lifetime: Lifetime.SINGLETON }),
     eventRepository: asClass(EventRepository, { lifetime: Lifetime.SINGLETON }),
     appearanceSettingsRepository: asClass(AppearanceSettingsRepository, { lifetime: Lifetime.SINGLETON }),
+    emojiSettingsRepository: asClass(EmojiSettingsRepository, { lifetime: Lifetime.SINGLETON }),
 };
 
 const signalR = {

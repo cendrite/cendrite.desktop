@@ -11,6 +11,7 @@ import {
 import React, { type ReactNode, useState } from 'react';
 import MessageSettingsMenu from './MessageSettingsMenu.tsx';
 import { MediaBox } from './MediaBox.tsx';
+import { isJumboEmoji } from '@/React/Common/Emoji/EmojiText.ts';
 
 export interface ChatBubbleProps {
     message: MessageViewModel;
@@ -48,6 +49,11 @@ export const MessageBubble: React.FC<ChatBubbleProps> = ({ message, showStatus, 
 
     const handleToggleInfo = () => setShowInfo((prev) => !prev);
 
+    const isJumbo = message.media.length === 0 && isJumboEmoji(message.text);
+    const bubbleClass = isJumbo
+        ? 'px-1 text-4xl leading-tight'
+        : `px-4 py-2 rounded-2xl text-sm ${isMine ? 'bg-accent text-fg-on-accent' : 'bg-bubble-in text-bubble-in-fg'}`;
+
     const statusIcon = isMine && showStatus ? determineStatusIcon(message.deliveryStatus) : null;
 
     const formattedDate = message.date.toLocaleString(undefined, {
@@ -70,8 +76,7 @@ export const MessageBubble: React.FC<ChatBubbleProps> = ({ message, showStatus, 
                         }}
                         onClick={handleToggleInfo}
                         className={`
-                            break-words whitespace-pre-wrap px-4 py-2 rounded-2xl text-sm cursor-pointer
-                            ${isMine ? 'bg-accent text-fg-on-accent' : 'bg-bubble-in text-bubble-in-fg'}
+                            break-words whitespace-pre-wrap cursor-pointer ${bubbleClass}
                         `}
                     >
                         <MediaBox media={message.media} />
