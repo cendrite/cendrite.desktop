@@ -85,7 +85,7 @@ export const MediaBox: React.FC<MediaBoxProps> = ({ media }) => {
     const single = media.length === 1;
     // Players need their own controls, so a lone video or audio clip is not opened in the carousel.
     if (single && !media[0].type.startsWith("image/")) {
-        return <MediaItem media={media[0]} className="max-h-72 max-w-80 rounded-2xl" />;
+        return <MediaItem media={media[0]} className="max-h-96 max-w-96 rounded-2xl" />;
     }
 
     return (
@@ -98,7 +98,7 @@ export const MediaBox: React.FC<MediaBoxProps> = ({ media }) => {
                 }}
             >
                 {single ? (
-                    <MediaItem media={media[0]} className="max-h-72 max-w-80 rounded-2xl" />
+                    <MediaItem media={media[0]} className="max-h-96 max-w-96 rounded-2xl" />
                 ) : (
                     <MediaFan media={media} />
                 )}
