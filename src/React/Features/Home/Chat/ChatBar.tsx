@@ -39,7 +39,7 @@ export const ChatBar: React.FC<ChatBarProps> = ({ chat }) => {
     const [media, setMedia] = useState<Media[]>([]);
     const [message, setMessage] = useState<string>('');
     const textareaRef = useRef<HTMLTextAreaElement>(null);
-    const { skinTone, recordUsage } = useEmojiSettings();
+    const { skinTones, recordUsage } = useEmojiSettings();
 
     const applyEdit = ({ text, caret }: TextEdit) => {
         setMessage(text);
@@ -88,7 +88,7 @@ export const ChatBar: React.FC<ChatBarProps> = ({ chat }) => {
                     </PopoverButton>
                     <PopoverPanel
                         anchor={{ to: 'top start', gap: 8 }}
-                        className="z-[1100] rounded-xl bg-overlay shadow-lg ring-1 ring-line overflow-hidden"
+                        className="z-[1100] rounded-xl bg-surface shadow-lg ring-1 ring-line-strong overflow-hidden"
                     >
                         {({ close }) => (
                             <TabGroup>
@@ -127,7 +127,7 @@ export const ChatBar: React.FC<ChatBarProps> = ({ chat }) => {
                     <ShortcodeSuggestions
                         matches={autocomplete.matches}
                         activeIndex={autocomplete.activeIndex}
-                        skinTone={skinTone}
+                        skinTones={skinTones}
                         onHover={autocomplete.setActiveIndex}
                         onSelect={(index) => autocomplete.accept(message, index)}
                     />

@@ -101,11 +101,11 @@ describe('findExactShortcode', () => {
 });
 
 describe('emojiWithSkinTone', () => {
-    test('uses the tone when the emoji has one', () => {
-        expect(emojiWithSkinTone(thumbsUp, 'medium')).toBe('👍🏽');
-        expect(emojiWithSkinTone(thumbsUp, 'none')).toBe('👍');
-        expect(emojiWithSkinTone(thumbsUp, 'dark')).toBe('👍');
-        expect(emojiWithSkinTone(fire, 'medium')).toBe('🔥');
+    test('uses the tone chosen for that emoji', () => {
+        expect(emojiWithSkinTone(thumbsUp, { '👍': '👍🏽' })).toBe('👍🏽');
+        expect(emojiWithSkinTone(thumbsUp, { '👍': '👍' })).toBe('👍');
+        expect(emojiWithSkinTone(thumbsUp, {})).toBe('👍');
+        expect(emojiWithSkinTone(fire, { '👍': '👍🏽' })).toBe('🔥');
     });
 });
 

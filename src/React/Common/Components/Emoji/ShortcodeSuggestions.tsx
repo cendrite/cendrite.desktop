@@ -1,11 +1,10 @@
 import React from 'react';
-import type { SkinTone } from 'frimousse';
 import { emojiWithSkinTone, type ShortcodeMatch } from '@/React/Common/Emoji/Shortcodes';
 
 export interface ShortcodeSuggestionsProps {
     matches: ShortcodeMatch[];
     activeIndex: number;
-    skinTone: SkinTone;
+    skinTones: Readonly<Record<string, string>>;
     onHover: (index: number) => void;
     onSelect: (index: number) => void;
 }
@@ -13,7 +12,7 @@ export interface ShortcodeSuggestionsProps {
 export const ShortcodeSuggestions: React.FC<ShortcodeSuggestionsProps> = ({
     matches,
     activeIndex,
-    skinTone,
+    skinTones,
     onHover,
     onSelect,
 }) => {
@@ -37,7 +36,7 @@ export const ShortcodeSuggestions: React.FC<ShortcodeSuggestionsProps> = ({
                     className={`flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer text-sm
                         ${index === activeIndex ? 'bg-surface-hover' : ''}`}
                 >
-                    <span className="text-xl leading-none">{emojiWithSkinTone(entry, skinTone)}</span>
+                    <span className="text-xl leading-none">{emojiWithSkinTone(entry, skinTones)}</span>
                     <span className="text-fg">:{shortcode}:</span>
                     <span className="ml-auto truncate text-xs text-fg-faint">{entry.label}</span>
                 </li>

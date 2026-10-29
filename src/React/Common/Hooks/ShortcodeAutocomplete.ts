@@ -16,7 +16,7 @@ import { useEmojiSettings } from '@/React/Context/Emoji/EmojiSettingsContext';
 export type TextEdit = { text: string; caret: number };
 
 export function useShortcodeAutocomplete(applyEdit: (edit: TextEdit) => void) {
-    const { skinTone, recent, recordUsage } = useEmojiSettings();
+    const { skinTones, recent, recordUsage } = useEmojiSettings();
     const [entries, setEntries] = useState<ShortcodeEntry[] | null>(null);
     const [query, setQuery] = useState<ShortcodeQuery | null>(null);
     const [dismissedStart, setDismissedStart] = useState<number | null>(null);
@@ -48,7 +48,7 @@ export function useShortcodeAutocomplete(applyEdit: (edit: TextEdit) => void) {
     };
 
     const insert = (text: string, start: number, end: number, entry: ShortcodeEntry) => {
-        const emoji = emojiWithSkinTone(entry, skinTone);
+        const emoji = emojiWithSkinTone(entry, skinTones);
         recordUsage(emoji);
         setQuery(null);
         applyEdit(replaceRange(text, start, end, emoji));

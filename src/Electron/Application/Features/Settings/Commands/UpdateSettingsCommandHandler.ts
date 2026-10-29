@@ -3,7 +3,7 @@ import { Result } from '#shared/Result/Result';
 import { ISettingsRegistry } from '#electron/Application/Contracts/Services/ISettingsRegistry';
 import { UpdateSettingsCommand } from '#shared/Settings/UpdateSettings';
 import { SettingsDocument } from '#shared/Settings/SettingsDocument';
-import { parseSettings } from '../SettingsDefaults.js';
+import { parseSettings } from '#electron/Application/Services/Settings/SettingsDefaults';
 
 export class UpdateSettingsCommandHandler implements Handler<UpdateSettingsCommand, SettingsDocument> {
     private readonly settingsRegistry: ISettingsRegistry;

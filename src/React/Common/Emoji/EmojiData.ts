@@ -1,22 +1,21 @@
 import type { EmojiData, EmojiDataResolver } from 'frimousse';
 import type { ShortcodeEntry } from './Shortcodes';
 
-// Emoji data is bundled rather than fetched: the app is served from file:// under a
-// strict CSP, and a messenger should not leak emoji usage to a CDN.
-
 const SKIN_TONES = ['light', 'medium-light', 'medium', 'medium-dark', 'dark'] as const;
 const COMPONENT_GROUP_KEY = 'component';
 const FLAG_SUBGROUP_KEYS = ['country-flag', 'subdivision-flag'];
-const EMOJI_FONT = "'Apple Color Emoji', 'Noto Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif";
+const EMOJI_FONT = "'Noto Color Emoji', sans-serif";
+
+export type EmojiSkins = NonNullable<EmojiData['emojis'][number]['skins']>;
 
 export type EmojiCatalog = {
     picker: EmojiData;
     shortcodes: ShortcodeEntry[];
+    skinVariants: Map<string, string[]>;
 };
 
 let cached: Promise<EmojiCatalog> | null = null;
 
-// Loaded once and shared by the picker and shortcode autocomplete, so both offer the same emoji.
 export function loadEmojiCatalog(): Promise<EmojiCatalog> {
     cached ??= buildEmojiCatalog().catch((error) => {
         cached = null;
@@ -32,6 +31,7 @@ async function buildEmojiCatalog(): Promise<EmojiCatalog> {
         import('emojibase-data/en/data.json'),
         import('emojibase-data/en/messages.json'),
         import('emojibase-data/en/shortcodes/emojibase.json'),
+        document.fonts.load(`16px ${EMOJI_FONT}`, '😀'),
     ]);
 
     const groups = messages.groups.filter((g) => g.key !== COMPONENT_GROUP_KEY);
@@ -75,21 +75,25 @@ async function buildEmojiCatalog(): Promise<EmojiCatalog> {
                 },
             ];
         }),
+        skinVariants: new Map(
+            supported.flatMap((e) => {
+                const skins = toSkins(e.skins);
+                if (!skins) return [];
+                const variants = [e.emoji, ...SKIN_TONES.flatMap((tone) => skins[tone] ?? [])];
+                return variants.map((variant) => [variant, variants] as const);
+            }),
+        ),
     };
 }
 
 type EmojibaseEmoji = Awaited<typeof import('emojibase-data/en/data.json')>['default'][number];
 
-function toSkins(skins: EmojibaseEmoji['skins']): EmojiData['emojis'][number]['skins'] {
-    // Mixed-tone variants (e.g. couples) carry an array tone; the picker only offers single tones.
+function toSkins(skins: EmojibaseEmoji['skins']): EmojiSkins | undefined {
     const single = skins?.filter((s) => typeof s.tone === 'number');
     if (!single?.length) return undefined;
-    return Object.fromEntries(single.map((s) => [SKIN_TONES[(s.tone as number) - 1], s.emoji])) as NonNullable<
-        EmojiData['emojis'][number]['skins']
-    >;
+    return Object.fromEntries(single.map((s) => [SKIN_TONES[(s.tone as number) - 1], s.emoji])) as EmojiSkins;
 }
 
-// Rendering depends on the OS emoji font, so hide emoji newer than it can draw instead of showing tofu.
 function detectSupportedVersion(emojis: EmojibaseEmoji[]): number {
     const sampleByVersion = new Map<number, string>();
     for (const e of emojis) if (!sampleByVersion.has(e.version)) sampleByVersion.set(e.version, e.emoji);
@@ -100,7 +104,6 @@ function detectSupportedVersion(emojis: EmojibaseEmoji[]): number {
 
 let context: CanvasRenderingContext2D | null | undefined;
 
-// A supported emoji is a single colour glyph: it ignores fillStyle and doesn't split into two glyphs.
 function canRender(emoji: string): boolean {
     context ??= document.createElement('canvas').getContext('2d', { willReadFrequently: true });
     if (!context) return true;

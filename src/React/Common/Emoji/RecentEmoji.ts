@@ -1,6 +1,5 @@
-export const MAX_RECENT_EMOJI = 24;
+export const MAX_RECENT_EMOJI = 27;
 
-// Most recent first; re-using an emoji moves it to the front instead of duplicating it.
 export function pushRecentEmoji(recent: readonly string[], emoji: string, max = MAX_RECENT_EMOJI): string[] {
     return [emoji, ...recent.filter((e) => e !== emoji)].slice(0, max);
 }

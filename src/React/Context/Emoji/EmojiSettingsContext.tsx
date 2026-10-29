@@ -1,10 +1,9 @@
 import React from 'react';
-import type { SkinTone } from 'frimousse';
 
 export interface EmojiSettingsContextType {
-    skinTone: SkinTone;
+    skinTones: Readonly<Record<string, string>>;
     recent: string[];
-    setSkinTone: (skinTone: SkinTone) => void;
+    setSkinTone: (emoji: string, variant: string) => void;
     recordUsage: (emoji: string) => void;
 }
 
