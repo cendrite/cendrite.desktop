@@ -4,7 +4,6 @@ import { loadEmojiCatalog, resolveEmojiData } from '@/React/Common/Emoji/EmojiDa
 import { useEmojiSettings } from '@/React/Context/Emoji/EmojiSettingsContext';
 import { SkinToneMenu } from './SkinToneMenu';
 
-const MAX_RECENT_SHOWN = 18;
 const LONG_PRESS_MS = 400;
 const MENU_WIDTH = 200;
 const MENU_HEIGHT = 40;
@@ -108,7 +107,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({ onEmojiSelect, classNa
     const [skinVariants, setSkinVariants] = useState<Map<string, string[]>>(new Map());
     const [skinToneMenu, setSkinToneMenu] = useState<SkinToneMenuState | null>(null);
     const rootRef = useRef<HTMLDivElement>(null);
-    const recentShown = search ? [] : recent.slice(0, MAX_RECENT_SHOWN);
+    const recentShown = search ? [] : recent;
 
     useEffect(() => {
         let cancelled = false;
