@@ -50,9 +50,12 @@ export const MessageBubble: React.FC<ChatBubbleProps> = ({ message, showStatus, 
     const handleToggleInfo = () => setShowInfo((prev) => !prev);
 
     const isJumbo = message.media.length === 0 && isJumboEmoji(message.text);
-    const bubbleClass = isJumbo
-        ? 'px-1 text-4xl leading-tight'
-        : `px-4 py-2 rounded-2xl text-sm ${isMine ? 'bg-accent text-fg-on-accent' : 'bg-bubble-in text-bubble-in-fg'}`;
+    const isBareGif = !message.text && message.media.length > 0 && message.media.every((m) => m.type === 'image/gif');
+    const bubbleClass = isBareGif
+        ? ''
+        : isJumbo
+          ? 'px-1 text-4xl leading-tight'
+          : `px-4 py-2 rounded-2xl text-sm ${isMine ? 'bg-accent text-fg-on-accent' : 'bg-bubble-in text-bubble-in-fg'}`;
 
     const statusIcon = isMine && showStatus ? determineStatusIcon(message.deliveryStatus) : null;
 
@@ -79,7 +82,7 @@ export const MessageBubble: React.FC<ChatBubbleProps> = ({ message, showStatus, 
                             break-words whitespace-pre-wrap cursor-pointer ${bubbleClass}
                         `}
                     >
-                        <MediaBox media={message.media} />
+                        <MediaBox media={message.media} bare={isBareGif} />
                         {message.text}
                     </div>
 

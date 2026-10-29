@@ -3,6 +3,7 @@ import { Media } from "@/React/Models/Media";
 
 interface MediaBoxProps {
     media: Media[];
+    bare?: boolean;
 }
 
 export const MediaItem: React.FC<{ media: Media; className?: string }> = ({ media, className }) => {
@@ -26,17 +27,20 @@ export const MediaItem: React.FC<{ media: Media; className?: string }> = ({ medi
     return null;
 };
 
-export const MediaBox: React.FC<MediaBoxProps> = ({ media }) => {
+export const MediaBox: React.FC<MediaBoxProps> = ({ media, bare = false }) => {
     return (
         // TODO: on click, open a modal to scroll through the images
         <div className="grid cursor-pointer">
             {media.map((m, i) => (
                 <div
                     key={m.id}
-                    className="rounded-lg overflow-hidden shadow"
+                    className={bare ? "rounded-2xl overflow-hidden" : "rounded-lg overflow-hidden shadow"}
                     style={{ gridArea: '1 / 1', transform: `translate(${i * 5}px, ${i * 5}px)`, zIndex: i }}
                 >
-                    <MediaItem media={m} className="max-h-60 rounded-lg" />
+                    <MediaItem
+                        media={m}
+                        className={bare ? "max-h-72 max-w-80 rounded-2xl" : "max-h-60 rounded-lg"}
+                    />
                 </div>
             ))}
         </div>
