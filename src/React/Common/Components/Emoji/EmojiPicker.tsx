@@ -1,10 +1,82 @@
-import React, { useState } from 'react';
-import { EmojiPicker as Picker, type EmojiPickerListComponents } from 'frimousse';
-import { resolveEmojiData } from '@/React/Common/Emoji/EmojiData';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { EmojiPicker as Picker, type EmojiPickerListComponents, type EmojiPickerListEmojiProps } from 'frimousse';
+import { loadEmojiCatalog, resolveEmojiData } from '@/React/Common/Emoji/EmojiData';
 import { useEmojiSettings } from '@/React/Context/Emoji/EmojiSettingsContext';
-import { SKIN_TONES } from '@/React/Context/Emoji/EmojiSettingsProvider';
+import { SkinToneMenu } from './SkinToneMenu';
 
 const MAX_RECENT_SHOWN = 18;
+const LONG_PRESS_MS = 400;
+const MENU_WIDTH = 200;
+const MENU_HEIGHT = 40;
+const MENU_GAP = 4;
+
+type SkinToneContextType = {
+    skinTones: Readonly<Record<string, string>>;
+    skinVariants: Map<string, string[]>;
+    // Returns whether a menu opened, i.e. whether the emoji has skin tone variants.
+    openSkinTones: (emoji: string, anchor: HTMLElement) => boolean;
+};
+
+const SkinToneContext = createContext<SkinToneContextType>({
+    skinTones: {},
+    skinVariants: new Map(),
+    openSkinTones: () => false,
+});
+
+const EmojiButton: React.FC<EmojiPickerListEmojiProps> = ({
+    emoji,
+    onClick,
+    onPointerDown,
+    onPointerLeave,
+    ...props
+}) => {
+    const { skinTones, skinVariants, openSkinTones } = useContext(SkinToneContext);
+    const timer = useRef<number>(undefined);
+    const longPressed = useRef(false);
+
+    const cancelPress = () => window.clearTimeout(timer.current);
+
+    useEffect(() => cancelPress, []);
+
+    return (
+        <button
+            className="relative flex size-8 items-center justify-center rounded-md text-xl data-[active]:bg-surface-hover"
+            {...props}
+            onClick={(e) => {
+                // The click that ends a long press must not also insert the emoji.
+                if (longPressed.current) {
+                    longPressed.current = false;
+                    return;
+                }
+                onClick?.(e);
+            }}
+            onContextMenu={(e) => {
+                e.preventDefault();
+                openSkinTones(emoji.emoji, e.currentTarget);
+            }}
+            onPointerDown={(e) => {
+                onPointerDown?.(e);
+                if (e.button !== 0) return;
+                const target = e.currentTarget;
+                longPressed.current = false;
+                cancelPress();
+                timer.current = window.setTimeout(() => {
+                    longPressed.current = openSkinTones(emoji.emoji, target);
+                }, LONG_PRESS_MS);
+            }}
+            onPointerUp={cancelPress}
+            onPointerLeave={(e) => {
+                cancelPress();
+                onPointerLeave?.(e);
+            }}
+        >
+            {skinTones[emoji.emoji] ?? emoji.emoji}
+            {skinVariants.has(emoji.emoji) && (
+                <span className="absolute right-0.5 bottom-0.5 size-0 border-b-4 border-l-4 border-b-fg-faint border-l-transparent" />
+            )}
+        </button>
+    );
+};
 
 const listComponents: Partial<EmojiPickerListComponents> = {
     CategoryHeader: ({ category, ...props }) => (
@@ -17,14 +89,12 @@ const listComponents: Partial<EmojiPickerListComponents> = {
             {children}
         </div>
     ),
-    Emoji: ({ emoji, ...props }) => (
-        <button
-            className="flex size-8 items-center justify-center rounded-md text-xl data-[active]:bg-surface-hover"
-            {...props}
-        >
-            {emoji.emoji}
-        </button>
-    ),
+    Emoji: EmojiButton,
+};
+
+type SkinToneMenuState = {
+    variants: string[];
+    position: { left: number; top: number };
 };
 
 export interface EmojiPickerProps {
@@ -33,19 +103,59 @@ export interface EmojiPickerProps {
 }
 
 export const EmojiPicker: React.FC<EmojiPickerProps> = ({ onEmojiSelect, className }) => {
-    const { skinTone, setSkinTone, recent } = useEmojiSettings();
+    const { skinTones, setSkinTone, recent } = useEmojiSettings();
     const [search, setSearch] = useState('');
+    const [skinVariants, setSkinVariants] = useState<Map<string, string[]>>(new Map());
+    const [skinToneMenu, setSkinToneMenu] = useState<SkinToneMenuState | null>(null);
+    const rootRef = useRef<HTMLDivElement>(null);
     const recentShown = search ? [] : recent.slice(0, MAX_RECENT_SHOWN);
 
-    const cycleSkinTone = () => setSkinTone(SKIN_TONES[(SKIN_TONES.indexOf(skinTone) + 1) % SKIN_TONES.length]);
+    useEffect(() => {
+        let cancelled = false;
+        loadEmojiCatalog()
+            .then((catalog) => !cancelled && setSkinVariants(catalog.skinVariants))
+            .catch((error) => console.error('Could not load emoji skin tones', error));
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
+    const openSkinTones = useCallback(
+        (emoji: string, anchor: HTMLElement) => {
+            const variants = skinVariants.get(emoji);
+            const root = rootRef.current;
+            if (!variants || !root) return false;
+
+            const rootRect = root.getBoundingClientRect();
+            const anchorRect = anchor.getBoundingClientRect();
+            const centre = anchorRect.left + anchorRect.width / 2 - rootRect.left;
+            const above = anchorRect.top - rootRect.top - MENU_HEIGHT - MENU_GAP;
+            setSkinToneMenu({
+                variants,
+                position: {
+                    left: Math.min(Math.max(centre - MENU_WIDTH / 2, MENU_GAP), rootRect.width - MENU_WIDTH - MENU_GAP),
+                    top: above >= 0 ? above : anchorRect.bottom - rootRect.top + MENU_GAP,
+                },
+            });
+            return true;
+        },
+        [skinVariants],
+    );
+
+    const closeSkinTones = useCallback(() => setSkinToneMenu(null), []);
+
+    const skinToneContext = useMemo(
+        () => ({ skinTones, skinVariants, openSkinTones }),
+        [skinTones, skinVariants, openSkinTones],
+    );
 
     return (
         <Picker.Root
-            className={`isolate flex h-[420px] w-fit flex-col bg-overlay ${className ?? ''}`}
+            ref={rootRef}
+            className={`relative isolate flex h-[420px] w-fit flex-col bg-overlay ${className ?? ''}`}
             columns={9}
-            skinTone={skinTone}
             resolveEmojiData={resolveEmojiData}
-            onEmojiSelect={({ emoji }) => onEmojiSelect(emoji)}
+            onEmojiSelect={({ emoji }) => onEmojiSelect(skinTones[emoji] ?? emoji)}
         >
             <Picker.Search
                 autoFocus
@@ -80,7 +190,9 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({ onEmojiSelect, classNa
                 <Picker.Empty className="absolute inset-0 flex items-center justify-center text-sm text-fg-faint">
                     No emoji found
                 </Picker.Empty>
-                <Picker.List className="select-none pb-1.5" components={listComponents} />
+                <SkinToneContext.Provider value={skinToneContext}>
+                    <Picker.List className="select-none pb-1.5" components={listComponents} />
+                </SkinToneContext.Provider>
             </Picker.Viewport>
             <div className="flex h-10 w-full min-w-0 max-w-[--frimousse-viewport-width] flex-none items-center gap-1 border-t border-line px-2">
                 <Picker.ActiveEmoji>
@@ -88,7 +200,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({ onEmojiSelect, classNa
                         emoji ? (
                             <>
                                 <span className="flex size-7 flex-none items-center justify-center text-lg">
-                                    {emoji.emoji}
+                                    {skinTones[emoji.emoji] ?? emoji.emoji}
                                 </span>
                                 <span className="truncate text-xs text-fg-muted">{emoji.label}</span>
                             </>
@@ -97,20 +209,19 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({ onEmojiSelect, classNa
                         )
                     }
                 </Picker.ActiveEmoji>
-                <Picker.SkinTone>
-                    {({ skinToneVariations }) => (
-                        <button
-                            type="button"
-                            onClick={cycleSkinTone}
-                            aria-label="Change skin tone"
-                            title="Change skin tone"
-                            className="ml-auto flex size-7 flex-none items-center justify-center rounded-md text-lg hover:bg-surface-hover"
-                        >
-                            {skinToneVariations.find((v) => v.skinTone === skinTone)?.emoji}
-                        </button>
-                    )}
-                </Picker.SkinTone>
             </div>
+            {skinToneMenu && (
+                <SkinToneMenu
+                    variants={skinToneMenu.variants}
+                    position={skinToneMenu.position}
+                    onSelect={(emoji) => {
+                        setSkinTone(skinToneMenu.variants[0], emoji);
+                        closeSkinTones();
+                        onEmojiSelect(emoji);
+                    }}
+                    onClose={closeSkinTones}
+                />
+            )}
         </Picker.Root>
     );
 };

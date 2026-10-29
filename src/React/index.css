@@ -2,6 +2,14 @@
 @import '@fontsource/inter/500.css';
 @import '@fontsource/inter/600.css';
 
+@font-face {
+    font-family: 'Noto Color Emoji';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('./Assets/Fonts/NotoColorEmoji-COLRv1.woff2') format('woff2');
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

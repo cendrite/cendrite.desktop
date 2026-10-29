@@ -43,8 +43,8 @@ export function replaceRange(text: string, start: number, end: number, insert: s
     return { text: text.slice(0, start) + insert + text.slice(end), caret: start + insert.length };
 }
 
-export function emojiWithSkinTone(entry: ShortcodeEntry, skinTone: SkinTone): string {
-    return (skinTone !== 'none' && entry.skins?.[skinTone]) || entry.emoji;
+export function emojiWithSkinTone(entry: ShortcodeEntry, skinTones: Readonly<Record<string, string>>): string {
+    return skinTones[entry.emoji] ?? entry.emoji;
 }
 
 export function findExactShortcode(entries: readonly ShortcodeEntry[], code: string): ShortcodeEntry | undefined {

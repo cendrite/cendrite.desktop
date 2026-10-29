@@ -51,7 +51,7 @@ export const theme = {
 
     },
     fontFamily: {
-      sans: ['Inter', 'sans-serif'],
+      sans: ['Inter', 'Noto Color Emoji', 'sans-serif'],
     }
   },
 };

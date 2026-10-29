@@ -38,7 +38,7 @@ export const ChatBar: React.FC<ChatBarProps> = ({ chat }) => {
     const [media, setMedia] = useState<Media[]>([]);
     const [message, setMessage] = useState<string>('');
     const textareaRef = useRef<HTMLTextAreaElement>(null);
-    const { skinTone, recordUsage } = useEmojiSettings();
+    const { skinTones, recordUsage } = useEmojiSettings();
 
     const applyEdit = ({ text, caret }: TextEdit) => {
         setMessage(text);
@@ -90,7 +90,7 @@ export const ChatBar: React.FC<ChatBarProps> = ({ chat }) => {
                     <ShortcodeSuggestions
                         matches={autocomplete.matches}
                         activeIndex={autocomplete.activeIndex}
-                        skinTone={skinTone}
+                        skinTones={skinTones}
                         onHover={autocomplete.setActiveIndex}
                         onSelect={(index) => autocomplete.accept(message, index)}
                     />

@@ -1,9 +1,9 @@
 export type EmojiSettings = {
-    skinTone: string;
+    skinTones: Record<string, string>;
     recent: string[];
 };
 
 export const defaultEmojiSettings: EmojiSettings = {
-    skinTone: 'none',
+    skinTones: {},
     recent: [],
 };

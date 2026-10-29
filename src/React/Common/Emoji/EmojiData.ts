@@ -7,11 +7,15 @@ import type { ShortcodeEntry } from './Shortcodes';
 const SKIN_TONES = ['light', 'medium-light', 'medium', 'medium-dark', 'dark'] as const;
 const COMPONENT_GROUP_KEY = 'component';
 const FLAG_SUBGROUP_KEYS = ['country-flag', 'subdivision-flag'];
-const EMOJI_FONT = "'Apple Color Emoji', 'Noto Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif";
+const EMOJI_FONT = "'Noto Color Emoji', sans-serif";
+
+export type EmojiSkins = NonNullable<EmojiData['emojis'][number]['skins']>;
 
 export type EmojiCatalog = {
     picker: EmojiData;
     shortcodes: ShortcodeEntry[];
+    // Every variant maps to the same list, base emoji first, so a lookup works for any tone.
+    skinVariants: Map<string, string[]>;
 };
 
 let cached: Promise<EmojiCatalog> | null = null;
@@ -32,6 +36,8 @@ async function buildEmojiCatalog(): Promise<EmojiCatalog> {
         import('emojibase-data/en/data.json'),
         import('emojibase-data/en/messages.json'),
         import('emojibase-data/en/shortcodes/emojibase.json'),
+        // The bundled font loads lazily; support detection below would fail against the fallback font.
+        document.fonts.load(`16px ${EMOJI_FONT}`, '😀'),
     ]);
 
     const groups = messages.groups.filter((g) => g.key !== COMPONENT_GROUP_KEY);
@@ -75,18 +81,24 @@ async function buildEmojiCatalog(): Promise<EmojiCatalog> {
                 },
             ];
         }),
+        skinVariants: new Map(
+            supported.flatMap((e) => {
+                const skins = toSkins(e.skins);
+                if (!skins) return [];
+                const variants = [e.emoji, ...SKIN_TONES.flatMap((tone) => skins[tone] ?? [])];
+                return variants.map((variant) => [variant, variants] as const);
+            }),
+        ),
     };
 }
 
 type EmojibaseEmoji = Awaited<typeof import('emojibase-data/en/data.json')>['default'][number];
 
-function toSkins(skins: EmojibaseEmoji['skins']): EmojiData['emojis'][number]['skins'] {
+function toSkins(skins: EmojibaseEmoji['skins']): EmojiSkins | undefined {
     // Mixed-tone variants (e.g. couples) carry an array tone; the picker only offers single tones.
     const single = skins?.filter((s) => typeof s.tone === 'number');
     if (!single?.length) return undefined;
-    return Object.fromEntries(single.map((s) => [SKIN_TONES[(s.tone as number) - 1], s.emoji])) as NonNullable<
-        EmojiData['emojis'][number]['skins']
-    >;
+    return Object.fromEntries(single.map((s) => [SKIN_TONES[(s.tone as number) - 1], s.emoji])) as EmojiSkins;
 }
 
 // Rendering depends on the OS emoji font, so hide emoji newer than it can draw instead of showing tofu.
