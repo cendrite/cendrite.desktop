@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { parseSettings } from '../../../../../../src/Electron/Application/Features/Settings/SettingsDefaults.js';
+import { parseSettings } from '../../../../../../src/Electron/Application/Services/Settings/SettingsDefaults.js';
 
 describe('emoji settings', () => {
     test('default to no skin tone and no recent emoji', () => {

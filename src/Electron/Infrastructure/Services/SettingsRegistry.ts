@@ -1,7 +1,7 @@
 import { ISettingsRegistry } from '#electron/Application/Contracts/Services/ISettingsRegistry';
 import { ISettingsRepository } from '#electron/Application/Contracts/Repositories/ISettingsRepository';
 import { SettingsSection } from '#shared/Enums/SettingsSection';
-import { settingsScopes } from '#electron/Application/Features/Settings/SettingsScope';
+import { settingsScopes } from '#electron/Application/Services/Settings/SettingsScope';
 import { AppearanceSettingsRepository } from '../Persistence/Repositories/AppearanceSettingsRepository.js';
 import { EmojiSettingsRepository } from '../Persistence/Repositories/EmojiSettingsRepository.js';
 
