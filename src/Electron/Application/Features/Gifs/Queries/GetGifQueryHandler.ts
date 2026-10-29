@@ -7,8 +7,6 @@ import { IMetaDataStripper } from '#electron/Application/Contracts/Services/IMet
 import { GetGifQuery } from '#shared/Gifs/GetGif';
 import { MediaContract } from '#shared/Models/MediaContract';
 
-// Looked up by id again rather than trusting a URL from the renderer, then re-sent as ordinary encrypted
-// media so the recipient never contacts GIPHY.
 export class GetGifQueryHandler implements Handler<GetGifQuery, MediaContract> {
     constructor(
         private readonly gifProvider: IGifProvider,

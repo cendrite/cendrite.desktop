@@ -3,7 +3,6 @@ import { Handler } from '#electron/Application/Mediator/Handler';
 import { IGifProvider } from '#electron/Application/Contracts/Providers/IGifProvider';
 import { GIF_PAGE_SIZE, GifPage, GifPreview, SearchGifsQuery } from '#shared/Gifs/SearchGifs';
 
-// Previews are fetched here rather than by the renderer, so the page's CSP stays closed to third-party hosts.
 export class SearchGifsQueryHandler implements Handler<SearchGifsQuery, GifPage> {
     constructor(private readonly gifProvider: IGifProvider) {}
 
