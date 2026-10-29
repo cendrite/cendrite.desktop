@@ -33,7 +33,7 @@ export const SkinToneMenu: React.FC<SkinToneMenuProps> = ({ variants, position, 
             ref={ref}
             role="menu"
             style={position}
-            className="absolute z-20 flex rounded-lg bg-overlay p-1 shadow-lg ring-1 ring-line"
+            className="absolute z-20 flex rounded-lg bg-surface p-1 shadow-lg ring-1 ring-line-strong"
         >
             {variants.map((variant) => (
                 <button

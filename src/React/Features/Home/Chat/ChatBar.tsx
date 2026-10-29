@@ -80,7 +80,7 @@ export const ChatBar: React.FC<ChatBarProps> = ({ chat }) => {
                     </PopoverButton>
                     <PopoverPanel
                         anchor={{ to: 'top start', gap: 8 }}
-                        className="z-[1100] rounded-xl bg-overlay shadow-lg ring-1 ring-line overflow-hidden"
+                        className="z-[1100] rounded-xl bg-surface shadow-lg ring-1 ring-line-strong overflow-hidden"
                     >
                         <EmojiPicker onEmojiSelect={insertEmoji} />
                     </PopoverPanel>

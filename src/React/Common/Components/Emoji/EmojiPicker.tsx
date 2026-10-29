@@ -80,7 +80,7 @@ const EmojiButton: React.FC<EmojiPickerListEmojiProps> = ({
 
 const listComponents: Partial<EmojiPickerListComponents> = {
     CategoryHeader: ({ category, ...props }) => (
-        <div className="bg-overlay px-3 pt-3 pb-1.5 text-xs font-medium text-fg-subtle" {...props}>
+        <div className="bg-surface px-3 pt-3 pb-1.5 text-xs font-medium text-fg-subtle" {...props}>
             {category.label}
         </div>
     ),
@@ -152,7 +152,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({ onEmojiSelect, classNa
     return (
         <Picker.Root
             ref={rootRef}
-            className={`relative isolate flex h-[420px] w-fit flex-col bg-overlay ${className ?? ''}`}
+            className={`relative isolate flex h-[420px] w-fit flex-col bg-surface ${className ?? ''}`}
             columns={9}
             resolveEmojiData={resolveEmojiData}
             onEmojiSelect={({ emoji }) => onEmojiSelect(skinTones[emoji] ?? emoji)}
