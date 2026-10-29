@@ -30,6 +30,11 @@ export const API_URLS = {
     MEDIA: {
         BASE: 'https://chatserver.xhykl49jkg.org/api/media',
     },
+    GIPHY: {
+        // GIPHY's terms require these calls to come straight from the client, so they are never proxied.
+        GIFS: 'https://api.giphy.com/v1/gifs',
+        MEDIA_HOST_SUFFIX: '.giphy.com',
+    },
     PRIVACY_PASS: {
         ISSUER_DIRECTORY: 'https://conduit.xhykl49jkg.org/.well-known/private-token-issuer-directory',
     },

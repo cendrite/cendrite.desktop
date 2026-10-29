@@ -1,5 +1,5 @@
 ﻿import React, { useRef, useState } from 'react';
-import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
+import { Popover, PopoverButton, PopoverPanel, Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react';
 import TextareaAutosize from 'react-textarea-autosize';
 import { MediaType } from '@/Shared/Files/GetMedia.ts';
 import { ChatViewModel } from '@/React/Models/ChatViewModel';
@@ -7,6 +7,7 @@ import { Media } from '@/React/Models/Media';
 import { useMessageService } from '@/React/Common/Hooks/MessageService';
 import { MediaService } from '@/React/Common/Services/MediaService';
 import { EmojiPicker } from '@/React/Common/Components/Emoji/EmojiPicker';
+import { GifPicker } from '@/React/Common/Components/Gifs/GifPicker';
 import { ShortcodeSuggestions } from '@/React/Common/Components/Emoji/ShortcodeSuggestions';
 import { type TextEdit, useShortcodeAutocomplete } from '@/React/Common/Hooks/ShortcodeAutocomplete';
 import { useEmojiSettings } from '@/React/Context/Emoji/EmojiSettingsContext';
@@ -56,6 +57,13 @@ export const ChatBar: React.FC<ChatBarProps> = ({ chat }) => {
         applyEdit({ text: message.slice(0, start) + emoji + message.slice(end), caret: start + emoji.length });
     };
 
+    const sendGif = async (id: string): Promise<boolean> => {
+        const gif = await mediaService.getGif(id);
+        if (!gif) return false;
+        await sendMessage(chat, null, [gif]);
+        return true;
+    };
+
     const handleImpageUpload = async () => {
         const selected = await mediaService.getLocalMedia(MediaType.All);
         setMedia((prev) => [...prev, ...selected]);
@@ -82,7 +90,36 @@ export const ChatBar: React.FC<ChatBarProps> = ({ chat }) => {
                         anchor={{ to: 'top start', gap: 8 }}
                         className="z-[1100] rounded-xl bg-overlay shadow-lg ring-1 ring-line overflow-hidden"
                     >
-                        <EmojiPicker onEmojiSelect={insertEmoji} />
+                        {({ close }) => (
+                            <TabGroup>
+                                <TabList className="flex gap-1 border-b border-line px-2 pt-2">
+                                    {['Emoji', 'GIFs'].map((label) => (
+                                        <Tab
+                                            key={label}
+                                            className="rounded-t-md px-3 py-1.5 text-sm text-fg-subtle focus:outline-none
+                                                data-[hover]:text-fg-muted data-[selected]:bg-surface-hover data-[selected]:text-fg"
+                                        >
+                                            {label}
+                                        </Tab>
+                                    ))}
+                                </TabList>
+                                {/* Panels unmount when hidden, so GIPHY is only contacted once the GIF tab is opened. */}
+                                <TabPanels>
+                                    <TabPanel>
+                                        <EmojiPicker onEmojiSelect={insertEmoji} />
+                                    </TabPanel>
+                                    <TabPanel>
+                                        <GifPicker
+                                            onGifSelect={async (gif) => {
+                                                const sent = await sendGif(gif.id);
+                                                if (sent) close();
+                                                return sent;
+                                            }}
+                                        />
+                                    </TabPanel>
+                                </TabPanels>
+                            </TabGroup>
+                        )}
                     </PopoverPanel>
                 </Popover>
 
