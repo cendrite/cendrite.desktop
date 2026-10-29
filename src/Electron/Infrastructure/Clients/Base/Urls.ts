@@ -30,6 +30,10 @@ export const API_URLS = {
     MEDIA: {
         BASE: 'https://chatserver.xhykl49jkg.org/api/media',
     },
+    KLIPY: {
+        BASE: 'https://api.klipy.com/api/v1',
+        MEDIA_HOST_SUFFIXES: ['.klipy.com', '.klipy.co'],
+    },
     PRIVACY_PASS: {
         ISSUER_DIRECTORY: 'https://conduit.xhykl49jkg.org/.well-known/private-token-issuer-directory',
     },

@@ -34,6 +34,8 @@ import { DeliveryStatusUpdatedCommandHandler } from './Features/Chat/Commands/De
 import { UpdateDeliveryStatusCommandHandler } from './Features/Chat/Events/UpdateDeliveryStatusEventHandler.js';
 import { MessageSentCommandHandler } from './Features/Chat/Events/MessageSentEventHandler.js';
 import { ResendMessageCommandHandler } from './Features/Chat/Commands/ResendMessageCommandHandler.js';
+import { SearchGifsQueryHandler } from './Features/Gifs/Queries/SearchGifsQueryHandler.js';
+import { GetGifQueryHandler } from './Features/Gifs/Queries/GetGifQueryHandler.js';
 import { GetSettingsQueryHandler } from './Features/Settings/Queries/GetSettingsQueryHandler.js';
 import { UpdateSettingsCommandHandler } from './Features/Settings/Commands/UpdateSettingsCommandHandler.js';
 import { GroupService } from './Services/GroupService.js';
@@ -78,6 +80,11 @@ const mediaHandlers = {
     getMediaQueryHandler: asClass(GetMediaQueryHandler, { lifetime: Lifetime.SINGLETON }),
 };
 
+const gifHandlers = {
+    searchGifsQueryHandler: asClass(SearchGifsQueryHandler, { lifetime: Lifetime.SINGLETON }),
+    getGifQueryHandler: asClass(GetGifQueryHandler, { lifetime: Lifetime.SINGLETON }),
+};
+
 const friendHandlers = {
     sendFriendRequestCommandHandler: asClass(SendFriendRequestCommandHandler, { lifetime: Lifetime.SINGLETON }),
     declineFriendRequestCommandHandler: asClass(DeclineFriendRequestCommandHandler, { lifetime: Lifetime.SINGLETON }),
@@ -109,6 +116,7 @@ export const applicationResolvers = {
     ...authenticationHandlers,
     ...chatHandlers,
     ...mediaHandlers,
+    ...gifHandlers,
     ...settingsHandlers,
     ...deviceHandlers,
 };

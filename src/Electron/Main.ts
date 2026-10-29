@@ -15,6 +15,10 @@ import { AppearanceSettings } from '../Shared/Settings/AppearanceSettings.js';
 import { ResolvedTheme, Theme, WINDOW_BACKGROUND } from '../Shared/Theme.js';
 import { CryptographyService } from './Infrastructure/Persistence/Encryption/CryptographyService.js';
 
+if (!app.isPackaged && fs.existsSync('.env.local')) {
+    process.loadEnvFile('.env.local');
+}
+
 if (process.env.ELECTRON_INSTANCE_ID) {
     console.log(`ELECTRON_INSTANCE_ID: ${process.env.ELECTRON_INSTANCE_ID}`);
     const defaultUserData = app.getPath('userData');

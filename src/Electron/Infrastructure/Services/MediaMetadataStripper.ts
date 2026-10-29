@@ -5,6 +5,14 @@ export class MetaDataStripper implements IMetaDataStripper {
     private static readonly JpegQuality = 90;
     private static readonly OrientationTag = 0x0112;
 
+    private static readonly GifExtension = 0x21;
+    private static readonly GifImage = 0x2c;
+    private static readonly GifTrailer = 0x3b;
+    private static readonly GifGraphicControl = 0xf9;
+    private static readonly GifApplication = 0xff;
+    // Only the looping extensions affect playback; every other application block (XMP, editor data) is metadata.
+    private static readonly GifLoopApplications = ['NETSCAPE2.0', 'ANIMEXTS1.0'];
+
     public strip(content: Buffer, mimeType: string): Buffer {
         if (mimeType === 'image/jpeg') {
             const image = this.decode(content);
@@ -15,7 +23,85 @@ export class MetaDataStripper implements IMetaDataStripper {
             return this.decode(content).toPNG();
         }
 
+        // Re-encoding through nativeImage would keep only the first frame, so GIFs are filtered block by block.
+        if (mimeType === 'image/gif') {
+            return this.stripGif(content);
+        }
+
         return content;
+    }
+
+    // Keeps the frames and their timing/looping; drops comments, plain-text and non-loop application
+    // blocks, and anything appended after the trailer. Truncated blocks are rejected.
+    private stripGif(gif: Buffer): Buffer {
+        const signature = gif.toString('latin1', 0, 6);
+        if (signature !== 'GIF87a' && signature !== 'GIF89a') {
+            throw new Error('Failed to decode image');
+        }
+
+        const kept: Buffer[] = [];
+        const take = (start: number, end: number) => {
+            if (end > gif.length) throw new Error('Failed to decode image');
+            kept.push(gif.subarray(start, end));
+            return end;
+        };
+
+        let offset = take(0, 13);
+        offset = take(offset, offset + this.gifColorTableSize(gif[10]));
+
+        while (offset < gif.length) {
+            const introducer = gif[offset];
+
+            if (introducer === MetaDataStripper.GifTrailer) {
+                take(offset, offset + 1);
+                return Buffer.concat(kept);
+            }
+
+            if (introducer === MetaDataStripper.GifImage) {
+                const descriptorEnd = offset + 10;
+                if (descriptorEnd > gif.length) break;
+                const tableEnd = descriptorEnd + this.gifColorTableSize(gif[offset + 9]);
+                // +1 for the LZW minimum code size byte that precedes the data sub-blocks.
+                offset = take(offset, this.skipGifSubBlocks(gif, tableEnd + 1));
+                continue;
+            }
+
+            if (introducer === MetaDataStripper.GifExtension) {
+                const end = this.skipGifSubBlocks(gif, offset + 2);
+                if (this.keepGifExtension(gif, offset)) take(offset, end);
+                offset = end;
+                continue;
+            }
+
+            break;
+        }
+
+        // Missing trailer or an unknown block: end the stream there, as decoders do, discarding the rest.
+        kept.push(Buffer.of(MetaDataStripper.GifTrailer));
+        return Buffer.concat(kept);
+    }
+
+    private keepGifExtension(gif: Buffer, offset: number): boolean {
+        const label = gif[offset + 1];
+        if (label === MetaDataStripper.GifGraphicControl) return true;
+        if (label !== MetaDataStripper.GifApplication || gif[offset + 2] !== 11) return false;
+
+        const identifier = gif.toString('latin1', offset + 3, offset + 14);
+        return MetaDataStripper.GifLoopApplications.includes(identifier);
+    }
+
+    private gifColorTableSize(packed: number): number {
+        return packed & 0x80 ? 3 * 2 ** ((packed & 0x07) + 1) : 0;
+    }
+
+    // Returns the offset just past the zero-length block that terminates a run of sub-blocks.
+    private skipGifSubBlocks(gif: Buffer, offset: number): number {
+        while (offset < gif.length) {
+            const size = gif[offset];
+            offset += 1 + size;
+            if (size === 0) return offset;
+        }
+        throw new Error('Failed to decode image');
     }
 
     private decode(content: Buffer): NativeImage {

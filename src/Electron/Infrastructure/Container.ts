@@ -48,6 +48,8 @@ import { BlindTokenService } from './Services/BlindTokenService.js';
 import { PinnedTokenIssuerKey } from './Services/PinnedTokenIssuerKey.js';
 import { FetchedTokenIssuerKey } from './Services/FetchedTokenIssuerKey.js';
 import { TOKEN_ISSUER_PUBLIC_KEY } from './Clients/Base/TokenIssuer.js';
+import { KLIPY_API_KEY } from './Clients/Base/KlipyKey.js';
+import { KlipyClient } from './Clients/KlipyClient.js';
 
 const services = {
     tokenManager: asClass(TokenManager, { lifetime: Lifetime.SINGLETON }),
@@ -107,6 +109,9 @@ const providers = {
     mediaProvider: asClass(MediaProvider, { lifetime: Lifetime.SINGLETON }),
     userProvider: asClass(UserClient, { lifetime: Lifetime.SINGLETON }),
     friendProvider: asClass(FriendClient, { lifetime: Lifetime.SINGLETON }),
+    gifProvider: asFunction(
+        () => new KlipyClient(app.isPackaged ? KLIPY_API_KEY : (process.env.KLIPY_API_KEY ?? '')),
+    ).singleton(),
 };
 
 const jobs = {
