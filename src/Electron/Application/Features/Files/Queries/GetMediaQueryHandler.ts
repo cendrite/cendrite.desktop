@@ -50,8 +50,8 @@ export class GetMediaQueryHandler implements Handler<GetMediaQuery, MediaContrac
 
     private SelectExtension(mediaType: MediaType): string[] {
         return mediaType === MediaType.Image
-            ? ['png', 'jpg', 'jpeg']
-            : ['png', 'jpg', 'jpeg', 'mp4', 'webm', 'ogg', 'wav', 'mp3', 'flac'];
+            ? ['png', 'jpg', 'jpeg', 'gif']
+            : ['png', 'jpg', 'jpeg', 'gif', 'mp4', 'webm', 'ogg', 'wav', 'mp3', 'flac'];
     }
 
     private MimeForExtension(extension: string): string {
@@ -59,6 +59,7 @@ export class GetMediaQueryHandler implements Handler<GetMediaQuery, MediaContrac
             png: 'image/png',
             jpg: 'image/jpeg',
             jpeg: 'image/jpeg',
+            gif: 'image/gif',
             mp4: 'video/mp4',
             webm: 'video/webm',
             ogg: 'audio/ogg',
