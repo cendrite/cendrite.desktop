@@ -50,12 +50,9 @@ export const MessageBubble: React.FC<ChatBubbleProps> = ({ message, showStatus, 
     const handleToggleInfo = () => setShowInfo((prev) => !prev);
 
     const isJumbo = message.media.length === 0 && isJumboEmoji(message.text);
-    const isBareGif = !message.text && message.media.length > 0 && message.media.every((m) => m.type === 'image/gif');
-    const bubbleClass = isBareGif
-        ? ''
-        : isJumbo
-          ? 'px-1 text-4xl leading-tight'
-          : `px-4 py-2 rounded-2xl text-sm ${isMine ? 'bg-accent text-fg-on-accent' : 'bg-bubble-in text-bubble-in-fg'}`;
+    const bubbleClass = isJumbo
+        ? 'px-1 text-4xl leading-tight'
+        : `px-4 py-2 rounded-2xl text-sm ${isMine ? 'bg-accent text-fg-on-accent' : 'bg-bubble-in text-bubble-in-fg'}`;
 
     const statusIcon = isMine && showStatus ? determineStatusIcon(message.deliveryStatus) : null;
 
@@ -78,12 +75,13 @@ export const MessageBubble: React.FC<ChatBubbleProps> = ({ message, showStatus, 
                             setMenuOpen(true);
                         }}
                         onClick={handleToggleInfo}
-                        className={`
-                            break-words whitespace-pre-wrap cursor-pointer ${bubbleClass}
-                        `}
+                        className={`flex flex-col gap-1 cursor-pointer ${isMine ? 'items-end' : 'items-start'}`}
                     >
-                        <MediaBox media={message.media} bare={isBareGif} />
-                        {message.text}
+                        {/* Media sits outside the bubble even when the same message also carries text. */}
+                        <MediaBox media={message.media} />
+                        {message.text && (
+                            <div className={`break-words whitespace-pre-wrap ${bubbleClass}`}>{message.text}</div>
+                        )}
                     </div>
 
                     <MessageSettingsMenu
