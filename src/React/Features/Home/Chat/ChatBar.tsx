@@ -1,10 +1,12 @@
-﻿import React, { useState } from 'react';
+﻿import React, { useRef, useState } from 'react';
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import TextareaAutosize from 'react-textarea-autosize';
 import { MediaType } from '@/Shared/Files/GetMedia.ts';
 import { ChatViewModel } from '@/React/Models/ChatViewModel';
 import { Media } from '@/React/Models/Media';
 import { useMessageService } from '@/React/Common/Hooks/MessageService';
 import { MediaService } from '@/React/Common/Services/MediaService';
+import { EmojiPicker } from '@/React/Common/Components/Emoji/EmojiPicker';
 import { MediaItem } from './MediaBox';
 import { MicrophoneIcon, PaperclipIcon, SmileyIcon, XIcon } from '@phosphor-icons/react';
 
@@ -32,6 +34,20 @@ export const ChatBar: React.FC<ChatBarProps> = ({ chat }) => {
     const [placeholderText, setPlaceholderText] = useState('message');
     const [media, setMedia] = useState<Media[]>([]);
     const [message, setMessage] = useState<string>('');
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    // The textarea keeps its selection while the picker has focus, so emoji land at the caret.
+    const insertEmoji = (emoji: string) => {
+        const textarea = textareaRef.current;
+        const start = textarea?.selectionStart ?? message.length;
+        const end = textarea?.selectionEnd ?? message.length;
+        setMessage((prev) => prev.slice(0, start) + emoji + prev.slice(end));
+
+        requestAnimationFrame(() => {
+            const caret = start + emoji.length;
+            textareaRef.current?.setSelectionRange(caret, caret);
+        });
+    };
 
     const handleImpageUpload = async () => {
         const selected = await mediaService.getLocalMedia(MediaType.All);
@@ -48,9 +64,20 @@ export const ChatBar: React.FC<ChatBarProps> = ({ chat }) => {
     return (
         <div className="bg-canvas p-3">
             <div className="flex items-center space-x-2">
-                <button className="p-2 rounded-md hover:bg-surface-hover">
-                    <SmileyIcon className="h-5 w-5 text-fg-muted" />
-                </button>
+                <Popover>
+                    <PopoverButton
+                        className="p-2 rounded-md hover:bg-surface-hover focus:outline-none data-[open]:bg-surface-hover"
+                        aria-label="Emoji"
+                    >
+                        <SmileyIcon className="h-5 w-5 text-fg-muted" />
+                    </PopoverButton>
+                    <PopoverPanel
+                        anchor={{ to: 'top start', gap: 8 }}
+                        className="z-[1100] rounded-xl bg-overlay shadow-lg ring-1 ring-line overflow-hidden"
+                    >
+                        <EmojiPicker onEmojiSelect={insertEmoji} />
+                    </PopoverPanel>
+                </Popover>
 
                 <div className="flex-1 bg-field rounded-3xl px-3 py-2">
                     {media.length > 0 && (
@@ -65,6 +92,7 @@ export const ChatBar: React.FC<ChatBarProps> = ({ chat }) => {
                         </div>
                     )}
                     <TextareaAutosize
+                        ref={textareaRef}
                         className="w-full bg-transparent text-fg resize-none focus:outline-none"
                         minRows={1}
                         maxRows={5}
