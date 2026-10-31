@@ -4,7 +4,7 @@ import { readdir, rm, writeFile, mkdir } from 'fs/promises';
 import os from 'os';
 import path from 'path';
 
-const userData = mkdtempSync(path.join(os.tmpdir(), 'cypherly-media-'));
+const userData = mkdtempSync(path.join(os.tmpdir(), 'cendrite-media-'));
 
 vi.mock('electron', () => ({
     app: { getPath: () => userData },

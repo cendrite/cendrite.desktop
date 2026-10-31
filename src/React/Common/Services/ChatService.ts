@@ -200,7 +200,7 @@ export class ChatService {
 
     public async deriveChatId(a: string, b: string): Promise<string> {
         const [sh, lo] = [a, b].sort();
-        const input = `cypherly:dm:${sh}:${lo}`;
+        const input = `cendrite:dm:${sh}:${lo}`;
         return await sha256(input);
     }
 

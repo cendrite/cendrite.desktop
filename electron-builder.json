@@ -1,5 +1,6 @@
 {
-  "appId": "com.dev-cypherly",
+  "appId": "com.cendrite.app",
+  "productName": "Cendrite",
   "files": ["dist-electron", "dist-react", "node_modules/libsodium-wrappers"],
   "extraResources": ["dist-electron/Electron/Preload.cjs"],
   "asarUnpack": ["node_modules/@signalapp/libsignal-client/**"],

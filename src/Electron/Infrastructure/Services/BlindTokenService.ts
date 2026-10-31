@@ -2,7 +2,7 @@ import { publicVerif, TOKEN_TYPES, TokenChallenge } from '@cloudflare/privacypas
 import { IBlindTokenService, TokenIssuance } from '#electron/Application/Contracts/Services/IBlindTokenService';
 import { ITokenIssuerKeyProvider } from '#electron/Application/Contracts/Services/ITokenIssuerKeyProvider';
 
-export const BLIND_TOKEN_ISSUER = 'identity.cypherly';
+export const BLIND_TOKEN_ISSUER = 'identity.cendrite';
 
 class PendingTokenIssuance implements TokenIssuance {
     constructor(
