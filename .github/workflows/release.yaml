@@ -1,68 +1,105 @@
-﻿name: Release Electron App (no‑artifacts)
+﻿name: Release Electron App
 
 on:
   push:
-    branches: [master]
+    tags: ['v*']
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
 
 env:
   NODE_VERSION: 20
+  BUCKET: cendrite-releases
+  DOWNLOADS_URL: https://downloads.cendrite.com
+  AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+  AWS_DEFAULT_REGION: auto
+  # R2 rejects the checksum headers newer AWS CLIs add by default.
+  AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+  AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
 
 jobs:
-  release:
-    name: Build & Release(${{ matrix.os }})
+  build:
+    name: Build (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
 
     strategy:
+      fail-fast: true
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
         include:
-          # ——— Windows ———
           - os: windows-latest
-            build_cmd: npm run dist:win
-            asset_glob: |
-              dist/*.exe
-              dist/*.msi
-              dist/latest.yml
-          # ——— macOS ———
+            build_cmd: npm run dist:win -- --publish never
           - os: macos-latest
-            build_cmd: npm run dist:mac
-            asset_glob: |
-              dist/*.dmg
-              dist/*.blockmap
-              dist/latest-mac.yml
-          # ——— Linux ———
+            build_cmd: npm run dist:mac -- --publish never
           - os: ubuntu-latest
-            build_cmd: npm run dist:linux
-            asset_glob: |
-              dist/*.AppImage
-              dist/*.deb
-              dist/latest-linux.yml
+            build_cmd: npm run dist:linux -- --publish never
+
+    defaults:
+      run:
+        shell: bash
 
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
+      - name: Work out version and channel
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          if [[ "$version" == *-* ]]; then channel=dev; else channel=stable; fi
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+          echo "CHANNEL=$channel" >> "$GITHUB_ENV"
+
       - name: Install dependencies
         run: npm ci
 
-      - name: Build Electron app
+      - name: Set app version from tag
+        run: npm version "$VERSION" --no-git-tag-version --allow-same-version
+
+      - name: Build installers
+        env:
+          KLIPY_API_KEY: ${{ secrets.KLIPY_API_KEY }}
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
         run: ${{ matrix.build_cmd }}
 
-      - name: Create or update release
-        uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ github.run_number }}
-          name: "Release ${{ github.run_number }}"
-          draft: false
-          prerelease: false
-          update_release: true
-          files: ${{ matrix.asset_glob }}
+      - name: Upload to R2
+        run: |
+          aws s3 cp dist/ "s3://$BUCKET/$CHANNEL/$VERSION/" --recursive \
+            --exclude '*' \
+            --include '*.exe' --include '*.dmg' --include '*.AppImage' \
+            --include '*.blockmap' --include 'latest*.yml' \
+            --endpoint-url "${{ secrets.R2_ENDPOINT }}"
+
+  publish:
+    name: Publish latest.json
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Work out version and channel
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          if [[ "$version" == *-* ]]; then channel=dev; else channel=stable; fi
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+          echo "CHANNEL=$channel" >> "$GITHUB_ENV"
+
+      - name: Write and upload latest.json
+        run: |
+          aws s3 ls "s3://$BUCKET/$CHANNEL/$VERSION/" --endpoint-url "${{ secrets.R2_ENDPOINT }}" \
+            | awk '{ $1=$2=$3=""; sub(/^ +/, ""); print }' \
+            | grep -E '\.(exe|dmg|AppImage)$' > files.txt
+          test -s files.txt
+          jq -Rn --arg version "$VERSION" --arg base "$DOWNLOADS_URL/$CHANNEL/$VERSION" \
+            '{ version: $version, assets: [ inputs | { name: ., url: ($base + "/" + @uri "\(.)") } ] }' \
+            < files.txt > latest.json
+          cat latest.json
+          aws s3 cp latest.json "s3://$BUCKET/$CHANNEL/latest.json" \
+            --content-type application/json --cache-control 'no-cache' \
+            --endpoint-url "${{ secrets.R2_ENDPOINT }}"
