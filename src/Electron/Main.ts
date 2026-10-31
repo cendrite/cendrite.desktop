@@ -50,7 +50,7 @@ app.on('ready', async () => {
     try {
         await CryptographyService.getInstance().initializeEncryptionKey();
     } catch (err) {
-        dialog.showErrorBox('Cypherly cannot start', (err as Error).message);
+        dialog.showErrorBox('Cendrite cannot start', (err as Error).message);
         app.quit();
         return;
     }

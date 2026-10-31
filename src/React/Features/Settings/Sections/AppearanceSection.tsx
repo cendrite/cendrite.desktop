@@ -21,7 +21,7 @@ const AppearanceSection: React.FC = () => {
     return (
         <section>
             <h3 className="text-sm font-medium text-fg-muted">Theme</h3>
-            <p className="mt-1 text-sm text-fg-subtle">Choose how Cypherly looks on this device.</p>
+            <p className="mt-1 text-sm text-fg-subtle">Choose how Cendrite looks on this device.</p>
 
             <RadioGroup value={theme} onChange={setTheme} className="mt-4 grid grid-cols-3 gap-3">
                 {themeOptions.map((option) => (

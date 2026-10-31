@@ -44,7 +44,7 @@ export class CryptographyService {
 
         if (!hasProtectedStorage()) {
             throw new CryptoError(
-                "Your system's secure credential storage is unavailable, so Cypherly can't protect its encryption key. Make sure it is available and unlocked, then restart Cypherly.",
+                "Your system's secure credential storage is unavailable, so Cendrite can't protect its encryption key. Make sure it is available and unlocked, then restart Cendrite.",
                 'SECURE_STORAGE_UNAVAILABLE'
             );
         }

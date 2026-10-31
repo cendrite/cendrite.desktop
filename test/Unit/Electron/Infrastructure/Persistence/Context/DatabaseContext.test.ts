@@ -5,7 +5,7 @@ import path from 'path';
 import { getDbContext, initializeDatabase } from '../../../../../../src/Electron/Infrastructure/Persistence/Context/DatabaseContext.js';
 import { OutboxEvent } from '../../../../../../src/Electron/Infrastructure/Models/OutboxEvent.js';
 
-const dir = await mkdtemp(path.join(os.tmpdir(), 'cypherly-db-'));
+const dir = await mkdtemp(path.join(os.tmpdir(), 'cendrite-db-'));
 const dbPath = path.join(dir, 'msg.sqlite');
 
 afterAll(async () => {

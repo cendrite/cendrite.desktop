@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
 
 vi.mock('electron', () => ({
-    app: { getAppPath: () => '/opt/cypherly/resources/app.asar' },
+    app: { getAppPath: () => '/opt/cendrite/resources/app.asar' },
 }));
 
 const { getAppUrl, isAppUrl } = await import('../../../src/Electron/Utilities.js');
@@ -17,21 +17,21 @@ describe('isAppUrl in production', () => {
     test('loads the bundled index.html', () => {
         process.env.NODE_ENV = 'production';
 
-        expect(getAppUrl()).toBe('file:///opt/cypherly/resources/app.asar/dist-react/index.html');
+        expect(getAppUrl()).toBe('file:///opt/cendrite/resources/app.asar/dist-react/index.html');
     });
 
     test('accepts the bundled page, including its hash routes', () => {
         process.env.NODE_ENV = 'production';
 
-        expect(isAppUrl('file:///opt/cypherly/resources/app.asar/dist-react/index.html')).toBe(true);
-        expect(isAppUrl('file:///opt/cypherly/resources/app.asar/dist-react/index.html#/home')).toBe(true);
+        expect(isAppUrl('file:///opt/cendrite/resources/app.asar/dist-react/index.html')).toBe(true);
+        expect(isAppUrl('file:///opt/cendrite/resources/app.asar/dist-react/index.html#/home')).toBe(true);
     });
 
     test('rejects other local files and remote pages', () => {
         process.env.NODE_ENV = 'production';
 
         expect(isAppUrl('file:///etc/passwd')).toBe(false);
-        expect(isAppUrl('file:///opt/cypherly/resources/app.asar/dist-react/other.html')).toBe(false);
+        expect(isAppUrl('file:///opt/cendrite/resources/app.asar/dist-react/other.html')).toBe(false);
         expect(isAppUrl('https://evil.example/index.html')).toBe(false);
     });
 
