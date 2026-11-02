@@ -24,6 +24,7 @@ type KlipyPage = { result?: boolean; data?: { data?: KlipyGif[]; has_next?: bool
 
 const CONTENT_FILTER = 'medium';
 const REQUEST_TIMEOUT_MS = 10_000;
+const DOWNLOAD_TIMEOUT_MS = 30_000;
 const MAX_DOWNLOAD_BYTES = 8 * 1024 * 1024;
 
 // Speaks to KLIPY directly from the main process. No customer id is sent, so searches aren't tied to a user,
@@ -77,7 +78,7 @@ export class KlipyClient implements IGifProvider {
         }
 
         try {
-            const response = await this.fetchFn(url, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
+            const response = await this.fetchFn(url, { signal: AbortSignal.timeout(DOWNLOAD_TIMEOUT_MS) });
             if (!response.ok) {
                 return Result.fail(new ErrorMessage('GifDownloadFailed', `GIF download failed (${response.status})`));
             }
@@ -141,9 +142,9 @@ export class KlipyClient implements IGifProvider {
     private toResult(gif: KlipyGif): GifResult | null {
         if (gif.type === 'ad' || !gif.file) return null;
 
-        const previewFormats = gif.file.sm ?? gif.file.xs ?? gif.file.md;
+        const previewFormats = gif.file.xs ?? gif.file.sm ?? gif.file.md;
         const preview = this.rendition(previewFormats?.webp) ?? this.rendition(previewFormats?.gif);
-        const send = this.rendition((gif.file.md ?? gif.file.hd ?? gif.file.sm)?.gif);
+        const send = this.rendition((gif.file.sm ?? gif.file.md ?? gif.file.hd)?.gif);
         if (!preview || !send) return null;
 
         return {

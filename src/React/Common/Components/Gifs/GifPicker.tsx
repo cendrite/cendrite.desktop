@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { GifErrorCode, GifPreview } from '@/Shared/Gifs/SearchGifs';
+import { GetGifPreviewQuery } from '@/Shared/Gifs/GetGifPreview';
 import { useGifSearch } from '@/React/Common/Hooks/GifSearch';
 
 // Start loading the next page while there is still roughly a screen of GIFs left to scroll.
@@ -12,14 +13,31 @@ const GifTile: React.FC<{ gif: GifPreview; busy: boolean; disabled: boolean; onS
     onSelect,
 }) => {
     const [url, setUrl] = useState<string>();
+    const [failed, setFailed] = useState(false);
 
     useEffect(() => {
-        const objectUrl = URL.createObjectURL(
-            new Blob([gif.preview as Uint8Array<ArrayBuffer>], { type: gif.previewType }),
-        );
-        setUrl(objectUrl);
-        return () => URL.revokeObjectURL(objectUrl);
+        let objectUrl: string | undefined;
+        let cancelled = false;
+
+        void window.electron.sendRequestAsync(new GetGifPreviewQuery(gif.previewUrl)).then((result) => {
+            if (cancelled) return;
+            if (!result.success) {
+                setFailed(true);
+                return;
+            }
+            objectUrl = URL.createObjectURL(
+                new Blob([result.data as Uint8Array<ArrayBuffer>], { type: gif.previewType }),
+            );
+            setUrl(objectUrl);
+        });
+
+        return () => {
+            cancelled = true;
+            if (objectUrl) URL.revokeObjectURL(objectUrl);
+        };
     }, [gif]);
+
+    if (failed) return null;
 
     return (
         <button

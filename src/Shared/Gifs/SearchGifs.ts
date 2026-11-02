@@ -21,7 +21,7 @@ export interface GifPreview {
     width: number;
     height: number;
     previewType: string;
-    preview: Uint8Array;
+    previewUrl: string;
 }
 
 export interface GifPage {

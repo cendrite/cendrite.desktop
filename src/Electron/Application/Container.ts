@@ -36,6 +36,7 @@ import { MessageSentCommandHandler } from './Features/Chat/Events/MessageSentEve
 import { ResendMessageCommandHandler } from './Features/Chat/Commands/ResendMessageCommandHandler.js';
 import { SearchGifsQueryHandler } from './Features/Gifs/Queries/SearchGifsQueryHandler.js';
 import { GetGifQueryHandler } from './Features/Gifs/Queries/GetGifQueryHandler.js';
+import { GetGifPreviewQueryHandler } from './Features/Gifs/Queries/GetGifPreviewQueryHandler.js';
 import { GetSettingsQueryHandler } from './Features/Settings/Queries/GetSettingsQueryHandler.js';
 import { UpdateSettingsCommandHandler } from './Features/Settings/Commands/UpdateSettingsCommandHandler.js';
 import { GroupService } from './Services/GroupService.js';
@@ -83,6 +84,7 @@ const mediaHandlers = {
 const gifHandlers = {
     searchGifsQueryHandler: asClass(SearchGifsQueryHandler, { lifetime: Lifetime.SINGLETON }),
     getGifQueryHandler: asClass(GetGifQueryHandler, { lifetime: Lifetime.SINGLETON }),
+    getGifPreviewQueryHandler: asClass(GetGifPreviewQueryHandler, { lifetime: Lifetime.SINGLETON }),
 };
 
 const friendHandlers = {

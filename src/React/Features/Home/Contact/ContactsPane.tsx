@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import SearchForUserModal from '../Modals/SearchForUserModal.tsx';
 import ContactListItem from './ContactListItem.tsx';
 import PendingContactListItem from './PendingContactListItem.tsx';
@@ -6,14 +6,20 @@ import NotificationBadge from '@/React/Context/Notification/NotificationBadge.ts
 import { useContacts } from '@/React/Context/Contacts/ContactContext.tsx';
 import { Contact } from '@/React/Models/Contact.ts';
 import { usePendingContacts } from '@/React/Context/PendingContact/PendingContactContext.tsx';
-import { BellRingingIcon, UserPlusIcon } from '@phosphor-icons/react';
+import { TrayIcon, UserPlusIcon } from '@phosphor-icons/react';
 
 export const ContactsPane: React.FC = () => {
     const { contacts } = useContacts();
     console.log(contacts.length);
     const { pendingContacts } = usePendingContacts();
     const [isSearchUserModalOpen, setIsSearchUserModalOpen] = useState(false);
-    const [isRequestListSelected, setIsRequestListSelected] = useState(false);
+    const [requestListToggled, setRequestListToggled] = useState(false);
+    const hasRequests = pendingContacts.length > 0;
+    const isRequestListSelected = requestListToggled && hasRequests;
+
+    useEffect(() => {
+        if (!hasRequests) setRequestListToggled(false);
+    }, [hasRequests]);
 
     return (
         <>
@@ -27,22 +33,25 @@ export const ContactsPane: React.FC = () => {
 
                     {/* Right side buttons */}
                     <div className="flex items-center">
-                        <div className="relative">
-                            <button
-                                className={`p-2 rounded-md text-fg hover:bg-surface-hover ${isRequestListSelected ? 'bg-surface-hover' : ''
-                                    }`}
-                                onClick={() => setIsRequestListSelected(!isRequestListSelected)}
-                            >
-                                {!isRequestListSelected ? (
-                                    <div>
-                                        <BellRingingIcon className="w-5 h-5" />
-                                        <NotificationBadge section="contacts" itemId={null} />
-                                    </div>
-                                ) : (
-                                    <BellRingingIcon weight="fill" className="w-5 h-5" />
-                                )}
-                            </button>
-                        </div>
+                        {hasRequests && (
+                            <div className="relative">
+                                <button
+                                    aria-label="Friend requests"
+                                    className={`p-2 rounded-md text-fg hover:bg-surface-hover ${isRequestListSelected ? 'bg-surface-hover' : ''
+                                        }`}
+                                    onClick={() => setRequestListToggled(!isRequestListSelected)}
+                                >
+                                    {!isRequestListSelected ? (
+                                        <div>
+                                            <TrayIcon className="w-5 h-5" />
+                                            <NotificationBadge section="contacts" itemId={null} />
+                                        </div>
+                                    ) : (
+                                        <TrayIcon weight="fill" className="w-5 h-5" />
+                                    )}
+                                </button>
+                            </div>
+                        )}
 
                         <button
                             className="p-2 rounded-md text-fg hover:bg-surface-hover"
