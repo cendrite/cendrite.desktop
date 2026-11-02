@@ -11,6 +11,7 @@ const klipyGif = (slug: string) => ({
     file: {
         md: { gif: file('md.gif'), webp: file('md.webp') },
         sm: { gif: file('sm.gif'), webp: file('sm.webp') },
+        xs: { gif: file('xs.gif'), webp: file('xs.webp') },
     },
 });
 
@@ -45,9 +46,9 @@ describe('KlipyClient search', () => {
                     {
                         id: 'a-1',
                         title: 'title a-1',
-                        preview: { url: 'https://static.klipy.com/ii/x/sm.webp', width: 100, height: 75 },
+                        preview: { url: 'https://static.klipy.com/ii/x/xs.webp', width: 100, height: 75 },
                         previewType: 'image/webp',
-                        send: { url: 'https://static.klipy.com/ii/x/md.gif', width: 100, height: 75 },
+                        send: { url: 'https://static.klipy.com/ii/x/sm.gif', width: 100, height: 75 },
                     },
                 ],
                 nextOffset: 24,

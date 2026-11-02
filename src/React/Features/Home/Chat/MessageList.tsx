@@ -46,6 +46,7 @@ function senderNameFor(chat: ChatViewModel, index: number, isMine: (senderId: st
 
 interface ChatScroll {
     container: React.RefObject<HTMLDivElement>;
+    content: React.RefObject<HTMLDivElement>;
     showJump: boolean;
     onScroll: () => void;
     jumpToBottom: () => void;
@@ -56,6 +57,7 @@ function useChatScroll(chat: ChatViewModel): ChatScroll {
     const { chatDispatch } = useChatContext();
     const { loadMessages } = useMessageService();
     const container = useRef<HTMLDivElement>(null);
+    const content = useRef<HTMLDivElement>(null);
     const hasMore = useRef(true);
     const isLoading = useRef(false);
     const prevScrollHeight = useRef<number | null>(null);
@@ -120,6 +122,17 @@ function useChatScroll(chat: ChatViewModel): ChatScroll {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [chat.id, chat.messages.length]);
 
+    useEffect(() => {
+        if (!content.current) return;
+
+        const observer = new ResizeObserver(() => {
+            if (!container.current || !wasNearBottom.current || prevScrollHeight.current !== null) return;
+            container.current.scrollTop = container.current.scrollHeight;
+        });
+        observer.observe(content.current);
+        return () => observer.disconnect();
+    }, []);
+
     const onScroll = () => {
         if (!container.current) return;
 
@@ -139,7 +152,7 @@ function useChatScroll(chat: ChatViewModel): ChatScroll {
         setShowJumpButton(false);
     };
 
-    return { container: container, showJump: showJumpButton, onScroll, jumpToBottom };
+    return { container: container, content, showJump: showJumpButton, onScroll, jumpToBottom };
 }
 
 const JumpToLatestButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
@@ -160,7 +173,7 @@ const JumpToLatestButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
 
 const MessageList: React.FC<MessageListProps> = ({ chat }) => {
     const { user } = useUser();
-    const { container, showJump, onScroll, jumpToBottom } = useChatScroll(chat);
+    const { container, content, showJump, onScroll, jumpToBottom } = useChatScroll(chat);
 
     const isMine = (senderId: string) => user?.IsUserConnectionId(senderId) ?? false;
 
@@ -173,14 +186,16 @@ const MessageList: React.FC<MessageListProps> = ({ chat }) => {
                 style={{ overflowAnchor: 'none' }}
                 onScroll={onScroll}
             >
-                {chat.messages.map((message, index) => (
-                    <MessageBubble
-                        key={message.id}
-                        message={message}
-                        showStatus={shouldShowStatus(chat.messages, index, isMine)}
-                        senderName={senderNameFor(chat, index, isMine)}
-                    />
-                ))}
+                <div ref={content}>
+                    {chat.messages.map((message, index) => (
+                        <MessageBubble
+                            key={message.id}
+                            message={message}
+                            showStatus={shouldShowStatus(chat.messages, index, isMine)}
+                            senderName={senderNameFor(chat, index, isMine)}
+                        />
+                    ))}
+                </div>
             </div>
 
             {showJump && <JumpToLatestButton onClick={jumpToBottom} />}

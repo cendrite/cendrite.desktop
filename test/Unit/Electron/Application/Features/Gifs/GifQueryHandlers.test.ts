@@ -3,8 +3,10 @@ import { Result } from '../../../../../../src/Shared/Result/Result.js';
 import { ErrorMessage } from '../../../../../../src/Shared/Result/ErrorMessage.js';
 import { SearchGifsQuery } from '../../../../../../src/Shared/Gifs/SearchGifs.js';
 import { GetGifQuery } from '../../../../../../src/Shared/Gifs/GetGif.js';
+import { GetGifPreviewQuery } from '../../../../../../src/Shared/Gifs/GetGifPreview.js';
 import { SearchGifsQueryHandler } from '../../../../../../src/Electron/Application/Features/Gifs/Queries/SearchGifsQueryHandler.js';
 import { GetGifQueryHandler } from '../../../../../../src/Electron/Application/Features/Gifs/Queries/GetGifQueryHandler.js';
+import { GetGifPreviewQueryHandler } from '../../../../../../src/Electron/Application/Features/Gifs/Queries/GetGifPreviewQueryHandler.js';
 import type {
     GifResult,
     IGifProvider,
@@ -13,9 +15,9 @@ import type {
 const gif = (id: string): GifResult => ({
     id,
     title: `GIF ${id}`,
-    preview: { url: `https://static.klipy.com/${id}/sm.webp`, width: 100, height: 80 },
+    preview: { url: `https://static.klipy.com/${id}/xs.webp`, width: 100, height: 80 },
     previewType: 'image/webp',
-    send: { url: `https://static.klipy.com/${id}/md.gif`, width: 200, height: 160 },
+    send: { url: `https://static.klipy.com/${id}/sm.gif`, width: 200, height: 160 },
 });
 
 const provider = (overrides: Partial<IGifProvider> = {}): IGifProvider => ({
@@ -31,25 +33,24 @@ const provider = (overrides: Partial<IGifProvider> = {}): IGifProvider => ({
 });
 
 describe('searching GIFs', () => {
-    test('returns previews with their bytes and skips ones that failed to download', async () => {
+    test('returns preview urls without downloading them', async () => {
         const gifs = provider();
 
         const result = await new SearchGifsQueryHandler(gifs).handle(new SearchGifsQuery('cat', 24));
 
         expect(gifs.search).toHaveBeenCalledWith('cat', 24, 24);
+        expect(gifs.download).not.toHaveBeenCalled();
         expect(result).toEqual({
             success: true,
             data: {
-                gifs: [
-                    {
-                        id: 'a',
-                        title: 'GIF a',
-                        width: 100,
-                        height: 80,
-                        previewType: 'image/webp',
-                        preview: new Uint8Array([7]),
-                    },
-                ],
+                gifs: ['a', 'b'].map((id) => ({
+                    id,
+                    title: `GIF ${id}`,
+                    width: 100,
+                    height: 80,
+                    previewType: 'image/webp',
+                    previewUrl: `https://static.klipy.com/${id}/xs.webp`,
+                })),
                 nextOffset: 24,
             },
         });
@@ -63,6 +64,27 @@ describe('searching GIFs', () => {
     });
 });
 
+describe('getting a GIF preview', () => {
+    test('downloads the preview', async () => {
+        const gifs = provider();
+
+        const result = await new GetGifPreviewQueryHandler(gifs).handle(
+            new GetGifPreviewQuery('https://static.klipy.com/a/xs.webp'),
+        );
+
+        expect(gifs.download).toHaveBeenCalledWith('https://static.klipy.com/a/xs.webp');
+        expect(result).toEqual({ success: true, data: new Uint8Array([7]) });
+    });
+
+    test('passes download failures through', async () => {
+        const result = await new GetGifPreviewQueryHandler(provider()).handle(
+            new GetGifPreviewQuery('https://static.klipy.com/b/xs.webp'),
+        );
+
+        expect(result.success).toBe(false);
+    });
+});
+
 describe('getting a GIF to send', () => {
     test('re-fetches it by id and strips it as a GIF', async () => {
         const gifs = provider();
@@ -70,7 +92,7 @@ describe('getting a GIF to send', () => {
 
         const result = await new GetGifQueryHandler(gifs, stripper).handle(new GetGifQuery('a'));
 
-        expect(gifs.download).toHaveBeenCalledWith('https://static.klipy.com/a/md.gif');
+        expect(gifs.download).toHaveBeenCalledWith('https://static.klipy.com/a/sm.gif');
         expect(stripper.strip).toHaveBeenCalledWith(Buffer.from([7]), 'image/gif');
         expect(result.success && result.data.type).toBe('image/gif');
         expect(result.success && Buffer.from(result.data.content)).toEqual(Buffer.from([9, 9]));
