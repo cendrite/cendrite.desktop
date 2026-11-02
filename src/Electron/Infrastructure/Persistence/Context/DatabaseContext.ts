@@ -25,6 +25,7 @@ import { OutboxEventSchema } from '../Schemas/OutboxEventSchema.js';
 import { KyberPreKeySchema } from '../Schemas/KyberPreKeySchema.js';
 import { AppearanceSettingsSchema } from '../Schemas/AppearanceSettingsSchema.js';
 import { EmojiSettingsSchema } from '../Schemas/EmojiSettingsSchema.js';
+import { NotificationSettingsSchema } from '../Schemas/NotificationSettingsSchema.js';
 
 let dbContext: DataSource;
 
@@ -54,6 +55,7 @@ export async function initializeDatabase(dbPath: string | null = null): Promise<
             OutboxEventSchema,
             AppearanceSettingsSchema,
             EmojiSettingsSchema,
+            NotificationSettingsSchema,
             GroupEpochKeySchema,
             GroupWriteKeySchema,
             LedgerEventRecordSchema,

@@ -44,6 +44,10 @@ if (!process.env.ELECTRON_INSTANCE_ID && !app.requestSingleInstanceLock()) {
     app.exit(0);
 }
 
+if (process.platform === 'win32') {
+    app.setAppUserModelId('com.cendrite.app');
+}
+
 let appTray: AppTray | undefined;
 
 app.on('second-instance', () => appTray?.showWindow());
@@ -100,7 +104,7 @@ app.on('ready', async () => {
     const tray = new AppTray(mainWindow);
     appTray = tray;
 
-    const container = buildContainer(mainWindow);
+    const container = buildContainer(mainWindow, tray);
     const mediator = container.resolve<Mediator>('mediator');
 
     await logoutManager.recoverIfNeeded(container.resolve('purgeLocalDataService'));

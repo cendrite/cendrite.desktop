@@ -1,1 +1,1 @@
-export type SettingsSection = 'appearance' | 'emoji';
+export type SettingsSection = 'appearance' | 'emoji' | 'notifications';
