@@ -7,9 +7,13 @@ export class AppTray {
 
     constructor(private readonly window: BrowserWindow) {
         this.tray = new Tray(AppTray.loadIcon());
-        this.tray.setToolTip('Cendrite');
+        const instanceId = process.env.ELECTRON_INSTANCE_ID;
+        const title = instanceId ? `Cendrite (${instanceId})` : 'Cendrite';
+        this.tray.setToolTip(title);
         this.tray.setContextMenu(
             Menu.buildFromTemplate([
+                // Linux AppIndicator trays often don't show tooltips, so label the instance in the menu too.
+                ...(instanceId ? [{ label: title, enabled: false }, { type: 'separator' as const }] : []),
                 { label: 'Show Cendrite', click: () => this.showWindow() },
                 { type: 'separator' },
                 { label: 'Quit', click: () => this.quit() },
