@@ -57,9 +57,9 @@ export const ChatCard: React.FC<ChatCardProps> = ({ chat }) => {
                 <span
                     className={`text-xs truncate max-w-[220px] mt-0.5 
                 ${chat.getUnreadMessagesCount(user!.connectionId) > 0 ? 'text-fg' : 'text-fg-subtle'}
-                ${lastMessage?.text ? 'font-normal' : 'italic'}`}
+                ${lastMessage?.hasText ? 'font-normal' : 'italic'}`}
                 >
-                    {lastMessage?.text ?? 'draft..'}
+                    {lastMessage?.previewText || 'draft..'}
                 </span>
             </div>
         </div>
