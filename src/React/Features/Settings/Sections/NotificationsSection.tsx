@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Description, Field, Label, Switch } from '@headlessui/react';
 import { GetSettingsQuery } from '@/Shared/Settings/GetSettings.ts';
 import { UpdateSettingsCommand } from '@/Shared/Settings/UpdateSettings.ts';
-import { defaultNotificationSettings, NotificationSettings } from '@/Shared/Settings/NotificationSettings.ts';
+import { NotificationSettings } from '@/Shared/Settings/NotificationSettings.ts';
 
 interface ToggleRowProps {
     label: string;
@@ -30,7 +30,7 @@ const ToggleRow: React.FC<ToggleRowProps> = ({ label, description, checked, disa
 );
 
 const NotificationsSection: React.FC = () => {
-    const [settings, setSettings] = useState<NotificationSettings>(defaultNotificationSettings);
+    const [settings, setSettings] = useState<NotificationSettings | null>(null);
 
     useEffect(() => {
         let cancelled = false;
@@ -49,9 +49,11 @@ const NotificationsSection: React.FC = () => {
     }, []);
 
     const update = (patch: Partial<NotificationSettings>) => {
-        setSettings((current) => ({ ...current, ...patch }));
+        setSettings((current) => (current ? { ...current, ...patch } : current));
         void window.electron.sendRequestAsync(new UpdateSettingsCommand('notifications', patch));
     };
+
+    if (!settings) return null;
 
     return (
         <section className="space-y-5">
