@@ -2,7 +2,7 @@
   "appId": "com.cendrite.app",
   "productName": "Cendrite",
   "files": ["dist-electron", "dist-react", "node_modules/libsodium-wrappers"],
-  "extraResources": ["dist-electron/Electron/Preload.cjs"],
+  "extraResources": ["dist-electron/Electron/Preload.cjs", { "from": "icons", "to": "icons" }],
   "asarUnpack": ["node_modules/@signalapp/libsignal-client/**"],
   "mac": {
     "icon": "./icons/mac.icns",

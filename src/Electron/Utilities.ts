@@ -35,3 +35,12 @@ export function getPreloadPath() {
         return path.resolve(app.getAppPath(), isDevelopment() ? './' : '../', 'dist-electron/Electron/Preload.cjs');
     }
 }
+
+export function getTrayIconPath() {
+    const file = process.platform === 'win32' ? 'win.ico' : 'linux.png';
+    if (app.isPackaged) {
+        return path.join(process.resourcesPath, 'icons', file);
+    }
+    const root = isSpawnDevelopment() ? process.cwd() : app.getAppPath();
+    return path.resolve(root, 'icons', file);
+}

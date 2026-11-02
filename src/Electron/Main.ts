@@ -14,6 +14,7 @@ import { parseSettings } from './Application/Services/Settings/SettingsDefaults.
 import { AppearanceSettings } from '../Shared/Settings/AppearanceSettings.js';
 import { ResolvedTheme, Theme, WINDOW_BACKGROUND } from '../Shared/Theme.js';
 import { CryptographyService } from './Infrastructure/Persistence/Encryption/CryptographyService.js';
+import { AppTray } from './Tray/AppTray.js';
 
 if (!app.isPackaged && fs.existsSync('.env.local')) {
     process.loadEnvFile('.env.local');
@@ -37,6 +38,17 @@ if (
 ) {
     app.commandLine.appendSwitch('password-store', 'gnome-libsecret');
 }
+
+// Multi-instance dev runs (ELECTRON_INSTANCE_ID) each get their own userData, so they skip the lock.
+if (!process.env.ELECTRON_INSTANCE_ID && !app.requestSingleInstanceLock()) {
+    app.exit(0);
+}
+
+let appTray: AppTray | undefined;
+
+app.on('second-instance', () => appTray?.showWindow());
+app.on('activate', () => appTray?.showWindow());
+app.on('before-quit', () => appTray?.markQuitting());
 
 app.on('web-contents-created', (_event, contents) => {
     contents.setWindowOpenHandler(() => ({ action: 'deny' }));
@@ -85,6 +97,9 @@ app.on('ready', async () => {
     mainWindow.once('ready-to-show', () => mainWindow.show());
     mainWindow.loadURL(getAppUrl());
 
+    const tray = new AppTray(mainWindow);
+    appTray = tray;
+
     const container = buildContainer(mainWindow);
     const mediator = container.resolve<Mediator>('mediator');
 
@@ -103,6 +118,11 @@ app.on('ready', async () => {
         if (logoutManager.IsLoggingOut) {
             console.log('Logout in progress, cancelling close event');
             event.preventDefault();
+            return;
+        }
+        if (!tray.IsQuitting) {
+            event.preventDefault();
+            mainWindow.hide();
             return;
         }
         mainWindow.webContents.send('app-close');
