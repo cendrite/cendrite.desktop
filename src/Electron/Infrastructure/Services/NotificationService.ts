@@ -22,6 +22,8 @@ export class NotificationService implements INotificationService {
             'notifications',
             await this.notificationSettingsRepository.get(),
         ) as NotificationSettings;
+        if (!settings.enabled) return;
+
         const body = settings.showMessagePreview ? preview : 'New message';
 
         const notification = new Notification({ title, body, icon: getTrayIconPath() });
