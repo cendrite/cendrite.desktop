@@ -2,10 +2,12 @@ import { SettingsSection } from '#shared/Enums/SettingsSection';
 import { SettingsDocument } from '#shared/Settings/SettingsDocument';
 import { defaultAppearanceSettings } from '#shared/Settings/AppearanceSettings';
 import { defaultEmojiSettings } from '#shared/Settings/EmojiSettings';
+import { defaultNotificationSettings } from '#shared/Settings/NotificationSettings';
 
 export const settingsDefaults: Record<SettingsSection, SettingsDocument> = {
     appearance: defaultAppearanceSettings,
     emoji: defaultEmojiSettings,
+    notifications: defaultNotificationSettings,
 };
 
 export function parseSettings(section: SettingsSection, stored: string | null): SettingsDocument {

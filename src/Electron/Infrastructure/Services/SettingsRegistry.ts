@@ -4,6 +4,7 @@ import { SettingsSection } from '#shared/Enums/SettingsSection';
 import { settingsScopes } from '#electron/Application/Services/Settings/SettingsScope';
 import { AppearanceSettingsRepository } from '../Persistence/Repositories/AppearanceSettingsRepository.js';
 import { EmojiSettingsRepository } from '../Persistence/Repositories/EmojiSettingsRepository.js';
+import { NotificationSettingsRepository } from '../Persistence/Repositories/NotificationSettingsRepository.js';
 
 export class SettingsRegistry implements ISettingsRegistry {
     private readonly repositories: Record<SettingsSection, ISettingsRepository>;
@@ -11,10 +12,12 @@ export class SettingsRegistry implements ISettingsRegistry {
     public constructor(
         appearanceSettingsRepository: AppearanceSettingsRepository,
         emojiSettingsRepository: EmojiSettingsRepository,
+        notificationSettingsRepository: NotificationSettingsRepository,
     ) {
         this.repositories = {
             appearance: appearanceSettingsRepository,
             emoji: emojiSettingsRepository,
+            notifications: notificationSettingsRepository,
         };
     }
 

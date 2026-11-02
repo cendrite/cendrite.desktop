@@ -38,6 +38,7 @@ import { FriendClient } from './Clients/FriendClient.js';
 import { EventRepository } from './Persistence/Repositories/EventRepository.js';
 import { AppearanceSettingsRepository } from './Persistence/Repositories/AppearanceSettingsRepository.js';
 import { EmojiSettingsRepository } from './Persistence/Repositories/EmojiSettingsRepository.js';
+import { NotificationSettingsRepository } from './Persistence/Repositories/NotificationSettingsRepository.js';
 import { SettingsRegistry } from './Services/SettingsRegistry.js';
 import { PendingLoginStore } from './Services/PendingLoginStore.js';
 import { MessagePump } from './Pumps/MessagePump.js';
@@ -50,6 +51,7 @@ import { FetchedTokenIssuerKey } from './Services/FetchedTokenIssuerKey.js';
 import { TOKEN_ISSUER_PUBLIC_KEY } from './Clients/Base/TokenIssuer.js';
 import { KLIPY_API_KEY } from './Clients/Base/KlipyKey.js';
 import { KlipyClient } from './Clients/KlipyClient.js';
+import { NotificationService } from './Services/NotificationService.js';
 
 const services = {
     tokenManager: asClass(TokenManager, { lifetime: Lifetime.SINGLETON }),
@@ -62,6 +64,7 @@ const services = {
     settingsRegistry: asClass(SettingsRegistry, { lifetime: Lifetime.SINGLETON }),
     pendingLoginStore: asClass(PendingLoginStore, { lifetime: Lifetime.SINGLETON }),
     blindTokenService: asClass(BlindTokenService, { lifetime: Lifetime.SINGLETON }),
+    notificationService: asClass(NotificationService, { lifetime: Lifetime.SINGLETON }),
     tokenIssuerKeyProvider: asFunction((tokenIssuerApiClient: ApiClient) =>
         app.isPackaged ? new PinnedTokenIssuerKey(TOKEN_ISSUER_PUBLIC_KEY) : new FetchedTokenIssuerKey(tokenIssuerApiClient),
     ).singleton(),
@@ -77,6 +80,7 @@ const persistence = {
     eventRepository: asClass(EventRepository, { lifetime: Lifetime.SINGLETON }),
     appearanceSettingsRepository: asClass(AppearanceSettingsRepository, { lifetime: Lifetime.SINGLETON }),
     emojiSettingsRepository: asClass(EmojiSettingsRepository, { lifetime: Lifetime.SINGLETON }),
+    notificationSettingsRepository: asClass(NotificationSettingsRepository, { lifetime: Lifetime.SINGLETON }),
 };
 
 const signalR = {

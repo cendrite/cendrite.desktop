@@ -27,6 +27,7 @@ import { Chat } from '#electron/Domain/Aggregates/Chat';
 import { ChatMember } from '#electron/Domain/Entities/ChatMember';
 import { ChatPrivileges } from '#shared/Enums/ChatPrivileges';
 import { v4 as uuid } from 'uuid';
+import { INotificationService } from '#electron/Application/Contracts/Services/INotificationService';
 
 export interface IMessageReceiver {
     handle(message: ServerMessage): void;
@@ -43,6 +44,7 @@ export class MessageReceiver implements IMessageReceiver {
         private readonly groupRepository: IGroupRepository,
         private readonly groupKeyRepository: IGroupKeyRepository,
         private readonly mainWindow: BrowserWindow,
+        private readonly notificationService: INotificationService,
     ) { }
 
     public async handle(message: ServerMessage): Promise<void> {
@@ -180,6 +182,19 @@ export class MessageReceiver implements IMessageReceiver {
                 payload.messageToken,
             ),
         });
+
+        await this.notifyMessage(message.senderId, payload, media.length);
+    }
+
+    private async notifyMessage(senderId: string, payload: MessagePayload, mediaCount: number): Promise<void> {
+        const chat = await this.chatStore.getChatWithMembers(payload.chatId);
+        if (chat.muted) return;
+
+        const sender = chat.members.find((member) => member.devices.includes(senderId))?.displayName ?? 'New message';
+        const title = chat.groupName ? `${sender} in ${chat.groupName}` : sender;
+        const preview = payload.text || (mediaCount > 1 ? `Sent ${mediaCount} attachments` : 'Sent an attachment');
+
+        await this.notificationService.notifyMessage(title, preview);
     }
 
     private async ensureChat(chatId: string, payload: MessagePayload): Promise<void> {

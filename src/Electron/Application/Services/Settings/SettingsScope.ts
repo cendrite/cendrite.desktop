@@ -5,4 +5,5 @@ export type SettingsScope = 'device' | 'account';
 export const settingsScopes: Record<SettingsSection, SettingsScope> = {
     appearance: 'device',
     emoji: 'account',
+    notifications: 'device',
 };
