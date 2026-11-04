@@ -5,7 +5,9 @@ import { LoginCommandHandler } from './Features/Authentication/Commands/LoginCom
 import { LogoutCommandHandler } from './Features/Authentication/Commands/LogoutCommandHandler.js';
 import { VerifyLoginCommandHandler } from './Features/Authentication/Commands/VerifyLoginCommandHandler.js';
 import { StartupCommandHandler } from './Features/Authentication/Commands/StartupCommandHandler.js';
-import { RegisterCommandHandler } from './Features/Authentication/Commands/RegisterCommandHandler.js';
+import { BeginSignupCommandHandler } from './Features/Authentication/Commands/BeginSignupCommandHandler.js';
+import { CompleteSignupCommandHandler } from './Features/Authentication/Commands/CompleteSignupCommandHandler.js';
+import { CancelSignupCommandHandler } from './Features/Authentication/Commands/CancelSignupCommandHandler.js';
 import { VerifyUserCommandHandler } from './Features/Authentication/Commands/VerifyUserCommandHandler.js';
 import { ResendVerificationCodeCommandHandler } from './Features/Authentication/Commands/ResendVerificationCodeCommandHandler.js';
 import { UpdateAvatarCommandHandler } from './Features/User/Commands/UpdateAvatarCommandHandler.js';
@@ -40,11 +42,13 @@ import { GetGifPreviewQueryHandler } from './Features/Gifs/Queries/GetGifPreview
 import { GetSettingsQueryHandler } from './Features/Settings/Queries/GetSettingsQueryHandler.js';
 import { UpdateSettingsCommandHandler } from './Features/Settings/Commands/UpdateSettingsCommandHandler.js';
 import { GroupService } from './Services/GroupService.js';
+import { DeviceSessionService } from './Services/DeviceSessionService.js';
 
 const services = {
     logoutManager: asValue(LogoutManager.getInstance()),
     mediaService: asClass(MediaService, { lifetime: Lifetime.SINGLETON }),
     groupService: asClass(GroupService, { lifetime: Lifetime.SINGLETON }),
+    deviceSessionService: asClass(DeviceSessionService, { lifetime: Lifetime.SINGLETON }),
 };
 
 const authenticationHandlers = {
@@ -52,7 +56,9 @@ const authenticationHandlers = {
     logoutCommandHandler: asClass(LogoutCommandHandler, { lifetime: Lifetime.SINGLETON }),
     verifyLoginCommandHandler: asClass(VerifyLoginCommandHandler, { lifetime: Lifetime.SINGLETON }),
     startupCommandHandler: asClass(StartupCommandHandler, { lifetime: Lifetime.SINGLETON }),
-    registerCommandHandler: asClass(RegisterCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    beginSignupCommandHandler: asClass(BeginSignupCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    completeSignupCommandHandler: asClass(CompleteSignupCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    cancelSignupCommandHandler: asClass(CancelSignupCommandHandler, { lifetime: Lifetime.SINGLETON }),
     verifyUserCommandHandler: asClass(VerifyUserCommandHandler, { lifetime: Lifetime.SINGLETON }),
     resendVerificationCodeCommandHandler: asClass(ResendVerificationCodeCommandHandler, {
         lifetime: Lifetime.SINGLETON,
