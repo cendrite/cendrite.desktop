@@ -3,9 +3,10 @@ import {
     IAuthenticationProvider,
     LoginRequest,
     LoginResponse,
-    RegisterRequest,
-    RegisterResponse,
     ResendVerificationCodeRequest,
+    SignupChallengeResponse,
+    SignupRequest,
+    SignupResponse,
     VerifyLoginRequest,
     VerifyLoginResponse,
     VerifyUserRequest,
@@ -53,9 +54,17 @@ export class AuthenticationClient implements IAuthenticationProvider {
         });
     }
 
-    register(req: RegisterRequest): Promise<Result<RegisterResponse>> {
-        return this.identityUserClient.handleConduit<RegisterResponse>({
+    getSignupChallenge(): Promise<Result<SignupChallengeResponse>> {
+        return this.loginClient.handleConduit<SignupChallengeResponse>({
+            method: 'GET',
+            url: 'signup-challenge',
+        });
+    }
+
+    signup(req: SignupRequest): Promise<Result<SignupResponse>> {
+        return this.identityUserClient.handleConduit<SignupResponse>({
             method: 'POST',
+            url: 'signup',
             data: req,
         });
     }

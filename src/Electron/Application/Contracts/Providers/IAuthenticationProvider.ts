@@ -25,15 +25,30 @@ export interface VerifyLoginResponse {
     nonce: string;
 }
 
-export interface RegisterRequest {
-    username: string;
-    email: string;
-    password: string;
+export interface SignupChallengeResponse {
+    challengeId: string;
+    challenge: string;
+    difficulty: number;
+    expiresAt: string;
 }
 
-export interface RegisterResponse {
-    email: string;
-    id: string;
+export interface SignupRequest {
+    username: string;
+    accountPublicKey: string;
+    challengeId: string;
+    powNonce: number;
+    challengeSignature: string;
+    devicePublicKey: string;
+    deviceApproval: string;
+    deviceAppVersion: string;
+    deviceType: number;
+    devicePlatform: number;
+}
+
+export interface SignupResponse {
+    userId: string;
+    deviceId: string;
+    deviceConnectionId: string;
 }
 
 export interface VerifyUserRequest {
@@ -52,7 +67,8 @@ export interface IAuthenticationProvider {
     login(req: LoginRequest): Promise<Result<LoginResponse>>;
     verifyLogin(req: VerifyLoginRequest): Promise<Result<VerifyLoginResponse>>;
     logout(): Promise<Result<void>>;
-    register(req: RegisterRequest): Promise<Result<RegisterResponse>>;
+    getSignupChallenge(): Promise<Result<SignupChallengeResponse>>;
+    signup(req: SignupRequest): Promise<Result<SignupResponse>>;
     verifyUser(req: VerifyUserRequest): Promise<Result>;
     resendVerificationCode(req: ResendVerificationCodeRequest): Promise<Result>;
 }
