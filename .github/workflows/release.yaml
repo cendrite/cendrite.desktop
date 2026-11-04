@@ -75,6 +75,7 @@ jobs:
             --exclude '*' \
             --include '*.exe' --include '*.dmg' --include '*.AppImage' \
             --include '*.blockmap' --include 'latest*.yml' \
+            --exclude '*-unpacked/*' \
             --endpoint-url "${{ secrets.R2_ENDPOINT }}"
 
   publish:
