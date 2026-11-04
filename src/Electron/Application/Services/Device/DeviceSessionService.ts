@@ -4,14 +4,14 @@ import { UserContract } from '#shared/Models/UserContract';
 import { Device } from '#electron/Domain/Entities/Device';
 import { User } from '#electron/Domain/Aggregates/User';
 import { UserConnectionId } from '#electron/Domain/Entities/UserConnectionId';
-import { IDeviceRepository } from '../Contracts/Repositories/IDeviceRepository.js';
-import { IUserRepository } from '../Contracts/Repositories/IUserRepository.js';
-import { IUserProvider } from '../Contracts/Providers/IUserProvider.js';
-import { ITokenManager } from '../Contracts/Services/ITokenManager.js';
-import { IKeyGenerator } from '../Contracts/Services/IKeyGenerator.js';
-import { ISignalManager } from '../Contracts/Services/ISignalManager.js';
-import { IPump } from '../Contracts/Services/IPump.js';
-import { IPurgeLocalData } from '../Contracts/Services/IPurgeLocalData.js';
+import { IDeviceRepository } from '#electron/Application/Contracts/Repositories/IDeviceRepository';
+import { IUserRepository } from '#electron/Application/Contracts/Repositories/IUserRepository';
+import { IUserProvider } from '#electron/Application/Contracts/Providers/IUserProvider';
+import { ITokenManager } from '#electron/Application/Contracts/Services/ITokenManager';
+import { IKeyGenerator } from '#electron/Application/Contracts/Services/IKeyGenerator';
+import { ISignalManager } from '#electron/Application/Contracts/Services/ISignalManager';
+import { IPump } from '#electron/Application/Contracts/Services/IPump';
+import { IPurgeLocalData } from '#electron/Application/Contracts/Services/IPurgeLocalData';
 
 export interface IDeviceSessionService {
     start(userId: string, device: Device): Promise<Result<UserContract>>;

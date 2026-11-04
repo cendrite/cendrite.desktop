@@ -42,7 +42,7 @@ import { GetGifPreviewQueryHandler } from './Features/Gifs/Queries/GetGifPreview
 import { GetSettingsQueryHandler } from './Features/Settings/Queries/GetSettingsQueryHandler.js';
 import { UpdateSettingsCommandHandler } from './Features/Settings/Commands/UpdateSettingsCommandHandler.js';
 import { GroupService } from './Services/GroupService.js';
-import { DeviceSessionService } from './Services/DeviceSessionService.js';
+import { DeviceSessionService } from './Services/Device/DeviceSessionService.js';
 
 const services = {
     logoutManager: asValue(LogoutManager.getInstance()),

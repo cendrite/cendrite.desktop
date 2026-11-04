@@ -8,8 +8,8 @@ import { Handler } from '#electron/Application/Mediator/Handler';
 import { VerifyLoginCommand } from '#shared/Authentication/VerifyLogin';
 import { UserContract } from '#shared/Models/UserContract';
 import { IPendingLoginStore } from '#electron/Application/Contracts/Services/IPendingLoginStore';
-import { IDeviceSessionService } from '#electron/Application/Services/DeviceSessionService';
-import { currentDeviceInfo } from '#electron/Application/Services/DeviceInfo';
+import { IDeviceSessionService } from '#electron/Application/Services/Device/DeviceSessionService';
+import { currentDeviceInfo } from '#electron/Application/Services/Device/DeviceInfo';
 
 export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, UserContract> {
     constructor(

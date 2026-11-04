@@ -7,10 +7,10 @@ import { Device } from '#electron/Domain/Entities/Device';
 import { IAuthenticationProvider } from '#electron/Application/Contracts/Providers/IAuthenticationProvider';
 import { INonceSigner } from '#electron/Application/Contracts/Services/INonceSigner';
 import { IPendingSignupStore, PendingSignup, SignupRegistration } from '#electron/Application/Contracts/Services/IPendingSignupStore';
-import { IDeviceSessionService } from '#electron/Application/Services/DeviceSessionService';
-import { currentDeviceInfo } from '#electron/Application/Services/DeviceInfo';
 import { deriveAccountKey, signDeviceApproval, signSignupChallenge } from '#electron/Infrastructure/Crypto/AccountKey';
 import { solveProofOfWork } from '#electron/Infrastructure/Crypto/ProofOfWork';
+import { IDeviceSessionService } from '#electron/Application/Services/Device/DeviceSessionService';
+import { currentDeviceInfo } from '#electron/Application/Services/Device/DeviceInfo';
 
 const MAX_DIFFICULTY = 32;
 
