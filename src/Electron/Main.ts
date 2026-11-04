@@ -15,6 +15,7 @@ import { AppearanceSettings } from '../Shared/Settings/AppearanceSettings.js';
 import { ResolvedTheme, Theme, WINDOW_BACKGROUND } from '../Shared/Theme.js';
 import { CryptographyService } from './Infrastructure/Persistence/Encryption/CryptographyService.js';
 import { AppTray } from './Tray/AppTray.js';
+import { AppUpdater } from './Updater/AppUpdater.js';
 
 if (!app.isPackaged && fs.existsSync('.env.local')) {
     process.loadEnvFile('.env.local');
@@ -103,6 +104,7 @@ app.on('ready', async () => {
 
     const tray = new AppTray(mainWindow);
     appTray = tray;
+    new AppUpdater(tray).start();
 
     const container = buildContainer(mainWindow, tray);
     const mediator = container.resolve<Mediator>('mediator');
