@@ -4,22 +4,20 @@ import { getTrayIconPath } from '../Utilities.js';
 export class AppTray {
     private readonly tray: Tray;
     private isQuitting = false;
+    private update: { version: string; install: () => void } | undefined;
+    private readonly instanceId = process.env.ELECTRON_INSTANCE_ID;
+    private readonly title = this.instanceId ? `Cendrite (${this.instanceId})` : 'Cendrite';
 
     constructor(private readonly window: BrowserWindow) {
         this.tray = new Tray(AppTray.loadIcon());
-        const instanceId = process.env.ELECTRON_INSTANCE_ID;
-        const title = instanceId ? `Cendrite (${instanceId})` : 'Cendrite';
-        this.tray.setToolTip(title);
-        this.tray.setContextMenu(
-            Menu.buildFromTemplate([
-                // Linux AppIndicator trays often don't show tooltips, so label the instance in the menu too.
-                ...(instanceId ? [{ label: title, enabled: false }, { type: 'separator' as const }] : []),
-                { label: 'Show Cendrite', click: () => this.showWindow() },
-                { type: 'separator' },
-                { label: 'Quit', click: () => this.quit() },
-            ]),
-        );
+        this.tray.setToolTip(this.title);
+        this.buildMenu();
         this.tray.on('click', () => this.showWindow());
+    }
+
+    public setUpdateReady(version: string, install: () => void) {
+        this.update = { version, install };
+        this.buildMenu();
     }
 
     public get IsQuitting() {
@@ -35,6 +33,20 @@ export class AppTray {
         if (this.window.isMinimized()) this.window.restore();
         this.window.show();
         this.window.focus();
+    }
+
+    private buildMenu() {
+        const update = this.update;
+        this.tray.setContextMenu(
+            Menu.buildFromTemplate([
+                // Linux AppIndicator trays often don't show tooltips, so label the instance in the menu too.
+                ...(this.instanceId ? [{ label: this.title, enabled: false }, { type: 'separator' as const }] : []),
+                { label: 'Show Cendrite', click: () => this.showWindow() },
+                ...(update ? [{ label: `Restart to update to ${update.version}`, click: update.install }] : []),
+                { type: 'separator' },
+                { label: 'Quit', click: () => this.quit() },
+            ]),
+        );
     }
 
     private quit() {

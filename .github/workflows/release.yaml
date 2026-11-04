@@ -67,7 +67,7 @@ jobs:
         env:
           KLIPY_API_KEY: ${{ secrets.KLIPY_API_KEY }}
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-        run: ${{ matrix.build_cmd }}
+        run: ${{ matrix.build_cmd }} "-c.publish.url=$DOWNLOADS_URL/$CHANNEL"
 
       - name: Upload to R2
         run: |
@@ -79,7 +79,7 @@ jobs:
             --endpoint-url "${{ secrets.R2_ENDPOINT }}"
 
   publish:
-    name: Publish latest.json
+    name: Publish latest.json and update feeds
     needs: build
     runs-on: ubuntu-latest
 
@@ -90,6 +90,27 @@ jobs:
           if [[ "$version" == *-* ]]; then channel=dev; else channel=stable; fi
           echo "VERSION=$version" >> "$GITHUB_ENV"
           echo "CHANNEL=$channel" >> "$GITHUB_ENV"
+
+      - name: Publish update feeds
+        run: |
+          feeds="$CHANNEL"
+          if [[ "$CHANNEL" == stable ]]; then
+            dev_version=$(curl -fsS "$DOWNLOADS_URL/dev/latest.yml" 2>/dev/null | sed -n 's/^version: //p') || dev_version=""
+            if [[ -z "$dev_version" ]] || npx --yes semver@7 -p -r ">$dev_version" "$VERSION" > /dev/null; then
+              feeds="stable dev"
+            fi
+          fi
+          base="$DOWNLOADS_URL/$CHANNEL/$VERSION"
+          for feed in latest.yml latest-linux.yml; do
+            aws s3 cp "s3://$BUCKET/$CHANNEL/$VERSION/$feed" "$feed" --endpoint-url "${{ secrets.R2_ENDPOINT }}"
+            sed -i -E "s#^(  - url: |path: )#\1$base/#" "$feed"
+            cat "$feed"
+            for target in $feeds; do
+              aws s3 cp "$feed" "s3://$BUCKET/$target/$feed" \
+                --content-type text/yaml --cache-control 'no-cache' \
+                --endpoint-url "${{ secrets.R2_ENDPOINT }}"
+            done
+          done
 
       - name: Write and upload latest.json
         run: |

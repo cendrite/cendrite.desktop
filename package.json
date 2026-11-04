@@ -41,6 +41,7 @@
     "axios": "^1.7.9",
     "buffer": "^6.0.3",
     "clsx": "^2.1.1",
+    "electron-updater": "6.8.11",
     "emojibase-data": "17.0.0",
     "formik": "^2.4.6",
     "frimousse": "0.4.0",

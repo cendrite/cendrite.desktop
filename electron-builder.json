@@ -19,7 +19,12 @@
   },
   "nsis":{
     "oneClick": false,
-    "allowToChangeInstallationDirectory": true
+    "allowToChangeInstallationDirectory": true,
+    "artifactName": "${productName}-Setup-${version}.${ext}"
   },
-  "publish": null
+  "detectUpdateChannel": false,
+  "publish": {
+    "provider": "generic",
+    "url": "https://downloads.cendrite.com/stable"
+  }
 }
