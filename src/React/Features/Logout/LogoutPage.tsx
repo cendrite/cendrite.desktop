@@ -1,7 +1,6 @@
 ﻿import React, { useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import Lottie from 'lottie-react';
-import boxAnimation from '@/React/Assets/Animations/box_load_animation.json';
+import LoadingScreen from '@/React/Common/Components/Loading/LoadingScreen.tsx';
 import { useUser } from '@/React/Context/User/UserContext.tsx';
 import { useAuthSession } from '@/React/Context/AuthSession/AuthSessionContext.tsx';
 import { useContacts } from '@/React/Context/Contacts/ContactContext.tsx';
@@ -75,14 +74,9 @@ const LogoutPage: React.FC = () => {
     ]);
 
     return (
-        <div className="flex items-center justify-center h-screen bg-canvas">
-            <div>
-                <Lottie animationData={boxAnimation} />
-                <h1 className="text-fg text-center">
-                    {revoked ? 'This device was removed from your account. Signing out…' : 'Please wait while we log you out'}
-                </h1>
-            </div>
-        </div>
+        <LoadingScreen label="Signing out">
+            {revoked && 'This device was removed from your account.'}
+        </LoadingScreen>
     );
 };
 

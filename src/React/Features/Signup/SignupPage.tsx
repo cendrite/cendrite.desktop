@@ -4,11 +4,11 @@ import { useUser } from '@/React/Context/User/UserContext.tsx';
 import { UserActionType } from '@/React/Context/User/UserReducer.ts';
 import { User } from '@/React/Models/User.ts';
 import { BeginSignupCommand, CancelSignupCommand, CompleteSignupCommand } from '@/Shared/Authentication/Signup.ts';
+import LoadingScreen from '@/React/Common/Components/Loading/LoadingScreen.tsx';
 import SignupLayout from './Components/SignupLayout.tsx';
 import UsernameStep from './Steps/UsernameStep.tsx';
 import PhraseStep from './Steps/PhraseStep.tsx';
 import ConfirmStep from './Steps/ConfirmStep.tsx';
-import WorkingStep from './Steps/WorkingStep.tsx';
 
 type Step = 'username' | 'phrase' | 'confirm' | 'working';
 
@@ -137,11 +137,7 @@ const SignupPage: React.FC = () => {
                 </SignupLayout>
             );
         case 'working':
-            return (
-                <SignupLayout title="Setting up your account">
-                    <WorkingStep />
-                </SignupLayout>
-            );
+            return <LoadingScreen label="Setting up">This only takes a few seconds.</LoadingScreen>;
     }
 };
 
