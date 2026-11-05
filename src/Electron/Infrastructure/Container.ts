@@ -40,7 +40,6 @@ import { AppearanceSettingsRepository } from './Persistence/Repositories/Appeara
 import { EmojiSettingsRepository } from './Persistence/Repositories/EmojiSettingsRepository.js';
 import { NotificationSettingsRepository } from './Persistence/Repositories/NotificationSettingsRepository.js';
 import { SettingsRegistry } from './Services/SettingsRegistry.js';
-import { PendingLoginStore } from './Services/PendingLoginStore.js';
 import { PendingSignupStore } from './Services/PendingSignupStore.js';
 import { MessagePump } from './Pumps/MessagePump.js';
 import { DeliveryStatusUpdatePump } from './Pumps/DeliveryUpdatePump.js';
@@ -63,7 +62,6 @@ const services = {
     purgeLocalDataService: asClass(PurgeLocalDataService, { lifetime: Lifetime.SINGLETON }),
     sessionManager: asClass(SessionManager, { lifetime: Lifetime.SINGLETON }),
     settingsRegistry: asClass(SettingsRegistry, { lifetime: Lifetime.SINGLETON }),
-    pendingLoginStore: asClass(PendingLoginStore, { lifetime: Lifetime.SINGLETON }),
     pendingSignupStore: asClass(PendingSignupStore, { lifetime: Lifetime.SINGLETON }),
     blindTokenService: asClass(BlindTokenService, { lifetime: Lifetime.SINGLETON }),
     notificationService: asClass(NotificationService, { lifetime: Lifetime.SINGLETON }),
@@ -127,10 +125,8 @@ const jobs = {
 }
 
 const httpClients = {
-    deviceApiClient: asFunction(() => new ApiClient(API_URLS.IDENTITY.DEVICE, null)).singleton(),
     tokenApiClient: asFunction(() => new ApiClient(API_URLS.IDENTITY.AUTH, null)).singleton(),
     loginApiClient: asFunction(() => new ApiClient(API_URLS.IDENTITY.AUTH, null)).singleton(),
-    verifyLoginApiClient: asFunction(() => new ApiClient(API_URLS.IDENTITY.AUTH, null)).singleton(),
     identityUserApiClient: asFunction(() => new ApiClient(API_URLS.IDENTITY.USER.BASE, null)).singleton(),
 
     deviceManagementApiClient: asFunction(

@@ -32,7 +32,7 @@ const LogoutPage: React.FC = () => {
 
     useEffect(() => {
         if (!user) {
-            navigate('/login', { replace: true });
+            navigate('/signup', { replace: true });
             return;
         }
 
@@ -50,7 +50,7 @@ const LogoutPage: React.FC = () => {
                     userDispatch({ type: UserActionType.Clear });
                     homeDispatch({ type: HomePageActionType.Clear });
 
-                    navigate('/login', { replace: true });
+                    navigate('/signup', { replace: true });
                 }, 3000);
 
                 timerRef.current = id;

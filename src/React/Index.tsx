@@ -1,7 +1,6 @@
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App.tsx';
-import { OnboardingProvider } from './Context/OnboardingContext.tsx';
 import { StrictMode } from 'react';
 import { ChatProvider } from './Context/Chat/ChatProvider.tsx';
 import { NotificationProvider } from './Context/Notification/NotitficationProvider.tsx';
@@ -17,23 +16,21 @@ createRoot(document.getElementById('root')!).render(
     <StrictMode>
         <ThemeProvider>
             <IconContext.Provider value={{ weight: 'light' }}>
-                <OnboardingProvider>
-                    <UserProvider>
-                        <AuthSessionProvider>
-                            <NotificationProvider>
-                                <ContactProvider>
-                                    <PendingContactProvider>
-                                        <HomePageProvider>
-                                            <ChatProvider>
-                                                <App />
-                                            </ChatProvider>
-                                        </HomePageProvider>
-                                    </PendingContactProvider>
-                                </ContactProvider>
-                            </NotificationProvider>
-                        </AuthSessionProvider>
-                    </UserProvider>
-                </OnboardingProvider>
+                <UserProvider>
+                    <AuthSessionProvider>
+                        <NotificationProvider>
+                            <ContactProvider>
+                                <PendingContactProvider>
+                                    <HomePageProvider>
+                                        <ChatProvider>
+                                            <App />
+                                        </ChatProvider>
+                                    </HomePageProvider>
+                                </PendingContactProvider>
+                            </ContactProvider>
+                        </NotificationProvider>
+                    </AuthSessionProvider>
+                </UserProvider>
             </IconContext.Provider>
         </ThemeProvider>
     </StrictMode>,

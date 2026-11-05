@@ -10,9 +10,8 @@ const StartupPage: React.FC = () => {
 
     useEffect(() => {
         if(!loading) {
-            // Delay the navigation to the home page or login page by 3 seconds
             const timer = setTimeout(() => {
-                navigate(sessionId ? "/home" : "/login");
+                navigate(sessionId ? "/home" : "/signup");
             }, 5000);
 
             return () => clearTimeout(timer);

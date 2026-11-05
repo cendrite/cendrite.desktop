@@ -1,15 +1,11 @@
 import { asClass, asValue, Lifetime } from 'awilix';
 import { LogoutManager } from './Services/LogoutManager/LogoutManager.js';
 import { MediaService } from './Services/Media/MediaService.js';
-import { LoginCommandHandler } from './Features/Authentication/Commands/LoginCommandHandler.js';
 import { LogoutCommandHandler } from './Features/Authentication/Commands/LogoutCommandHandler.js';
-import { VerifyLoginCommandHandler } from './Features/Authentication/Commands/VerifyLoginCommandHandler.js';
 import { StartupCommandHandler } from './Features/Authentication/Commands/StartupCommandHandler.js';
 import { BeginSignupCommandHandler } from './Features/Authentication/Commands/BeginSignupCommandHandler.js';
 import { CompleteSignupCommandHandler } from './Features/Authentication/Commands/CompleteSignupCommandHandler.js';
 import { CancelSignupCommandHandler } from './Features/Authentication/Commands/CancelSignupCommandHandler.js';
-import { VerifyUserCommandHandler } from './Features/Authentication/Commands/VerifyUserCommandHandler.js';
-import { ResendVerificationCodeCommandHandler } from './Features/Authentication/Commands/ResendVerificationCodeCommandHandler.js';
 import { UpdateAvatarCommandHandler } from './Features/User/Commands/UpdateAvatarCommandHandler.js';
 import { SendFriendRequestCommandHandler } from './Features/Friends/Commands/SendFriendRequestCommandHandler.js';
 import { DeclineFriendRequestCommandHandler } from './Features/Friends/Commands/DeclineFriendRequestCommandHandler.js';
@@ -52,17 +48,11 @@ const services = {
 };
 
 const authenticationHandlers = {
-    loginCommandHandler: asClass(LoginCommandHandler, { lifetime: Lifetime.SINGLETON }),
     logoutCommandHandler: asClass(LogoutCommandHandler, { lifetime: Lifetime.SINGLETON }),
-    verifyLoginCommandHandler: asClass(VerifyLoginCommandHandler, { lifetime: Lifetime.SINGLETON }),
     startupCommandHandler: asClass(StartupCommandHandler, { lifetime: Lifetime.SINGLETON }),
     beginSignupCommandHandler: asClass(BeginSignupCommandHandler, { lifetime: Lifetime.SINGLETON }),
     completeSignupCommandHandler: asClass(CompleteSignupCommandHandler, { lifetime: Lifetime.SINGLETON }),
     cancelSignupCommandHandler: asClass(CancelSignupCommandHandler, { lifetime: Lifetime.SINGLETON }),
-    verifyUserCommandHandler: asClass(VerifyUserCommandHandler, { lifetime: Lifetime.SINGLETON }),
-    resendVerificationCodeCommandHandler: asClass(ResendVerificationCodeCommandHandler, {
-        lifetime: Lifetime.SINGLETON,
-    }),
 };
 
 const chatHandlers = {

@@ -94,15 +94,6 @@ const SignupPage: React.FC = () => {
         navigate('/home');
     };
 
-    const signInLink = (
-        <>
-            Already have an account?{' '}
-            <button type="button" className="text-link hover:underline" onClick={() => navigate('/login')}>
-                Sign in
-            </button>
-        </>
-    );
-
     switch (step) {
         case 'username':
             return (
@@ -111,7 +102,6 @@ const SignupPage: React.FC = () => {
                     totalSteps={TOTAL_STEPS}
                     title="Create your account"
                     description="No email and no password. Your account is protected by a recovery phrase that only you have."
-                    footer={signInLink}
                 >
                     <UsernameStep initialUsername={username} error={error} busy={busy} onContinue={chooseUsername} />
                 </SignupLayout>
