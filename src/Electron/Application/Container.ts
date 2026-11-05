@@ -38,6 +38,7 @@ import { GetGifQueryHandler } from './Features/Gifs/Queries/GetGifQueryHandler.j
 import { GetGifPreviewQueryHandler } from './Features/Gifs/Queries/GetGifPreviewQueryHandler.js';
 import { GetSettingsQueryHandler } from './Features/Settings/Queries/GetSettingsQueryHandler.js';
 import { UpdateSettingsCommandHandler } from './Features/Settings/Commands/UpdateSettingsCommandHandler.js';
+import { SetMenuBarVisibleCommandHandler } from './Features/Settings/Commands/SetMenuBarVisibleCommandHandler.js';
 import { GroupService } from './Services/GroupService.js';
 import { DeviceSessionService } from './Services/Device/DeviceSessionService.js';
 
@@ -107,6 +108,7 @@ const deviceHandlers = {
 const settingsHandlers = {
     getSettingsQueryHandler: asClass(GetSettingsQueryHandler, { lifetime: Lifetime.SINGLETON }),
     updateSettingsCommandHandler: asClass(UpdateSettingsCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    setMenuBarVisibleCommandHandler: asClass(SetMenuBarVisibleCommandHandler, { lifetime: Lifetime.SINGLETON }),
 };
 
 export const applicationResolvers = {
