@@ -99,6 +99,7 @@ app.on('ready', async () => {
         },
     });
 
+    mainWindow.setMenuBarVisibility(storedAppearance.showMenuBar);
     mainWindow.once('ready-to-show', () => mainWindow.show());
     mainWindow.loadURL(getAppUrl());
 

@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Description, Label, Radio, RadioGroup } from '@headlessui/react';
 import { Theme } from '@/Shared/Theme.ts';
 import { useTheme } from '@/React/Context/Theme/ThemeContext.tsx';
 import ThemePreview from './ThemePreview.tsx';
+import ToggleRow from '../Components/ToggleRow.tsx';
+import { GetSettingsQuery } from '@/Shared/Settings/GetSettings.ts';
+import { SetMenuBarVisibleCommand } from '@/Shared/Settings/SetMenuBarVisible.ts';
 import { CheckCircleIcon } from '@phosphor-icons/react';
 
 const themeOptions: { id: Theme; label: string; description: string }[] = [
@@ -15,8 +18,30 @@ const themeOptions: { id: Theme; label: string; description: string }[] = [
     { id: 'rose-pine', label: 'Rosé Pine', description: 'Soft mauve and pine' },
 ];
 
+const hasWindowMenuBar = window.electron.platform !== 'darwin';
+
 const AppearanceSection: React.FC = () => {
     const { theme, setTheme } = useTheme();
+    const [showMenuBar, setShowMenuBar] = useState<boolean | null>(null);
+
+    useEffect(() => {
+        if (!hasWindowMenuBar) return;
+        let cancelled = false;
+
+        window.electron.sendRequestAsync(new GetSettingsQuery('appearance')).then((result) => {
+            if (cancelled || !result.success) return;
+            setShowMenuBar(result.data.showMenuBar !== false);
+        });
+
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
+    const changeMenuBar = (visible: boolean) => {
+        setShowMenuBar(visible);
+        void window.electron.sendRequestAsync(new SetMenuBarVisibleCommand(visible));
+    };
 
     return (
         <section>
@@ -51,6 +76,20 @@ const AppearanceSection: React.FC = () => {
                     </Radio>
                 ))}
             </RadioGroup>
+
+            {hasWindowMenuBar && showMenuBar !== null && (
+                <div className="mt-8">
+                    <h3 className="text-sm font-medium text-fg-muted">Window</h3>
+                    <div className="mt-4">
+                        <ToggleRow
+                            label="Show menu bar"
+                            description="The File, Edit, View and Window bar at the top of the window. Keyboard shortcuts keep working when it's hidden."
+                            checked={showMenuBar}
+                            onChange={changeMenuBar}
+                        />
+                    </div>
+                </div>
+            )}
         </section>
     );
 };

@@ -31,6 +31,7 @@ declare global {
     interface Window {
         electron: {
             initialTheme: Theme;
+            platform: string;
             sendRequestAsync: <TResponse>(request: MediatorRequest<TResponse>) => Promise<Result<TResponse>>;
             on: <TEvent extends AppEvent>(event: TEvent, callback: (data: AppEventMap[TEvent]) => void) => () => void;
         };
