@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Button from '@/React/Common/Components/Button/Button.tsx';
-import FieldError from '../Components/FieldError.tsx';
+import FieldError from '@/React/Common/Components/Onboarding/FieldError.tsx';
 
 interface ConfirmStepProps {
     confirmIndices: number[];

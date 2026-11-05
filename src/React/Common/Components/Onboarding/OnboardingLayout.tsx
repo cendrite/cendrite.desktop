@@ -1,7 +1,7 @@
 import React from 'react';
 import clsx from 'clsx';
 
-interface SignupLayoutProps {
+interface OnboardingLayoutProps {
     step?: number;
     totalSteps?: number;
     title: string;
@@ -10,7 +10,7 @@ interface SignupLayoutProps {
     footer?: React.ReactNode;
 }
 
-const SignupLayout: React.FC<SignupLayoutProps> = ({ step, totalSteps, title, description, children, footer }) => (
+const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({ step, totalSteps, title, description, children, footer }) => (
     <div className="flex min-h-screen flex-col items-center justify-center bg-canvas px-4 text-fg">
         <div className="w-[440px] max-w-full rounded-xl border border-line bg-surface p-8 shadow-lg">
             {step !== undefined && totalSteps !== undefined && (
@@ -34,4 +34,4 @@ const SignupLayout: React.FC<SignupLayoutProps> = ({ step, totalSteps, title, de
     </div>
 );
 
-export default SignupLayout;
+export default OnboardingLayout;

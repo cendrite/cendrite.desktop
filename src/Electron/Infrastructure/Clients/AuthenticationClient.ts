@@ -1,6 +1,9 @@
 import { Result } from '#shared/Result/Result';
 import {
     IAuthenticationProvider,
+    RecoverRequest,
+    RecoverResponse,
+    RecoveryChallengeResponse,
     SignupChallengeResponse,
     SignupRequest,
     SignupResponse,
@@ -40,6 +43,22 @@ export class AuthenticationClient implements IAuthenticationProvider {
         return this.identityUserClient.handleConduit<SignupResponse>({
             method: 'POST',
             url: 'signup',
+            data: req,
+        });
+    }
+
+    getRecoveryChallenge(accountPublicKey: string): Promise<Result<RecoveryChallengeResponse>> {
+        return this.loginClient.handleConduit<RecoveryChallengeResponse>({
+            method: 'POST',
+            url: 'recovery-challenge',
+            data: { accountPublicKey },
+        });
+    }
+
+    recover(req: RecoverRequest): Promise<Result<RecoverResponse>> {
+        return this.identityUserClient.handleConduit<RecoverResponse>({
+            method: 'POST',
+            url: 'recover',
             data: req,
         });
     }

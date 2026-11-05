@@ -5,6 +5,7 @@ import {
     generateRecoveryPhrase,
     isValidRecoveryPhrase,
     signDeviceApproval,
+    signRecoveryChallenge,
     signSignupChallenge,
 } from '#electron/Infrastructure/Crypto/AccountKey';
 
@@ -46,6 +47,18 @@ describe('account key', () => {
 
         expect(signature).toHaveLength(64);
         expect(nacl.sign.detached.verify(message, signature, key.publicKey)).toBe(true);
+    });
+
+    test('signs the recovery challenge with its own label, not the signup one', () => {
+        const key = deriveAccountKey(phrase);
+        const challenge = Uint8Array.from({ length: 32 }, (_, i) => i);
+
+        const signature = Buffer.from(signRecoveryChallenge(key, challenge), 'base64');
+
+        const recovery = Buffer.concat([Buffer.from('cendrite-recovery-v1', 'ascii'), challenge]);
+        const signup = Buffer.concat([Buffer.from('cendrite-signup-v1', 'ascii'), challenge]);
+        expect(nacl.sign.detached.verify(recovery, signature, key.publicKey)).toBe(true);
+        expect(nacl.sign.detached.verify(signup, signature, key.publicKey)).toBe(false);
     });
 
     test('signs the device approval with the server layout', () => {
