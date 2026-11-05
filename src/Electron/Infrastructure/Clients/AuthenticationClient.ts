@@ -11,16 +11,16 @@ import {
 import { ApiClient } from './Base/ApiClient.js';
 
 export class AuthenticationClient implements IAuthenticationProvider {
-    private readonly loginClient: ApiClient;
+    private readonly authClient: ApiClient;
     private readonly logoutClient: ApiClient;
     private readonly identityUserClient: ApiClient;
 
     constructor(
-        loginApiClient: ApiClient,
+        authApiClient: ApiClient,
         logoutApiClient: ApiClient,
         identityUserApiClient: ApiClient,
     ) {
-        this.loginClient = loginApiClient;
+        this.authClient = authApiClient;
         this.logoutClient = logoutApiClient;
         this.identityUserClient = identityUserApiClient;
     }
@@ -33,7 +33,7 @@ export class AuthenticationClient implements IAuthenticationProvider {
     }
 
     getSignupChallenge(): Promise<Result<SignupChallengeResponse>> {
-        return this.loginClient.handleConduit<SignupChallengeResponse>({
+        return this.authClient.handleConduit<SignupChallengeResponse>({
             method: 'GET',
             url: 'signup-challenge',
         });
@@ -48,7 +48,7 @@ export class AuthenticationClient implements IAuthenticationProvider {
     }
 
     getRecoveryChallenge(accountPublicKey: string): Promise<Result<RecoveryChallengeResponse>> {
-        return this.loginClient.handleConduit<RecoveryChallengeResponse>({
+        return this.authClient.handleConduit<RecoveryChallengeResponse>({
             method: 'POST',
             url: 'recovery-challenge',
             data: { accountPublicKey },
