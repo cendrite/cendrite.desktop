@@ -2,6 +2,8 @@ import nacl from 'tweetnacl';
 import { DeviceRepository } from '../Persistence/Repositories/DeviceRepository.js';
 import { DeviceKeys, INonceSigner } from '#electron/Application/Contracts/Services/INonceSigner';
 
+const AUTH_CONTEXT = Buffer.from('cendrite-auth-v1', 'ascii');
+
 export class NonceSigner implements INonceSigner {
     private readonly deviceRepository: DeviceRepository;
 
@@ -16,9 +18,9 @@ export class NonceSigner implements INonceSigner {
         }
 
         const privateKeyBuffer = Buffer.from(device.privateKey, 'base64');
-        const nonceBuffer = Buffer.from(nonce, 'base64');
+        const message = Buffer.concat([AUTH_CONTEXT, Buffer.from(nonce, 'base64')]);
 
-        const signatureBuffer = nacl.sign.detached(nonceBuffer, privateKeyBuffer);
+        const signatureBuffer = nacl.sign.detached(message, privateKeyBuffer);
         return Buffer.from(signatureBuffer).toString('base64');
     }
 
