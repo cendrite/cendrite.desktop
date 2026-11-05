@@ -78,6 +78,41 @@ jobs:
             --exclude '*-unpacked/*' \
             --endpoint-url "${{ secrets.R2_ENDPOINT }}"
 
+      - uses: actions/upload-artifact@v7
+        with:
+          name: installers-${{ matrix.os }}
+          path: |
+            dist/*.exe
+            dist/*.dmg
+            dist/*.AppImage
+          if-no-files-found: error
+          retention-days: 1
+
+  github-release:
+    name: GitHub release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: installers-*
+          path: installers
+          merge-multiple: true
+
+      - name: Write checksums
+        working-directory: installers
+        run: sha256sum * > SHA256SUMS
+
+      - uses: softprops/action-gh-release@v3
+        with:
+          name: Cendrite ${{ github.ref_name }}
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          generate_release_notes: true
+          files: installers/*
+
   publish:
     name: Publish latest.json and update feeds
     needs: build
@@ -125,3 +160,6 @@ jobs:
           aws s3 cp latest.json "s3://$BUCKET/$CHANNEL/latest.json" \
             --content-type application/json --cache-control 'no-cache' \
             --endpoint-url "${{ secrets.R2_ENDPOINT }}"
+
+      - name: Rebuild website
+        run: curl -fsS -X POST "${{ secrets.WEBSITE_DEPLOY_HOOK }}"
