@@ -48,7 +48,7 @@ describe('isAppUrl in development', () => {
         process.env.VITE_PORT = '8081';
 
         expect(getAppUrl()).toBe('http://localhost:8081/');
-        expect(isAppUrl('http://localhost:8081/#/login')).toBe(true);
+        expect(isAppUrl('http://localhost:8081/#/signup')).toBe(true);
     });
 
     test('rejects another port or host', () => {
