@@ -6,6 +6,7 @@ import { User } from '@/React/Models/User.ts';
 import { BeginSignupCommand, CancelSignupCommand, CompleteSignupCommand } from '@/Shared/Authentication/Signup.ts';
 import LoadingScreen from '@/React/Common/Components/Loading/LoadingScreen.tsx';
 import OnboardingLayout from '@/React/Common/Components/Onboarding/OnboardingLayout.tsx';
+import { onboardingLink } from '@/React/Common/Components/Onboarding/OnboardingStyles.ts';
 import UsernameStep from './Steps/UsernameStep.tsx';
 import PhraseStep from './Steps/PhraseStep.tsx';
 import ConfirmStep from './Steps/ConfirmStep.tsx';
@@ -101,11 +102,10 @@ const SignupPage: React.FC = () => {
                     step={1}
                     totalSteps={TOTAL_STEPS}
                     title="Create your account"
-                    description="No email and no password. Your account is protected by a recovery phrase that only you have."
                     footer={
                         <>
                             Already have an account?{' '}
-                            <button type="button" className="text-link hover:underline" onClick={() => navigate('/recover')}>
+                            <button type="button" className={onboardingLink} onClick={() => navigate('/recover')}>
                                 Recover it
                             </button>
                         </>

@@ -1,7 +1,7 @@
 import React from 'react';
 import clsx from 'clsx';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
+export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'solid';
 export type ButtonSize = 'sm' | 'md';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -24,6 +24,7 @@ const variants: Record<ButtonVariant, string> = {
     secondary: 'bg-overlay text-fg hover:bg-overlay-hover',
     danger: 'bg-danger text-fg-on-accent hover:bg-danger-hover',
     ghost: 'text-fg-muted hover:bg-surface-hover',
+    solid: 'bg-fg text-canvas hover:opacity-85',
 };
 
 export const Button: React.FC<ButtonProps> = ({ variant = 'secondary', size = 'sm', className, ...props }) => (

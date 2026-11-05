@@ -1,5 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
+import FinchMark from '@/React/Common/Components/Loading/FinchMark.tsx';
 
 interface OnboardingLayoutProps {
     step?: number;
@@ -11,26 +12,32 @@ interface OnboardingLayoutProps {
 }
 
 const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({ step, totalSteps, title, description, children, footer }) => (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-canvas px-4 text-fg">
-        <div className="w-[440px] max-w-full rounded-xl border border-line bg-surface p-8 shadow-lg">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-canvas px-6 py-12 text-fg antialiased">
+        <FinchMark className="mb-8 h-9 w-auto" />
+
+        <div className="w-[600px] max-w-full rounded-2xl border border-line bg-surface px-12 py-11">
             {step !== undefined && totalSteps !== undefined && (
-                <div className="mb-6 flex items-center gap-2" aria-label={`Step ${step} of ${totalSteps}`}>
+                <div className="mx-auto mb-9 flex w-40 items-center gap-2" aria-label={`Step ${step} of ${totalSteps}`}>
                     {Array.from({ length: totalSteps }, (_, i) => (
                         <span
                             key={i}
-                            className={clsx('h-1.5 flex-1 rounded-full transition-colors', i < step ? 'bg-accent' : 'bg-line')}
+                            className={clsx('h-1 flex-1 rounded-full transition-colors', i < step ? 'bg-fg' : 'bg-line-strong')}
                         />
                     ))}
                 </div>
             )}
 
-            <h1 className="text-xl font-semibold">{title}</h1>
-            {description && <div className="mt-2 text-sm leading-relaxed text-fg-subtle">{description}</div>}
+            <div className="text-center">
+                <h1 className="text-2xl font-semibold tracking-tight text-balance">{title}</h1>
+                {description && (
+                    <p className="mx-auto mt-3 max-w-md text-[15px] leading-relaxed text-balance text-fg-subtle">{description}</p>
+                )}
+            </div>
 
-            <div className="mt-6">{children}</div>
+            <div className="mt-10">{children}</div>
         </div>
 
-        {footer && <div className="mt-6 text-sm text-fg-subtle">{footer}</div>}
+        {footer && <div className="mt-8 text-sm text-fg-subtle">{footer}</div>}
     </div>
 );
 

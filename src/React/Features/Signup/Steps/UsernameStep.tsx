@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Button from '@/React/Common/Components/Button/Button.tsx';
 import FieldError from '@/React/Common/Components/Onboarding/FieldError.tsx';
 import { USERNAME_MAX, validateUsername } from '@/React/Common/Components/Onboarding/OnboardingValidation.ts';
+import { onboardingActions, onboardingButton, onboardingField } from '@/React/Common/Components/Onboarding/OnboardingStyles.ts';
 
 interface UsernameStepProps {
     initialUsername: string;
@@ -13,6 +14,7 @@ interface UsernameStepProps {
 const UsernameStep: React.FC<UsernameStepProps> = ({ initialUsername, error, busy, onContinue }) => {
     const [username, setUsername] = useState(initialUsername);
     const [validationError, setValidationError] = useState<string | null>(null);
+    const message = validationError ?? error;
 
     const submit = (event: React.FormEvent) => {
         event.preventDefault();
@@ -37,17 +39,20 @@ const UsernameStep: React.FC<UsernameStepProps> = ({ initialUsername, error, bus
                     setUsername(e.target.value);
                     setValidationError(null);
                 }}
-                placeholder="e.g. alice"
-                className="mt-1.5 h-10 w-full rounded-md border border-line-strong bg-field px-3 text-sm text-fg placeholder:text-fg-faint focus:outline-none focus:ring-2 focus:ring-accent"
+                placeholder="alice"
+                aria-invalid={message !== null}
+                className={`mt-2 ${onboardingField(message !== null)}`}
             />
-            <p className="mt-1.5 text-xs text-fg-faint">
-                Shown to your friends. You get a tag like <span className="font-mono">alice#4F21KD</span> so names never clash.
+            <p className="mt-2 text-sm text-fg-faint">
+                Shown to your friends, with a tag like <span className="font-mono">alice#4F21KD</span> so names never clash.
             </p>
-            <FieldError message={validationError ?? error} />
+            <FieldError message={message} />
 
-            <Button type="submit" variant="primary" size="md" disabled={busy} className="mt-6 h-10 w-full">
-                Continue
-            </Button>
+            <div className={onboardingActions}>
+                <Button type="submit" variant="solid" size="md" disabled={busy} className={onboardingButton}>
+                    Continue
+                </Button>
+            </div>
         </form>
     );
 };

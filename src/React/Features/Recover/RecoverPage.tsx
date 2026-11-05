@@ -4,6 +4,7 @@ import { wordlist } from '@scure/bip39/wordlists/english.js';
 import Button from '@/React/Common/Components/Button/Button.tsx';
 import LoadingScreen from '@/React/Common/Components/Loading/LoadingScreen.tsx';
 import OnboardingLayout from '@/React/Common/Components/Onboarding/OnboardingLayout.tsx';
+import { onboardingActions, onboardingButton, onboardingLink } from '@/React/Common/Components/Onboarding/OnboardingStyles.ts';
 import FieldError from '@/React/Common/Components/Onboarding/FieldError.tsx';
 import { useUser } from '@/React/Context/User/UserContext.tsx';
 import { UserActionType } from '@/React/Context/User/UserReducer.ts';
@@ -93,18 +94,18 @@ const RecoverPage: React.FC = () => {
     return (
         <OnboardingLayout
             title="Recover your account"
-            description="Enter the 12 words of your recovery phrase. This computer is added as a new device, and your other devices are told about it. Message history isn't restored."
+            description="Enter the 12 words of your recovery phrase. This computer is added as a new device and your other devices are told about it. Message history isn't restored."
             footer={
                 <>
                     Don't have an account?{' '}
-                    <button type="button" className="text-link hover:underline" onClick={() => navigate('/signup')}>
+                    <button type="button" className={onboardingLink} onClick={() => navigate('/signup')}>
                         Create one
                     </button>
                 </>
             }
         >
             <form onSubmit={submit} noValidate>
-                <ol className="grid grid-cols-3 gap-2" aria-label="Recovery phrase">
+                <ol className="grid grid-cols-3 gap-3" aria-label="Recovery phrase">
                     {words.map((word, i) => (
                         <li key={i}>
                             <WordInput
@@ -123,16 +124,16 @@ const RecoverPage: React.FC = () => {
                     ))}
                 </ol>
 
-                <p className="mt-2 text-xs text-fg-faint">Tip: paste the whole phrase into the first box.</p>
+                <p className="mt-3 text-center text-sm text-fg-faint">You can paste the whole phrase into the first box.</p>
                 <FieldError message={error} />
 
-                <div className="mt-6 flex gap-3">
-                    <Button type="button" variant="ghost" size="md" onClick={() => navigate('/signup')} className="h-10 flex-1">
-                        Back
-                    </Button>
-                    <Button type="submit" variant="primary" size="md" className="h-10 flex-[2]">
+                <div className={onboardingActions}>
+                    <Button type="submit" variant="solid" size="md" className={onboardingButton}>
                         Recover account
                     </Button>
+                    <button type="button" onClick={() => navigate('/signup')} className={onboardingLink}>
+                        Back
+                    </button>
                 </div>
             </form>
         </OnboardingLayout>
