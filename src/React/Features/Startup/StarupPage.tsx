@@ -1,7 +1,6 @@
 ﻿import React, {useEffect} from "react";
-import Lottie from "lottie-react";
 import {useNavigate} from "react-router-dom";
-import boxAnimation from "@/React/Assets/Animations/box_load_animation.json";
+import LoadingScreen from "@/React/Common/Components/Loading/LoadingScreen.tsx";
 import { useAuthSession } from "@/React/Context/AuthSession/AuthSessionContext.tsx";
 
 const StartupPage: React.FC = () => {
@@ -18,13 +17,7 @@ const StartupPage: React.FC = () => {
         }
     }, [sessionId, loading, navigate]);
 
-    return (
-        <div className="flex items-center justify-center h-screen bg-canvas">
-            <div>
-                <Lottie animationData={boxAnimation}/>
-            </div>
-        </div>
-    );
+    return <LoadingScreen label="Loading" />;
 };
 
 export default StartupPage;
