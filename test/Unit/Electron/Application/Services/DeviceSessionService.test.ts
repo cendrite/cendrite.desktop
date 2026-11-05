@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from 'vitest';
-import { DeviceSessionService } from '#electron/Application/Services/DeviceSessionService';
+import { DeviceSessionService } from '#electron/Application/Services/Device/DeviceSessionService';
 import { Device } from '#electron/Domain/Entities/Device';
 import { Result } from '#shared/Result/Result';
 
