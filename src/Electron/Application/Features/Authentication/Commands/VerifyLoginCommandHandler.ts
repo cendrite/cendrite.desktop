@@ -1,57 +1,23 @@
-import { app } from 'electron';
 import { ErrorMessage } from '#shared/Result/ErrorMessage';
 import { Result } from '#shared/Result/Result';
 import { Device } from '#electron/Domain/Entities/Device';
 import { INonceSigner } from '#electron/Application/Contracts/Services/INonceSigner';
-import { ITokenManager } from '#electron/Application/Contracts/Services/ITokenManager';
-import { IDeviceRepository } from '#electron/Application/Contracts/Repositories/IDeviceRepository';
 import { IAuthenticationProvider } from '#electron/Application/Contracts/Providers/IAuthenticationProvider';
 import { IDeviceProvider } from '#electron/Application/Contracts/Providers/IDeviceProvider';
 import { Handler } from '#electron/Application/Mediator/Handler';
 import { VerifyLoginCommand } from '#shared/Authentication/VerifyLogin';
-import { IKeyGenerator } from '#electron/Application/Contracts/Services/IKeyGenerator';
-import { ISignalManager } from '#electron/Application/Contracts/Services/ISignalManager';
-import { IUserRepository } from '#electron/Application/Contracts/Repositories/IUserRepository';
-import { IUserProvider } from '#electron/Application/Contracts/Providers/IUserProvider';
 import { UserContract } from '#shared/Models/UserContract';
-import { User } from '#electron/Domain/Aggregates/User';
-import { UserConnectionId } from '#electron/Domain/Entities/UserConnectionId';
-import { IPump } from '#electron/Application/Contracts/Services/IPump';
 import { IPendingLoginStore } from '#electron/Application/Contracts/Services/IPendingLoginStore';
-
-// Mirrors Identity.Domain.Enums.DeviceType / DevicePlatform on the backend.
-const DESKTOP_DEVICE_TYPE = 2;
-
-function currentDevicePlatform(): number {
-    switch (process.platform) {
-        case 'win32': return 1;
-        case 'darwin': return 4;
-        case 'linux': return 5;
-        default: return 6;
-    }
-}
-
-// Backend only accepts "major.minor" (^\d+\.\d{1,3}$), so drop the patch segment.
-function currentAppVersion(): string {
-    const [major, minor] = app.getVersion().split('.');
-    return `${major}.${minor}`;
-}
+import { IDeviceSessionService } from '#electron/Application/Services/Device/DeviceSessionService';
+import { currentDeviceInfo } from '#electron/Application/Services/Device/DeviceInfo';
 
 export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, UserContract> {
     constructor(
         private readonly authenticationProvider: IAuthenticationProvider,
         private readonly deviceProvider: IDeviceProvider,
         private readonly nonceSigner: INonceSigner,
-        private readonly deviceRepository: IDeviceRepository,
-        private readonly tokenManager: ITokenManager,
-        private readonly keyGenerator: IKeyGenerator,
-        private readonly signalManager: ISignalManager,
-        private readonly userRepository: IUserRepository,
-        private readonly userProvider: IUserProvider,
-        private readonly messagePump: IPump,
-        private readonly deliveryStatusUpdatePump: IPump,
-        private readonly preKeyPump: IPump,
         private readonly pendingLoginStore: IPendingLoginStore,
+        private readonly deviceSessionService: IDeviceSessionService,
     ) { }
 
     public async handle(cmd: VerifyLoginCommand): Promise<Result<UserContract>> {
@@ -77,14 +43,15 @@ export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, Us
         this.pendingLoginStore.clear();
 
         const devPk = this.nonceSigner.generateDeviceKeys();
+        const deviceInfo = currentDeviceInfo();
 
         const deviceRegistrationResult = await this.deviceProvider.createDevice({
             userId: cmd.userId,
             loginNonceId: verifyLoginResult.data.nonceId,
             loginNonce: verifyLoginResult.data.nonce,
-            deviceAppVersion: currentAppVersion(),
-            deviceType: DESKTOP_DEVICE_TYPE,
-            devicePlatform: currentDevicePlatform(),
+            deviceAppVersion: deviceInfo.appVersion,
+            deviceType: deviceInfo.type,
+            devicePlatform: deviceInfo.platform,
             base64DevicePublicKey: devPk.publicKey,
         });
 
@@ -100,51 +67,6 @@ export class VerifyLoginCommandHandler implements Handler<VerifyLoginCommand, Us
             devPk.publicKey,
         );
 
-        await this.deviceRepository.create(device);
-
-        await this.tokenManager.init(cmd.userId, device.id);
-
-        await this.keyGenerator.generateKeyBundle(device.connectionId);
-
-        await this.signalManager.connect();
-
-        const userProfileResponse = await this.userProvider.getUserProfile({
-            exclusiveConnectionId: device.connectionId,
-        });
-
-        if (!userProfileResponse.success || !userProfileResponse.data) {
-            return Result.fail<UserContract>(new ErrorMessage(null, 'Failed to retrieve user profile from provider'));
-        }
-
-        const user = new User(
-            userProfileResponse.data.id,
-            userProfileResponse.data.username,
-            userProfileResponse.data.userTag,
-            userProfileResponse.data.avatarKey,
-            userProfileResponse.data.displayName,
-        );
-
-        user.connectionIds = userProfileResponse.data.connectionIds.map(
-            (connectionId) => new UserConnectionId(connectionId, user),
-        );
-
-        const savedUser = await this.userRepository.create(user);
-
-        const userContract = new UserContract(
-            savedUser.id,
-            savedUser.username,
-            savedUser.userTag,
-            device.id,
-            device.connectionId,
-            savedUser.connectionIds.map((conn) => conn.connectionId),
-            savedUser.avatarKey,
-            savedUser.displayName,
-        );
-
-        this.messagePump.start();
-        this.deliveryStatusUpdatePump.start();
-        this.preKeyPump.start();
-
-        return Result.success<UserContract>(userContract);
+        return this.deviceSessionService.start(cmd.userId, device);
     }
 }

@@ -33,6 +33,7 @@
     "@headlessui/react": "^2.2.9",
     "@microsoft/signalr": "^8.0.7",
     "@phosphor-icons/react": "^2.1.10",
+    "@scure/bip39": "^2.4.0",
     "@signalapp/libsignal-client": "0.103.0",
     "@tabler/icons-react": "^3.36.0",
     "@types/lodash": "^4.17.20",

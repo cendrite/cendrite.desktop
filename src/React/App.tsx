@@ -1,7 +1,7 @@
 import React from "react";
 import {HashRouter as Router, Route, Routes} from "react-router-dom";
 import LoginPage from "./Features/Login/LoginPage";
-import RegisterPage from "./Features/Register/RegisterPage";
+import SignupPage from "./Features/Signup/SignupPage";
 import VerifyUserPage from "./Features/VerifyUser/VerifyUserPage";
 import HomePage from "./Features/Home/HomePage";
 import VerifyLoginPage from "./Features/VerifyLogin/VerifyLoginPage";
@@ -15,7 +15,7 @@ const App: React.FC = () => {
         <Route path="/" element={<StartupPage/>} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/signup" element={<SignupPage />} />
         <Route path="/verifyUser" element={<VerifyUserPage />} />
         <Route path="/verifyLogin" element={<VerifyLoginPage />} />
         <Route path="/logout" element={<LogoutPage />} />
