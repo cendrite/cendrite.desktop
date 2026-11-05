@@ -26,8 +26,33 @@ export interface SignupResponse {
     deviceConnectionId: string;
 }
 
+export interface RecoveryChallengeResponse {
+    challengeId: string;
+    challenge: string;
+    expiresAt: string;
+}
+
+export interface RecoverRequest {
+    accountPublicKey: string;
+    challengeId: string;
+    challengeSignature: string;
+    devicePublicKey: string;
+    deviceApproval: string;
+    deviceAppVersion: string;
+    deviceType: number;
+    devicePlatform: number;
+}
+
+export interface RecoverResponse {
+    userId: string;
+    deviceId: string;
+    deviceConnectionId: string;
+}
+
 export interface IAuthenticationProvider {
     logout(): Promise<Result<void>>;
     getSignupChallenge(): Promise<Result<SignupChallengeResponse>>;
     signup(req: SignupRequest): Promise<Result<SignupResponse>>;
+    getRecoveryChallenge(accountPublicKey: string): Promise<Result<RecoveryChallengeResponse>>;
+    recover(req: RecoverRequest): Promise<Result<RecoverResponse>>;
 }

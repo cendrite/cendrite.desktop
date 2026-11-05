@@ -5,7 +5,7 @@ import { UserActionType } from '@/React/Context/User/UserReducer.ts';
 import { User } from '@/React/Models/User.ts';
 import { BeginSignupCommand, CancelSignupCommand, CompleteSignupCommand } from '@/Shared/Authentication/Signup.ts';
 import LoadingScreen from '@/React/Common/Components/Loading/LoadingScreen.tsx';
-import SignupLayout from './Components/SignupLayout.tsx';
+import OnboardingLayout from '@/React/Common/Components/Onboarding/OnboardingLayout.tsx';
 import UsernameStep from './Steps/UsernameStep.tsx';
 import PhraseStep from './Steps/PhraseStep.tsx';
 import ConfirmStep from './Steps/ConfirmStep.tsx';
@@ -97,29 +97,37 @@ const SignupPage: React.FC = () => {
     switch (step) {
         case 'username':
             return (
-                <SignupLayout
+                <OnboardingLayout
                     step={1}
                     totalSteps={TOTAL_STEPS}
                     title="Create your account"
                     description="No email and no password. Your account is protected by a recovery phrase that only you have."
+                    footer={
+                        <>
+                            Already have an account?{' '}
+                            <button type="button" className="text-link hover:underline" onClick={() => navigate('/recover')}>
+                                Recover it
+                            </button>
+                        </>
+                    }
                 >
                     <UsernameStep initialUsername={username} error={error} busy={busy} onContinue={chooseUsername} />
-                </SignupLayout>
+                </OnboardingLayout>
             );
         case 'phrase':
             return (
-                <SignupLayout
+                <OnboardingLayout
                     step={2}
                     totalSteps={TOTAL_STEPS}
                     title="Save your recovery phrase"
                     description="These 12 words are the only way back into your account if you lose every device you're signed in on."
                 >
                     <PhraseStep words={words} onBack={() => setStep('username')} onContinue={() => setStep('confirm')} />
-                </SignupLayout>
+                </OnboardingLayout>
             );
         case 'confirm':
             return (
-                <SignupLayout
+                <OnboardingLayout
                     step={3}
                     totalSteps={TOTAL_STEPS}
                     title="Confirm your phrase"
@@ -134,7 +142,7 @@ const SignupPage: React.FC = () => {
                         }}
                         onConfirm={confirm}
                     />
-                </SignupLayout>
+                </OnboardingLayout>
             );
         case 'working':
             return <LoadingScreen label="Setting up">This only takes a few seconds.</LoadingScreen>;
