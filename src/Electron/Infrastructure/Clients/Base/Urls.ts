@@ -9,11 +9,8 @@ export const API_URLS = {
     },
     IDENTITY: {
         AUTH: 'https://conduit.xhykl49jkg.org/api/identity',
-        DEVICE: 'https://conduit.xhykl49jkg.org/api/identity/user/device',
         USER: {
             BASE: 'https://conduit.xhykl49jkg.org/api/identity/user',
-            VERIFY_USER: 'https://conduit.xhykl49jkg.org/api/identity/user/verify',
-            RESEND_VERIFICATION: 'https://conduit.xhykl49jkg.org/api/identity/user/resend-verification',
         },
     },
     FRIEND: {
