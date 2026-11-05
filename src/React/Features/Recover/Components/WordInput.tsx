@@ -9,12 +9,11 @@ interface WordInputProps {
     autoFocus?: boolean;
     onChange: (value: string) => void;
     onPick: (word: string, viaTab: boolean) => void;
-    onBlur: () => void;
     onPaste: (event: React.ClipboardEvent<HTMLInputElement>) => void;
 }
 
 const WordInput = forwardRef<HTMLInputElement, WordInputProps>(
-    ({ index, value, invalid, autoFocus, onChange, onPick, onBlur, onPaste }, ref) => {
+    ({ index, value, invalid, autoFocus, onChange, onPick, onPaste }, ref) => {
         const [focused, setFocused] = useState(false);
         const [active, setActive] = useState(0);
 
@@ -79,10 +78,7 @@ const WordInput = forwardRef<HTMLInputElement, WordInputProps>(
                         setFocused(true);
                     }}
                     onFocus={() => setFocused(true)}
-                    onBlur={() => {
-                        setFocused(false);
-                        onBlur();
-                    }}
+                    onBlur={() => setFocused(false)}
                     onKeyDown={onKeyDown}
                     onPaste={onPaste}
                     className={clsx(

@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import Button from '@/React/Common/Components/Button/Button.tsx';
 import FieldError from '@/React/Common/Components/Onboarding/FieldError.tsx';
-
-export const USERNAME_MIN = 3;
-export const USERNAME_MAX = 20;
+import { USERNAME_MAX, validateUsername } from '@/React/Common/Components/Onboarding/OnboardingValidation.ts';
 
 interface UsernameStepProps {
     initialUsername: string;
@@ -12,23 +10,15 @@ interface UsernameStepProps {
     onContinue: (username: string) => void;
 }
 
-function validate(username: string): string | null {
-    if (username.length < USERNAME_MIN) return `Use at least ${USERNAME_MIN} characters.`;
-    if (username.length > USERNAME_MAX) return `Use at most ${USERNAME_MAX} characters.`;
-    return null;
-}
-
 const UsernameStep: React.FC<UsernameStepProps> = ({ initialUsername, error, busy, onContinue }) => {
     const [username, setUsername] = useState(initialUsername);
-    const [touched, setTouched] = useState(false);
-
-    const trimmed = username.trim();
-    const validationError = touched ? validate(trimmed) : null;
+    const [validationError, setValidationError] = useState<string | null>(null);
 
     const submit = (event: React.FormEvent) => {
         event.preventDefault();
-        setTouched(true);
-        if (validate(trimmed) === null) onContinue(trimmed);
+        const problem = validateUsername(username);
+        setValidationError(problem);
+        if (problem === null) onContinue(username.trim());
     };
 
     return (
@@ -43,8 +33,10 @@ const UsernameStep: React.FC<UsernameStepProps> = ({ initialUsername, error, bus
                 spellCheck={false}
                 maxLength={USERNAME_MAX + 10}
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                onBlur={() => setTouched(true)}
+                onChange={(e) => {
+                    setUsername(e.target.value);
+                    setValidationError(null);
+                }}
                 placeholder="e.g. alice"
                 className="mt-1.5 h-10 w-full rounded-md border border-line-strong bg-field px-3 text-sm text-fg placeholder:text-fg-faint focus:outline-none focus:ring-2 focus:ring-accent"
             />

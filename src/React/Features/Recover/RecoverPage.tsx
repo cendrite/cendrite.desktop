@@ -10,6 +10,7 @@ import { UserActionType } from '@/React/Context/User/UserReducer.ts';
 import { User } from '@/React/Models/User.ts';
 import { RecoverAccountCommand } from '@/Shared/Authentication/Recover.ts';
 import WordInput from './Components/WordInput.tsx';
+import { findInvalidWords } from '@/React/Common/Components/Onboarding/OnboardingValidation.ts';
 
 const WORD_COUNT = 12;
 
@@ -19,24 +20,21 @@ const RecoverPage: React.FC = () => {
     const known = useMemo(() => new Set(wordlist), []);
 
     const [words, setWords] = useState<string[]>(() => Array(WORD_COUNT).fill(''));
-    const [touched, setTouched] = useState<boolean[]>(() => Array(WORD_COUNT).fill(false));
+    const [invalid, setInvalid] = useState<ReadonlySet<number>>(new Set());
     const [error, setError] = useState<string | null>(null);
     const [working, setWorking] = useState(false);
     const inputs = useRef<(HTMLInputElement | null)[]>([]);
 
     const normalized = words.map((word) => word.trim().toLowerCase());
-    const complete = normalized.every((word) => known.has(word));
 
     const setWordsFrom = (index: number, values: string[]) => {
         setWords((current) => current.map((word, i) => (i >= index && i < index + values.length ? values[i - index] : word)));
         setError(null);
+        setInvalid((current) => new Set([...current].filter((i) => i < index || i >= index + values.length)));
     };
-
-    const touch = (index: number) => setTouched((current) => current.map((t, j) => (j === index ? true : t)));
 
     const pick = (index: number, word: string, viaTab: boolean) => {
         setWordsFrom(index, [word]);
-        touch(index);
         if (!viaTab) inputs.current[index + 1]?.focus();
     };
 
@@ -45,12 +43,18 @@ const RecoverPage: React.FC = () => {
         if (parts.length < 2) return;
         event.preventDefault();
         setWordsFrom(index, parts.slice(0, WORD_COUNT - index));
-        setTouched(Array(WORD_COUNT).fill(true));
     };
 
     const submit = async (event: React.FormEvent) => {
         event.preventDefault();
-        if (!complete || working) return;
+        if (working) return;
+
+        const problems = findInvalidWords(words, known);
+        setInvalid(new Set(problems));
+        if (problems.length > 0) {
+            setError('Some words are missing or not in the word list. Check the highlighted boxes.');
+            return;
+        }
 
         setWorking(true);
         setError(null);
@@ -110,10 +114,9 @@ const RecoverPage: React.FC = () => {
                                 index={i}
                                 value={word}
                                 autoFocus={i === 0}
-                                invalid={touched[i] && normalized[i].length > 0 && !known.has(normalized[i])}
+                                invalid={invalid.has(i)}
                                 onChange={(value) => setWordsFrom(i, [value])}
                                 onPick={(picked, viaTab) => pick(i, picked, viaTab)}
-                                onBlur={() => touch(i)}
                                 onPaste={(e) => onPaste(i, e)}
                             />
                         </li>
@@ -127,7 +130,7 @@ const RecoverPage: React.FC = () => {
                     <Button type="button" variant="ghost" size="md" onClick={() => navigate('/signup')} className="h-10 flex-1">
                         Back
                     </Button>
-                    <Button type="submit" variant="primary" size="md" disabled={!complete} className="h-10 flex-[2]">
+                    <Button type="submit" variant="primary" size="md" className="h-10 flex-[2]">
                         Recover account
                     </Button>
                 </div>
