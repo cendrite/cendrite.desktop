@@ -1,7 +1,7 @@
 import { randomInt } from 'node:crypto';
 import { Result } from '#shared/Result/Result';
 import { Handler } from '#electron/Application/Mediator/Handler';
-import { BeginSignupCommand, BeginSignupResponse } from '#shared/Authentication/Signup';
+import { BeginSignupCommand, BeginSignupResponse } from '#shared/Authentication/BeginSignup';
 import { IPendingSignupStore } from '#electron/Application/Contracts/Services/IPendingSignupStore';
 import { generateRecoveryPhrase } from '#electron/Infrastructure/Crypto/AccountKey';
 

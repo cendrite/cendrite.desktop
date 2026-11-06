@@ -12,4 +12,5 @@
     UserLoggedIn = 10,
     Deleted = 11,
     DeviceAdded = 12,
+    DeviceLinkRequested = 13,
 }

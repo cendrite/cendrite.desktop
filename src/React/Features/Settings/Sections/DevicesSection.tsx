@@ -11,6 +11,7 @@ import {
 import { DeviceDto } from '@/Shared/Devices/GetDevices';
 import { useUser } from '@/React/Context/User/UserContext';
 import DeleteDeviceModal from '../Modals/DeleteDeviceModal.tsx';
+import LinkDevicePanel from '../Components/LinkDevicePanel.tsx';
 
 const platformIcons: Record<string, React.ElementType> = {
     Windows: WindowsLogoIcon,
@@ -83,9 +84,10 @@ interface DevicesSectionProps {
     devices: DeviceDto[] | null;
     failed: boolean;
     onDelete: (deviceId: string) => Promise<boolean>;
+    onLinked: () => void;
 }
 
-const DevicesSection: React.FC<DevicesSectionProps> = ({ devices, failed, onDelete }) => {
+const DevicesSection: React.FC<DevicesSectionProps> = ({ devices, failed, onDelete, onLinked }) => {
     const { user } = useUser();
     const [deviceToRemove, setDeviceToRemove] = useState<DeviceDto | null>(null);
     const currentDeviceId = user?.deviceId;
@@ -99,7 +101,9 @@ const DevicesSection: React.FC<DevicesSectionProps> = ({ devices, failed, onDele
 
     return (
         <section>
-            <h3 className="text-sm font-medium text-fg-muted">Your devices</h3>
+            <LinkDevicePanel onLinked={onLinked} />
+
+            <h3 className="mt-8 text-sm font-medium text-fg-muted">Your devices</h3>
             <p className="mt-1 text-sm text-fg-subtle">Devices that are signed in to your account.</p>
 
             {devices === null && failed && <p className="mt-4 text-sm text-danger-fg">Could not load your devices.</p>}

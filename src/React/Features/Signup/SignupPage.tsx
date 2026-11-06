@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useUser } from '@/React/Context/User/UserContext.tsx';
 import { UserActionType } from '@/React/Context/User/UserReducer.ts';
 import { User } from '@/React/Models/User.ts';
-import { BeginSignupCommand, CancelSignupCommand, CompleteSignupCommand } from '@/Shared/Authentication/Signup.ts';
+import { BeginSignupCommand } from '@/Shared/Authentication/BeginSignup.ts';
+import { CancelSignupCommand } from '@/Shared/Authentication/CancelSignup.ts';
+import { CompleteSignupCommand } from '@/Shared/Authentication/CompleteSignup.ts';
 import LoadingScreen from '@/React/Common/Components/Loading/LoadingScreen.tsx';
 import OnboardingLayout from '@/React/Common/Components/Onboarding/OnboardingLayout.tsx';
 import { onboardingLink } from '@/React/Common/Components/Onboarding/OnboardingStyles.ts';
@@ -105,8 +107,12 @@ const SignupPage: React.FC = () => {
                     footer={
                         <>
                             Already have an account?{' '}
+                            <button type="button" className={onboardingLink} onClick={() => navigate('/link')}>
+                                Link this device
+                            </button>
+                            {' or '}
                             <button type="button" className={onboardingLink} onClick={() => navigate('/recover')}>
-                                Recover it
+                                recover it
                             </button>
                         </>
                     }

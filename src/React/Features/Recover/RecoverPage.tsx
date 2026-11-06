@@ -97,9 +97,9 @@ const RecoverPage: React.FC = () => {
             description="Enter the 12 words of your recovery phrase. This computer is added as a new device and your other devices are told about it. Message history isn't restored."
             footer={
                 <>
-                    Don't have an account?{' '}
-                    <button type="button" className={onboardingLink} onClick={() => navigate('/signup')}>
-                        Create one
+                    Signed in on another device?{' '}
+                    <button type="button" className={onboardingLink} onClick={() => navigate('/link')}>
+                        Link this one instead
                     </button>
                 </>
             }
