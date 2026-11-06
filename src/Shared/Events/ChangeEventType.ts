@@ -11,4 +11,5 @@
     UserLoggedOut = 9,
     UserLoggedIn = 10,
     Deleted = 11,
+    DeviceAdded = 12,
 }

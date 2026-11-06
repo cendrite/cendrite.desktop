@@ -5,18 +5,18 @@ import UserModal from '../Modals/UserModal.tsx';
 import NotificationBadge from '@/React/Context/Notification/NotificationBadge.tsx';
 import Avatar from '@/React/Common/Components/Avatar/Avatar.tsx';
 import { useUser } from '@/React/Context/User/UserContext.tsx';
-import SettingsModal from '@/React/Features/Settings/SettingsModal.tsx';
 import { AddressBookIcon, ChatCircleIcon, GearSixIcon } from '@phosphor-icons/react';
 
 export interface SidePanelProps {
     onTogglePane: () => void;
     setPaneType: (type: 'chats' | 'contacts') => void;
     paneType: 'chats' | 'contacts';
+    isSettingsOpen: boolean;
+    onOpenSettings: () => void;
 }
 
-export const SidePanel: React.FC<SidePanelProps> = ({ onTogglePane, setPaneType, paneType }) => {
+export const SidePanel: React.FC<SidePanelProps> = ({ onTogglePane, setPaneType, paneType, isSettingsOpen, onOpenSettings }) => {
     const [isUserModalOpen, setUserModalOpen] = useState(false);
-    const [isSettingsModalOpen, setSettingsModalOpen] = useState(false);
     const { user } = useUser();
 
     return (
@@ -73,15 +73,14 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onTogglePane, setPaneType,
                         isActive={isUserModalOpen}
                     />
                     <PanelButton
-                        onClick={() => setSettingsModalOpen(true)}
+                        onClick={onOpenSettings}
                         icon={<GearSixIcon className="w-5 h-5" />}
                         activeIcon={<GearSixIcon className="w-5 h-5 text-fg-muted" />}
-                        isActive={isSettingsModalOpen}
+                        isActive={isSettingsOpen}
                     />
                 </div>
             </div>
             <UserModal isOpen={isUserModalOpen} onClose={() => setUserModalOpen(false)} />
-            <SettingsModal isOpen={isSettingsModalOpen} onClose={() => setSettingsModalOpen(false)} />
         </>
     );
 };

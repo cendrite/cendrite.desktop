@@ -15,6 +15,12 @@ export class NotificationService implements INotificationService {
         private readonly notificationSettingsRepository: NotificationSettingsRepository,
     ) {}
 
+    public notifyDeviceAdded(platform: string): void {
+        if (!Notification.isSupported() || this.mainWindow.isDestroyed() || this.mainWindow.isFocused()) return;
+
+        this.show('New device added', `A ${platform} device was added to your account. Not you? Open Cendrite to review your devices.`);
+    }
+
     public async notifyMessage(title: string, preview: string): Promise<void> {
         if (!Notification.isSupported() || this.mainWindow.isDestroyed() || this.mainWindow.isFocused()) return;
 
@@ -26,6 +32,10 @@ export class NotificationService implements INotificationService {
 
         const body = settings.showMessagePreview ? preview : 'New message';
 
+        this.show(title, body);
+    }
+
+    private show(title: string, body: string): void {
         const notification = new Notification({ title, body, icon: getTrayIconPath() });
         this.active.add(notification);
 

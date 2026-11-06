@@ -2,6 +2,7 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import LoadingScreen from '@/React/Common/Components/Loading/LoadingScreen.tsx';
 import { useUser } from '@/React/Context/User/UserContext.tsx';
+import { useDeviceAlert } from '@/React/Context/DeviceAlert/DeviceAlertContext.tsx';
 import { useAuthSession } from '@/React/Context/AuthSession/AuthSessionContext.tsx';
 import { useContacts } from '@/React/Context/Contacts/ContactContext.tsx';
 import { useChatContext } from '@/React/Context/Chat/ChatContext.tsx';
@@ -27,6 +28,7 @@ const LogoutPage: React.FC = () => {
     const { notificationDispatch } = useNotifications();
     const { userDispatch, user } = useUser();
     const { homeDispatch } = useHomePage();
+    const { dismiss: dismissDeviceAlert } = useDeviceAlert();
     const timerRef = useRef<number | null>(null);
 
     useEffect(() => {
@@ -48,6 +50,7 @@ const LogoutPage: React.FC = () => {
                     notificationDispatch({ type: NotificationActionType.Clear });
                     userDispatch({ type: UserActionType.Clear });
                     homeDispatch({ type: HomePageActionType.Clear });
+                    dismissDeviceAlert();
 
                     navigate('/signup', { replace: true });
                 }, 3000);
@@ -71,6 +74,7 @@ const LogoutPage: React.FC = () => {
         chatDispatch,
         notificationDispatch,
         userDispatch,
+        dismissDeviceAlert,
     ]);
 
     return (

@@ -13,10 +13,17 @@ import { XIcon } from '@phosphor-icons/react';
 interface SettingsModalProps {
     isOpen: boolean;
     onClose: () => void;
+    initialSection?: SettingsSection;
 }
 
-const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
-    const [active, setActive] = useState<SettingsSection>('account');
+const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, initialSection = 'account' }) => {
+    const [active, setActive] = useState<SettingsSection>(initialSection);
+    const [wasOpen, setWasOpen] = useState(isOpen);
+
+    if (isOpen !== wasOpen) {
+        setWasOpen(isOpen);
+        if (isOpen) setActive(initialSection);
+    }
     const { devices, failed: devicesFailed, deleteDevice } = useDevices(isOpen);
 
     const sections: Record<SettingsSection, React.ReactNode> = {

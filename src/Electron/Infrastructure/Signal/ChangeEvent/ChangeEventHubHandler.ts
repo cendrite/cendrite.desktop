@@ -4,6 +4,9 @@ import { HubKey } from '../SignalRHubPath.js';
 import { HubMethods } from '../HubMethods.js';
 import { ChangeEvent } from '#shared/Events/ChangeEvent';
 import { BrowserWindow } from 'electron';
+import { ChangeEventType } from '#shared/Events/ChangeEventType';
+import { DeviceAddedEvent } from '#shared/Events/EventData';
+import { INotificationService } from '#electron/Application/Contracts/Services/INotificationService';
 
 export class ChangeEventHubHandler implements IHubHandler {
     public readonly key: HubKey = 'ChangeEvents';
@@ -11,7 +14,10 @@ export class ChangeEventHubHandler implements IHubHandler {
     private isInitialized: boolean = false;
     private connection?: HubConnection;
 
-    constructor(mainWindow: BrowserWindow) {
+    constructor(
+        mainWindow: BrowserWindow,
+        private readonly notificationService: INotificationService,
+    ) {
         this.mainWindow = mainWindow;
     }
 
@@ -30,6 +36,9 @@ export class ChangeEventHubHandler implements IHubHandler {
     }
 
     private publish(event: ChangeEvent): void {
+        if (event.type === ChangeEventType.DeviceAdded) {
+            this.notificationService.notifyDeviceAdded((event.data as DeviceAddedEvent).devicePlatform);
+        }
         this.mainWindow.webContents.send('changeEvent', event);
     }
 
