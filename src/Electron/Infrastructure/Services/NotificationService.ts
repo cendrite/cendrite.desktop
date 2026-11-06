@@ -22,7 +22,7 @@ export class NotificationService implements INotificationService {
     }
 
     public async notifyMessage(title: string, preview: string): Promise<void> {
-        if (!Notification.isSupported() || this.mainWindow.isDestroyed() || this.mainWindow.isFocused()) return;
+        if (this.mainWindow.isDestroyed() || this.mainWindow.isFocused()) return;
 
         const settings = parseSettings(
             'notifications',
