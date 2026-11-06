@@ -28,6 +28,11 @@ export interface FriendDeletedEvent {
     deletedBy: string;
 }
 
+export interface DeviceLinkRequestedEvent {
+    pendingLinkId: string;
+    devicePlatform: string;
+}
+
 export interface DeviceAddedEvent {
     connectionId: string;
     devicePlatform: string;
