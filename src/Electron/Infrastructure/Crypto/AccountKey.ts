@@ -38,8 +38,12 @@ export function signRecoveryChallenge(accountKey: AccountKeyPair, challenge: Uin
     return sign(accountKey, Buffer.concat([RECOVERY_CONTEXT, challenge]));
 }
 
+export function deviceApprovalMessage(accountPublicKey: Uint8Array, devicePublicKey: Uint8Array): Buffer {
+    return Buffer.concat([DEVICE_APPROVAL_CONTEXT, accountPublicKey, devicePublicKey]);
+}
+
 export function signDeviceApproval(accountKey: AccountKeyPair, devicePublicKey: Uint8Array): string {
-    return sign(accountKey, Buffer.concat([DEVICE_APPROVAL_CONTEXT, accountKey.publicKey, devicePublicKey]));
+    return sign(accountKey, deviceApprovalMessage(accountKey.publicKey, devicePublicKey));
 }
 
 function sign(accountKey: AccountKeyPair, message: Uint8Array): string {
