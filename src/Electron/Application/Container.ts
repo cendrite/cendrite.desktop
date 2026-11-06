@@ -23,6 +23,7 @@ import { SyncFriendsQueryHandler } from './Features/Friends/Queries/SyncFriendsQ
 import { GetProfileByTagQueryHandler } from './Features/Friends/Queries/GetProfileByTagQueryHandler.js';
 import { GetDevicesQueryHandler } from './Features/Devices/Queries/GetDevicesQueryHandler.js';
 import { DeleteDeviceCommandHandler } from './Features/Devices/Commands/DeleteDeviceCommandHandler.js';
+import { RenameDeviceCommandHandler } from './Features/Devices/Commands/RenameDeviceCommandHandler.js';
 import { GetMediaQueryHandler } from './Features/Files/Queries/GetMediaQueryHandler.js';
 import { CreateChatCommandHandler } from './Features/Chat/Commands/CreateChatCommandHandler.js';
 import { DeleteChatCommandHandler } from './Features/Chat/Commands/DeleteChatCommandHandler.js';
@@ -117,6 +118,7 @@ const friendHandlers = {
 const deviceHandlers = {
     getDevicesQueryHandler: asClass(GetDevicesQueryHandler, { lifetime: Lifetime.SINGLETON }),
     deleteDeviceCommandHandler: asClass(DeleteDeviceCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    renameDeviceCommandHandler: asClass(RenameDeviceCommandHandler, { lifetime: Lifetime.SINGLETON }),
 };
 
 const settingsHandlers = {

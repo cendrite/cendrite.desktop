@@ -33,6 +33,14 @@ export class DeviceClient implements IDeviceProvider {
         }, true);
     }
 
+    renameDevice(deviceId: string, name: string): Promise<Result> {
+        return this.managementClient.handleConduit<void>({
+            method: "PUT",
+            url: `device/${deviceId}/name`,
+            data: { name },
+        }, true);
+    }
+
     createLinkCode(): Promise<Result<LinkCodeResponse>> {
         return this.managementClient.handleConduit<LinkCodeResponse>({ method: "POST", url: "device/link/code" });
     }
