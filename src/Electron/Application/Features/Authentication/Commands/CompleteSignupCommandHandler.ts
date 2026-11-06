@@ -2,7 +2,7 @@ import { Result } from '#shared/Result/Result';
 import { ErrorMessage } from '#shared/Result/ErrorMessage';
 import { UserContract } from '#shared/Models/UserContract';
 import { Handler } from '#electron/Application/Mediator/Handler';
-import { CompleteSignupCommand } from '#shared/Authentication/Signup';
+import { CompleteSignupCommand } from '#shared/Authentication/CompleteSignup';
 import { Device } from '#electron/Domain/Entities/Device';
 import { IAuthenticationProvider } from '#electron/Application/Contracts/Providers/IAuthenticationProvider';
 import { INonceSigner } from '#electron/Application/Contracts/Services/INonceSigner';
