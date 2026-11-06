@@ -12,7 +12,7 @@ import { solveProofOfWork } from '#electron/Infrastructure/Crypto/ProofOfWork';
 import { IDeviceSessionService } from '#electron/Application/Services/Device/DeviceSessionService';
 import { currentDeviceInfo } from '#electron/Application/Services/Device/DeviceInfo';
 
-const MAX_DIFFICULTY = 32;
+const MAX_DIFFICULTY = 24;
 
 export class CompleteSignupCommandHandler implements Handler<CompleteSignupCommand, UserContract> {
     constructor(

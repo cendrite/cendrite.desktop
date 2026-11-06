@@ -2,6 +2,7 @@ import React from 'react';
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 import { useNavigate } from 'react-router-dom';
 import Button from '@/React/Common/Components/Button/Button.tsx';
+import { useDevices } from '@/React/Common/Hooks/Devices.ts';
 
 interface LogoutModalProps {
     isOpen: boolean;
@@ -10,6 +11,8 @@ interface LogoutModalProps {
 
 const LogoutModal: React.FC<LogoutModalProps> = ({ isOpen, onClose }) => {
     const navigate = useNavigate();
+    const { devices, failed } = useDevices(isOpen);
+    const isOnlyDevice = failed || (devices !== null && devices.length <= 1);
 
     const handleLogout = () => {
         navigate('/logout');
@@ -27,6 +30,12 @@ const LogoutModal: React.FC<LogoutModalProps> = ({ isOpen, onClose }) => {
                             Logging out will disconnect your account from this device.
                         </p>
                     </div>
+
+                    {isOnlyDevice && (
+                        <p className="mt-5 border-l-2 border-warning pl-4 text-sm leading-relaxed text-fg-subtle">
+                            This is your only device. You'll need your recovery phrase to sign back in.
+                        </p>
+                    )}
 
                     <div className="mt-8 flex justify-center space-x-4">
                         <Button onClick={onClose}>Cancel</Button>
