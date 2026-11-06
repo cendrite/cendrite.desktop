@@ -5,6 +5,7 @@ import { StrictMode } from 'react';
 import { ChatProvider } from './Context/Chat/ChatProvider.tsx';
 import { NotificationProvider } from './Context/Notification/NotitficationProvider.tsx';
 import { DeviceAlertProvider } from './Context/DeviceAlert/DeviceAlertProvider.tsx';
+import { DeviceLinkRequestProvider } from './Context/DeviceLink/DeviceLinkRequestProvider.tsx';
 import { HomePageProvider } from './Context/HomePage/HomePageProvider.tsx';
 import { ContactProvider } from './Context/Contacts/ContactProvider.tsx';
 import { UserProvider } from './Context/User/UserProvider.tsx';
@@ -20,17 +21,19 @@ createRoot(document.getElementById('root')!).render(
                 <UserProvider>
                     <AuthSessionProvider>
                         <DeviceAlertProvider>
-                            <NotificationProvider>
-                                <ContactProvider>
-                                    <PendingContactProvider>
-                                        <HomePageProvider>
-                                            <ChatProvider>
-                                                <App />
-                                            </ChatProvider>
-                                        </HomePageProvider>
-                                    </PendingContactProvider>
-                                </ContactProvider>
-                            </NotificationProvider>
+                            <DeviceLinkRequestProvider>
+                                <NotificationProvider>
+                                    <ContactProvider>
+                                        <PendingContactProvider>
+                                            <HomePageProvider>
+                                                <ChatProvider>
+                                                    <App />
+                                                </ChatProvider>
+                                            </HomePageProvider>
+                                        </PendingContactProvider>
+                                    </ContactProvider>
+                                </NotificationProvider>
+                            </DeviceLinkRequestProvider>
                         </DeviceAlertProvider>
                     </AuthSessionProvider>
                 </UserProvider>

@@ -5,6 +5,7 @@ import { DeleteDeviceCommand } from '@/Shared/Devices/DeleteDevice';
 export function useDevices(isOpen: boolean) {
     const [devices, setDevices] = useState<DeviceDto[] | null>(null);
     const [failed, setFailed] = useState(false);
+    const [version, setVersion] = useState(0);
 
     useEffect(() => {
         if (!isOpen) return;
@@ -26,7 +27,7 @@ export function useDevices(isOpen: boolean) {
         return () => {
             cancelled = true;
         };
-    }, [isOpen]);
+    }, [isOpen, version]);
 
     const deleteDevice = useCallback(async (deviceId: string): Promise<boolean> => {
         const result = await window.electron.sendRequestAsync(new DeleteDeviceCommand(deviceId));
@@ -37,5 +38,7 @@ export function useDevices(isOpen: boolean) {
         return true;
     }, []);
 
-    return { devices, failed, deleteDevice };
+    const reload = useCallback(() => setVersion((v) => v + 1), []);
+
+    return { devices, failed, deleteDevice, reload };
 }

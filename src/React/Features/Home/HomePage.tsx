@@ -10,6 +10,7 @@ import { EmojiSettingsProvider } from '@/React/Context/Emoji/EmojiSettingsProvid
 import SettingsModal from '@/React/Features/Settings/SettingsModal.tsx';
 import { SettingsSection } from '@/React/Features/Settings/SettingsSection.ts';
 import DeviceAddedBanner from './DeviceAddedBanner.tsx';
+import { useDeviceLinkRequest } from '@/React/Context/DeviceLink/DeviceLinkRequestContext.tsx';
 
 const HomePage: React.FC = () => {
     const { selectedItem, homeDispatch } = useHomePage();
@@ -17,6 +18,11 @@ const HomePage: React.FC = () => {
     const [paneType, setPaneType] = useState<'chats' | 'contacts'>('chats');
     const [savedContact, setSavedContact] = useState<Contact | null>(null);
     const [settingsSection, setSettingsSection] = useState<SettingsSection | null>(null);
+    const { request: linkRequest } = useDeviceLinkRequest();
+
+    useEffect(() => {
+        if (linkRequest) setSettingsSection('devices');
+    }, [linkRequest]);
 
     useDeviceRevocation();
 
