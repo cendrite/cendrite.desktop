@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { DeviceDto, GetDevicesQuery } from '@/Shared/Devices/GetDevices';
 import { DeleteDeviceCommand } from '@/Shared/Devices/DeleteDevice';
+import { RenameDeviceCommand } from '@/Shared/Devices/RenameDevice';
 
 export function useDevices(isOpen: boolean) {
     const [devices, setDevices] = useState<DeviceDto[] | null>(null);
@@ -38,7 +39,16 @@ export function useDevices(isOpen: boolean) {
         return true;
     }, []);
 
+    const renameDevice = useCallback(async (deviceId: string, name: string): Promise<boolean> => {
+        const result = await window.electron.sendRequestAsync(new RenameDeviceCommand(deviceId, name));
+
+        if (!result.success) return false;
+
+        setDevices((current) => current?.map((d) => (d.id === deviceId ? { ...d, name: name.trim() } : d)) ?? null);
+        return true;
+    }, []);
+
     const reload = useCallback(() => setVersion((v) => v + 1), []);
 
-    return { devices, failed, deleteDevice, reload };
+    return { devices, failed, deleteDevice, renameDevice, reload };
 }

@@ -24,14 +24,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, initialS
         setWasOpen(isOpen);
         if (isOpen) setActive(initialSection);
     }
-    const { devices, failed: devicesFailed, deleteDevice, reload: reloadDevices } = useDevices(isOpen);
+    const { devices, failed: devicesFailed, deleteDevice, renameDevice, reload: reloadDevices } = useDevices(isOpen);
 
     const sections: Record<SettingsSection, React.ReactNode> = {
         account: <AccountSection />,
         appearance: <AppearanceSection />,
         notifications: <NotificationsSection />,
         privacy: <PrivacySection />,
-        devices: <DevicesSection devices={devices} failed={devicesFailed} onDelete={deleteDevice} onLinked={reloadDevices} />,
+        devices: <DevicesSection devices={devices} failed={devicesFailed} onDelete={deleteDevice} onRename={renameDevice} onLinked={reloadDevices} />,
     };
 
     return (

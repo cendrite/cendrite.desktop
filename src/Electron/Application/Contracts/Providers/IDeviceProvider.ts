@@ -42,6 +42,7 @@ export interface LinkStatusResponse {
 export interface IDeviceProvider {
     getDevices(): Promise<Result<GetDevicesApiResponse>>;
     deleteDevice(deviceId: string): Promise<Result>;
+    renameDevice(deviceId: string, name: string): Promise<Result>;
     createLinkCode(): Promise<Result<LinkCodeResponse>>;
     redeemLinkCode(req: RedeemLinkCodeRequest): Promise<Result<RedeemLinkCodeResponse>>;
     getPendingLink(pendingLinkId: string): Promise<Result<PendingLinkResponse>>;
