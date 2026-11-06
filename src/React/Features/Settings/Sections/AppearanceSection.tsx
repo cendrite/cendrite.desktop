@@ -15,7 +15,6 @@ const themeOptions: { id: Theme; label: string; description: string }[] = [
     { id: 'gruvbox', label: 'Gruvbox', description: 'Warm retro palette' },
     { id: 'gruvbox-light', label: 'Gruvbox Light', description: 'Cream and warm' },
     { id: 'kanagawa', label: 'Kanagawa', description: 'Muted ink and blue' },
-    { id: 'rose-pine', label: 'Rosé Pine', description: 'Soft mauve and pine' },
 ];
 
 const hasWindowMenuBar = window.electron.platform !== 'darwin';

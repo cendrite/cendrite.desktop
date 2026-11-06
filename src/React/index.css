@@ -232,49 +232,6 @@
         --color-warning: 181 118 20;
     }
 
-    [data-theme='rose-pine'] {
-        --color-canvas: 25 23 36;
-        --color-canvas-hover: 33 32 46;
-        --color-surface: 31 29 46;
-        --color-surface-hover: 64 61 82;
-        --color-overlay: 38 35 58;
-        --color-overlay-hover: 82 79 103;
-        --color-field: 33 32 46;
-        --color-scrim: 0 0 0;
-        --color-scrollbar: 64 61 82;
-        --color-scrollbar-hover: 82 79 103;
-
-        --color-line: 64 61 82;
-        --color-line-strong: 82 79 103;
-
-        --color-fg: 224 222 244;
-        --color-fg-muted: 205 202 224;
-        --color-fg-subtle: 144 140 170;
-        --color-fg-faint: 110 106 134;
-        --color-fg-inverted: 25 23 36;
-        --color-fg-on-accent: 224 222 244;
-
-        --color-inverted: 224 222 244;
-        --color-inverted-hover: 242 240 255;
-        --color-media: 144 140 170;
-        --color-bubble-in: 38 35 58;
-        --color-bubble-in-fg: 224 222 244;
-
-        --color-link: 156 207 216;
-        --color-accent: 49 116 143;
-        --color-accent-hover: 62 143 174;
-        --color-accent-soft: 38 35 58;
-        --color-accent-soft-fg: 156 207 216;
-
-        --color-danger: 143 74 96;
-        --color-danger-hover: 235 111 146;
-        --color-danger-fg: 235 111 146;
-        --color-danger-fg-hover: 240 160 180;
-
-        --color-success: 49 116 143;
-        --color-warning: 246 193 119;
-    }
-
     html,
     body,
     #root {
