@@ -10,7 +10,9 @@ import { PendingSignupStore } from '#electron/Infrastructure/Services/PendingSig
 import { NonceSigner } from '#electron/Infrastructure/Services/NonceSigner';
 import { deriveAccountKey } from '#electron/Infrastructure/Crypto/AccountKey';
 import { isProofOfWorkSolved } from '#electron/Infrastructure/Crypto/ProofOfWork';
-import { BeginSignupCommand, CancelSignupCommand, CompleteSignupCommand } from '#shared/Authentication/Signup';
+import { BeginSignupCommand } from '#shared/Authentication/BeginSignup';
+import { CancelSignupCommand } from '#shared/Authentication/CancelSignup';
+import { CompleteSignupCommand } from '#shared/Authentication/CompleteSignup';
 import { SignupRequest } from '#electron/Application/Contracts/Providers/IAuthenticationProvider';
 import { Result } from '#shared/Result/Result';
 import { ErrorMessage } from '#shared/Result/ErrorMessage';
