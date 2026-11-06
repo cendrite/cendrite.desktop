@@ -7,6 +7,13 @@ import { BeginSignupCommandHandler } from './Features/Authentication/Commands/Be
 import { CompleteSignupCommandHandler } from './Features/Authentication/Commands/CompleteSignupCommandHandler.js';
 import { CancelSignupCommandHandler } from './Features/Authentication/Commands/CancelSignupCommandHandler.js';
 import { RecoverAccountCommandHandler } from './Features/Authentication/Commands/RecoverAccountCommandHandler.js';
+import { StartDeviceLinkCommandHandler } from './Features/Authentication/Commands/StartDeviceLinkCommandHandler.js';
+import { CheckDeviceLinkCommandHandler } from './Features/Authentication/Commands/CheckDeviceLinkCommandHandler.js';
+import { CancelDeviceLinkCommandHandler } from './Features/Authentication/Commands/CancelDeviceLinkCommandHandler.js';
+import { CreateLinkCodeCommandHandler } from './Features/Devices/Commands/CreateLinkCodeCommandHandler.js';
+import { ApproveDeviceLinkCommandHandler } from './Features/Devices/Commands/ApproveDeviceLinkCommandHandler.js';
+import { RejectDeviceLinkCommandHandler } from './Features/Devices/Commands/RejectDeviceLinkCommandHandler.js';
+import { GetPendingLinkQueryHandler } from './Features/Devices/Queries/GetPendingLinkQueryHandler.js';
 import { UpdateAvatarCommandHandler } from './Features/User/Commands/UpdateAvatarCommandHandler.js';
 import { SendFriendRequestCommandHandler } from './Features/Friends/Commands/SendFriendRequestCommandHandler.js';
 import { DeclineFriendRequestCommandHandler } from './Features/Friends/Commands/DeclineFriendRequestCommandHandler.js';
@@ -56,6 +63,13 @@ const authenticationHandlers = {
     completeSignupCommandHandler: asClass(CompleteSignupCommandHandler, { lifetime: Lifetime.SINGLETON }),
     cancelSignupCommandHandler: asClass(CancelSignupCommandHandler, { lifetime: Lifetime.SINGLETON }),
     recoverAccountCommandHandler: asClass(RecoverAccountCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    startDeviceLinkCommandHandler: asClass(StartDeviceLinkCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    checkDeviceLinkCommandHandler: asClass(CheckDeviceLinkCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    cancelDeviceLinkCommandHandler: asClass(CancelDeviceLinkCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    createLinkCodeCommandHandler: asClass(CreateLinkCodeCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    approveDeviceLinkCommandHandler: asClass(ApproveDeviceLinkCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    rejectDeviceLinkCommandHandler: asClass(RejectDeviceLinkCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    getPendingLinkQueryHandler: asClass(GetPendingLinkQueryHandler, { lifetime: Lifetime.SINGLETON }),
 };
 
 const chatHandlers = {
