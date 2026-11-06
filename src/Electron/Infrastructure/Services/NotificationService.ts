@@ -16,13 +16,13 @@ export class NotificationService implements INotificationService {
     ) {}
 
     public notifyDeviceAdded(platform: string): void {
-        if (!Notification.isSupported() || this.mainWindow.isDestroyed() || this.mainWindow.isFocused()) return;
+        if (this.mainWindow.isDestroyed() || this.mainWindow.isFocused()) return;
 
         this.show('New device added', `A ${platform} device was added to your account. Not you? Open Cendrite to review your devices.`);
     }
 
     public async notifyMessage(title: string, preview: string): Promise<void> {
-        if (this.mainWindow.isDestroyed() || this.mainWindow.isFocused()) return;
+        if (!Notification.isSupported || this.mainWindow.isDestroyed() || this.mainWindow.isFocused()) return;
 
         const settings = parseSettings(
             'notifications',
