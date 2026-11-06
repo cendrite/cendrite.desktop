@@ -47,7 +47,7 @@ describe('resolveTheme', () => {
         expect(resolveTheme({ theme: 'system', systemPrefersDark: false })).toBe('light');
     });
 
-    test.each(['light', 'dark', 'gruvbox', 'gruvbox-light', 'kanagawa', 'rose-pine'] as const)(
+    test.each(['light', 'dark', 'gruvbox', 'gruvbox-light', 'kanagawa'] as const)(
         'an explicit %s theme ignores the system preference',
         (theme) => {
             expect(resolveTheme({ theme, systemPrefersDark: true })).toBe(theme);

@@ -1,4 +1,4 @@
-export type Theme = 'system' | 'light' | 'dark' | 'gruvbox' | 'gruvbox-light' | 'kanagawa' | 'rose-pine';
+export type Theme = 'system' | 'light' | 'dark' | 'gruvbox' | 'gruvbox-light' | 'kanagawa';
 
 export type ResolvedTheme = Exclude<Theme, 'system'>;
 
@@ -12,7 +12,6 @@ export const THEME_APPEARANCE: Record<ResolvedTheme, 'light' | 'dark'> = {
     gruvbox: 'dark',
     'gruvbox-light': 'light',
     kanagawa: 'dark',
-    'rose-pine': 'dark',
 };
 
 // Must match --color-canvas in index.css; the main process cannot read the stylesheet.
@@ -22,5 +21,4 @@ export const WINDOW_BACKGROUND: Record<ResolvedTheme, string> = {
     gruvbox: '#1d2021',
     'gruvbox-light': '#fbf1c7',
     kanagawa: '#16161d',
-    'rose-pine': '#191724',
 };
