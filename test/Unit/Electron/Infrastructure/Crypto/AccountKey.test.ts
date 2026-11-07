@@ -4,6 +4,7 @@ import {
     deriveAccountKey,
     generateRecoveryPhrase,
     isValidRecoveryPhrase,
+    signAccountRotation,
     signDeviceApproval,
     signRecoveryChallenge,
     signSignupChallenge,
@@ -69,6 +70,16 @@ describe('account key', () => {
         const signature = Buffer.from(signDeviceApproval(key, device.publicKey), 'base64');
 
         expect(nacl.sign.detached.verify(message, signature, key.publicKey)).toBe(true);
+    });
+
+    test('signs the account rotation with the new key over old then new', () => {
+        const oldKey = deriveAccountKey(phrase);
+        const newKey = deriveAccountKey(generateRecoveryPhrase());
+        const message = Buffer.concat([Buffer.from('account-rotate-v1', 'ascii'), oldKey.publicKey, newKey.publicKey]);
+
+        const signature = Buffer.from(signAccountRotation(newKey, oldKey.publicKey), 'base64');
+
+        expect(nacl.sign.detached.verify(message, signature, newKey.publicKey)).toBe(true);
     });
 });
 

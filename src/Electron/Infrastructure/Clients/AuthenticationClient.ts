@@ -1,9 +1,11 @@
 import { Result } from '#shared/Result/Result';
 import {
+    AccountKeyResponse,
     IAuthenticationProvider,
     RecoverRequest,
     RecoverResponse,
     RecoveryChallengeResponse,
+    RotateAccountKeyRequest,
     SignupChallengeResponse,
     SignupRequest,
     SignupResponse,
@@ -14,15 +16,18 @@ export class AuthenticationClient implements IAuthenticationProvider {
     private readonly authClient: ApiClient;
     private readonly logoutClient: ApiClient;
     private readonly identityUserClient: ApiClient;
+    private readonly accountClient: ApiClient;
 
     constructor(
         authApiClient: ApiClient,
         logoutApiClient: ApiClient,
         identityUserApiClient: ApiClient,
+        deviceManagementApiClient: ApiClient,
     ) {
         this.authClient = authApiClient;
         this.logoutClient = logoutApiClient;
         this.identityUserClient = identityUserApiClient;
+        this.accountClient = deviceManagementApiClient;
     }
 
     logout(): Promise<Result<void>> {
@@ -61,5 +66,20 @@ export class AuthenticationClient implements IAuthenticationProvider {
             url: 'recover',
             data: req,
         });
+    }
+
+    getAccountKey(): Promise<Result<AccountKeyResponse>> {
+        return this.accountClient.handleConduit<AccountKeyResponse>({
+            method: 'GET',
+            url: 'account-key',
+        });
+    }
+
+    rotateAccountKey(req: RotateAccountKeyRequest): Promise<Result> {
+        return this.accountClient.handleConduit<void>({
+            method: 'PUT',
+            url: 'account-key',
+            data: req,
+        }, true);
     }
 }

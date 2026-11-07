@@ -7,6 +7,7 @@ const ACCOUNT_KEY_INFO = 'cendrite-account-v1';
 const SIGNUP_CONTEXT = Buffer.from('cendrite-signup-v1', 'ascii');
 const RECOVERY_CONTEXT = Buffer.from('cendrite-recovery-v1', 'ascii');
 const DEVICE_APPROVAL_CONTEXT = Buffer.from('device-approval-v1', 'ascii');
+const ACCOUNT_ROTATION_CONTEXT = Buffer.from('account-rotate-v1', 'ascii');
 
 export interface AccountKeyPair {
     publicKey: Uint8Array;
@@ -44,6 +45,14 @@ export function deviceApprovalMessage(accountPublicKey: Uint8Array, devicePublic
 
 export function signDeviceApproval(accountKey: AccountKeyPair, devicePublicKey: Uint8Array): string {
     return sign(accountKey, deviceApprovalMessage(accountKey.publicKey, devicePublicKey));
+}
+
+export function accountRotationMessage(oldAccountPublicKey: Uint8Array, newAccountPublicKey: Uint8Array): Buffer {
+    return Buffer.concat([ACCOUNT_ROTATION_CONTEXT, oldAccountPublicKey, newAccountPublicKey]);
+}
+
+export function signAccountRotation(newAccountKey: AccountKeyPair, oldAccountPublicKey: Uint8Array): string {
+    return sign(newAccountKey, accountRotationMessage(oldAccountPublicKey, newAccountKey.publicKey));
 }
 
 function sign(accountKey: AccountKeyPair, message: Uint8Array): string {

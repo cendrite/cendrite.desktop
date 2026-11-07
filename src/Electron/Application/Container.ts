@@ -6,6 +6,9 @@ import { StartupCommandHandler } from './Features/Authentication/Commands/Startu
 import { BeginSignupCommandHandler } from './Features/Authentication/Commands/BeginSignupCommandHandler.js';
 import { CompleteSignupCommandHandler } from './Features/Authentication/Commands/CompleteSignupCommandHandler.js';
 import { CancelSignupCommandHandler } from './Features/Authentication/Commands/CancelSignupCommandHandler.js';
+import { BeginRotatePhraseCommandHandler } from './Features/Authentication/Commands/BeginRotatePhraseCommandHandler.js';
+import { CompleteRotatePhraseCommandHandler } from './Features/Authentication/Commands/CompleteRotatePhraseCommandHandler.js';
+import { CancelRotatePhraseCommandHandler } from './Features/Authentication/Commands/CancelRotatePhraseCommandHandler.js';
 import { RecoverAccountCommandHandler } from './Features/Authentication/Commands/RecoverAccountCommandHandler.js';
 import { StartDeviceLinkCommandHandler } from './Features/Authentication/Commands/StartDeviceLinkCommandHandler.js';
 import { CheckDeviceLinkCommandHandler } from './Features/Authentication/Commands/CheckDeviceLinkCommandHandler.js';
@@ -63,6 +66,9 @@ const authenticationHandlers = {
     beginSignupCommandHandler: asClass(BeginSignupCommandHandler, { lifetime: Lifetime.SINGLETON }),
     completeSignupCommandHandler: asClass(CompleteSignupCommandHandler, { lifetime: Lifetime.SINGLETON }),
     cancelSignupCommandHandler: asClass(CancelSignupCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    beginRotatePhraseCommandHandler: asClass(BeginRotatePhraseCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    completeRotatePhraseCommandHandler: asClass(CompleteRotatePhraseCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    cancelRotatePhraseCommandHandler: asClass(CancelRotatePhraseCommandHandler, { lifetime: Lifetime.SINGLETON }),
     recoverAccountCommandHandler: asClass(RecoverAccountCommandHandler, { lifetime: Lifetime.SINGLETON }),
     startDeviceLinkCommandHandler: asClass(StartDeviceLinkCommandHandler, { lifetime: Lifetime.SINGLETON }),
     checkDeviceLinkCommandHandler: asClass(CheckDeviceLinkCommandHandler, { lifetime: Lifetime.SINGLETON }),
