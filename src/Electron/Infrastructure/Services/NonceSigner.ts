@@ -1,7 +1,7 @@
 import nacl from 'tweetnacl';
 import { DeviceRepository } from '../Persistence/Repositories/DeviceRepository.js';
 import { DeviceKeys, INonceSigner } from '#electron/Application/Contracts/Services/INonceSigner';
-import { deviceApprovalMessage } from '../Crypto/AccountKey.js';
+import { accountRotationMessage, deviceApprovalMessage } from '../Crypto/AccountKey.js';
 
 const AUTH_CONTEXT = Buffer.from('cendrite-auth-v1', 'ascii');
 
@@ -32,6 +32,17 @@ export class NonceSigner implements INonceSigner {
         }
 
         const message = deviceApprovalMessage(Buffer.from(accountPublicKey, 'base64'), Buffer.from(devicePublicKey, 'base64'));
+        const signature = nacl.sign.detached(message, Buffer.from(device.privateKey, 'base64'));
+        return Buffer.from(signature).toString('base64');
+    }
+
+    public async signAccountRotation(oldAccountPublicKey: string, newAccountPublicKey: string): Promise<string> {
+        const device = await this.deviceRepository.get();
+        if (!device || !device.privateKey) {
+            throw new Error('Device or private key not found');
+        }
+
+        const message = accountRotationMessage(Buffer.from(oldAccountPublicKey, 'base64'), Buffer.from(newAccountPublicKey, 'base64'));
         const signature = nacl.sign.detached(message, Buffer.from(device.privateKey, 'base64'));
         return Buffer.from(signature).toString('base64');
     }
