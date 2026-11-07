@@ -40,9 +40,7 @@ import { AppearanceSettingsRepository } from './Persistence/Repositories/Appeara
 import { EmojiSettingsRepository } from './Persistence/Repositories/EmojiSettingsRepository.js';
 import { NotificationSettingsRepository } from './Persistence/Repositories/NotificationSettingsRepository.js';
 import { SettingsRegistry } from './Services/SettingsRegistry.js';
-import { PendingSignupStore } from './Services/PendingSignupStore.js';
-import { PendingRotationStore } from './Services/PendingRotationStore.js';
-import { PendingDeviceLinkStore } from './Services/PendingDeviceLinkStore.js';
+import { EphemeralStore } from './Services/EphemeralStore.js';
 import { MessagePump } from './Pumps/MessagePump.js';
 import { DeliveryStatusUpdatePump } from './Pumps/DeliveryUpdatePump.js';
 import { PreKeyPump } from './Pumps/PreKeyPump.js';
@@ -64,9 +62,7 @@ const services = {
     purgeLocalDataService: asClass(PurgeLocalDataService, { lifetime: Lifetime.SINGLETON }),
     sessionManager: asClass(SessionManager, { lifetime: Lifetime.SINGLETON }),
     settingsRegistry: asClass(SettingsRegistry, { lifetime: Lifetime.SINGLETON }),
-    pendingSignupStore: asClass(PendingSignupStore, { lifetime: Lifetime.SINGLETON }),
-    pendingRotationStore: asClass(PendingRotationStore, { lifetime: Lifetime.SINGLETON }),
-    pendingDeviceLinkStore: asClass(PendingDeviceLinkStore, { lifetime: Lifetime.SINGLETON }),
+    ephemeralStore: asClass(EphemeralStore, { lifetime: Lifetime.SINGLETON }),
     blindTokenService: asClass(BlindTokenService, { lifetime: Lifetime.SINGLETON }),
     notificationService: asClass(NotificationService, { lifetime: Lifetime.SINGLETON }),
     tokenIssuerKeyProvider: asFunction((tokenIssuerApiClient: ApiClient) =>

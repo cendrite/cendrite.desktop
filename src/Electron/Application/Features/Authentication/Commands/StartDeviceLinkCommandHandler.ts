@@ -3,7 +3,7 @@ import { ErrorMessage } from '#shared/Result/ErrorMessage';
 import { Handler } from '#electron/Application/Mediator/Handler';
 import { IDeviceProvider } from '#electron/Application/Contracts/Providers/IDeviceProvider';
 import { INonceSigner } from '#electron/Application/Contracts/Services/INonceSigner';
-import { IPendingDeviceLinkStore } from '#electron/Application/Contracts/Services/IPendingDeviceLinkStore';
+import { IEphemeralStore } from '#electron/Application/Contracts/Services/IEphemeralStore';
 import { currentDeviceInfo } from '#electron/Application/Services/Device/DeviceInfo';
 import { StartDeviceLinkCommand, StartedDeviceLink } from '#shared/Devices/StartDeviceLink';
 import { fingerprintOf } from '#electron/Infrastructure/Crypto/Fingerprint';
@@ -12,11 +12,11 @@ export class StartDeviceLinkCommandHandler implements Handler<StartDeviceLinkCom
     constructor(
         private readonly deviceProvider: IDeviceProvider,
         private readonly nonceSigner: INonceSigner,
-        private readonly pendingDeviceLinkStore: IPendingDeviceLinkStore,
+        private readonly ephemeralStore: IEphemeralStore,
     ) { }
 
     public async handle(cmd: StartDeviceLinkCommand): Promise<Result<StartedDeviceLink>> {
-        this.pendingDeviceLinkStore.clear();
+        this.ephemeralStore.clear('deviceLink');
 
         const keys = this.nonceSigner.generateDeviceKeys();
         const device = currentDeviceInfo();
@@ -33,7 +33,7 @@ export class StartDeviceLinkCommandHandler implements Handler<StartDeviceLinkCom
             return Result.fail<StartedDeviceLink>(new ErrorMessage('InvalidCode', "That code didn't work. Check it, or create a new one on your other device."));
         }
 
-        this.pendingDeviceLinkStore.set({
+        this.ephemeralStore.set('deviceLink', {
             pendingLinkId: result.data.pendingLinkId,
             pollSecret: result.data.pollSecret,
             devicePublicKey: keys.publicKey,

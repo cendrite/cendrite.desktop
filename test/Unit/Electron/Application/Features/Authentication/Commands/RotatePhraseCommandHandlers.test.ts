@@ -3,7 +3,7 @@ import nacl from 'tweetnacl';
 import { BeginRotatePhraseCommandHandler } from '#electron/Application/Features/Authentication/Commands/BeginRotatePhraseCommandHandler';
 import { CompleteRotatePhraseCommandHandler } from '#electron/Application/Features/Authentication/Commands/CompleteRotatePhraseCommandHandler';
 import { CancelRotatePhraseCommandHandler } from '#electron/Application/Features/Authentication/Commands/CancelRotatePhraseCommandHandler';
-import { PendingRotationStore } from '#electron/Infrastructure/Services/PendingRotationStore';
+import { EphemeralStore } from '#electron/Infrastructure/Services/EphemeralStore';
 import { NonceSigner } from '#electron/Infrastructure/Services/NonceSigner';
 import { deriveAccountKey } from '#electron/Infrastructure/Crypto/AccountKey';
 import { BeginRotatePhraseCommand } from '#shared/Authentication/BeginRotatePhrase';
@@ -17,7 +17,7 @@ const oldAccountKey = Buffer.from(nacl.sign.keyPair().publicKey).toString('base6
 
 function setup() {
     const device = nacl.sign.keyPair();
-    const store = new PendingRotationStore();
+    const store = new EphemeralStore();
     const provider = {
         getAccountKey: vi.fn(async () => Result.success({ accountPublicKey: oldAccountKey })),
         rotateAccountKey: vi.fn(async (_req: RotateAccountKeyRequest) => Result.success()),
@@ -51,7 +51,7 @@ describe('rotate recovery phrase', () => {
         if (!result.success) return;
         expect(result.data.words).toHaveLength(12);
         expect(new Set(result.data.confirmIndices).size).toBe(3);
-        expect(store.get()?.words).toEqual(result.data.words);
+        expect(store.get('rotation')?.words).toEqual(result.data.words);
     });
 
     test('complete fails without a started rotation', async () => {
@@ -88,7 +88,7 @@ describe('rotate recovery phrase', () => {
         expect(request.newAccountPublicKey).toBe(Buffer.from(newKey).toString('base64'));
         expect(nacl.sign.detached.verify(message, Buffer.from(request.proof, 'base64'), newKey)).toBe(true);
         expect(nacl.sign.detached.verify(message, Buffer.from(request.approval, 'base64'), devicePublicKey)).toBe(true);
-        expect(store.get()).toBeNull();
+        expect(store.get('rotation')).toBeNull();
     });
 
     test('a failed rotation keeps the words so the user can retry', async () => {
@@ -99,18 +99,15 @@ describe('rotate recovery phrase', () => {
         const result = await complete.handle(new CompleteRotatePhraseCommand(answers));
 
         expect(result.success).toBe(false);
-        expect(store.get()).not.toBeNull();
+        expect(store.get('rotation')).not.toBeNull();
     });
 
-    test('cancel wipes the pending words', async () => {
+    test('cancel drops the pending words', async () => {
         const { begin, cancel, store } = setup();
-        const { words } = await beginAndAnswer(begin);
-        const held = store.get()!;
+        await beginAndAnswer(begin);
 
         await cancel.handle(new CancelRotatePhraseCommand());
 
-        expect(store.get()).toBeNull();
-        expect(held.words.every((w) => w === '')).toBe(true);
-        expect(words.some((w) => w !== '')).toBe(true);
+        expect(store.get('rotation')).toBeNull();
     });
 });

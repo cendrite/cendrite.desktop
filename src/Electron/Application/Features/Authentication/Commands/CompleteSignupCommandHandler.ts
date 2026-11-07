@@ -6,7 +6,7 @@ import { CompleteSignupCommand } from '#shared/Authentication/CompleteSignup';
 import { Device } from '#electron/Domain/Entities/Device';
 import { IAuthenticationProvider } from '#electron/Application/Contracts/Providers/IAuthenticationProvider';
 import { INonceSigner } from '#electron/Application/Contracts/Services/INonceSigner';
-import { IPendingSignupStore, SignupRegistration } from '#electron/Application/Contracts/Services/IPendingSignupStore';
+import { IEphemeralStore, SignupRegistration } from '#electron/Application/Contracts/Services/IEphemeralStore';
 import { deriveAccountKey, signDeviceApproval, signSignupChallenge } from '#electron/Infrastructure/Crypto/AccountKey';
 import { solveProofOfWork } from '#electron/Infrastructure/Crypto/ProofOfWork';
 import { IDeviceSessionService } from '#electron/Application/Services/Device/DeviceSessionService';
@@ -17,14 +17,14 @@ const MAX_DIFFICULTY = 24;
 
 export class CompleteSignupCommandHandler implements Handler<CompleteSignupCommand, UserContract> {
     constructor(
-        private readonly pendingSignupStore: IPendingSignupStore,
+        private readonly ephemeralStore: IEphemeralStore,
         private readonly authenticationProvider: IAuthenticationProvider,
         private readonly nonceSigner: INonceSigner,
         private readonly deviceSessionService: IDeviceSessionService,
     ) { }
 
     public async handle(cmd: CompleteSignupCommand): Promise<Result<UserContract>> {
-        const pending = this.pendingSignupStore.get();
+        const pending = this.ephemeralStore.get('signup');
         if (!pending) {
             return Result.fail<UserContract>(new ErrorMessage('Expired', 'Your signup has expired. Please start again.'));
         }
@@ -42,7 +42,7 @@ export class CompleteSignupCommandHandler implements Handler<CompleteSignupComma
         const { userId, deviceId, connectionId, devicePrivateKey, devicePublicKey } = pending.registration;
         const result = await this.deviceSessionService.start(userId, new Device(deviceId, connectionId, devicePrivateKey, devicePublicKey));
 
-        if (result.success) this.pendingSignupStore.clear();
+        if (result.success) this.ephemeralStore.clear('signup');
 
         return result;
     }
