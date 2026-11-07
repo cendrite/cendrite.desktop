@@ -4,8 +4,9 @@ import { Handler } from '#electron/Application/Mediator/Handler';
 import { CompleteRotatePhraseCommand } from '#shared/Authentication/CompleteRotatePhrase';
 import { IAuthenticationProvider } from '#electron/Application/Contracts/Providers/IAuthenticationProvider';
 import { INonceSigner } from '#electron/Application/Contracts/Services/INonceSigner';
-import { IPendingRotationStore, PendingRotation } from '#electron/Application/Contracts/Services/IPendingRotationStore';
+import { IPendingRotationStore } from '#electron/Application/Contracts/Services/IPendingRotationStore';
 import { deriveAccountKey, signAccountRotation } from '#electron/Infrastructure/Crypto/AccountKey';
+import { confirmationsMatch } from '#electron/Application/Services/RecoveryPhrase/PhraseConfirmation';
 
 export class CompleteRotatePhraseCommandHandler implements Handler<CompleteRotatePhraseCommand, void> {
     constructor(
@@ -20,7 +21,7 @@ export class CompleteRotatePhraseCommandHandler implements Handler<CompleteRotat
             return Result.fail<void>(new ErrorMessage('Expired', 'This has expired. Please start again.'));
         }
 
-        if (!confirmationsMatch(pending, cmd.confirmations)) {
+        if (!confirmationsMatch(pending.words, pending.confirmIndices, cmd.confirmations)) {
             return Result.fail<void>(new ErrorMessage('Validation', "Those words don't match your new recovery phrase."));
         }
 
@@ -46,11 +47,4 @@ export class CompleteRotatePhraseCommandHandler implements Handler<CompleteRotat
             newAccountKey.secretKey.fill(0);
         }
     }
-}
-
-function confirmationsMatch(pending: PendingRotation, confirmations: string[]): boolean {
-    return (
-        confirmations.length === pending.confirmIndices.length &&
-        pending.confirmIndices.every((index, i) => confirmations[i]?.trim().toLowerCase() === pending.words[index])
-    );
 }

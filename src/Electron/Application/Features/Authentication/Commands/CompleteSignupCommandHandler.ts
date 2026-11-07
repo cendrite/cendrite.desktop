@@ -6,11 +6,12 @@ import { CompleteSignupCommand } from '#shared/Authentication/CompleteSignup';
 import { Device } from '#electron/Domain/Entities/Device';
 import { IAuthenticationProvider } from '#electron/Application/Contracts/Providers/IAuthenticationProvider';
 import { INonceSigner } from '#electron/Application/Contracts/Services/INonceSigner';
-import { IPendingSignupStore, PendingSignup, SignupRegistration } from '#electron/Application/Contracts/Services/IPendingSignupStore';
+import { IPendingSignupStore, SignupRegistration } from '#electron/Application/Contracts/Services/IPendingSignupStore';
 import { deriveAccountKey, signDeviceApproval, signSignupChallenge } from '#electron/Infrastructure/Crypto/AccountKey';
 import { solveProofOfWork } from '#electron/Infrastructure/Crypto/ProofOfWork';
 import { IDeviceSessionService } from '#electron/Application/Services/Device/DeviceSessionService';
 import { currentDeviceInfo } from '#electron/Application/Services/Device/DeviceInfo';
+import { confirmationsMatch } from '#electron/Application/Services/RecoveryPhrase/PhraseConfirmation';
 
 const MAX_DIFFICULTY = 24;
 
@@ -28,7 +29,7 @@ export class CompleteSignupCommandHandler implements Handler<CompleteSignupComma
             return Result.fail<UserContract>(new ErrorMessage('Expired', 'Your signup has expired. Please start again.'));
         }
 
-        if (!confirmationsMatch(pending, cmd.confirmations)) {
+        if (!confirmationsMatch(pending.words, pending.confirmIndices, cmd.confirmations)) {
             return Result.fail<UserContract>(new ErrorMessage('Validation', "Those words don't match your recovery phrase."));
         }
 
@@ -88,11 +89,4 @@ export class CompleteSignupCommandHandler implements Handler<CompleteSignupComma
             accountKey.secretKey.fill(0);
         }
     }
-}
-
-function confirmationsMatch(pending: PendingSignup, confirmations: string[]): boolean {
-    return (
-        confirmations.length === pending.confirmIndices.length &&
-        pending.confirmIndices.every((index, i) => confirmations[i]?.trim().toLowerCase() === pending.words[index])
-    );
 }
