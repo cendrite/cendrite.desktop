@@ -38,4 +38,18 @@ describe('nonce signer', () => {
 
         expect(nacl.sign.detached.verify(approval, signature, publicKey)).toBe(false);
     });
+
+    test('approves an account rotation with the device key over old then new', async () => {
+        const { sut, publicKey } = signerWithDevice();
+        const oldKey = nacl.randomBytes(32);
+        const newKey = nacl.randomBytes(32);
+
+        const signature = Buffer.from(
+            await sut.signAccountRotation(Buffer.from(oldKey).toString('base64'), Buffer.from(newKey).toString('base64')),
+            'base64',
+        );
+
+        const message = Buffer.concat([Buffer.from('account-rotate-v1', 'ascii'), oldKey, newKey]);
+        expect(nacl.sign.detached.verify(message, signature, publicKey)).toBe(true);
+    });
 });
