@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import clsx from 'clsx';
 import {
     AndroidLogoIcon,
     AppleLogoIcon,
@@ -35,16 +36,22 @@ function formatLastSeen(lastSeen: string | null): string {
 interface DeviceRowProps {
     device: DeviceDto;
     isCurrent: boolean;
+    isFocused: boolean;
     onRemove: () => void;
     onRename: (name: string) => Promise<boolean>;
 }
 
-const DeviceRow: React.FC<DeviceRowProps> = ({ device, isCurrent, onRemove, onRename }) => {
+const DeviceRow: React.FC<DeviceRowProps> = ({ device, isCurrent, isFocused, onRemove, onRename }) => {
     const Icon = platformIcons[device.platform] ?? (device.type === 'Mobile' ? DeviceMobileIcon : DesktopIcon);
     const [editing, setEditing] = useState(false);
     const [name, setName] = useState(device.name);
     const [error, setError] = useState<string | null>(null);
     const [busy, setBusy] = useState(false);
+    const rowRef = useRef<HTMLLIElement>(null);
+
+    useEffect(() => {
+        if (isFocused) rowRef.current?.scrollIntoView({ block: 'center' });
+    }, [isFocused]);
 
     const startEditing = () => {
         setName(device.name);
@@ -78,7 +85,10 @@ const DeviceRow: React.FC<DeviceRowProps> = ({ device, isCurrent, onRemove, onRe
     };
 
     return (
-        <li className="flex items-center gap-4 rounded-lg border border-line px-4 py-4">
+        <li
+            ref={rowRef}
+            className={clsx('flex items-center gap-4 rounded-lg border px-4 py-4', isFocused ? 'border-warning' : 'border-line')}
+        >
             <Icon className="h-8 w-8 shrink-0 text-fg-muted" />
 
             <div className="min-w-0">
@@ -152,10 +162,11 @@ interface DevicesSectionProps {
     failed: boolean;
     onDelete: (deviceId: string) => Promise<boolean>;
     onRename: (deviceId: string, name: string) => Promise<boolean>;
+    focusDeviceId: string | null;
     onLinked: () => void;
 }
 
-const DevicesSection: React.FC<DevicesSectionProps> = ({ devices, failed, onDelete, onRename, onLinked }) => {
+const DevicesSection: React.FC<DevicesSectionProps> = ({ devices, failed, focusDeviceId, onDelete, onRename, onLinked }) => {
     const { user } = useUser();
     const [deviceToRemove, setDeviceToRemove] = useState<DeviceDto | null>(null);
     const currentDeviceId = user?.deviceId;
@@ -185,6 +196,7 @@ const DevicesSection: React.FC<DevicesSectionProps> = ({ devices, failed, onDele
                             key={device.id}
                             device={device}
                             isCurrent={device.id === currentDeviceId}
+                            isFocused={device.id === focusDeviceId}
                             onRemove={() => setDeviceToRemove(device)}
                             onRename={(name) => onRename(device.id, name)}
                         />

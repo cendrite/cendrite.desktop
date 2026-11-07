@@ -34,8 +34,13 @@ export interface DeviceLinkRequestedEvent {
 }
 
 export interface DeviceAddedEvent {
-    connectionId: string;
+    deviceId: string;
     devicePlatform: string;
+}
+
+export interface AccountKeyRotatedEvent {
+    deviceId: string;
+    deviceName: string;
 }
 
 export interface UserLoggedInEvent { 

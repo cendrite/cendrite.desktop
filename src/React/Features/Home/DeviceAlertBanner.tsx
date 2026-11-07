@@ -2,14 +2,19 @@ import React from 'react';
 import { ShieldWarningIcon, XIcon } from '@phosphor-icons/react';
 import { useDeviceAlert } from '@/React/Context/DeviceAlert/DeviceAlertContext.tsx';
 
-interface DeviceAddedBannerProps {
-    onReview: () => void;
+interface DeviceAlertBannerProps {
+    onReview: (deviceId: string) => void;
 }
 
-const DeviceAddedBanner: React.FC<DeviceAddedBannerProps> = ({ onReview }) => {
-    const { platform, dismiss } = useDeviceAlert();
+const DeviceAlertBanner: React.FC<DeviceAlertBannerProps> = ({ onReview }) => {
+    const { alert, dismiss } = useDeviceAlert();
 
-    if (platform === null) return null;
+    if (alert === null) return null;
+
+    const message =
+        alert.kind === 'deviceAdded'
+            ? `A new ${alert.platform} device was added to your account. Not you?`
+            : `Your recovery phrase was changed on ${alert.deviceName}. Not you? Remove that device, then regenerate your phrase.`;
 
     return (
         <div
@@ -18,16 +23,16 @@ const DeviceAddedBanner: React.FC<DeviceAddedBannerProps> = ({ onReview }) => {
         >
             <ShieldWarningIcon className="h-5 w-5 shrink-0 text-warning" />
             <p className="flex-1">
-                A new {platform} device was added to your account. Not you?{' '}
+                {message}{' '}
                 <button
                     type="button"
                     className="text-fg underline underline-offset-4 hover:text-fg-subtle"
                     onClick={() => {
                         dismiss();
-                        onReview();
+                        onReview(alert.deviceId);
                     }}
                 >
-                    Review devices
+                    Review device
                 </button>
             </p>
             <button type="button" aria-label="Dismiss" className="text-fg-subtle hover:text-fg" onClick={dismiss}>
@@ -37,4 +42,4 @@ const DeviceAddedBanner: React.FC<DeviceAddedBannerProps> = ({ onReview }) => {
     );
 };
 
-export default DeviceAddedBanner;
+export default DeviceAlertBanner;

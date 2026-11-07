@@ -1,7 +1,11 @@
 import React from 'react';
 
+export type DeviceAlert =
+    | { kind: 'deviceAdded'; deviceId: string; platform: string }
+    | { kind: 'phraseChanged'; deviceId: string; deviceName: string };
+
 export interface DeviceAlertContextType {
-    platform: string | null;
+    alert: DeviceAlert | null;
     dismiss: () => void;
 }
 
