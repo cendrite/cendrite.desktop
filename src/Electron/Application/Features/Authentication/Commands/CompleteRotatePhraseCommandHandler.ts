@@ -4,23 +4,24 @@ import { Handler } from '#electron/Application/Mediator/Handler';
 import { CompleteRotatePhraseCommand } from '#shared/Authentication/CompleteRotatePhrase';
 import { IAuthenticationProvider } from '#electron/Application/Contracts/Providers/IAuthenticationProvider';
 import { INonceSigner } from '#electron/Application/Contracts/Services/INonceSigner';
-import { IPendingRotationStore, PendingRotation } from '#electron/Application/Contracts/Services/IPendingRotationStore';
+import { IPendingFlowStore } from '#electron/Application/Contracts/Services/IPendingFlowStore';
 import { deriveAccountKey, signAccountRotation } from '#electron/Infrastructure/Crypto/AccountKey';
+import { confirmationsMatch } from '#electron/Application/Services/RecoveryPhrase/PhraseConfirmation';
 
 export class CompleteRotatePhraseCommandHandler implements Handler<CompleteRotatePhraseCommand, void> {
     constructor(
-        private readonly pendingRotationStore: IPendingRotationStore,
+        private readonly pendingFlowStore: IPendingFlowStore,
         private readonly authenticationProvider: IAuthenticationProvider,
         private readonly nonceSigner: INonceSigner,
     ) { }
 
     public async handle(cmd: CompleteRotatePhraseCommand): Promise<Result<void>> {
-        const pending = this.pendingRotationStore.get();
+        const pending = this.pendingFlowStore.get('rotation');
         if (!pending) {
             return Result.fail<void>(new ErrorMessage('Expired', 'This has expired. Please start again.'));
         }
 
-        if (!confirmationsMatch(pending, cmd.confirmations)) {
+        if (!confirmationsMatch(pending.words, pending.confirmIndices, cmd.confirmations)) {
             return Result.fail<void>(new ErrorMessage('Validation', "Those words don't match your new recovery phrase."));
         }
 
@@ -40,17 +41,10 @@ export class CompleteRotatePhraseCommandHandler implements Handler<CompleteRotat
             });
             if (!result.success) return result;
 
-            this.pendingRotationStore.clear();
+            this.pendingFlowStore.clear('rotation');
             return Result.success();
         } finally {
             newAccountKey.secretKey.fill(0);
         }
     }
-}
-
-function confirmationsMatch(pending: PendingRotation, confirmations: string[]): boolean {
-    return (
-        confirmations.length === pending.confirmIndices.length &&
-        pending.confirmIndices.every((index, i) => confirmations[i]?.trim().toLowerCase() === pending.words[index])
-    );
 }

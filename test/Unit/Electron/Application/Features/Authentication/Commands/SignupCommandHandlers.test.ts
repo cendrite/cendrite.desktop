@@ -6,7 +6,7 @@ vi.mock('electron', () => ({ app: { getVersion: () => '1.4.2' } }));
 import { BeginSignupCommandHandler } from '#electron/Application/Features/Authentication/Commands/BeginSignupCommandHandler';
 import { CompleteSignupCommandHandler } from '#electron/Application/Features/Authentication/Commands/CompleteSignupCommandHandler';
 import { CancelSignupCommandHandler } from '#electron/Application/Features/Authentication/Commands/CancelSignupCommandHandler';
-import { PendingSignupStore } from '#electron/Infrastructure/Services/PendingSignupStore';
+import { PendingFlowStore } from '#electron/Infrastructure/Services/PendingFlowStore';
 import { NonceSigner } from '#electron/Infrastructure/Services/NonceSigner';
 import { deriveAccountKey } from '#electron/Infrastructure/Crypto/AccountKey';
 import { isProofOfWorkSolved } from '#electron/Infrastructure/Crypto/ProofOfWork';
@@ -21,7 +21,7 @@ import { UserContract } from '#shared/Models/UserContract';
 const challenge = Buffer.from(Uint8Array.from({ length: 32 }, (_, i) => i)).toString('base64');
 
 function setup() {
-    const store = new PendingSignupStore();
+    const store = new PendingFlowStore();
     const provider = {
         getSignupChallenge: vi.fn(async () => Result.success({ challengeId: 'challenge-1', challenge, difficulty: 8, expiresAt: '' })),
         signup: vi.fn(async (_req: SignupRequest) => Result.success({ userId: 'user-1', deviceId: 'device-1', deviceConnectionId: 'conn-1' })),
@@ -54,7 +54,7 @@ describe('signup', () => {
         expect(result.data.words).toHaveLength(12);
         expect(new Set(result.data.confirmIndices).size).toBe(3);
         expect(result.data.confirmIndices).toEqual([...result.data.confirmIndices].sort((a, b) => a - b));
-        expect(store.get()?.words).toEqual(result.data.words);
+        expect(store.get('signup')?.words).toEqual(result.data.words);
     });
 
     test('complete fails without a started signup', async () => {
@@ -104,7 +104,7 @@ describe('signup', () => {
         const startedDevice = (session.start.mock.calls[0] as unknown[])[1] as { id: string; publicKey: string };
         expect(startedDevice.id).toBe('device-1');
         expect(startedDevice.publicKey).toBe(request.devicePublicKey);
-        expect(store.get()).toBeNull();
+        expect(store.get('signup')).toBeNull();
     });
 
     test('a failed device setup keeps the account so a retry does not sign up again', async () => {
@@ -130,7 +130,7 @@ describe('signup', () => {
 
         expect(result.success).toBe(false);
         if (!result.success) expect(result.errorMessage.message).toBe('Username is taken');
-        expect(store.get()?.registration).toBeNull();
+        expect(store.get('signup')?.registration).toBeNull();
     });
 
     test('refuses an unreasonable difficulty from the server', async () => {
@@ -150,6 +150,6 @@ describe('signup', () => {
 
         await new CancelSignupCommandHandler(store).handle(new CancelSignupCommand());
 
-        expect(store.get()).toBeNull();
+        expect(store.get('signup')).toBeNull();
     });
 });

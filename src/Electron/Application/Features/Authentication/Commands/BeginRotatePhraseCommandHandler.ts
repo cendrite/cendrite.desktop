@@ -1,31 +1,21 @@
-import { randomInt } from 'node:crypto';
 import { Result } from '#shared/Result/Result';
 import { Handler } from '#electron/Application/Mediator/Handler';
 import { BeginRotatePhraseCommand, BeginRotatePhraseResponse } from '#shared/Authentication/BeginRotatePhrase';
-import { IPendingRotationStore } from '#electron/Application/Contracts/Services/IPendingRotationStore';
+import { IPendingFlowStore } from '#electron/Application/Contracts/Services/IPendingFlowStore';
 import { generateRecoveryPhrase } from '#electron/Infrastructure/Crypto/AccountKey';
-
-const CONFIRM_WORD_COUNT = 3;
+import { pickConfirmIndices } from '#electron/Application/Services/RecoveryPhrase/PhraseConfirmation';
 
 export class BeginRotatePhraseCommandHandler implements Handler<BeginRotatePhraseCommand, BeginRotatePhraseResponse> {
-    constructor(private readonly pendingRotationStore: IPendingRotationStore) { }
+    constructor(private readonly pendingFlowStore: IPendingFlowStore) { }
 
     public async handle(_cmd: BeginRotatePhraseCommand): Promise<Result<BeginRotatePhraseResponse>> {
-        this.pendingRotationStore.clear();
+        this.pendingFlowStore.clear('rotation');
 
         const words = generateRecoveryPhrase();
-        const confirmIndices = pickIndices(words.length, CONFIRM_WORD_COUNT);
+        const confirmIndices = pickConfirmIndices(words.length);
 
-        this.pendingRotationStore.set({ words, confirmIndices });
+        this.pendingFlowStore.set('rotation', { words, confirmIndices });
 
         return Result.success({ words: [...words], confirmIndices });
     }
-}
-
-function pickIndices(total: number, count: number): number[] {
-    const picked = new Set<number>();
-    while (picked.size < count) {
-        picked.add(randomInt(total));
-    }
-    return [...picked].sort((a, b) => a - b);
 }

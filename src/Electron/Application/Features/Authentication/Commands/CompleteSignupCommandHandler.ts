@@ -6,29 +6,30 @@ import { CompleteSignupCommand } from '#shared/Authentication/CompleteSignup';
 import { Device } from '#electron/Domain/Entities/Device';
 import { IAuthenticationProvider } from '#electron/Application/Contracts/Providers/IAuthenticationProvider';
 import { INonceSigner } from '#electron/Application/Contracts/Services/INonceSigner';
-import { IPendingSignupStore, PendingSignup, SignupRegistration } from '#electron/Application/Contracts/Services/IPendingSignupStore';
+import { IPendingFlowStore, SignupRegistration } from '#electron/Application/Contracts/Services/IPendingFlowStore';
 import { deriveAccountKey, signDeviceApproval, signSignupChallenge } from '#electron/Infrastructure/Crypto/AccountKey';
 import { solveProofOfWork } from '#electron/Infrastructure/Crypto/ProofOfWork';
 import { IDeviceSessionService } from '#electron/Application/Services/Device/DeviceSessionService';
 import { currentDeviceInfo } from '#electron/Application/Services/Device/DeviceInfo';
+import { confirmationsMatch } from '#electron/Application/Services/RecoveryPhrase/PhraseConfirmation';
 
 const MAX_DIFFICULTY = 24;
 
 export class CompleteSignupCommandHandler implements Handler<CompleteSignupCommand, UserContract> {
     constructor(
-        private readonly pendingSignupStore: IPendingSignupStore,
+        private readonly pendingFlowStore: IPendingFlowStore,
         private readonly authenticationProvider: IAuthenticationProvider,
         private readonly nonceSigner: INonceSigner,
         private readonly deviceSessionService: IDeviceSessionService,
     ) { }
 
     public async handle(cmd: CompleteSignupCommand): Promise<Result<UserContract>> {
-        const pending = this.pendingSignupStore.get();
+        const pending = this.pendingFlowStore.get('signup');
         if (!pending) {
             return Result.fail<UserContract>(new ErrorMessage('Expired', 'Your signup has expired. Please start again.'));
         }
 
-        if (!confirmationsMatch(pending, cmd.confirmations)) {
+        if (!confirmationsMatch(pending.words, pending.confirmIndices, cmd.confirmations)) {
             return Result.fail<UserContract>(new ErrorMessage('Validation', "Those words don't match your recovery phrase."));
         }
 
@@ -41,7 +42,7 @@ export class CompleteSignupCommandHandler implements Handler<CompleteSignupComma
         const { userId, deviceId, connectionId, devicePrivateKey, devicePublicKey } = pending.registration;
         const result = await this.deviceSessionService.start(userId, new Device(deviceId, connectionId, devicePrivateKey, devicePublicKey));
 
-        if (result.success) this.pendingSignupStore.clear();
+        if (result.success) this.pendingFlowStore.clear('signup');
 
         return result;
     }
@@ -88,11 +89,4 @@ export class CompleteSignupCommandHandler implements Handler<CompleteSignupComma
             accountKey.secretKey.fill(0);
         }
     }
-}
-
-function confirmationsMatch(pending: PendingSignup, confirmations: string[]): boolean {
-    return (
-        confirmations.length === pending.confirmIndices.length &&
-        pending.confirmIndices.every((index, i) => confirmations[i]?.trim().toLowerCase() === pending.words[index])
-    );
 }
