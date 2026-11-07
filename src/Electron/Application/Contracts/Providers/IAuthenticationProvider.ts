@@ -49,10 +49,22 @@ export interface RecoverResponse {
     deviceConnectionId: string;
 }
 
+export interface AccountKeyResponse {
+    accountPublicKey: string;
+}
+
+export interface RotateAccountKeyRequest {
+    newAccountPublicKey: string;
+    proof: string;
+    approval: string;
+}
+
 export interface IAuthenticationProvider {
     logout(): Promise<Result<void>>;
     getSignupChallenge(): Promise<Result<SignupChallengeResponse>>;
     signup(req: SignupRequest): Promise<Result<SignupResponse>>;
     getRecoveryChallenge(accountPublicKey: string): Promise<Result<RecoveryChallengeResponse>>;
     recover(req: RecoverRequest): Promise<Result<RecoverResponse>>;
+    getAccountKey(): Promise<Result<AccountKeyResponse>>;
+    rotateAccountKey(req: RotateAccountKeyRequest): Promise<Result>;
 }
