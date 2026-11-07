@@ -6,11 +6,12 @@ import { onboardingActions, onboardingButton, onboardingField, onboardingLink } 
 interface ConfirmStepProps {
     confirmIndices: number[];
     error: string | null;
+    submitLabel: string;
     onBack: () => void;
     onConfirm: (answers: string[]) => void;
 }
 
-const ConfirmStep: React.FC<ConfirmStepProps> = ({ confirmIndices, error, onBack, onConfirm }) => {
+const ConfirmStep: React.FC<ConfirmStepProps> = ({ confirmIndices, error, submitLabel, onBack, onConfirm }) => {
     const [answers, setAnswers] = useState<string[]>(() => confirmIndices.map(() => ''));
 
     const complete = answers.every((answer) => answer.trim().length > 0);
@@ -47,7 +48,7 @@ const ConfirmStep: React.FC<ConfirmStepProps> = ({ confirmIndices, error, onBack
 
             <div className={onboardingActions}>
                 <Button type="submit" variant="solid" size="md" disabled={!complete} className={onboardingButton}>
-                    Create account
+                    {submitLabel}
                 </Button>
                 <button type="button" onClick={onBack} className={onboardingLink}>
                     Show words again

@@ -142,6 +142,7 @@ const SignupPage: React.FC = () => {
                     <ConfirmStep
                         confirmIndices={confirmIndices}
                         error={error}
+                        submitLabel="Create account"
                         onBack={() => {
                             setError(null);
                             setStep('phrase');

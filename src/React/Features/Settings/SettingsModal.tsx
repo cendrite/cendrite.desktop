@@ -14,9 +14,10 @@ interface SettingsModalProps {
     isOpen: boolean;
     onClose: () => void;
     initialSection?: SettingsSection;
+    focusDeviceId?: string | null;
 }
 
-const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, initialSection = 'account' }) => {
+const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, initialSection = 'account', focusDeviceId = null }) => {
     const [active, setActive] = useState<SettingsSection>(initialSection);
     const [wasOpen, setWasOpen] = useState(isOpen);
 
@@ -31,7 +32,16 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, initialS
         appearance: <AppearanceSection />,
         notifications: <NotificationsSection />,
         privacy: <PrivacySection />,
-        devices: <DevicesSection devices={devices} failed={devicesFailed} onDelete={deleteDevice} onRename={renameDevice} onLinked={reloadDevices} />,
+        devices: (
+            <DevicesSection
+                devices={devices}
+                failed={devicesFailed}
+                focusDeviceId={focusDeviceId}
+                onDelete={deleteDevice}
+                onRename={renameDevice}
+                onLinked={reloadDevices}
+            />
+        ),
     };
 
     return (

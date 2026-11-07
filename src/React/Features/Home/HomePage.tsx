@@ -9,7 +9,7 @@ import { useDeviceRevocation } from '@/React/Common/Hooks/DeviceRevocation';
 import { EmojiSettingsProvider } from '@/React/Context/Emoji/EmojiSettingsProvider.tsx';
 import SettingsModal from '@/React/Features/Settings/SettingsModal.tsx';
 import { SettingsSection } from '@/React/Features/Settings/SettingsSection.ts';
-import DeviceAddedBanner from './DeviceAddedBanner.tsx';
+import DeviceAlertBanner from './DeviceAlertBanner.tsx';
 import { useDeviceLinkRequest } from '@/React/Context/DeviceLink/DeviceLinkRequestContext.tsx';
 
 const HomePage: React.FC = () => {
@@ -18,6 +18,7 @@ const HomePage: React.FC = () => {
     const [paneType, setPaneType] = useState<'chats' | 'contacts'>('chats');
     const [savedContact, setSavedContact] = useState<Contact | null>(null);
     const [settingsSection, setSettingsSection] = useState<SettingsSection | null>(null);
+    const [focusDeviceId, setFocusDeviceId] = useState<string | null>(null);
     const { request: linkRequest } = useDeviceLinkRequest();
 
     useEffect(() => {
@@ -63,14 +64,23 @@ const HomePage: React.FC = () => {
 
                 <div className="flex-1 bg-canvas relative">
                     <MainContent />
-                    <DeviceAddedBanner onReview={() => setSettingsSection('devices')} />
+                    <DeviceAlertBanner
+                        onReview={(deviceId) => {
+                            setFocusDeviceId(deviceId);
+                            setSettingsSection('devices');
+                        }}
+                    />
                 </div>
             </div>
 
             <SettingsModal
                 isOpen={settingsSection !== null}
                 initialSection={settingsSection ?? 'account'}
-                onClose={() => setSettingsSection(null)}
+                focusDeviceId={focusDeviceId}
+                onClose={() => {
+                    setSettingsSection(null);
+                    setFocusDeviceId(null);
+                }}
             />
         </EmojiSettingsProvider>
     );

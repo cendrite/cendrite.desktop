@@ -5,7 +5,7 @@ import { HubMethods } from '../HubMethods.js';
 import { ChangeEvent } from '#shared/Events/ChangeEvent';
 import { BrowserWindow } from 'electron';
 import { ChangeEventType } from '#shared/Events/ChangeEventType';
-import { DeviceAddedEvent } from '#shared/Events/EventData';
+import { AccountKeyRotatedEvent, DeviceAddedEvent } from '#shared/Events/EventData';
 import { INotificationService } from '#electron/Application/Contracts/Services/INotificationService';
 
 export class ChangeEventHubHandler implements IHubHandler {
@@ -38,6 +38,9 @@ export class ChangeEventHubHandler implements IHubHandler {
     private publish(event: ChangeEvent): void {
         if (event.type === ChangeEventType.DeviceAdded) {
             this.notificationService.notifyDeviceAdded((event.data as DeviceAddedEvent).devicePlatform);
+        }
+        if (event.type === ChangeEventType.AccountKeyRotated) {
+            this.notificationService.notifyAccountKeyRotated((event.data as AccountKeyRotatedEvent).deviceName);
         }
         this.mainWindow.webContents.send('changeEvent', event);
     }

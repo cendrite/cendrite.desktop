@@ -21,6 +21,12 @@ export class NotificationService implements INotificationService {
         this.show('New device added', `A ${platform} device was added to your account. Not you? Open Cendrite to review your devices.`);
     }
 
+    public notifyAccountKeyRotated(deviceName: string): void {
+        if (this.mainWindow.isDestroyed() || this.mainWindow.isFocused()) return;
+
+        this.show('Recovery phrase changed', `Your recovery phrase was changed on ${deviceName}. Not you? Remove that device in Cendrite, then regenerate your phrase.`);
+    }
+
     public async notifyMessage(title: string, preview: string): Promise<void> {
         if (!Notification.isSupported || this.mainWindow.isDestroyed() || this.mainWindow.isFocused()) return;
 

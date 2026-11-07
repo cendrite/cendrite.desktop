@@ -13,4 +13,5 @@
     Deleted = 11,
     DeviceAdded = 12,
     DeviceLinkRequested = 13,
+    AccountKeyRotated = 14,
 }
