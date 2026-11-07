@@ -24,15 +24,15 @@ export interface PendingDeviceLink {
     devicePrivateKey: string;
 }
 
-export interface EphemeralEntries {
+export interface PendingFlows {
     signup: PendingSignup;
     rotation: PendingRotation;
     deviceLink: PendingDeviceLink;
 }
 
-export interface IEphemeralStore {
-    set<K extends keyof EphemeralEntries>(key: K, value: EphemeralEntries[K]): void;
-    get<K extends keyof EphemeralEntries>(key: K): EphemeralEntries[K] | null;
-    clear(key: keyof EphemeralEntries): void;
+export interface IPendingFlowStore {
+    set<K extends keyof PendingFlows>(key: K, value: PendingFlows[K]): void;
+    get<K extends keyof PendingFlows>(key: K): PendingFlows[K] | null;
+    clear(key: keyof PendingFlows): void;
     clearAll(): void;
 }

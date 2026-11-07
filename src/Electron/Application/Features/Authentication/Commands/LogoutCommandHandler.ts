@@ -5,7 +5,7 @@ import { IAuthenticationProvider } from '#electron/Application/Contracts/Provide
 import { IPump } from '#electron/Application/Contracts/Services/IPump';
 import { Handler } from '#electron/Application/Mediator/Handler';
 import { IPurgeLocalData } from '#electron/Application/Contracts/Services/IPurgeLocalData';
-import { IEphemeralStore } from '#electron/Application/Contracts/Services/IEphemeralStore';
+import { IPendingFlowStore } from '#electron/Application/Contracts/Services/IPendingFlowStore';
 import { LogoutManager } from '#electron/Application/Services/LogoutManager/LogoutManager';
 import { LogoutCommand } from '#shared/Authentication/Logout';
 
@@ -19,7 +19,7 @@ export class LogoutCommandHandler implements Handler<LogoutCommand, void> {
         private readonly deliveryStatusUpdatePump: IPump,
         private readonly preKeyPump: IPump,
         private readonly signalManager: ISignalManager,
-        private readonly ephemeralStore: IEphemeralStore,
+        private readonly pendingFlowStore: IPendingFlowStore,
     ) { }
 
     public async handle(_cmd: LogoutCommand): Promise<Result<void>> {
@@ -41,7 +41,7 @@ export class LogoutCommandHandler implements Handler<LogoutCommand, void> {
             if (remoteResult.success === false)
                 console.error('LogoutCommandHandler.handle: Remote logout failed', remoteResult.errorMessage);
         } finally {
-            this.ephemeralStore.clearAll();
+            this.pendingFlowStore.clearAll();
             await this.purgeLocalDataService.purgeLocalData();
 
             this.signalManager.disconnect();

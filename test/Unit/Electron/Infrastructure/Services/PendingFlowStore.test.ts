@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'vitest';
-import { EphemeralStore } from '#electron/Infrastructure/Services/EphemeralStore';
+import { PendingFlowStore } from '#electron/Infrastructure/Services/PendingFlowStore';
 
-describe('ephemeral store', () => {
+describe('pending flow store', () => {
     test('keeps each flow under its own key', () => {
-        const store = new EphemeralStore();
+        const store = new PendingFlowStore();
 
         store.set('rotation', { words: ['a'], confirmIndices: [0] });
         store.set('deviceLink', { pendingLinkId: 'p', pollSecret: 's', devicePublicKey: 'pk', devicePrivateKey: 'sk' });
@@ -14,7 +14,7 @@ describe('ephemeral store', () => {
     });
 
     test('clearAll drops every pending flow', () => {
-        const store = new EphemeralStore();
+        const store = new PendingFlowStore();
         store.set('signup', { words: ['a'], confirmIndices: [0], registration: null });
         store.set('rotation', { words: ['b'], confirmIndices: [0] });
 

@@ -4,19 +4,19 @@ import { Handler } from '#electron/Application/Mediator/Handler';
 import { CompleteRotatePhraseCommand } from '#shared/Authentication/CompleteRotatePhrase';
 import { IAuthenticationProvider } from '#electron/Application/Contracts/Providers/IAuthenticationProvider';
 import { INonceSigner } from '#electron/Application/Contracts/Services/INonceSigner';
-import { IEphemeralStore } from '#electron/Application/Contracts/Services/IEphemeralStore';
+import { IPendingFlowStore } from '#electron/Application/Contracts/Services/IPendingFlowStore';
 import { deriveAccountKey, signAccountRotation } from '#electron/Infrastructure/Crypto/AccountKey';
 import { confirmationsMatch } from '#electron/Application/Services/RecoveryPhrase/PhraseConfirmation';
 
 export class CompleteRotatePhraseCommandHandler implements Handler<CompleteRotatePhraseCommand, void> {
     constructor(
-        private readonly ephemeralStore: IEphemeralStore,
+        private readonly pendingFlowStore: IPendingFlowStore,
         private readonly authenticationProvider: IAuthenticationProvider,
         private readonly nonceSigner: INonceSigner,
     ) { }
 
     public async handle(cmd: CompleteRotatePhraseCommand): Promise<Result<void>> {
-        const pending = this.ephemeralStore.get('rotation');
+        const pending = this.pendingFlowStore.get('rotation');
         if (!pending) {
             return Result.fail<void>(new ErrorMessage('Expired', 'This has expired. Please start again.'));
         }
@@ -41,7 +41,7 @@ export class CompleteRotatePhraseCommandHandler implements Handler<CompleteRotat
             });
             if (!result.success) return result;
 
-            this.ephemeralStore.clear('rotation');
+            this.pendingFlowStore.clear('rotation');
             return Result.success();
         } finally {
             newAccountKey.secretKey.fill(0);

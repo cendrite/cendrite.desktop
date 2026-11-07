@@ -3,7 +3,7 @@ import nacl from 'tweetnacl';
 import { BeginRotatePhraseCommandHandler } from '#electron/Application/Features/Authentication/Commands/BeginRotatePhraseCommandHandler';
 import { CompleteRotatePhraseCommandHandler } from '#electron/Application/Features/Authentication/Commands/CompleteRotatePhraseCommandHandler';
 import { CancelRotatePhraseCommandHandler } from '#electron/Application/Features/Authentication/Commands/CancelRotatePhraseCommandHandler';
-import { EphemeralStore } from '#electron/Infrastructure/Services/EphemeralStore';
+import { PendingFlowStore } from '#electron/Infrastructure/Services/PendingFlowStore';
 import { NonceSigner } from '#electron/Infrastructure/Services/NonceSigner';
 import { deriveAccountKey } from '#electron/Infrastructure/Crypto/AccountKey';
 import { BeginRotatePhraseCommand } from '#shared/Authentication/BeginRotatePhrase';
@@ -17,7 +17,7 @@ const oldAccountKey = Buffer.from(nacl.sign.keyPair().publicKey).toString('base6
 
 function setup() {
     const device = nacl.sign.keyPair();
-    const store = new EphemeralStore();
+    const store = new PendingFlowStore();
     const provider = {
         getAccountKey: vi.fn(async () => Result.success({ accountPublicKey: oldAccountKey })),
         rotateAccountKey: vi.fn(async (_req: RotateAccountKeyRequest) => Result.success()),

@@ -6,7 +6,7 @@ vi.mock('electron', () => ({ app: { getVersion: () => '1.4.2' } }));
 import { BeginSignupCommandHandler } from '#electron/Application/Features/Authentication/Commands/BeginSignupCommandHandler';
 import { CompleteSignupCommandHandler } from '#electron/Application/Features/Authentication/Commands/CompleteSignupCommandHandler';
 import { CancelSignupCommandHandler } from '#electron/Application/Features/Authentication/Commands/CancelSignupCommandHandler';
-import { EphemeralStore } from '#electron/Infrastructure/Services/EphemeralStore';
+import { PendingFlowStore } from '#electron/Infrastructure/Services/PendingFlowStore';
 import { NonceSigner } from '#electron/Infrastructure/Services/NonceSigner';
 import { deriveAccountKey } from '#electron/Infrastructure/Crypto/AccountKey';
 import { isProofOfWorkSolved } from '#electron/Infrastructure/Crypto/ProofOfWork';
@@ -21,7 +21,7 @@ import { UserContract } from '#shared/Models/UserContract';
 const challenge = Buffer.from(Uint8Array.from({ length: 32 }, (_, i) => i)).toString('base64');
 
 function setup() {
-    const store = new EphemeralStore();
+    const store = new PendingFlowStore();
     const provider = {
         getSignupChallenge: vi.fn(async () => Result.success({ challengeId: 'challenge-1', challenge, difficulty: 8, expiresAt: '' })),
         signup: vi.fn(async (_req: SignupRequest) => Result.success({ userId: 'user-1', deviceId: 'device-1', deviceConnectionId: 'conn-1' })),

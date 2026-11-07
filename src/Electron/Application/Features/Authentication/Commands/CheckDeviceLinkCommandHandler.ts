@@ -1,7 +1,7 @@
 import { Result } from '#shared/Result/Result';
 import { Handler } from '#electron/Application/Mediator/Handler';
 import { IDeviceProvider } from '#electron/Application/Contracts/Providers/IDeviceProvider';
-import { IEphemeralStore } from '#electron/Application/Contracts/Services/IEphemeralStore';
+import { IPendingFlowStore } from '#electron/Application/Contracts/Services/IPendingFlowStore';
 import { IDeviceSessionService } from '#electron/Application/Services/Device/DeviceSessionService';
 import { CheckDeviceLinkCommand, DeviceLinkProgress } from '#shared/Devices/CheckDeviceLink';
 import { Device } from '#electron/Domain/Entities/Device';
@@ -9,12 +9,12 @@ import { Device } from '#electron/Domain/Entities/Device';
 export class CheckDeviceLinkCommandHandler implements Handler<CheckDeviceLinkCommand, DeviceLinkProgress> {
     constructor(
         private readonly deviceProvider: IDeviceProvider,
-        private readonly ephemeralStore: IEphemeralStore,
+        private readonly pendingFlowStore: IPendingFlowStore,
         private readonly deviceSessionService: IDeviceSessionService,
     ) { }
 
     public async handle(_cmd: CheckDeviceLinkCommand): Promise<Result<DeviceLinkProgress>> {
-        const pending = this.ephemeralStore.get('deviceLink');
+        const pending = this.pendingFlowStore.get('deviceLink');
         if (!pending) return Result.success({ status: 'expired', user: null });
 
         const status = await this.deviceProvider.getLinkStatus(pending.pendingLinkId, pending.pollSecret);
@@ -31,14 +31,14 @@ export class CheckDeviceLinkCommandHandler implements Handler<CheckDeviceLinkCom
                 );
                 if (!session.success) return session;
 
-                this.ephemeralStore.clear('deviceLink');
+                this.pendingFlowStore.clear('deviceLink');
                 return Result.success({ status: 'approved', user: session.data });
             }
             case 'Rejected':
-                this.ephemeralStore.clear('deviceLink');
+                this.pendingFlowStore.clear('deviceLink');
                 return Result.success({ status: 'rejected', user: null });
             case 'Expired':
-                this.ephemeralStore.clear('deviceLink');
+                this.pendingFlowStore.clear('deviceLink');
                 return Result.success({ status: 'expired', user: null });
             default:
                 return Result.success({ status: 'pending', user: null });
