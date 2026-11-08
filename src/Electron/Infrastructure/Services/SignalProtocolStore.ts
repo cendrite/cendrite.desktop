@@ -116,6 +116,19 @@ export class SignalProtocolStore
         return identityCache.trusted && identityCache.identityKeyPublic.equals(Buffer.from(key.serialize()));
     }
 
+    public async markUntrusted(address: ProtocolAddress): Promise<void> {
+        const identityCache = await this.procolStore.getIdentityCache(address.toString());
+        if (!identityCache || !identityCache.trusted) return;
+
+        identityCache.trusted = false;
+        await this.procolStore.saveIdentity(identityCache);
+    }
+
+    public async getUntrustedAddresses(): Promise<string[]> {
+        const identities = await this.procolStore.getUntrustedIdentities();
+        return identities.map((identity) => identity.encodedAddress);
+    }
+
     public async getIdentity(address: ProtocolAddress): Promise<PublicKey | null> {
         const identityCache = await this.procolStore.getIdentityCache(address.toString());
         if (!identityCache) {

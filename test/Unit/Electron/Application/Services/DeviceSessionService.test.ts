@@ -89,4 +89,23 @@ describe('device session', () => {
         expect(result.success).toBe(false);
         expect(deps.purgeLocalDataService.purgeLocalData).toHaveBeenCalledOnce();
     });
+
+    test('publishes the key bundle only after every remote step succeeded', async () => {
+        const { sut, calls } = setup();
+
+        await sut.start('user-1', device());
+
+        expect(calls.indexOf('keys')).toBeGreaterThan(calls.indexOf('signal.connect'));
+        expect(calls.indexOf('keys')).toBeGreaterThan(calls.indexOf('profile'));
+        expect(calls.indexOf('keys')).toBeGreaterThan(calls.indexOf('user.create'));
+    });
+
+    test('a failed setup publishes no key bundle, so a retry is the first key for the device', async () => {
+        const { sut, deps } = setup();
+        deps.userProvider.getUserProfile = vi.fn(async () => Result.success(undefined)) as never;
+
+        await sut.start('user-1', device());
+
+        expect(deps.keyGenerator.generateKeyBundle).not.toHaveBeenCalled();
+    });
 });

@@ -1,5 +1,8 @@
+import { BrowserWindow } from 'electron';
 import {
     CiphertextMessageType,
+    ErrorCode,
+    LibSignalErrorBase,
     PreKeySignalMessage,
     processPreKeyBundle,
     ProtocolAddress,
@@ -10,7 +13,7 @@ import {
 } from '@signalapp/libsignal-client';
 import { IKeyStoreProvider } from '#electron/Application/Contracts/Providers/IKeyStoreProvider';
 import { IDeviceRepository } from '#electron/Application/Contracts/Repositories/IDeviceRepository';
-import { ISessionManager } from '#electron/Application/Contracts/Services/ISessionManager';
+import { ISessionManager, UntrustedDeviceError } from '#electron/Application/Contracts/Services/ISessionManager';
 import { SignalProtocolStore } from './SignalProtocolStore.js';
 import { mapToPreKeyBundle } from '../Mappers/KeyMapper.js';
 import { Envelope, Payload } from '#electron/Domain/Protocol/Payload';
@@ -24,6 +27,7 @@ export class SessionManager implements ISessionManager {
     private readonly store: SignalProtocolStore;
     private readonly keyProvider: IKeyStoreProvider;
     private readonly deviceRepository: IDeviceRepository;
+    private readonly mainWindow: BrowserWindow;
 
     /**
      * Per-address operation chains. Ratchet state is read-modify-write through the async store,
@@ -35,10 +39,12 @@ export class SessionManager implements ISessionManager {
         signalProtocolStore: SignalProtocolStore,
         keyStoreProvider: IKeyStoreProvider,
         deviceRepository: IDeviceRepository,
+        mainWindow: BrowserWindow,
     ) {
         this.store = signalProtocolStore;
         this.keyProvider = keyStoreProvider;
         this.deviceRepository = deviceRepository;
+        this.mainWindow = mainWindow;
     }
 
     private address(connectionId: string): ProtocolAddress {
@@ -81,7 +87,7 @@ export class SessionManager implements ISessionManager {
     public async encrypt(envelope: Envelope<Payload>, connectionId: string): Promise<string> {
         const address = this.address(connectionId);
 
-        return this.runExclusive(address, async () => {
+        return this.runExclusive(address, () => this.refuseUntrusted(address, connectionId, async () => {
             const localAddress = await this.localAddress();
             await this.ensureSession(address, localAddress);
 
@@ -92,7 +98,7 @@ export class SessionManager implements ISessionManager {
                 type: ciphertext.type(),
                 body: Buffer.from(ciphertext.serialize()).toString('base64'),
             });
-        });
+        }));
     }
 
     /**
@@ -106,7 +112,7 @@ export class SessionManager implements ISessionManager {
         const address = this.address(connectionId);
         const bodyBytes = SessionManager.fromBase64(body ?? '');
 
-        const plaintext = await this.runExclusive(address, async () => {
+        const plaintext = await this.runExclusive(address, () => this.refuseUntrusted(address, connectionId, async () => {
             const localAddress = await this.localAddress();
 
             if (type === CiphertextMessageType.PreKey) {
@@ -123,7 +129,7 @@ export class SessionManager implements ISessionManager {
             }
 
             return signalDecrypt(SignalMessage.deserialize(bodyBytes), address, localAddress, this.store, this.store);
-        });
+        }));
 
         return JSON.parse(new TextDecoder().decode(plaintext));
     }
@@ -162,6 +168,25 @@ export class SessionManager implements ISessionManager {
         );
 
         return new Uint8Array(plaintext);
+    }
+
+    public async getUntrustedDevices(): Promise<string[]> {
+        const addresses = await this.store.getUntrustedAddresses();
+        return addresses.map((encoded) => encoded.slice(0, encoded.lastIndexOf('.')));
+    }
+
+    private async refuseUntrusted<T>(address: ProtocolAddress, connectionId: string, fn: () => Promise<T>): Promise<T> {
+        try {
+            return await fn();
+        } catch (error) {
+            if (!(error instanceof LibSignalErrorBase) || !error.is(ErrorCode.UntrustedIdentity)) throw error;
+
+            await this.store.markUntrusted(address);
+            if (!this.mainWindow.isDestroyed()) {
+                this.mainWindow.webContents.send('eventMessage', { kind: 'untrustedDevice', connectionId });
+            }
+            throw new UntrustedDeviceError(connectionId);
+        }
     }
 
     /**

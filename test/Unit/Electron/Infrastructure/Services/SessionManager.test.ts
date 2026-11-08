@@ -21,6 +21,7 @@ import { IdentityCache } from '../../../../../src/Electron/Domain/Encryption/Ide
 import { Envelope, Payload, PayloadType } from '../../../../../src/Electron/Domain/Protocol/Payload.js';
 import { Result } from '../../../../../src/Shared/Result/Result.js';
 import { ErrorMessage } from '../../../../../src/Shared/Result/ErrorMessage.js';
+import { UntrustedDeviceError } from '../../../../../src/Electron/Application/Contracts/Services/ISessionManager.js';
 
 /**
  * In-memory stand-in for the sqlite-backed ProtocolStore.
@@ -53,6 +54,7 @@ function createProtocolStore() {
         storeSession: async (r: SessionRecord) => void sessions.set(r.encodedAddress, r),
         getIdentityCache: async (address: string) => identities.get(address) ?? null,
         saveIdentity: async (i: IdentityCache) => void identities.set(i.encodedAddress, i),
+        getUntrustedIdentities: async () => [...identities.values()].filter((i) => !i.trusted),
     };
 
     return { store: store as unknown as ProtocolStore, preKeys };
@@ -93,8 +95,7 @@ function createKeyStoreServer() {
     return provider;
 }
 
-async function createParty(server: IKeyStoreProvider) {
-    const connectionId = randomUUID();
+async function createParty(server: IKeyStoreProvider, connectionId: string = randomUUID()) {
     const { store: protocolStore, preKeys } = createProtocolStore();
     const deviceRepository = {
         get: async () => new Device(`device-${connectionId}`, connectionId, '', ''),
@@ -102,9 +103,10 @@ async function createParty(server: IKeyStoreProvider) {
 
     await new KeyGenerator(server, protocolStore).generateKeyBundle(connectionId);
 
-    const sessionManager = new SessionManager(new SignalProtocolStore(protocolStore), server, deviceRepository);
+    const mainWindow = { isDestroyed: () => false, webContents: { send: vi.fn() } };
+    const sessionManager = new SessionManager(new SignalProtocolStore(protocolStore), server, deviceRepository, mainWindow as never);
 
-    return { connectionId, sessionManager, preKeys };
+    return { connectionId, sessionManager, preKeys, mainWindow };
 }
 
 function envelope(text: string): Envelope<Payload> {
@@ -218,5 +220,30 @@ describe('KeyGenerator', () => {
         await expect(new KeyGenerator(server, store).generateKeyBundle(randomUUID())).rejects.toThrow(
             'Failed to upload key bundle: keystore down',
         );
+    });
+
+    test('refuses a known device whose identity key changed, and keeps refusing it', async () => {
+        const server = createKeyStoreServer();
+        const alice = await createParty(server);
+        const bob = await createParty(server);
+        await bob.sessionManager.decrypt(await alice.sessionManager.encrypt(envelope('hello bob'), bob.connectionId), alice.connectionId);
+
+        const mallory = await createParty(server, bob.connectionId);
+        const forged = await mallory.sessionManager.encrypt(envelope('it is me, bob'), alice.connectionId);
+
+        await expect(alice.sessionManager.decrypt(forged, bob.connectionId)).rejects.toBeInstanceOf(UntrustedDeviceError);
+        expect(await alice.sessionManager.getUntrustedDevices()).toEqual([bob.connectionId]);
+        expect(alice.mainWindow.webContents.send).toHaveBeenCalledWith('eventMessage', { kind: 'untrustedDevice', connectionId: bob.connectionId });
+        await expect(alice.sessionManager.encrypt(envelope('still there?'), bob.connectionId)).rejects.toBeInstanceOf(UntrustedDeviceError);
+    });
+
+    test('lists no untrusted devices while every key matches', async () => {
+        const server = createKeyStoreServer();
+        const alice = await createParty(server);
+        const bob = await createParty(server);
+        await bob.sessionManager.decrypt(await alice.sessionManager.encrypt(envelope('hi'), bob.connectionId), alice.connectionId);
+
+        expect(await alice.sessionManager.getUntrustedDevices()).toEqual([]);
+        expect(await bob.sessionManager.getUntrustedDevices()).toEqual([]);
     });
 });

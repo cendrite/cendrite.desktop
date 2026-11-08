@@ -47,7 +47,6 @@ export class DeviceSessionService implements IDeviceSessionService {
         await this.deviceRepository.create(device);
 
         await this.tokenManager.init(userId, device.id);
-        await this.keyGenerator.generateKeyBundle(device.connectionId);
         await this.signalManager.connect();
 
         const profile = await this.userProvider.getUserProfile({ exclusiveConnectionId: device.connectionId });
@@ -65,6 +64,8 @@ export class DeviceSessionService implements IDeviceSessionService {
         user.connectionIds = profile.data.connectionIds.map((connectionId) => new UserConnectionId(connectionId, user));
 
         const savedUser = await this.userRepository.create(user);
+
+        await this.keyGenerator.generateKeyBundle(device.connectionId);
 
         this.messagePump.start();
         this.deliveryStatusUpdatePump.start();

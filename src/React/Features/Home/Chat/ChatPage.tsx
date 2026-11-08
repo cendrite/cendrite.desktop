@@ -6,6 +6,7 @@ import { DeliveryStatus } from '@/Shared/Enums/DeliveryStatus.ts';
 import { ChatActionType } from '@/React/Context/Chat/ChatReducer.ts';
 import { useMessageService } from '@/React/Common/Hooks/MessageService.ts';
 import MessageList from './MessageList.tsx';
+import UntrustedDeviceBanner from './UntrustedDeviceBanner.tsx';
 
 interface ChatPageProps {
     chatId: string;
@@ -52,6 +53,8 @@ const ChatPage: React.FC<ChatPageProps> = ({ chatId, onClose }) => {
             <div className={`absolute inset-0  text-fg shadow-lg transition-transform duration-300 ${slideClass}`}>
                 <div className="flex flex-col h-full">
                     <ChatHeader chat={currentChat} onClose={() => handleSlide()} />
+
+                    <UntrustedDeviceBanner members={currentChat.chatMembers} />
 
                     <MessageList key={currentChat.id} chat={currentChat} />
 

@@ -16,7 +16,8 @@ declare global {
         | { kind: 'message'; message: MessageContract }
         | { kind: 'deliveryStatus'; chatId: string; messageIds: string[]; status: DeliveryStatus }
         | { kind: 'textEdit'; messageId: string; newText: string }
-        | { kind: 'delete'; messageId: string };
+        | { kind: 'delete'; messageId: string }
+        | { kind: 'untrustedDevice'; connectionId: string };
 
     interface AppEventMap {
         changeEvent: ChangeEvent;
