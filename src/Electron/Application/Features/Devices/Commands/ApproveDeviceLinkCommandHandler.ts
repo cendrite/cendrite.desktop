@@ -18,14 +18,18 @@ export class ApproveDeviceLinkCommandHandler implements Handler<ApproveDeviceLin
             return Result.fail(new ErrorMessage('NotFound', 'This request has expired or was already handled.'));
         }
 
-        if (cmd.chosenFingerprint !== fingerprintOf(details.data.devicePublicKey)) {
+        if (cmd.chosenFingerprint !== fingerprintOf(details.data.devicePublicKey, details.data.signalIdentityKey)) {
             await this.deviceProvider.rejectLink(cmd.pendingLinkId);
             return Result.fail(
                 new ErrorMessage('Mismatch', "That code doesn't match the new device, so the request was cancelled. Start again on the new device."),
             );
         }
 
-        const approval = await this.nonceSigner.signDeviceApproval(details.data.accountPublicKey, details.data.devicePublicKey);
+        const approval = await this.nonceSigner.signDeviceApproval(
+            details.data.accountPublicKey,
+            details.data.devicePublicKey,
+            details.data.signalIdentityKey,
+        );
 
         const approved = await this.deviceProvider.approveLink(cmd.pendingLinkId, approval);
         if (!approved.success) {

@@ -6,6 +6,7 @@ import { CompleteSignupCommand } from '#shared/Authentication/CompleteSignup';
 import { Device } from '#electron/Domain/Entities/Device';
 import { IAuthenticationProvider } from '#electron/Application/Contracts/Providers/IAuthenticationProvider';
 import { INonceSigner } from '#electron/Application/Contracts/Services/INonceSigner';
+import { IKeyGenerator } from '#electron/Application/Contracts/Services/IKeyGenerator';
 import { IPendingFlowStore, SignupRegistration } from '#electron/Application/Contracts/Services/IPendingFlowStore';
 import { deriveAccountKey, signDeviceApproval, signSignupChallenge } from '#electron/Infrastructure/Crypto/AccountKey';
 import { solveProofOfWork } from '#electron/Infrastructure/Crypto/ProofOfWork';
@@ -21,6 +22,7 @@ export class CompleteSignupCommandHandler implements Handler<CompleteSignupComma
         private readonly authenticationProvider: IAuthenticationProvider,
         private readonly nonceSigner: INonceSigner,
         private readonly deviceSessionService: IDeviceSessionService,
+        private readonly keyGenerator: IKeyGenerator,
     ) { }
 
     public async handle(cmd: CompleteSignupCommand): Promise<Result<UserContract>> {
@@ -39,8 +41,8 @@ export class CompleteSignupCommandHandler implements Handler<CompleteSignupComma
             pending.registration = registration.data;
         }
 
-        const { userId, deviceId, connectionId, devicePrivateKey, devicePublicKey } = pending.registration;
-        const result = await this.deviceSessionService.start(userId, new Device(deviceId, connectionId, devicePrivateKey, devicePublicKey));
+        const { userId, deviceId, connectionId, devicePrivateKey, devicePublicKey, signalIdentity } = pending.registration;
+        const result = await this.deviceSessionService.start(userId, new Device(deviceId, connectionId, devicePrivateKey, devicePublicKey), signalIdentity);
 
         if (result.success) this.pendingFlowStore.clear('signup');
 
@@ -58,6 +60,7 @@ export class CompleteSignupCommandHandler implements Handler<CompleteSignupComma
 
         const accountKey = deriveAccountKey(words);
         const deviceKeys = this.nonceSigner.generateDeviceKeys();
+        const signalIdentity = this.keyGenerator.generateIdentity();
         const device = currentDeviceInfo();
 
         try {
@@ -71,7 +74,12 @@ export class CompleteSignupCommandHandler implements Handler<CompleteSignupComma
                 powNonce: Number(powNonce),
                 challengeSignature: signSignupChallenge(accountKey, challengeBytes),
                 devicePublicKey: deviceKeys.publicKey,
-                deviceApproval: signDeviceApproval(accountKey, Buffer.from(deviceKeys.publicKey, 'base64')),
+                signalIdentityKey: signalIdentity.publicKey,
+                deviceApproval: signDeviceApproval(
+                    accountKey,
+                    Buffer.from(deviceKeys.publicKey, 'base64'),
+                    Buffer.from(signalIdentity.publicKey, 'base64'),
+                ),
                 deviceAppVersion: device.appVersion,
                 deviceType: device.type,
                 devicePlatform: device.platform,
@@ -84,6 +92,7 @@ export class CompleteSignupCommandHandler implements Handler<CompleteSignupComma
                 connectionId: signupResult.data.deviceConnectionId,
                 devicePublicKey: deviceKeys.publicKey,
                 devicePrivateKey: deviceKeys.privateKey,
+                signalIdentity,
             });
         } finally {
             accountKey.secretKey.fill(0);

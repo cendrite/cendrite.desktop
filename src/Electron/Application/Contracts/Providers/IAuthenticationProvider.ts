@@ -14,6 +14,7 @@ export interface SignupRequest {
     powNonce: number;
     challengeSignature: string;
     devicePublicKey: string;
+    signalIdentityKey: string;
     deviceApproval: string;
     deviceAppVersion: string;
     deviceType: number;
@@ -37,6 +38,7 @@ export interface RecoverRequest {
     challengeId: string;
     challengeSignature: string;
     devicePublicKey: string;
+    signalIdentityKey: string;
     deviceApproval: string;
     deviceAppVersion: string;
     deviceType: number;
