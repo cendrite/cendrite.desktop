@@ -6,11 +6,12 @@ import { ApproveDeviceLinkCommand } from '#shared/Devices/ApproveDeviceLink';
 import { Result } from '#shared/Result/Result';
 
 const newDeviceKey = Buffer.from(nacl.sign.keyPair().publicKey).toString('base64');
+const newSignalKey = Buffer.from([5, ...nacl.randomBytes(32)]).toString('base64');
 
 function setup() {
     const provider = {
         getPendingLink: vi.fn(async () =>
-            Result.success({ pendingLinkId: 'p1', devicePublicKey: newDeviceKey, devicePlatform: 'Linux', accountPublicKey: 'acc', expiresAt: '' }),
+            Result.success({ pendingLinkId: 'p1', devicePublicKey: newDeviceKey, signalIdentityKey: newSignalKey, devicePlatform: 'Linux', accountPublicKey: 'acc', expiresAt: '' }),
         ),
         approveLink: vi.fn(async () => Result.success()),
         rejectLink: vi.fn(async () => Result.success()),
@@ -31,13 +32,22 @@ describe('approving a device link', () => {
         expect(provider.rejectLink).toHaveBeenCalledWith('p1');
     });
 
-    test('the matching code signs the account key and the new device key, then approves', async () => {
+    test('a code computed from the device key alone does not match, so a swapped Signal key is caught', async () => {
+        const { sut, signer } = setup();
+
+        const result = await sut.handle(new ApproveDeviceLinkCommand('p1', fingerprintOf(newDeviceKey, Buffer.from([5, ...nacl.randomBytes(32)]).toString('base64'))));
+
+        expect(result.success).toBe(false);
+        expect(signer.signDeviceApproval).not.toHaveBeenCalled();
+    });
+
+    test('the matching code signs the account key, the new device key and its Signal key, then approves', async () => {
         const { sut, provider, signer } = setup();
 
-        const result = await sut.handle(new ApproveDeviceLinkCommand('p1', fingerprintOf(newDeviceKey)));
+        const result = await sut.handle(new ApproveDeviceLinkCommand('p1', fingerprintOf(newDeviceKey, newSignalKey)));
 
         expect(result.success).toBe(true);
-        expect(signer.signDeviceApproval).toHaveBeenCalledWith('acc', newDeviceKey);
+        expect(signer.signDeviceApproval).toHaveBeenCalledWith('acc', newDeviceKey, newSignalKey);
         expect(provider.approveLink).toHaveBeenCalledWith('p1', 'signature');
     });
 });

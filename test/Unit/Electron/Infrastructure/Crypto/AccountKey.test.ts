@@ -65,9 +65,10 @@ describe('account key', () => {
     test('signs the device approval with the server layout', () => {
         const key = deriveAccountKey(phrase);
         const device = nacl.sign.keyPair();
-        const message = Buffer.concat([Buffer.from('device-approval-v1', 'ascii'), key.publicKey, device.publicKey]);
+        const signalIdentityKey = new Uint8Array([5, ...nacl.randomBytes(32)]);
+        const message = Buffer.concat([Buffer.from('device-approval-v1', 'ascii'), key.publicKey, device.publicKey, signalIdentityKey]);
 
-        const signature = Buffer.from(signDeviceApproval(key, device.publicKey), 'base64');
+        const signature = Buffer.from(signDeviceApproval(key, device.publicKey, signalIdentityKey), 'base64');
 
         expect(nacl.sign.detached.verify(message, signature, key.publicKey)).toBe(true);
     });

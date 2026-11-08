@@ -8,13 +8,13 @@ import { IDeviceRepository } from '#electron/Application/Contracts/Repositories/
 import { IUserRepository } from '#electron/Application/Contracts/Repositories/IUserRepository';
 import { IUserProvider } from '#electron/Application/Contracts/Providers/IUserProvider';
 import { ITokenManager } from '#electron/Application/Contracts/Services/ITokenManager';
-import { IKeyGenerator } from '#electron/Application/Contracts/Services/IKeyGenerator';
+import { IKeyGenerator, SignalIdentity } from '#electron/Application/Contracts/Services/IKeyGenerator';
 import { ISignalManager } from '#electron/Application/Contracts/Services/ISignalManager';
 import { IPump } from '#electron/Application/Contracts/Services/IPump';
 import { IPurgeLocalData } from '#electron/Application/Contracts/Services/IPurgeLocalData';
 
 export interface IDeviceSessionService {
-    start(userId: string, device: Device): Promise<Result<UserContract>>;
+    start(userId: string, device: Device, signalIdentity: SignalIdentity): Promise<Result<UserContract>>;
 }
 
 export class DeviceSessionService implements IDeviceSessionService {
@@ -31,9 +31,9 @@ export class DeviceSessionService implements IDeviceSessionService {
         private readonly purgeLocalDataService: IPurgeLocalData,
     ) { }
 
-    public async start(userId: string, device: Device): Promise<Result<UserContract>> {
+    public async start(userId: string, device: Device, signalIdentity: SignalIdentity): Promise<Result<UserContract>> {
         try {
-            return Result.success(await this.establish(userId, device));
+            return Result.success(await this.establish(userId, device, signalIdentity));
         } catch (error) {
             console.error('DeviceSessionService.start: setting up the device failed, rolling back', error);
             await this.rollback();
@@ -41,7 +41,7 @@ export class DeviceSessionService implements IDeviceSessionService {
         }
     }
 
-    private async establish(userId: string, device: Device): Promise<UserContract> {
+    private async establish(userId: string, device: Device, signalIdentity: SignalIdentity): Promise<UserContract> {
         await this.userRepository.delete();
         await this.deviceRepository.delete();
         await this.deviceRepository.create(device);
@@ -65,7 +65,7 @@ export class DeviceSessionService implements IDeviceSessionService {
 
         const savedUser = await this.userRepository.create(user);
 
-        await this.keyGenerator.generateKeyBundle(device.connectionId);
+        await this.keyGenerator.generateKeyBundle(device.connectionId, signalIdentity);
 
         this.messagePump.start();
         this.deliveryStatusUpdatePump.start();

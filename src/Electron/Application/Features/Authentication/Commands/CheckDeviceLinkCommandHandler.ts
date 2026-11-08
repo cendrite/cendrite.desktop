@@ -28,6 +28,7 @@ export class CheckDeviceLinkCommandHandler implements Handler<CheckDeviceLinkCom
                 const session = await this.deviceSessionService.start(
                     userId,
                     new Device(deviceId, deviceConnectionId, pending.devicePrivateKey, pending.devicePublicKey),
+                    pending.signalIdentity,
                 );
                 if (!session.success) return session;
 

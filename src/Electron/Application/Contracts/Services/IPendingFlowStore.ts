@@ -1,9 +1,12 @@
+import { SignalIdentity } from './IKeyGenerator.js';
+
 export interface SignupRegistration {
     userId: string;
     deviceId: string;
     connectionId: string;
     devicePublicKey: string;
     devicePrivateKey: string;
+    signalIdentity: SignalIdentity;
 }
 
 export interface PendingSignup {
@@ -22,6 +25,7 @@ export interface PendingDeviceLink {
     pollSecret: string;
     devicePublicKey: string;
     devicePrivateKey: string;
+    signalIdentity: SignalIdentity;
 }
 
 export interface PendingFlows {

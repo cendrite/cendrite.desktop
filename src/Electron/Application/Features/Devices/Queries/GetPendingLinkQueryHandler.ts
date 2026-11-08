@@ -17,7 +17,7 @@ export class GetPendingLinkQueryHandler implements Handler<GetPendingLinkQuery, 
         return Result.success({
             pendingLinkId: result.data.pendingLinkId,
             devicePlatform: result.data.devicePlatform,
-            fingerprints: shuffled([fingerprintOf(result.data.devicePublicKey), decoyFingerprint(), decoyFingerprint()]),
+            fingerprints: shuffled([fingerprintOf(result.data.devicePublicKey, result.data.signalIdentityKey), decoyFingerprint(), decoyFingerprint()]),
             expiresAt: result.data.expiresAt,
         });
     }

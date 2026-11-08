@@ -3,8 +3,11 @@ import { createHash, randomInt } from 'node:crypto';
 const GROUPS = 4;
 const GROUP_BYTES = 5;
 
-export function fingerprintOf(publicKeyBase64: string): string {
-    const hash = createHash('sha256').update(Buffer.from(publicKeyBase64, 'base64')).digest();
+export function fingerprintOf(devicePublicKey: string, signalIdentityKey: string): string {
+    const hash = createHash('sha256')
+        .update(Buffer.from(devicePublicKey, 'base64'))
+        .update(Buffer.from(signalIdentityKey, 'base64'))
+        .digest();
     return Array.from({ length: GROUPS }, (_, i) => {
         const chunk = hash.readUIntBE(i * GROUP_BYTES, GROUP_BYTES);
         return String(chunk % 100000).padStart(5, '0');

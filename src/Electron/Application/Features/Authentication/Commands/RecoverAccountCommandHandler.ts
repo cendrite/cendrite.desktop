@@ -6,6 +6,7 @@ import { RecoverAccountCommand } from '#shared/Authentication/Recover';
 import { Device } from '#electron/Domain/Entities/Device';
 import { IAuthenticationProvider } from '#electron/Application/Contracts/Providers/IAuthenticationProvider';
 import { INonceSigner } from '#electron/Application/Contracts/Services/INonceSigner';
+import { IKeyGenerator } from '#electron/Application/Contracts/Services/IKeyGenerator';
 import { IDeviceSessionService } from '#electron/Application/Services/Device/DeviceSessionService';
 import { currentDeviceInfo } from '#electron/Application/Services/Device/DeviceInfo';
 import {
@@ -22,6 +23,7 @@ export class RecoverAccountCommandHandler implements Handler<RecoverAccountComma
         private readonly authenticationProvider: IAuthenticationProvider,
         private readonly nonceSigner: INonceSigner,
         private readonly deviceSessionService: IDeviceSessionService,
+        private readonly keyGenerator: IKeyGenerator,
     ) { }
 
     public async handle(cmd: RecoverAccountCommand): Promise<Result<UserContract>> {
@@ -44,6 +46,7 @@ export class RecoverAccountCommandHandler implements Handler<RecoverAccountComma
 
             const challenge = challengeResult.data;
             const deviceKeys = this.nonceSigner.generateDeviceKeys();
+            const signalIdentity = this.keyGenerator.generateIdentity();
             const device = currentDeviceInfo();
 
             const recoverResult = await this.authenticationProvider.recover({
@@ -51,7 +54,12 @@ export class RecoverAccountCommandHandler implements Handler<RecoverAccountComma
                 challengeId: challenge.challengeId,
                 challengeSignature: signRecoveryChallenge(accountKey, Buffer.from(challenge.challenge, 'base64')),
                 devicePublicKey: deviceKeys.publicKey,
-                deviceApproval: signDeviceApproval(accountKey, Buffer.from(deviceKeys.publicKey, 'base64')),
+                signalIdentityKey: signalIdentity.publicKey,
+                deviceApproval: signDeviceApproval(
+                    accountKey,
+                    Buffer.from(deviceKeys.publicKey, 'base64'),
+                    Buffer.from(signalIdentity.publicKey, 'base64'),
+                ),
                 deviceAppVersion: device.appVersion,
                 deviceType: device.type,
                 devicePlatform: device.platform,
@@ -62,6 +70,7 @@ export class RecoverAccountCommandHandler implements Handler<RecoverAccountComma
             return this.deviceSessionService.start(
                 userId,
                 new Device(deviceId, deviceConnectionId, deviceKeys.privateKey, deviceKeys.publicKey),
+                signalIdentity,
             );
         } finally {
             accountKey.secretKey.fill(0);

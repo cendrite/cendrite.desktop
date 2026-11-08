@@ -4,6 +4,7 @@ import { IdentityKeys } from '#electron/Domain/Encryption/IdentityKeys';
 import { IdentityCache } from '#electron/Domain/Encryption/IdentityCache';
 import { SessionRecord } from '#electron/Domain/Encryption/SessionRecord';
 import { KyberPreKey } from '#electron/Domain/Encryption/KyberPreKey';
+import { PinnedAccountKey } from '#electron/Domain/Encryption/PinnedAccountKey';
 
 export interface IProtocolStore {
     createKeyBundle(
@@ -26,6 +27,8 @@ export interface IProtocolStore {
     getIdentityCache(encodedAddress: string): Promise<IdentityCache | null>;
     saveIdentity(identity: IdentityCache): Promise<void>;
     getUntrustedIdentities(): Promise<IdentityCache[]>;
+    getPinnedAccountKey(userTag: string): Promise<PinnedAccountKey | null>;
+    savePinnedAccountKey(pin: PinnedAccountKey): Promise<void>;
     getMaxPreKeyId(): Promise<number | null>;
     storePreKeys(preKeys: EcPreKey[]): Promise<void>;
     deleteAll(): Promise<void>;

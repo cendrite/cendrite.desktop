@@ -13,6 +13,7 @@ import { UserConnectionIdSchema } from '../Schemas/UserConnectionIdSchema.js';
 import { EcPreKeySchema } from '../Schemas/EcPreKeySchema.js';
 import { IdentityKeysSchema } from '../Schemas/IdentityKeysSchema.js';
 import { IdentityCacheSchema } from '../Schemas/IdentityCacheSchema.js';
+import { PinnedAccountKeySchema } from '../Schemas/PinnedAccountKeySchema.js';
 import { SignedPreKeySchema } from '../Schemas/SignedPreKeySchema.js';
 import { SessionRecordSchema } from '../Schemas/SessionRecordSchema.js';
 import { GroupEpochKeySchema } from '../Schemas/GroupEpochKeySchema.js';
@@ -50,6 +51,7 @@ export async function initializeDatabase(dbPath: string | null = null): Promise<
             SessionRecordSchema,
             IdentityKeysSchema,
             IdentityCacheSchema,
+            PinnedAccountKeySchema,
             SignedPreKeySchema,
             KyberPreKeySchema,
             OutboxEventSchema,

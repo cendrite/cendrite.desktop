@@ -16,6 +16,7 @@ import { API_URLS } from './Clients/Base/Urls.js';
 import { TokenManager } from './Services/TokenManager.js';
 import { NonceSigner } from './Services/NonceSigner.js';
 import { SignalProtocolStore } from './Services/SignalProtocolStore.js';
+import { DeviceVerifier } from './Services/DeviceVerifier.js';
 import { KeyGenerator } from './Services/KeyGenerator.js';
 import { PurgeLocalDataService } from './Services/PurgeLocalDataService.js';
 import { SessionManager } from './Services/SessionManager.js';
@@ -58,6 +59,7 @@ const services = {
     nonceSigner: asClass(NonceSigner, { lifetime: Lifetime.SINGLETON }),
     mediaMetadataStripper: asClass(MetaDataStripper, { lifetime: Lifetime.SINGLETON }),
     signalProtocolStore: asClass(SignalProtocolStore, { lifetime: Lifetime.SINGLETON }),
+    deviceVerifier: asClass(DeviceVerifier, { lifetime: Lifetime.SINGLETON }),
     keyGenerator: asClass(KeyGenerator, { lifetime: Lifetime.SINGLETON }),
     purgeLocalDataService: asClass(PurgeLocalDataService, { lifetime: Lifetime.SINGLETON }),
     sessionManager: asClass(SessionManager, { lifetime: Lifetime.SINGLETON }),

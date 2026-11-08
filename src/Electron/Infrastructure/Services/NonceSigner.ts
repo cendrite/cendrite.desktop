@@ -16,8 +16,12 @@ export class NonceSigner implements INonceSigner {
         return this.sign(Buffer.concat([AUTH_CONTEXT, Buffer.from(nonce, 'base64')]));
     }
 
-    public signDeviceApproval(accountPublicKey: string, devicePublicKey: string): Promise<string> {
-        return this.sign(deviceApprovalMessage(Buffer.from(accountPublicKey, 'base64'), Buffer.from(devicePublicKey, 'base64')));
+    public signDeviceApproval(accountPublicKey: string, devicePublicKey: string, signalIdentityKey: string): Promise<string> {
+        return this.sign(deviceApprovalMessage(
+            Buffer.from(accountPublicKey, 'base64'),
+            Buffer.from(devicePublicKey, 'base64'),
+            Buffer.from(signalIdentityKey, 'base64'),
+        ));
     }
 
     public signAccountRotation(oldAccountPublicKey: string, newAccountPublicKey: string): Promise<string> {

@@ -3,6 +3,7 @@ import { ErrorMessage } from '#shared/Result/ErrorMessage';
 import { Handler } from '#electron/Application/Mediator/Handler';
 import { IDeviceProvider } from '#electron/Application/Contracts/Providers/IDeviceProvider';
 import { INonceSigner } from '#electron/Application/Contracts/Services/INonceSigner';
+import { IKeyGenerator } from '#electron/Application/Contracts/Services/IKeyGenerator';
 import { IPendingFlowStore } from '#electron/Application/Contracts/Services/IPendingFlowStore';
 import { currentDeviceInfo } from '#electron/Application/Services/Device/DeviceInfo';
 import { StartDeviceLinkCommand, StartedDeviceLink } from '#shared/Devices/StartDeviceLink';
@@ -13,17 +14,20 @@ export class StartDeviceLinkCommandHandler implements Handler<StartDeviceLinkCom
         private readonly deviceProvider: IDeviceProvider,
         private readonly nonceSigner: INonceSigner,
         private readonly pendingFlowStore: IPendingFlowStore,
+        private readonly keyGenerator: IKeyGenerator,
     ) { }
 
     public async handle(cmd: StartDeviceLinkCommand): Promise<Result<StartedDeviceLink>> {
         this.pendingFlowStore.clear('deviceLink');
 
         const keys = this.nonceSigner.generateDeviceKeys();
+        const signalIdentity = this.keyGenerator.generateIdentity();
         const device = currentDeviceInfo();
 
         const result = await this.deviceProvider.redeemLinkCode({
             code: cmd.code,
             devicePublicKey: keys.publicKey,
+            signalIdentityKey: signalIdentity.publicKey,
             deviceAppVersion: device.appVersion,
             deviceType: device.type,
             devicePlatform: device.platform,
@@ -38,8 +42,9 @@ export class StartDeviceLinkCommandHandler implements Handler<StartDeviceLinkCom
             pollSecret: result.data.pollSecret,
             devicePublicKey: keys.publicKey,
             devicePrivateKey: keys.privateKey,
+            signalIdentity,
         });
 
-        return Result.success({ fingerprint: fingerprintOf(keys.publicKey), expiresAt: result.data.expiresAt });
+        return Result.success({ fingerprint: fingerprintOf(keys.publicKey, signalIdentity.publicKey), expiresAt: result.data.expiresAt });
     }
 }

@@ -55,6 +55,8 @@ function createProtocolStore() {
         getIdentityCache: async (address: string) => identities.get(address) ?? null,
         saveIdentity: async (i: IdentityCache) => void identities.set(i.encodedAddress, i),
         getUntrustedIdentities: async () => [...identities.values()].filter((i) => !i.trusted),
+        getPinnedAccountKey: async () => null,
+        savePinnedAccountKey: async () => undefined,
     };
 
     return { store: store as unknown as ProtocolStore, preKeys };
@@ -101,12 +103,15 @@ async function createParty(server: IKeyStoreProvider, connectionId: string = ran
         get: async () => new Device(`device-${connectionId}`, connectionId, '', ''),
     } as unknown as IDeviceRepository;
 
-    await new KeyGenerator(server, protocolStore).generateKeyBundle(connectionId);
+    const keyGenerator = new KeyGenerator(server, protocolStore);
+    const identity = keyGenerator.generateIdentity();
+    await keyGenerator.generateKeyBundle(connectionId, identity);
 
     const mainWindow = { isDestroyed: () => false, webContents: { send: vi.fn() } };
-    const sessionManager = new SessionManager(new SignalProtocolStore(protocolStore), server, deviceRepository, mainWindow as never);
+    const verifier = { verify: vi.fn(async (_connectionId: string, _signalIdentityKey: string) => true) };
+    const sessionManager = new SessionManager(new SignalProtocolStore(protocolStore, verifier), server, deviceRepository, mainWindow as never);
 
-    return { connectionId, sessionManager, preKeys, mainWindow };
+    return { connectionId, sessionManager, preKeys, mainWindow, verifier, identity };
 }
 
 function envelope(text: string): Envelope<Payload> {
@@ -216,8 +221,9 @@ describe('KeyGenerator', () => {
             Result.fail(new ErrorMessage(null, 'keystore down')),
         );
         const { store } = createProtocolStore();
+        const keyGenerator = new KeyGenerator(server, store);
 
-        await expect(new KeyGenerator(server, store).generateKeyBundle(randomUUID())).rejects.toThrow(
+        await expect(keyGenerator.generateKeyBundle(randomUUID(), keyGenerator.generateIdentity())).rejects.toThrow(
             'Failed to upload key bundle: keystore down',
         );
     });
@@ -245,5 +251,49 @@ describe('KeyGenerator', () => {
 
         expect(await alice.sessionManager.getUntrustedDevices()).toEqual([]);
         expect(await bob.sessionManager.getUntrustedDevices()).toEqual([]);
+    });
+
+    test('uploads the identity it was given, so the approval and the bundle carry the same key', async () => {
+        const server = createKeyStoreServer();
+        const alice = await createParty(server);
+
+        const req = (server.createKeyBundle as ReturnType<typeof vi.fn>).mock.calls[0][0] as CreatePreKeyBundleRequest;
+        expect(req.identityKey).toBe(alice.identity.publicKey);
+    });
+
+    test('refuses a device whose chain does not verify, before any session exists, and remembers it', async () => {
+        const server = createKeyStoreServer();
+        const alice = await createParty(server);
+        const bob = await createParty(server);
+        alice.verifier.verify.mockResolvedValue(false);
+
+        await expect(alice.sessionManager.encrypt(envelope('hi'), bob.connectionId)).rejects.toBeInstanceOf(UntrustedDeviceError);
+
+        expect(alice.verifier.verify).toHaveBeenCalledWith(bob.connectionId, bob.identity.publicKey);
+        expect(await alice.sessionManager.getUntrustedDevices()).toEqual([bob.connectionId]);
+        expect(alice.mainWindow.webContents.send).toHaveBeenCalledWith('eventMessage', { kind: 'untrustedDevice', connectionId: bob.connectionId });
+    });
+
+    test('refuses an incoming session from a device whose chain does not verify', async () => {
+        const server = createKeyStoreServer();
+        const alice = await createParty(server);
+        const bob = await createParty(server);
+        bob.verifier.verify.mockResolvedValue(false);
+
+        const first = await alice.sessionManager.encrypt(envelope('hello bob'), bob.connectionId);
+
+        await expect(bob.sessionManager.decrypt(first, alice.connectionId)).rejects.toBeInstanceOf(UntrustedDeviceError);
+        expect(bob.verifier.verify).toHaveBeenCalledWith(alice.connectionId, alice.identity.publicKey);
+    });
+
+    test('verifies a device only once, when its identity is first seen', async () => {
+        const server = createKeyStoreServer();
+        const alice = await createParty(server);
+        const bob = await createParty(server);
+
+        await alice.sessionManager.encrypt(envelope('one'), bob.connectionId);
+        await alice.sessionManager.encrypt(envelope('two'), bob.connectionId);
+
+        expect(alice.verifier.verify).toHaveBeenCalledOnce();
     });
 });

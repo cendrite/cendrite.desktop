@@ -31,7 +31,8 @@ function setup() {
     };
 
     const begin = new BeginSignupCommandHandler(store);
-    const complete = new CompleteSignupCommandHandler(store, provider as never, new NonceSigner(null as never), session as never);
+    const keyGenerator = { generateIdentity: vi.fn(() => ({ publicKey: Buffer.from([5, ...new Array(32).fill(7)]).toString('base64'), privateKey: 'signal-private' })) };
+    const complete = new CompleteSignupCommandHandler(store, provider as never, new NonceSigner(null as never), session as never, keyGenerator as never);
 
     return { store, provider, session, begin, complete };
 }
@@ -95,7 +96,12 @@ describe('signup', () => {
             accountKey.publicKey,
         )).toBe(true);
         expect(nacl.sign.detached.verify(
-            Buffer.concat([Buffer.from('device-approval-v1'), accountKey.publicKey, Buffer.from(request.devicePublicKey, 'base64')]),
+            Buffer.concat([
+                Buffer.from('device-approval-v1'),
+                accountKey.publicKey,
+                Buffer.from(request.devicePublicKey, 'base64'),
+                Buffer.from(request.signalIdentityKey, 'base64'),
+            ]),
             Buffer.from(request.deviceApproval, 'base64'),
             accountKey.publicKey,
         )).toBe(true);
@@ -104,6 +110,7 @@ describe('signup', () => {
         const startedDevice = (session.start.mock.calls[0] as unknown[])[1] as { id: string; publicKey: string };
         expect(startedDevice.id).toBe('device-1');
         expect(startedDevice.publicKey).toBe(request.devicePublicKey);
+        expect((session.start.mock.calls[0] as unknown[])[2]).toEqual({ publicKey: request.signalIdentityKey, privateKey: 'signal-private' });
         expect(store.get('signup')).toBeNull();
     });
 
