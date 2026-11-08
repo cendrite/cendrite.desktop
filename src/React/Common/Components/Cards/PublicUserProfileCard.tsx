@@ -12,6 +12,7 @@ import { DeclineFriendRequestCommand } from '@/Shared/Friends/DeclineFriendReque
 import { AcceptFriendRequestCommand } from '@/Shared/Friends/AcceptFriendRequest.ts';
 import { Contact } from '@/React/Models/Contact.ts';
 import { CheckIcon, PlusIcon, XIcon } from '@phosphor-icons/react';
+import { formatUserTag } from '@/React/Common/Utilities.ts';
 
 interface PublicUserProfileCardProps {
     username: string;
@@ -174,7 +175,7 @@ const PublicUserProfileCard: React.FC<PublicUserProfileCardProps> = ({
                 <Avatar className="w-11 h-11" AvatarKey={avatarKey ?? null} Username={username ?? '?'} />
                 <div className="ml-3">
                     <div className="text-fg font-semibold">{displayName || username}</div>
-                    <div className="text-fg-subtle text-sm">@{friendTag}</div>
+                    <div className="text-fg-subtle text-sm tabular-nums">{formatUserTag(friendTag)}</div>
                 </div>
             </div>
 

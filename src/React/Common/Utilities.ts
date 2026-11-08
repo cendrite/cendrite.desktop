@@ -28,3 +28,14 @@ export function useMessageEdit<K extends EventMessage['kind']>(
         });
     }, [kind]);
 }
+
+const USER_TAG_LENGTH = 12;
+
+export function formatUserTag(tag: string): string {
+    return tag.replace(/(\d{4})(?=\d)/g, '$1 ');
+}
+
+export function normalizeUserTag(input: string): string | null {
+    const digits = input.replace(/\s/g, '');
+    return /^\d+$/.test(digits) && digits.length === USER_TAG_LENGTH ? digits : null;
+}
