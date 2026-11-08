@@ -1,13 +1,15 @@
 import { BrowserWindow } from 'electron';
-import { ISessionManager } from '#electron/Application/Contracts/Services/ISessionManager';
+import { ISessionManager, UntrustedDeviceError } from '#electron/Application/Contracts/Services/ISessionManager';
 import { IChatStore } from '#electron/Application/Contracts/Repositories/IChatStore';
 import { IMediaStore } from '#electron/Application/Contracts/Repositories/IMediaStore';
 import { IMediaService } from '#electron/Application/Services/Media/MediaService';
 import { ServerMessage } from '#electron/Application/Contracts/Services/IMessageHubHandler';
 import {
     DeliveryStatusPayload,
+    Envelope,
     GroupStrapPayload,
     MessagePayload,
+    Payload,
     PayloadType,
 } from '#electron/Domain/Protocol/Payload';
 import { Message } from '#electron/Domain/Entities/Message';
@@ -48,7 +50,8 @@ export class MessageReceiver implements IMessageReceiver {
     ) { }
 
     public async handle(message: ServerMessage): Promise<void> {
-        const envelope = await this.sessionManager.decrypt(message.payload, message.senderId);
+        const envelope = await this.decryptOrDrop(message);
+        if (envelope === null) return;
 
         for (const payload of envelope.payloads) {
             switch (payload.type) {
@@ -67,6 +70,17 @@ export class MessageReceiver implements IMessageReceiver {
                     console.warn(`Unhandled payload type ${payload.type}`);
                     break;
             }
+        }
+    }
+
+    private async decryptOrDrop(message: ServerMessage): Promise<Envelope<Payload> | null> {
+        try {
+            return await this.sessionManager.decrypt(message.payload, message.senderId);
+        } catch (error) {
+            if (!(error instanceof UntrustedDeviceError)) throw error;
+
+            console.warn(`MessageReceiver: dropped a message from untrusted device ${message.senderId}`);
+            return null;
         }
     }
 

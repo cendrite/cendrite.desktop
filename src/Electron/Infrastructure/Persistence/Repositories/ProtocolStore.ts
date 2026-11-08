@@ -70,6 +70,10 @@ export class ProtocolStore implements IProtocolStore {
         await this.identityCacheRepository.save(identity);
     }
 
+    public async getUntrustedIdentities(): Promise<IdentityCache[]> {
+        return await this.identityCacheRepository.find({ where: { trusted: false } });
+    }
+
     public async storeSignedPreKey(signedPreKey: SignedPreKey): Promise<void> {
         await this.signedPreKeysRepository.save(signedPreKey);
     }
