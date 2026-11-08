@@ -1,7 +1,7 @@
 import { Result } from '#shared/Result/Result';
 import { DeliveryStatus } from '#shared/Enums/DeliveryStatus';
 import { MessageContract } from '#shared/Models/MessageContract';
-import { ISessionManager } from '#electron/Application/Contracts/Services/ISessionManager';
+import { ISessionManager, UntrustedDeviceError } from '#electron/Application/Contracts/Services/ISessionManager';
 import { IMessageHubHandler, ServerMessage } from '#electron/Application/Contracts/Services/IMessageHubHandler';
 import { Envelope, MessagePayload, Payload } from '#electron/Domain/Protocol/Payload';
 import { Handler } from '#electron/Application/Mediator/Handler';
@@ -65,13 +65,25 @@ export class MessageSentCommandHandler implements Handler<MessageSentCommand, De
 
             console.log('payload count for connection', conId, envelope.payloads.length);
 
-            const cipher = await this.sessionManager.encrypt(envelope, conId);
+            const cipher = await this.encryptOrSkip(envelope, conId);
+            if (cipher === null) continue;
 
             messages.push(new ServerMessage(uuid().toString(), cmd.message.senderId, conId, cipher));
         }
 
+        if (messages.length === 0) return Result.success(DeliveryStatus.Failed);
+
         const receipt = await this.messageHubHandler.sendMessage(messages);
 
         return Result.success(receipt);
+    }
+
+    private async encryptOrSkip(envelope: Envelope<Payload>, connectionId: string): Promise<string | null> {
+        try {
+            return await this.sessionManager.encrypt(envelope, connectionId);
+        } catch (error) {
+            if (error instanceof UntrustedDeviceError) return null;
+            throw error;
+        }
     }
 }
