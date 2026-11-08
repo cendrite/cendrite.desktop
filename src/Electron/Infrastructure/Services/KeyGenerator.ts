@@ -1,7 +1,7 @@
 import { randomInt } from 'node:crypto';
-import { IdentityKeyPair, KEMKeyPair, KyberPreKeyRecord, PrivateKey } from '@signalapp/libsignal-client';
+import { IdentityKeyPair, KEMKeyPair, KyberPreKeyRecord, PrivateKey, PublicKey } from '@signalapp/libsignal-client';
 import { IKeyStoreProvider } from '#electron/Application/Contracts/Providers/IKeyStoreProvider';
-import { IKeyGenerator } from '#electron/Application/Contracts/Services/IKeyGenerator';
+import { IKeyGenerator, SignalIdentity } from '#electron/Application/Contracts/Services/IKeyGenerator';
 import { IProtocolStore } from '../Interfaces/IProtocolStore.js';
 import { IdentityKeys } from '#electron/Domain/Encryption/IdentityKeys';
 import { EcPreKey } from '#electron/Domain/Encryption/EcPreKey';
@@ -17,11 +17,22 @@ export class KeyGenerator implements IKeyGenerator {
         this.ProtocolStore = protocolStore;
     }
 
-    public async generateKeyBundle(connectionId: string): Promise<void> {
+    public generateIdentity(): SignalIdentity {
+        const identityKeyPair = IdentityKeyPair.generate();
+        return {
+            publicKey: this.b64Encode(identityKeyPair.publicKey.serialize()),
+            privateKey: this.b64Encode(identityKeyPair.privateKey.serialize()),
+        };
+    }
+
+    public async generateKeyBundle(connectionId: string, identity: SignalIdentity): Promise<void> {
         // Signal registration ids are 14-bit and must be non-zero.
         const registrationId = randomInt(1, 16381);
 
-        const identityKeyPair = IdentityKeyPair.generate();
+        const identityKeyPair = new IdentityKeyPair(
+            PublicKey.deserialize(Buffer.from(identity.publicKey, 'base64')),
+            PrivateKey.deserialize(Buffer.from(identity.privateKey, 'base64')),
+        );
 
         const baseKeyId = this.generateNumberId();
         const signedPreKeyTimestamp = new Date();

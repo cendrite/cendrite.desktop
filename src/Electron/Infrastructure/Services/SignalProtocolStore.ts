@@ -17,6 +17,7 @@ import {
 } from '@signalapp/libsignal-client';
 import { IProtocolStore } from '../Interfaces/IProtocolStore.js';
 import { IdentityCache } from '#electron/Domain/Encryption/IdentityCache';
+import { IDeviceVerifier } from '#electron/Application/Contracts/Services/IDeviceVerifier';
 import { EcPreKey } from '#electron/Domain/Encryption/EcPreKey';
 import { SignedPreKey } from '#electron/Domain/Encryption/SignedPreKey';
 import { KyberPreKey } from '#electron/Domain/Encryption/KyberPreKey';
@@ -29,9 +30,11 @@ export class SignalProtocolStore
     implements SessionStore, IdentityKeyStore, PreKeyStore, SignedPreKeyStore, KyberPreKeyStore
 {
     private readonly procolStore: IProtocolStore;
+    private readonly deviceVerifier: IDeviceVerifier;
 
-    constructor(protocolStore: IProtocolStore) {
+    constructor(protocolStore: IProtocolStore, deviceVerifier: IDeviceVerifier) {
         this.procolStore = protocolStore;
+        this.deviceVerifier = deviceVerifier;
     }
 
     // --- SessionStore ---
@@ -105,12 +108,17 @@ export class SignalProtocolStore
     }
 
     /**
-     * Trust on first use: unknown identities are trusted, known ones must match the cached key.
+     * An unknown identity is trusted only when its device verifies back to the owner's account key;
+     * a known one must match the cached key.
      */
     public async isTrustedIdentity(address: ProtocolAddress, key: PublicKey, _direction: Direction): Promise<boolean> {
         const identityCache = await this.procolStore.getIdentityCache(address.toString());
         if (!identityCache) {
-            return true;
+            const publicKey = Buffer.from(key.serialize());
+            if (await this.deviceVerifier.verify(address.name(), publicKey.toString('base64'))) return true;
+
+            await this.procolStore.saveIdentity(new IdentityCache(address.toString(), publicKey, false, Date.now()));
+            return false;
         }
 
         return identityCache.trusted && identityCache.identityKeyPublic.equals(Buffer.from(key.serialize()));

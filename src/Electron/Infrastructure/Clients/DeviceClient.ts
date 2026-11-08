@@ -1,5 +1,6 @@
 import { Result } from "#shared/Result/Result";
 import {
+    DeviceChain,
     GetDevicesApiResponse,
     IDeviceProvider,
     LinkCodeResponse,
@@ -23,6 +24,14 @@ export class DeviceClient implements IDeviceProvider {
         return this.managementClient.handleConduit<GetDevicesApiResponse>({
             method: "GET",
             url: "devices",
+        });
+    }
+
+    getDeviceChain(connectionId: string): Promise<Result<DeviceChain>> {
+        return this.managementClient.handleConduit<DeviceChain>({
+            method: "GET",
+            url: "device-chain",
+            params: { connectionId },
         });
     }
 
