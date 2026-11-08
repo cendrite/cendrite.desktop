@@ -5,6 +5,7 @@ import { IdentityCache } from '#electron/Domain/Encryption/IdentityCache';
 import { getDbContext } from '../Context/DatabaseContext.js';
 import { SessionRecord } from '#electron/Domain/Encryption/SessionRecord';
 import { KyberPreKey } from '#electron/Domain/Encryption/KyberPreKey';
+import { PinnedAccountKey } from '#electron/Domain/Encryption/PinnedAccountKey';
 import { IProtocolStore } from '#electron/Infrastructure/Interfaces/IProtocolStore';
 
 export class ProtocolStore implements IProtocolStore {
@@ -14,6 +15,7 @@ export class ProtocolStore implements IProtocolStore {
     private readonly sessionRepository = getDbContext().getRepository(SessionRecord);
     private readonly identityKeysRepository = getDbContext().getRepository(IdentityKeys);
     private readonly identityCacheRepository = getDbContext().getRepository(IdentityCache);
+    private readonly pinnedAccountKeyRepository = getDbContext().getRepository(PinnedAccountKey);
 
     /**
      * Save a new key bundle consisting of identity keys, a signed prekey, EC prekeys and a last-resort Kyber prekey.
@@ -74,6 +76,14 @@ export class ProtocolStore implements IProtocolStore {
         return await this.identityCacheRepository.find({ where: { trusted: false } });
     }
 
+    public async getPinnedAccountKey(userTag: string): Promise<PinnedAccountKey | null> {
+        return await this.pinnedAccountKeyRepository.findOne({ where: { userTag } });
+    }
+
+    public async savePinnedAccountKey(pin: PinnedAccountKey): Promise<void> {
+        await this.pinnedAccountKeyRepository.save(pin);
+    }
+
     public async storeSignedPreKey(signedPreKey: SignedPreKey): Promise<void> {
         await this.signedPreKeysRepository.save(signedPreKey);
     }
@@ -118,5 +128,6 @@ export class ProtocolStore implements IProtocolStore {
         await this.sessionRepository.clear();
         await this.identityKeysRepository.clear();
         await this.identityCacheRepository.clear();
+        await this.pinnedAccountKeyRepository.clear();
     }
 }
