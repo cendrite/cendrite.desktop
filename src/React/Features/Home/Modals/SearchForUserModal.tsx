@@ -8,6 +8,7 @@ import {
     ProfileDto,
 } from '@/Shared/Friends/GetProfileByTag.ts';
 import { XIcon } from '@phosphor-icons/react';
+import { normalizeUserTag } from '@/React/Common/Utilities.ts';
 
 interface SearchForUserModalProps {
     isOpen: boolean;
@@ -30,7 +31,8 @@ const SearchForUserModal: React.FC<SearchForUserModalProps> = ({ isOpen, onClose
     };
 
     useEffect(() => {
-        if (searchQuery.length === 0) {
+        const tag = normalizeUserTag(searchQuery);
+        if (tag === null) {
             setSearchResult(null);
             setLoading(false);
             setError(null);
@@ -45,7 +47,7 @@ const SearchForUserModal: React.FC<SearchForUserModalProps> = ({ isOpen, onClose
 
         const timeoutId = setTimeout(async () => {
             const result = await window.electron.sendRequestAsync(
-                new GetProfileByTagQuery(searchQuery),
+                new GetProfileByTagQuery(tag),
             );
 
             if (cancelled) {
@@ -89,7 +91,7 @@ const SearchForUserModal: React.FC<SearchForUserModalProps> = ({ isOpen, onClose
 
                     <SearchBar
                         autoFocus
-                        placeHolder="Search by user tag"
+                        placeHolder="Search by tag, e.g. 4821 7730 1593"
                         value={searchQuery}
                         onChange={setSearchQuery}
                     />

@@ -4,6 +4,7 @@ import { useUser } from '@/React/Context/User/UserContext.tsx';
 import Avatar from '@/React/Common/Components/Avatar/Avatar.tsx';
 import AvatarModal from './AvatarModal.tsx';
 import { XIcon } from '@phosphor-icons/react';
+import { formatUserTag } from '@/React/Common/Utilities.ts';
 
 interface UserModalProps {
     isOpen: boolean;
@@ -50,7 +51,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose }) => {
                             </button>
 
                             <h2 className="text-lg font-semibold">{user?.displayName || user?.username}</h2>
-                            <p className="text-sm text-fg-subtle mt-1">{user?.userTag}</p>
+                            <p className="text-sm text-fg-subtle mt-1 tabular-nums">{user ? formatUserTag(user.userTag) : null}</p>
                         </div>
 
                         <div className="mt-6">
