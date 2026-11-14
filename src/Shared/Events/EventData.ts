@@ -1,7 +1,7 @@
 ﻿
 export interface AvatarUpdatedEvent{
     userTag: string;
-    avatarKey: string;
+    avatarKey: string | null;
 }
 
 export interface FriendRequestEvent {

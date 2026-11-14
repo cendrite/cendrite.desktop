@@ -1,5 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
+import { initialOf } from './AvatarTemplates.ts';
 
 interface AvatarProps {
     className?: string;
@@ -8,11 +9,6 @@ interface AvatarProps {
 }
 
 const avatar_url = 'https://conduit.xhykl49jkg.org/api/profile/avatar';
-
-function initialOf(name: string): string {
-    const first = [...name.trim()][0];
-    return first ? first.toUpperCase() : '?';
-}
 
 const Avatar: React.FC<AvatarProps> = ({ className, AvatarKey, Username }) => {
     if (AvatarKey) {

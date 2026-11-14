@@ -18,6 +18,7 @@ import { ApproveDeviceLinkCommandHandler } from './Features/Devices/Commands/App
 import { RejectDeviceLinkCommandHandler } from './Features/Devices/Commands/RejectDeviceLinkCommandHandler.js';
 import { GetPendingLinkQueryHandler } from './Features/Devices/Queries/GetPendingLinkQueryHandler.js';
 import { UpdateAvatarCommandHandler } from './Features/User/Commands/UpdateAvatarCommandHandler.js';
+import { RemoveAvatarCommandHandler } from './Features/User/Commands/RemoveAvatarCommandHandler.js';
 import { SendFriendRequestCommandHandler } from './Features/Friends/Commands/SendFriendRequestCommandHandler.js';
 import { DeclineFriendRequestCommandHandler } from './Features/Friends/Commands/DeclineFriendRequestCommandHandler.js';
 import { AcceptFriendRequestCommandHandler } from './Features/Friends/Commands/AcceptFriendRequestCommandHandler.js';
@@ -94,6 +95,7 @@ const chatHandlers = {
 
 const userHandlers = {
     updateAvatarCommandHandler: asClass(UpdateAvatarCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    removeAvatarCommandHandler: asClass(RemoveAvatarCommandHandler, { lifetime: Lifetime.SINGLETON }),
     addUserConnectionIdCommandHandler: asClass(AddUserConnectionIdCommandHandler, { lifetime: Lifetime.SINGLETON }),
     removeUserConnectionIdCommandHandler: asClass(RemoveUserConnectionIdCommandHandler, { lifetime: Lifetime.SINGLETON }),
 };

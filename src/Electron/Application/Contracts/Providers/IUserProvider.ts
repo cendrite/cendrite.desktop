@@ -26,4 +26,5 @@ export interface UpdateAvatarResponse {
 export interface IUserProvider {
     getUserProfile(req: GetUserProfileRequest): Promise<Result<GetUserProfileResponse | void>>;
     updateAvatar(req: UpdateAvatarRequest): Promise<Result<UpdateAvatarResponse>>;
+    removeAvatar(): Promise<Result<void>>;
 }
