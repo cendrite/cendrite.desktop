@@ -6,7 +6,6 @@ import Avatar from './Avatar.tsx';
 interface AvatarStackProps {
     members: ChatMemberViewModel[];
     className?: string;
-    textClassName?: string;
 }
 
 const positions: Record<number, string[]> = {
@@ -14,7 +13,7 @@ const positions: Record<number, string[]> = {
     3: ['top-0 left-1/2 -translate-x-1/2', 'bottom-0 left-0', 'bottom-0 right-0'],
 };
 
-const AvatarStack: React.FC<AvatarStackProps> = ({ members, className, textClassName = '!text-[0.6rem]' }) => {
+const AvatarStack: React.FC<AvatarStackProps> = ({ members, className }) => {
     const shown = members.slice(0, 3);
 
     if (shown.length < 2) {
@@ -41,7 +40,7 @@ const AvatarStack: React.FC<AvatarStackProps> = ({ members, className, textClass
                     )}
                 >
                     <Avatar
-                        className={clsx('h-full w-full', textClassName)}
+                        className="h-full w-full"
                         AvatarKey={member.avatar}
                         Username={member.name}
                     />

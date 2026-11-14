@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import clsx from 'clsx';
 
 interface AvatarProps {
@@ -7,22 +7,45 @@ interface AvatarProps {
     Username: string;
 }
 
-const avatar_url =  'https://conduit.xhykl49jkg.org/api/profile/avatar';
+const avatar_url = 'https://conduit.xhykl49jkg.org/api/profile/avatar';
+
+function initialOf(name: string): string {
+    const first = [...name.trim()][0];
+    return first ? first.toUpperCase() : '?';
+}
 
 const Avatar: React.FC<AvatarProps> = ({ className, AvatarKey, Username }) => {
-    const src = AvatarKey ? `${avatar_url}?fileKey=${AvatarKey}` : null;
-    console.log(src);
+    if (AvatarKey) {
+        return (
+            <img
+                src={`${avatar_url}?fileKey=${AvatarKey}`}
+                alt={Username}
+                className={clsx('rounded-full object-cover', className)}
+            />
+        );
+    }
 
-    return src ? (
-        <img src={src} alt="Profile Picture" className={clsx('rounded-full', className)} />
-    ) : (
+    const initial = initialOf(Username);
+
+    return (
         <div
-            className={clsx(
-                'rounded-full bg-accent-soft flex items-center justify-center text-2xl font-extralight text-accent-soft-fg',
-                className,
-            )}
+            role="img"
+            aria-label={Username}
+            className={clsx('shrink-0 overflow-hidden rounded-full bg-accent-soft text-accent-soft-fg', className)}
         >
-            {Username.slice(0, 2).toUpperCase() || '?'}
+            <svg viewBox="0 0 100 100" className="h-full w-full select-none" aria-hidden="true">
+                <text
+                    x="50"
+                    y="50"
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    fill="currentColor"
+                    fontSize={44}
+                    fontWeight={500}
+                >
+                    {initial}
+                </text>
+            </svg>
         </div>
     );
 };

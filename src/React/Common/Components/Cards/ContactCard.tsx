@@ -39,7 +39,7 @@ const ContactCard: React.FC<ContactCardProps> = ({ contact, selected, onClick, v
             )}
         >
             <div className="h-11 w-11 shrink-0 overflow-hidden rounded-full bg-media">
-                <Avatar className="h-11 w-11 text-sm" AvatarKey={contact.avatarKey} Username={contact.username} />
+                <Avatar className="h-11 w-11" AvatarKey={contact.avatarKey} Username={contact.username} />
             </div>
             <p className="min-w-0 flex-1 truncate text-sm font-medium text-fg">
                 {contact.displayName ?? contact.username}
