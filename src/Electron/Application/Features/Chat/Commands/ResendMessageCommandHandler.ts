@@ -11,6 +11,9 @@ import { IPump } from '#electron/Application/Contracts/Services/IPump';
 import { Handler } from '#electron/Application/Mediator/Handler';
 import { ResendMessageCommand } from '#shared/Chat/ResendMessage';
 import { v4 as uuid } from 'uuid';
+import { IGroupRepository } from '#electron/Application/Contracts/Repositories/IGroupRepository';
+import { IGroupService } from '#electron/Application/Services/GroupService';
+import { Payload } from '#electron/Domain/Protocol/Payload';
 
 export class ResendMessageCommandHandler implements Handler<ResendMessageCommand> {
     constructor(
@@ -18,6 +21,8 @@ export class ResendMessageCommandHandler implements Handler<ResendMessageCommand
         private readonly chatStore: IChatStore,
         private readonly messagePump: IPump,
         private readonly mediaStore: IMediaStore,
+        private readonly groupRepository: IGroupRepository,
+        private readonly groupService: IGroupService,
     ) { }
 
     async handle(cmd: ResendMessageCommand): Promise<Result> {
@@ -33,6 +38,15 @@ export class ResendMessageCommandHandler implements Handler<ResendMessageCommand
             return Result.fail(
                 new ErrorMessage(null, `Message with ID ${cmd.MessageId} is not in a failed state`),
             );
+        }
+
+        let payloads: Record<string, Payload[]> = {};
+
+        if (await this.groupRepository.get(cmd.ChatId)) {
+            const started = await this.groupService.startGroup(cmd.ChatId);
+            if (!started.success) return Result.fail(started.errorMessage);
+
+            payloads = started.data ?? {};
         }
 
         const mediaContracts: MediaContract[] = [];
@@ -54,7 +68,7 @@ export class ResendMessageCommandHandler implements Handler<ResendMessageCommand
         );
 
         await this.eventRepository.appendEvent(
-            new MessageSentEvent(uuid().toString(), messageContract, cmd.connectionIds, cmd.participants, new Date()),
+            new MessageSentEvent(uuid().toString(), messageContract, cmd.connectionIds, cmd.participants, new Date(), payloads),
         );
 
         this.messagePump.notify();

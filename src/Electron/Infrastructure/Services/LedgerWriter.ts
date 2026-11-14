@@ -7,7 +7,8 @@ import {
     isLedgerConflict,
     LedgerAppend,
 } from '#electron/Application/Contracts/Providers/ILedgerProvider';
-import { ILedgerWriter } from '#electron/Application/Contracts/Services/ILedgerWriter';
+import { ILedgerWriter, SealedCreate } from '#electron/Application/Contracts/Services/ILedgerWriter';
+import { ITokenManager } from '#electron/Application/Contracts/Services/ITokenManager';
 import { ILedgerSyncService } from '#electron/Application/Contracts/Services/ILedgerSyncService';
 import { LEDGER_TOKEN_ORIGIN } from '#electron/Application/Contracts/Services/IBlindTokenService';
 import { IPrivateTokenRepository } from '#electron/Application/Contracts/Repositories/IPrivateTokenRepository';
@@ -28,22 +29,39 @@ export class LedgerWriter implements ILedgerWriter {
         private readonly ledgerSyncService: ILedgerSyncService,
         private readonly ledgerIdentity: ILedgerIdentity,
         private readonly privateTokenRepository: IPrivateTokenRepository,
+        private readonly tokenManager: ITokenManager,
     ) { }
 
-    public async createStream(groupId: string, invites: Buffer[], operation: LedgerOperation): Promise<Result<Buffer>> {
+    public async sealCreate(groupId: string, invites: Buffer[], operation: LedgerOperation): Promise<Result<SealedCreate>> {
         const sealed = await this.seal(groupId, 1, GENESIS_PREVIOUS_HASH, operation, { added: [], invites, removed: [] });
-        if (!sealed.success) return Result.fail<Buffer>(sealed.errorMessage);
+        if (!sealed.success) return Result.fail<SealedCreate>(sealed.errorMessage);
 
-        const { payload, writeKey, signature, hash } = sealed.data;
+        const { payload, signature, hash } = sealed.data;
 
-        const privateToken = await this.privateTokenRepository.take(LEDGER_TOKEN_ORIGIN);
+        return Result.success({ payload, signature, hash });
+    }
+
+    public async createStream(groupId: string, invites: Buffer[], sealed: SealedCreate): Promise<Result<void>> {
+        const writeKey = await this.groupKeyRepository.getWriteKey(groupId);
+        if (!writeKey) return Result.fail(new ErrorMessage('LedgerWriter', `No write key for group ${groupId}`));
+
+        const privateToken = await this.takePrivateToken();
         if (!privateToken) {
-            return Result.fail<Buffer>(new ErrorMessage('LedgerWriter', 'No private token is available to create a group yet'));
+            return Result.fail(new ErrorMessage('LedgerWriter', 'No private token is available to create a group yet'));
         }
 
-        const created = await this.ledgerProvider.createStream(groupId, payload, writeKey.publicKey, invites, signature, privateToken);
+        const created = await this.ledgerProvider.createStream(
+            groupId,
+            sealed.payload,
+            writeKey.publicKey,
+            invites,
+            sealed.signature,
+            privateToken,
+        );
 
-        return created.success ? Result.success(hash) : Result.fail<Buffer>(created.errorMessage);
+        if (created.success || !isLedgerConflict(created)) return created;
+
+        return (await this.alreadyCreated(groupId, sealed.hash)) ? Result.success() : created;
     }
 
     public async append(groupId: string, operation: LedgerOperation): Promise<Result<void>> {
@@ -86,6 +104,21 @@ export class LedgerWriter implements ILedgerWriter {
         }
 
         return Result.fail(new ErrorMessage('LedgerWriter', 'Gave up appending after repeated conflicts.'));
+    }
+
+    private async takePrivateToken(): Promise<Buffer | null> {
+        const privateToken = await this.privateTokenRepository.take(LEDGER_TOKEN_ORIGIN);
+        if (privateToken) return privateToken;
+
+        await this.tokenManager.refreshTokens();
+
+        return await this.privateTokenRepository.take(LEDGER_TOKEN_ORIGIN);
+    }
+
+    private async alreadyCreated(groupId: string, hash: Buffer): Promise<boolean> {
+        const synced = await this.ledgerSyncService.sync(groupId);
+
+        return synced.success && synced.data.state.version === 1 && Buffer.from(synced.data.state.headHash).equals(hash);
     }
 
     private async seal(

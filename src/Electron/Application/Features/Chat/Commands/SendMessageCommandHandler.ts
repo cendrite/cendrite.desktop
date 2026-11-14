@@ -39,9 +39,13 @@ export class SendMessageCommandHandler implements Handler<SendMessageCommand, Me
 
         if (cmd.isGroup) {
             const startGroupResult = await this.groupService.startGroup(cmd.chatId);
-            if (!startGroupResult.success) return Result.fail<MessageContract>(startGroupResult.errorMessage);
 
-            payloads = startGroupResult.data ?? {};
+            if (!startGroupResult.success) {
+                console.warn(`SendMessage: could not start group ${cmd.chatId}: ${startGroupResult.errorMessage.message}`);
+                message.deliveryStatus = DeliveryStatus.Failed;
+            }
+
+            payloads = startGroupResult.success ? (startGroupResult.data ?? {}) : {};
         }
 
         await this.chatStore.storeMessage(message);
@@ -60,6 +64,8 @@ export class SendMessageCommandHandler implements Handler<SendMessageCommand, Me
             message.deliveryStatus,
             message.messageToken,
         );
+
+        if (message.deliveryStatus === DeliveryStatus.Failed) return Result.success(messageContract);
 
         await this.eventRepository.appendEvent(
             new MessageSentEvent(

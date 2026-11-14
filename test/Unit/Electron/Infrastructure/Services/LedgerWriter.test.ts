@@ -37,6 +37,7 @@ import {
 import { Result } from '../../../../../src/Shared/Result/Result.js';
 import { ErrorMessage } from '../../../../../src/Shared/Result/ErrorMessage.js';
 import { IPrivateTokenRepository } from '../../../../../src/Electron/Application/Contracts/Repositories/IPrivateTokenRepository.js';
+import { ITokenManager } from '../../../../../src/Electron/Application/Contracts/Services/ITokenManager.js';
 
 const GROUP_ID = '0199673a-3c1e-7c2b-9f2e-5d8b1a4c7e10';
 
@@ -64,6 +65,7 @@ class FakeProvider implements ILedgerProvider {
     public created: { payload: Buffer; writeKey: Buffer; invitesAdded: Buffer[]; signature: Buffer; privateToken: Buffer } | null = null;
     public appends: LedgerAppend[] = [];
     public conflictsLeft = 0;
+    public createConflict = false;
 
     public async createStream(
         _groupId: string,
@@ -74,7 +76,9 @@ class FakeProvider implements ILedgerProvider {
         privateToken: Buffer,
     ) {
         this.created = { payload, writeKey, invitesAdded, signature, privateToken };
-        return Result.success<void>();
+        return this.createConflict
+            ? Result.fail<void>(new ErrorMessage('Conflict', 'Ledger already exists.'))
+            : Result.success<void>();
     }
 
     public async appendEvent(_groupId: string, append: LedgerAppend) {
@@ -160,6 +164,24 @@ function created(): LedgerOperation {
     ]);
 }
 
+function tokenManager(onRefresh: () => void = () => undefined): ITokenManager & { refreshes: number } {
+    const manager = {
+        refreshes: 0,
+        init: async () => undefined,
+        refreshTokens: async () => {
+            manager.refreshes++;
+            onRefresh();
+        },
+        disableAndClear: () => undefined,
+    };
+    return manager;
+}
+
+async function create(sut: LedgerWriter) {
+    const sealed = await sut.sealCreate(GROUP_ID, [inviteKeyPair.publicKey], created());
+    return sut.createStream(GROUP_ID, [inviteKeyPair.publicKey], sealed.data!);
+}
+
 function settingsChanged(): LedgerOperation {
     return new SettingsChangedOperation('alice', 'Renamed', null);
 }
@@ -179,9 +201,10 @@ describe('creating a stream', () => {
             syncService(new GroupState(GROUP_ID)),
             ledgerIdentity,
             wallet(),
+            tokenManager(),
         );
 
-        const result = await sut.createStream(GROUP_ID, [inviteKeyPair.publicKey], created());
+        const result = await create(sut);
 
         expect(result.success).toBe(true);
 
@@ -226,9 +249,10 @@ describe('creating a stream', () => {
             syncService(new GroupState(GROUP_ID)),
             ledgerIdentity,
             wallet(),
+            tokenManager(),
         );
 
-        await sut.createStream(GROUP_ID, [inviteKeyPair.publicKey], created());
+        await create(sut);
 
         expect(provider.created!.writeKey).toEqual(writeKeyPair.publicKey);
         expect(provider.created!.signature).toHaveLength(64);
@@ -243,9 +267,10 @@ describe('creating a stream', () => {
             syncService(new GroupState(GROUP_ID)),
             ledgerIdentity,
             tokens,
+            tokenManager(),
         );
 
-        await sut.createStream(GROUP_ID, [inviteKeyPair.publicKey], created());
+        await create(sut);
 
         expect(tokens.taken).toEqual(['ledger']);
         expect(provider.created!.privateToken).toEqual(PRIVATE_TOKEN);
@@ -259,13 +284,81 @@ describe('creating a stream', () => {
             syncService(new GroupState(GROUP_ID)),
             ledgerIdentity,
             wallet(null),
+            tokenManager(),
         );
 
-        const result = await sut.createStream(GROUP_ID, [inviteKeyPair.publicKey], created());
+        const result = await create(sut);
 
         expect(result.success).toBe(false);
         expect(result.errorMessage?.message).toContain('No private token');
         expect(provider.created).toBeNull();
+    });
+
+    test('refills the wallet once when it is empty, then creates', async () => {
+        let token: Buffer | null = null;
+        const tokens = { ...wallet(), take: async () => { const taken = token; token = null; return taken; } };
+        const manager = tokenManager(() => { token = PRIVATE_TOKEN; });
+
+        const sut = new LedgerWriter(
+            provider,
+            keyRepository,
+            groupRepository(new Group(GROUP_ID)),
+            syncService(new GroupState(GROUP_ID)),
+            ledgerIdentity,
+            tokens,
+            manager,
+        );
+
+        const result = await create(sut);
+
+        expect(result.success).toBe(true);
+        expect(manager.refreshes).toBe(1);
+        expect(provider.created!.privateToken).toEqual(PRIVATE_TOKEN);
+    });
+
+    test('treats a conflict as created when the stream head is this create', async () => {
+        provider.createConflict = true;
+        const state = new GroupState(GROUP_ID);
+
+        const sut = new LedgerWriter(
+            provider,
+            keyRepository,
+            groupRepository(new Group(GROUP_ID)),
+            syncService(state),
+            ledgerIdentity,
+            wallet(),
+            tokenManager(),
+        );
+
+        const sealed = await sut.sealCreate(GROUP_ID, [inviteKeyPair.publicKey], created());
+        state.version = 1;
+        state.headHash = sealed.data!.hash;
+
+        const result = await sut.createStream(GROUP_ID, [inviteKeyPair.publicKey], sealed.data!);
+
+        expect(result.success).toBe(true);
+    });
+
+    test('keeps a conflict when the existing stream is not this create', async () => {
+        provider.createConflict = true;
+        const state = new GroupState(GROUP_ID);
+        state.version = 1;
+        state.headHash = Buffer.alloc(32, 0x99);
+
+        const sut = new LedgerWriter(
+            provider,
+            keyRepository,
+            groupRepository(new Group(GROUP_ID)),
+            syncService(state),
+            ledgerIdentity,
+            wallet(),
+            tokenManager(),
+        );
+
+        const result = await create(sut);
+
+        expect(result.success).toBe(false);
+        expect(result.errorMessage?.code).toBe('Conflict');
     });
 });
 
@@ -279,6 +372,7 @@ describe('appending', () => {
             syncService(new GroupState(GROUP_ID)),
             ledgerIdentity,
             wallet(),
+            tokenManager(),
         );
 
         await sut.append(GROUP_ID, settingsChanged());
@@ -299,6 +393,7 @@ describe('appending', () => {
             syncService(new GroupState(GROUP_ID), () => syncs++),
             ledgerIdentity,
             wallet(),
+            tokenManager(),
         );
 
         const result = await sut.append(GROUP_ID, settingsChanged());
@@ -318,6 +413,7 @@ describe('appending', () => {
             syncService(new GroupState(GROUP_ID)),
             ledgerIdentity,
             wallet(),
+            tokenManager(),
         );
 
         const result = await sut.append(GROUP_ID, settingsChanged());
@@ -346,6 +442,7 @@ describe('appending', () => {
             syncService(state),
             ledgerIdentity,
             wallet(),
+            tokenManager(),
         );
 
         await sut.append(GROUP_ID, {
@@ -368,6 +465,7 @@ describe('appending', () => {
             syncService(new GroupState(GROUP_ID)),
             ledgerIdentity,
             wallet(),
+            tokenManager(),
         );
 
         await sut.append(
@@ -391,6 +489,7 @@ describe('appending', () => {
             syncService(new GroupState(GROUP_ID)),
             ledgerIdentity,
             wallet(),
+            tokenManager(),
         );
 
         const result = await sut.append(GROUP_ID, settingsChanged());
