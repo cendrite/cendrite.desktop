@@ -81,11 +81,24 @@ describe('finalize', () => {
         await expect(sut.finalize(issuance, [second, first])).rejects.toThrow();
     });
 
-    test('rejects a token response count that does not match the token requests', async () => {
-        const issuance = await sut.createTokenRequests('ledger', 2);
+    test('finalizes only the tokens the issuer granted when it sent fewer responses', async () => {
+        const issuance = await sut.createTokenRequests('ledger', 3);
         const tokenResponses = await issue(issuance.tokenRequests);
 
-        await expect(sut.finalize(issuance, tokenResponses.slice(0, 1))).rejects.toThrow('Expected one token response per token request');
+        const tokens = await sut.finalize(issuance, tokenResponses.slice(0, 2));
+
+        const origin = new Origin(BlindRSAMode.PSS, ['ledger']);
+        expect(tokens).toHaveLength(2);
+        for (const token of tokens) {
+            expect(await origin.verify(Token.deserialize(TOKEN_TYPES.BLIND_RSA, own(token)), keys.publicKey)).toBe(true);
+        }
+    });
+
+    test('rejects more token responses than token requests', async () => {
+        const issuance = await sut.createTokenRequests('ledger', 1);
+        const tokenResponses = await issue([...issuance.tokenRequests, ...issuance.tokenRequests]);
+
+        await expect(sut.finalize(issuance, tokenResponses)).rejects.toThrow('Received more token responses than token requests');
     });
 
     test('rejects an issuance it did not create', async () => {

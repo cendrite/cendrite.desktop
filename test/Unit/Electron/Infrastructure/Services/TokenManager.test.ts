@@ -97,17 +97,17 @@ describe('topping up the private token wallet', () => {
     test('requests enough tokens to fill an empty wallet', async () => {
         await signIn(new FakeWallet(0));
 
-        expect(provider.verified[0].tokenRequests).toEqual(['request-0', 'request-1', 'request-2']);
+        expect(provider.verified[0].tokenRequests).toEqual(['request-0', 'request-1', 'request-2', 'request-3', 'request-4']);
     });
 
     test('requests only the tokens that are missing', async () => {
         await signIn(new FakeWallet(1));
 
-        expect(provider.verified[0].tokenRequests).toHaveLength(2);
+        expect(provider.verified[0].tokenRequests).toHaveLength(4);
     });
 
     test('requests nothing when the wallet is full', async () => {
-        await signIn(new FakeWallet(3));
+        await signIn(new FakeWallet(5));
 
         expect(provider.verified[0].tokenRequests).toEqual([]);
     });
@@ -177,7 +177,7 @@ describe('revoked devices', () => {
 
     test('init throws DeviceRevokedError when the device has been revoked', async () => {
         provider.verifyError = revoked();
-        const sut = new TokenManager(provider, nonceSigner, blindTokens, new FakeWallet(3), mainWindow);
+        const sut = new TokenManager(provider, nonceSigner, blindTokens, new FakeWallet(5), mainWindow);
 
         await expect(sut.init('user-1', 'device-1')).rejects.toBeInstanceOf(DeviceRevokedError);
         sut.disableAndClear();
@@ -185,7 +185,7 @@ describe('revoked devices', () => {
 
     test('init throws a plain error for other verification failures', async () => {
         provider.verifyError = new ErrorMessage('Unauthorized', 'Unauthorized');
-        const sut = new TokenManager(provider, nonceSigner, blindTokens, new FakeWallet(3), mainWindow);
+        const sut = new TokenManager(provider, nonceSigner, blindTokens, new FakeWallet(5), mainWindow);
 
         const error = await sut.init('user-1', 'device-1').catch((e: unknown) => e);
 
@@ -195,7 +195,7 @@ describe('revoked devices', () => {
     });
 
     test('a failed refresh keeps the loop alive and retries without reporting a revocation', async () => {
-        const sut = new TokenManager(provider, nonceSigner, blindTokens, new FakeWallet(3), mainWindow);
+        const sut = new TokenManager(provider, nonceSigner, blindTokens, new FakeWallet(5), mainWindow);
         await sut.init('user-1', 'device-1');
 
         provider.verifyError = new ErrorMessage('ApiError', 'An unexpected error occurred.');
@@ -214,7 +214,7 @@ describe('revoked devices', () => {
     });
 
     test('the refresh loop reports a revoked device to the renderer', async () => {
-        const sut = new TokenManager(provider, nonceSigner, blindTokens, new FakeWallet(3), mainWindow);
+        const sut = new TokenManager(provider, nonceSigner, blindTokens, new FakeWallet(5), mainWindow);
         await sut.init('user-1', 'device-1');
 
         provider.verifyError = revoked();
@@ -227,7 +227,7 @@ describe('revoked devices', () => {
 
 describe('the refresh loop', () => {
     test('signing out cancels the pending refresh so signing in again runs a single loop', async () => {
-        const sut = new TokenManager(provider, nonceSigner, blindTokens, new FakeWallet(3), mainWindow);
+        const sut = new TokenManager(provider, nonceSigner, blindTokens, new FakeWallet(5), mainWindow);
         await sut.init('user-1', 'device-1');
 
         await vi.advanceTimersByTimeAsync(1000 * 60 * 5);

@@ -35,12 +35,13 @@ export class BlindTokenService implements IBlindTokenService {
 
     public async finalize(issuance: TokenIssuance, tokenResponses: string[]): Promise<Buffer[]> {
         if (!(issuance instanceof PendingTokenIssuance)) throw new Error('Issuance was not created by this service');
-        if (tokenResponses.length !== issuance.clients.length) throw new Error('Expected one token response per token request');
+        if (tokenResponses.length > issuance.clients.length) throw new Error('Received more token responses than token requests');
 
         const tokens: Buffer[] = [];
 
-        for (const [index, client] of issuance.clients.entries()) {
-            const tokenResponse = client.deserializeTokenResponse(fromBase64(tokenResponses[index]));
+        for (const [index, encoded] of tokenResponses.entries()) {
+            const client = issuance.clients[index];
+            const tokenResponse = client.deserializeTokenResponse(fromBase64(encoded));
             const token = await client.finalize(tokenResponse);
             tokens.push(Buffer.from(token.serialize()));
         }

@@ -10,7 +10,7 @@ import {
 import { IPrivateTokenRepository } from '#electron/Application/Contracts/Repositories/IPrivateTokenRepository';
 import { NonceSigner } from './NonceSigner.js';
 
-const PRIVATE_TOKEN_WALLET_SIZE = 3;
+const PRIVATE_TOKEN_WALLET_SIZE = 5;
 
 export interface Tokens {
     jwt: string | null;
