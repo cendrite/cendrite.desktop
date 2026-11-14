@@ -58,6 +58,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onTogglePane, setPaneType,
                                 className="w-8 h-8"
                                 AvatarKey={user?.avatarKey ?? null}
                                 Username={user?.displayName ?? user?.username ?? '?'}
+                                Seed={user?.userTag ?? '?'}
                             />
                         }
                         activeIcon={
@@ -65,6 +66,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onTogglePane, setPaneType,
                                 className="w-8 h-8"
                                 AvatarKey={user?.avatarKey ?? null}
                                 Username={user?.displayName ?? user?.username ?? '?'}
+                                Seed={user?.userTag ?? '?'}
                             />
                         }
                         isActive={isSettingsOpen}

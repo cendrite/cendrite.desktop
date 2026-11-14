@@ -24,6 +24,7 @@ const AvatarStack: React.FC<AvatarStackProps> = ({ members, className }) => {
                     className="h-full w-full"
                     AvatarKey={member?.avatar ?? null}
                     Username={member?.name ?? '?'}
+                    Seed={member?.userTag ?? '?'}
                 />
             </div>
         );
@@ -43,6 +44,7 @@ const AvatarStack: React.FC<AvatarStackProps> = ({ members, className }) => {
                         className="h-full w-full"
                         AvatarKey={member.avatar}
                         Username={member.name}
+                        Seed={member.userTag}
                     />
                 </div>
             ))}

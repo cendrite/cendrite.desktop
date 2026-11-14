@@ -92,7 +92,7 @@ const ProfileEditor: React.FC = () => {
                     {pending ? (
                         <MediaItem media={pending} className="h-full w-full object-cover" />
                     ) : (
-                        <Avatar className="h-full w-full" AvatarKey={user?.avatarKey ?? null} Username={name} />
+                        <Avatar className="h-full w-full" AvatarKey={user?.avatarKey ?? null} Username={name} Seed={user?.userTag ?? name} />
                     )}
                 </div>
 

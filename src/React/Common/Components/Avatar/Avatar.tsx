@@ -1,16 +1,17 @@
 import React from 'react';
 import clsx from 'clsx';
-import { initialOf } from './AvatarTemplates.ts';
+import { initialOf, templateBackground, templateFor } from './AvatarTemplates.ts';
 
 interface AvatarProps {
     className?: string;
     AvatarKey: string | null;
     Username: string;
+    Seed: string;
 }
 
 const avatar_url = 'https://conduit.xhykl49jkg.org/api/profile/avatar';
 
-const Avatar: React.FC<AvatarProps> = ({ className, AvatarKey, Username }) => {
+const Avatar: React.FC<AvatarProps> = ({ className, AvatarKey, Username, Seed }) => {
     if (AvatarKey) {
         return (
             <img
@@ -27,7 +28,8 @@ const Avatar: React.FC<AvatarProps> = ({ className, AvatarKey, Username }) => {
         <div
             role="img"
             aria-label={Username}
-            className={clsx('shrink-0 overflow-hidden rounded-full bg-accent-soft text-accent-soft-fg', className)}
+            style={{ backgroundImage: templateBackground(templateFor(Seed)) }}
+            className={clsx('shrink-0 overflow-hidden rounded-full', className)}
         >
             <svg viewBox="0 0 100 100" className="h-full w-full select-none" aria-hidden="true">
                 <text
@@ -35,9 +37,9 @@ const Avatar: React.FC<AvatarProps> = ({ className, AvatarKey, Username }) => {
                     y="50"
                     textAnchor="middle"
                     dominantBaseline="central"
-                    fill="currentColor"
+                    fill="rgba(255, 255, 255, 0.95)"
                     fontSize={44}
-                    fontWeight={500}
+                    fontWeight={600}
                 >
                     {initial}
                 </text>

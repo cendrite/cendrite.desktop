@@ -15,6 +15,15 @@ export const avatarTemplates: AvatarTemplate[] = [
     { id: 'slate', from: '#C3CAD2', to: '#5E6B87' },
 ];
 
+export function templateFor(seed: string): AvatarTemplate {
+    let hash = 0x811c9dc5;
+    for (let i = 0; i < seed.length; i++) {
+        hash ^= seed.charCodeAt(i);
+        hash = Math.imul(hash, 0x01000193);
+    }
+    return avatarTemplates[(hash >>> 0) % avatarTemplates.length];
+}
+
 export function initialOf(name: string): string {
     const first = [...name.trim()][0];
     return first ? first.toUpperCase() : '?';

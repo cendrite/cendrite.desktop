@@ -87,6 +87,7 @@ const PendingContactPage: React.FC<PendingContactPage> = ({ pendingContact, onCl
                                 className="h-full w-full text-2xl"
                                 AvatarKey={pendingContact.avatarKey}
                                 Username={pendingContact.username}
+                                Seed={pendingContact.id}
                             />
                         </div>
 

@@ -38,6 +38,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ chat, onClose }) => {
                                 className="w-11 h-11"
                                 AvatarKey={chatMember?.contact?.avatarKey ?? null}
                                 Username={chatMember?.name ?? "?"}
+                                Seed={chatMember?.userTag ?? "?"}
                             />
                         </div>
 
