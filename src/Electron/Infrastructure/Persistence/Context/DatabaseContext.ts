@@ -18,6 +18,7 @@ import { SignedPreKeySchema } from '../Schemas/SignedPreKeySchema.js';
 import { SessionRecordSchema } from '../Schemas/SessionRecordSchema.js';
 import { GroupEpochKeySchema } from '../Schemas/GroupEpochKeySchema.js';
 import { GroupWriteKeySchema } from '../Schemas/GroupWriteKeySchema.js';
+import { PendingGroupWriteKeySchema } from '../Schemas/PendingGroupWriteKeySchema.js';
 import { LedgerEventRecordSchema } from '../Schemas/LedgerEventRecordSchema.js';
 import { GroupRecordSchema } from '../Schemas/GroupRecordSchema.js';
 import { PrivateTokenSchema } from '../Schemas/PrivateTokenSchema.js';
@@ -60,6 +61,7 @@ export async function initializeDatabase(dbPath: string | null = null): Promise<
             NotificationSettingsSchema,
             GroupEpochKeySchema,
             GroupWriteKeySchema,
+            PendingGroupWriteKeySchema,
             LedgerEventRecordSchema,
             GroupRecordSchema,
             PrivateTokenSchema,

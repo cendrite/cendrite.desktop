@@ -19,6 +19,7 @@ import { LedgerEventRecord } from '../../../../../../src/Electron/Domain/Entitie
 import { LedgerEventStatus } from '../../../../../../src/Electron/Domain/Enums/LedgerEventStatus.js';
 import { Group } from '../../../../../../src/Electron/Domain/Entities/Group.js';
 import { GroupLifecycle } from '../../../../../../src/Electron/Domain/Enums/GroupLifecycle.js';
+import { PendingGroupWriteKey } from '../../../../../../src/Electron/Domain/Encryption/PendingGroupWriteKey.js';
 import { GroupWriteKey } from '../../../../../../src/Electron/Domain/Encryption/GroupWriteKey.js';
 import { GroupEpochKey } from '../../../../../../src/Electron/Domain/Encryption/GroupEpochKey.js';
 
@@ -178,6 +179,22 @@ describe('GroupKeyRepository', () => {
 
         expect(Buffer.from(raw!.privateKey).toString('utf8')).toBe(`sealed:${privateKey.toString('base64')}`);
         expect(Buffer.from(raw!.privateKey)).not.toEqual(privateKey);
+    });
+
+    test('keeps a pending write key sealed until it is deleted', async () => {
+        const sut = new GroupKeyRepository();
+        const privateKey = Buffer.alloc(32, 0x43);
+        await sut.savePendingWriteKey(new PendingGroupWriteKey(GROUP_ID, Buffer.alloc(32, 0xb1), privateKey));
+
+        const stored = await sut.getPendingWriteKey(GROUP_ID);
+        const raw = await getDbContext().getRepository(PendingGroupWriteKey).findOneBy({ groupId: GROUP_ID });
+
+        expect(Buffer.from(stored!.privateKey)).toEqual(privateKey);
+        expect(Buffer.from(raw!.privateKey)).not.toEqual(privateKey);
+
+        await sut.deletePendingWriteKey(GROUP_ID);
+
+        expect(await sut.getPendingWriteKey(GROUP_ID)).toBeNull();
     });
 
     test('keeps one key per epoch and returns them all', async () => {

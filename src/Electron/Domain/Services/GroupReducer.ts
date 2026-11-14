@@ -43,7 +43,10 @@ export function rejectReasonFor(
     const author = authorOf(state, context.authorKey);
     if (!author) return 'write key does not belong to a member';
     if (author.userTag !== operation.authorTag) return 'operation author does not match the signing key';
-    if (author.inviteKeys.includes(context.authorKey)) return 'an invite key may only register a write key';
+    const signedWithInvite = author.inviteKeys.includes(context.authorKey);
+    if (signedWithInvite && operation.type !== LedgerOperationType.WriteKeyRegistered) {
+        return 'an invite key may only register a write key';
+    }
 
     const mismatch = keyChangeMismatch(declaredKeyChanges(state, operation), context);
     if (mismatch) return mismatch;
@@ -72,6 +75,13 @@ export function rejectReasonFor(
 
         case LedgerOperationType.DeviceListPublished:
             return operation.userTag === author.userTag ? null : 'a member may only publish their own devices';
+
+        case LedgerOperationType.WriteKeyRegistered:
+            if (!signedWithInvite || operation.inviteKeyPublic !== context.authorKey) {
+                return 'only an invite key may be swapped, and only by itself';
+            }
+            if (state.ownerOfWriteKey(operation.writeKeyPublic)) return 'the new write key is already in use';
+            return null;
     }
 }
 
@@ -126,6 +136,13 @@ export function applyOperation(state: GroupState, operation: LedgerOperation, co
         case LedgerOperationType.DeviceListPublished:
             state.members.get(operation.userTag)!.connectionIds = [...operation.connectionIds];
             break;
+
+        case LedgerOperationType.WriteKeyRegistered: {
+            const member = state.members.get(operation.authorTag)!;
+            member.inviteKeys = member.inviteKeys.filter((key) => key !== operation.inviteKeyPublic);
+            member.writeKeys = [...member.writeKeys, operation.writeKeyPublic];
+            break;
+        }
     }
 }
 
@@ -145,6 +162,9 @@ function declaredKeyChanges(state: GroupState, operation: LedgerOperation): KeyC
             const member = state.members.get(operation.userTag);
             return { added: [], invites: [], removed: member ? [...member.writeKeys, ...member.inviteKeys] : [] };
         }
+
+        case LedgerOperationType.WriteKeyRegistered:
+            return { added: [operation.writeKeyPublic], invites: [], removed: [operation.inviteKeyPublic] };
 
         default:
             return { added: [], invites: [], removed: [] };

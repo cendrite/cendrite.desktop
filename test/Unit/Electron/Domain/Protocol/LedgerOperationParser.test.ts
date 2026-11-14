@@ -90,6 +90,13 @@ describe('parseLedgerOperation', () => {
         expect(parseLedgerOperation(json)).toBeNull();
     });
 
+    it('accepts a write key swap and rejects one without the new key', () => {
+        const swap = { ...base, type: LedgerOperationType.WriteKeyRegistered, inviteKeyPublic: 'aW52', writeKeyPublic: 'd2s=' };
+
+        expect(parseLedgerOperation(JSON.stringify(swap))).not.toBeNull();
+        expect(parseLedgerOperation(JSON.stringify({ ...swap, writeKeyPublic: undefined }))).toBeNull();
+    });
+
     it('rejects a missing author', () => {
         const json = JSON.stringify({ type: LedgerOperationType.MemberRemoved, userTag: 'bob', at: 1 });
 

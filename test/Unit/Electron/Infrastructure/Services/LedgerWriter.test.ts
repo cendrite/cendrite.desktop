@@ -24,6 +24,7 @@ import {
     LedgerOperation,
     MemberAddedOperation,
     SettingsChangedOperation,
+    WriteKeyRegisteredOperation,
 } from '../../../../../src/Electron/Domain/Protocol/LedgerOperation.js';
 import { LedgerOperationType } from '../../../../../src/Electron/Domain/Enums/LedgerOperationType.js';
 import { ChatPrivileges } from '../../../../../src/Shared/Enums/ChatPrivileges.js';
@@ -461,6 +462,27 @@ describe('appending', () => {
 
         expect(provider.appends[0].keysRemoved).toEqual([Buffer.alloc(32, 0xb2), Buffer.alloc(32, 0xd4)]);
         expect(provider.appends[0].keysAdded).toEqual([]);
+        expect(provider.appends[0].invitesAdded).toEqual([]);
+    });
+
+    test('declares a swap as removing the invite key and adding the new write key', async () => {
+        const sut = new LedgerWriter(
+            provider,
+            keyRepository,
+            groupRepository(new Group(GROUP_ID, 0, 1, Buffer.alloc(32, 0x11))),
+            syncService(new GroupState(GROUP_ID)),
+            ledgerIdentity,
+            wallet(),
+            tokenManager(),
+        );
+
+        await sut.append(
+            GROUP_ID,
+            new WriteKeyRegisteredOperation('bob', Buffer.alloc(32, 0xd4).toString('base64'), Buffer.alloc(32, 0xe5).toString('base64')),
+        );
+
+        expect(provider.appends[0].keysAdded).toEqual([Buffer.alloc(32, 0xe5)]);
+        expect(provider.appends[0].keysRemoved).toEqual([Buffer.alloc(32, 0xd4)]);
         expect(provider.appends[0].invitesAdded).toEqual([]);
     });
 

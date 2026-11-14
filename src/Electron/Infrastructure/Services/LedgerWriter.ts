@@ -192,6 +192,9 @@ function keyChangesFor(operation: LedgerOperation, state: GroupState): KeyChange
             return { added: [], invites: [], removed: member ? [...member.writeKeys, ...member.inviteKeys].map(fromBase64) : [] };
         }
 
+        case LedgerOperationType.WriteKeyRegistered:
+            return { added: [fromBase64(operation.writeKeyPublic)], invites: [], removed: [fromBase64(operation.inviteKeyPublic)] };
+
         default:
             return { added: [], invites: [], removed: [] };
     }

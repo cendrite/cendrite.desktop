@@ -98,13 +98,27 @@ export class DeviceListPublishedOperation extends LedgerOperationBase {
     }
 }
 
+export class WriteKeyRegisteredOperation extends LedgerOperationBase {
+    readonly type = LedgerOperationType.WriteKeyRegistered;
+
+    constructor(
+        authorTag: string,
+        public readonly inviteKeyPublic: string,
+        public readonly writeKeyPublic: string,
+        at?: number,
+    ) {
+        super(authorTag, at);
+    }
+}
+
 export type LedgerOperation =
     | GroupCreatedOperation
     | MemberAddedOperation
     | MemberRemovedOperation
     | PrivilegeChangedOperation
     | SettingsChangedOperation
-    | DeviceListPublishedOperation;
+    | DeviceListPublishedOperation
+    | WriteKeyRegisteredOperation;
 
 /**
  * The operation is kept as the exact bytes that were signed, so a receiver verifies what it decrypted
