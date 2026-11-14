@@ -46,6 +46,7 @@ function event(version: number): LedgerEvent {
 function logRepository(existing: LedgerEventRecord[] = []) {
     const stored = [...existing];
     const statuses: { version: number; status: LedgerEventStatus; reason: string | null }[] = [];
+    const verified: { version: number; userTag: string }[] = [];
 
     const repository: ILedgerLogRepository = {
         append: async (records) => void stored.push(...records),
@@ -53,10 +54,11 @@ function logRepository(existing: LedgerEventRecord[] = []) {
         getAll: async () => stored,
         getLastVersion: async () => stored.reduce((max, r) => Math.max(max, r.version), 0),
         setStatus: async (_groupId, version, status, reason = null) => void statuses.push({ version, status, reason }),
+        setVerifiedAuthor: async (_groupId, version, userTag) => void verified.push({ version, userTag }),
         deleteAll: async () => void (stored.length = 0),
     };
 
-    return { repository, stored, statuses };
+    return { repository, stored, statuses, verified };
 }
 
 function groupRepository() {
@@ -78,7 +80,7 @@ function replayService(result: Partial<ReplayResult> = {}): ILedgerReplayService
 
     return {
         replay: async () =>
-            ({ rejected: [], halted: null, stalledAt: null, ...result, state }) as ReplayResult,
+            ({ rejected: [], verified: [], halted: null, stalledAt: null, ...result, state }) as ReplayResult,
     };
 }
 
@@ -183,6 +185,23 @@ describe('syncing', () => {
         expect(log.statuses).toEqual([
             { version: 1, status: LedgerEventStatus.Rejected, reason: 'author is not an admin' },
         ]);
+    });
+
+    test('remembers the authors replay verified', async () => {
+        const log = logRepository();
+        const { provider: p } = provider([{ version: 1, archived: false, hasMore: false, events: [event(1)] }]);
+
+        const sut = new LedgerSyncService(
+            p,
+            log.repository,
+            groupRepository().repository,
+            replayService({ verified: [{ version: 1, userTag: '482177301593' }] }),
+            groupKeys(),
+        );
+
+        await sut.sync(GROUP_ID);
+
+        expect(log.verified).toEqual([{ version: 1, userTag: '482177301593' }]);
     });
 
     test('marks a stall so it can be resumed when the key arrives', async () => {

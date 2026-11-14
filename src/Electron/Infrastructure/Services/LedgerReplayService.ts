@@ -3,6 +3,7 @@ import {
     ILedgerReplayService,
     RejectedEvent,
     ReplayResult,
+    VerifiedAuthor,
 } from '#electron/Application/Contracts/Services/ILedgerReplayService';
 import { IGroupKeyRepository } from '#electron/Application/Contracts/Repositories/IGroupKeyRepository';
 import { applyOperation, OperationContext, rejectReasonFor } from '#electron/Domain/Services/GroupReducer';
@@ -32,11 +33,12 @@ export class LedgerReplayService implements ILedgerReplayService {
     public async replay(groupId: string, events: LedgerEventRecord[]): Promise<ReplayResult> {
         const state = new GroupState(groupId);
         const rejected: RejectedEvent[] = [];
+        const verified: VerifiedAuthor[] = [];
         const epochKeys = await this.epochKeys(groupId);
 
         for (const event of events) {
             const chainFailure = this.chainFailureFor(state, event);
-            if (chainFailure) return this.halt(state, rejected, { version: event.version, reason: chainFailure });
+            if (chainFailure) return this.halt(state, rejected, verified, { version: event.version, reason: chainFailure });
 
             const signingInput = buildSigningInput({
                 groupId,
@@ -49,17 +51,17 @@ export class LedgerReplayService implements ILedgerReplayService {
             });
 
             if (!verifyOuter(event.writeKeyPublic, signingInput, event.signature)) {
-                return this.halt(state, rejected, {
+                return this.halt(state, rejected, verified, {
                     version: event.version,
                     reason: 'outer signature does not verify',
                 });
             }
 
             const epochKey = epochKeys.get(readEpoch(event.payload));
-            if (!epochKey) return { state, rejected, halted: null, stalledAt: event.version };
+            if (!epochKey) return { state, rejected, verified, halted: null, stalledAt: event.version };
 
-            const reason = await this.applyIfValid(state, event, epochKey);
-            if (reason === UNVERIFIED) return { state, rejected, halted: null, stalledAt: event.version };
+            const reason = await this.applyIfValid(state, event, epochKey, verified);
+            if (reason === UNVERIFIED) return { state, rejected, verified, halted: null, stalledAt: event.version };
             if (reason) rejected.push({ version: event.version, reason });
 
             // A rejected event still advances the chain: skipping its hash would break the next link.
@@ -69,7 +71,7 @@ export class LedgerReplayService implements ILedgerReplayService {
 
         state.rejected = rejected.map((entry) => entry.version);
 
-        return { state, rejected, halted: null, stalledAt: null };
+        return { state, rejected, verified, halted: null, stalledAt: null };
     }
 
     private async epochKeys(groupId: string): Promise<Map<number, Buffer>> {
@@ -77,8 +79,8 @@ export class LedgerReplayService implements ILedgerReplayService {
         return new Map(keys.map((key) => [key.epoch, key.key]));
     }
 
-    private halt(state: GroupState, rejected: RejectedEvent[], halted: HaltedEvent): ReplayResult {
-        return { state, rejected, halted, stalledAt: null };
+    private halt(state: GroupState, rejected: RejectedEvent[], verified: VerifiedAuthor[], halted: HaltedEvent): ReplayResult {
+        return { state, rejected, verified, halted, stalledAt: null };
     }
 
     private chainFailureFor(state: GroupState, event: LedgerEventRecord): string | null {
@@ -91,6 +93,7 @@ export class LedgerReplayService implements ILedgerReplayService {
         state: GroupState,
         event: LedgerEventRecord,
         epochKey: Buffer,
+        verified: VerifiedAuthor[],
     ): Promise<string | typeof UNVERIFIED | null> {
         let plaintext: Buffer;
 
@@ -114,15 +117,24 @@ export class LedgerReplayService implements ILedgerReplayService {
             return 'operation signature does not verify';
         }
 
-        let author: VerifiedDevice | null;
+        let authorTag = event.verifiedAuthor;
 
-        try {
-            author = await this.deviceVerifier.verify(signed.connectionId, signed.identityKey);
-        } catch {
-            return UNVERIFIED;
+        if (authorTag === null) {
+            let author: VerifiedDevice | null;
+
+            try {
+                author = await this.deviceVerifier.verify(signed.connectionId, signed.identityKey);
+            } catch {
+                return UNVERIFIED;
+            }
+
+            if (author) {
+                authorTag = author.userTag;
+                verified.push({ version: event.version, userTag: author.userTag });
+            }
         }
 
-        if (author?.userTag !== operation.authorTag) return 'the signing device does not belong to the author';
+        if (authorTag !== operation.authorTag) return 'the signing device does not belong to the author';
 
         const context: OperationContext = {
             version: event.version,

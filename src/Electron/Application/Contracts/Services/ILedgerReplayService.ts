@@ -11,9 +11,15 @@ export interface HaltedEvent {
     reason: string;
 }
 
+export interface VerifiedAuthor {
+    version: number;
+    userTag: string;
+}
+
 export interface ReplayResult {
     state: GroupState;
     rejected: RejectedEvent[];
+    verified: VerifiedAuthor[];
     halted: HaltedEvent | null;
     stalledAt: number | null;
 }

@@ -89,6 +89,17 @@ describe('LedgerLogRepository', () => {
         expect(await new LedgerLogRepository().getLastVersion(GROUP_ID)).toBe(0);
     });
 
+    test('remembers the verified author of an event, starting with none', async () => {
+        const sut = new LedgerLogRepository();
+        await sut.append([record(1)]);
+
+        expect((await sut.getAll(GROUP_ID))[0].verifiedAuthor).toBeNull();
+
+        await sut.setVerifiedAuthor(GROUP_ID, 1, '482177301593');
+
+        expect((await sut.getAll(GROUP_ID))[0].verifiedAuthor).toBe('482177301593');
+    });
+
     test('records why an event was rejected', async () => {
         const sut = new LedgerLogRepository();
         await sut.append([record(1)]);

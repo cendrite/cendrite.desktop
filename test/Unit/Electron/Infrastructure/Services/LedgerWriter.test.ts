@@ -143,7 +143,7 @@ function syncService(state: GroupState, onSync?: () => void): ILedgerSyncService
     return {
         sync: async () => {
             onSync?.();
-            return Result.success<ReplayResult>({ state, rejected: [], halted: null, stalledAt: null });
+            return Result.success<ReplayResult>({ state, rejected: [], verified: [], halted: null, stalledAt: null });
         },
     };
 }
