@@ -6,7 +6,7 @@ import { UserActionType } from '@/React/Context/User/UserReducer.ts';
 import Avatar from '@/React/Common/Components/Avatar/Avatar.tsx';
 import { Media } from '@/React/Models/Media.ts';
 import { MediaService } from '@/React/Common/Services/MediaService.ts';
-import { MediaItem } from '../Chat/MediaBox.tsx';
+import { MediaItem } from '@/React/Features/Home/Chat/MediaBox.tsx';
 import { Result } from '@/Shared/Result/Result.ts';
 import { UpdateAvatarCommand } from '@/Shared/User/UpdateAvatar.ts';
 import Button from '@/React/Common/Components/Button/Button.tsx';
