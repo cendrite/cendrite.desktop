@@ -42,6 +42,7 @@ export const ChatCard: React.FC<ChatCardProps> = ({ chat }) => {
                         className="w-11 h-11"
                         AvatarKey={chat.chatMembers[0]?.contact?.avatarKey ?? null}
                         Username={name}
+                        Seed={chat.chatMembers[0]?.userTag ?? name}
                     />
                 </div>
             )}

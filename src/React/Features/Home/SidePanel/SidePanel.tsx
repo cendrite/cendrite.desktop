@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import SidePanelToggle from './SidePanelToggle';
 import PanelButton from './SidePanelButton';
-import UserModal from '../Modals/UserModal.tsx';
 import NotificationBadge from '@/React/Context/Notification/NotificationBadge.tsx';
 import Avatar from '@/React/Common/Components/Avatar/Avatar.tsx';
 import { useUser } from '@/React/Context/User/UserContext.tsx';
-import { AddressBookIcon, ChatCircleIcon, GearSixIcon } from '@phosphor-icons/react';
+import { AddressBookIcon, ChatCircleIcon } from '@phosphor-icons/react';
 
 export interface SidePanelProps {
     onTogglePane: () => void;
@@ -16,7 +15,6 @@ export interface SidePanelProps {
 }
 
 export const SidePanel: React.FC<SidePanelProps> = ({ onTogglePane, setPaneType, paneType, isSettingsOpen, onOpenSettings }) => {
-    const [isUserModalOpen, setUserModalOpen] = useState(false);
     const { user } = useUser();
 
     return (
@@ -52,15 +50,15 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onTogglePane, setPaneType,
                     </div>
                 </div>
 
-                {/* Bottom Icons: User Profile and Settings */}
-                <div className="flex flex-col items-center space-y-4">
+                <div className="flex flex-col items-center">
                     <PanelButton
-                        onClick={() => setUserModalOpen(true)}
+                        onClick={onOpenSettings}
                         icon={
                             <Avatar
                                 className="w-8 h-8"
                                 AvatarKey={user?.avatarKey ?? null}
                                 Username={user?.displayName ?? user?.username ?? '?'}
+                                Seed={user?.userTag ?? '?'}
                             />
                         }
                         activeIcon={
@@ -68,19 +66,13 @@ export const SidePanel: React.FC<SidePanelProps> = ({ onTogglePane, setPaneType,
                                 className="w-8 h-8"
                                 AvatarKey={user?.avatarKey ?? null}
                                 Username={user?.displayName ?? user?.username ?? '?'}
+                                Seed={user?.userTag ?? '?'}
                             />
                         }
-                        isActive={isUserModalOpen}
-                    />
-                    <PanelButton
-                        onClick={onOpenSettings}
-                        icon={<GearSixIcon className="w-5 h-5" />}
-                        activeIcon={<GearSixIcon className="w-5 h-5 text-fg-muted" />}
                         isActive={isSettingsOpen}
                     />
                 </div>
             </div>
-            <UserModal isOpen={isUserModalOpen} onClose={() => setUserModalOpen(false)} />
         </>
     );
 };

@@ -26,6 +26,10 @@ export class User {
         this.avatarKey = avatarKey;
     }
 
+    public removeAvatar() {
+        this.avatarKey = null;
+    }
+
     public setDisplayName(displayName: string) {
         this.displayName = displayName;
     }

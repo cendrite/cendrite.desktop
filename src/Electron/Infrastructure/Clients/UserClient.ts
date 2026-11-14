@@ -31,4 +31,11 @@ export class UserClient implements IUserProvider {
             }
         });
     }
+
+    public removeAvatar(): Promise<Result<void>> {
+        return this.userClient.handleConduit<void>({
+            method: 'DELETE',
+            url: "avatar",
+        }, true) as Promise<Result<void>>;
+    }
 }

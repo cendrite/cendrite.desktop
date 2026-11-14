@@ -2,13 +2,19 @@ import React, { useState } from 'react';
 import { SignOutIcon } from '@phosphor-icons/react';
 import Button from '@/React/Common/Components/Button/Button.tsx';
 import LogoutModal from '../Modals/LogoutModal.tsx';
+import ProfileEditor from '../Components/ProfileEditor.tsx';
 
 const AccountSection: React.FC = () => {
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
     return (
         <section>
-            <h3 className="text-sm font-medium text-fg-muted">Session</h3>
+            <h3 className="text-sm font-medium text-fg-muted">Profile</h3>
+            <p className="mt-1 text-sm text-fg-subtle">Your picture and name are visible to your contacts and groups.</p>
+
+            <ProfileEditor />
+
+            <h3 className="mt-8 text-sm font-medium text-fg-muted">Session</h3>
             <p className="mt-1 text-sm text-fg-subtle">Manage how this device is signed in to your account.</p>
 
             <div className="mt-4 flex items-center gap-4 rounded-lg border border-line px-4 py-4">

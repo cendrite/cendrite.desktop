@@ -51,6 +51,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ contact, onClose }) => {
                                 <Avatar
                                     AvatarKey={contact.avatarKey}
                                     Username={contact.username}
+                                    Seed={contact.id}
                                     className="w-full h-full"
                                 />
                             </div>

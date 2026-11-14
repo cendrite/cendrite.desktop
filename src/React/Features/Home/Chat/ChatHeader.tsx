@@ -25,7 +25,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ chat, onClose }) => {
 
                 {chat.isGroup ? (
                     <>
-                        <AvatarStack className="w-7 h-7 ml-3" textClassName="!text-[0.45rem]" members={chat.chatMembers} />
+                        <AvatarStack className="w-7 h-7 ml-3" members={chat.chatMembers} />
                         <div className="flex flex-col ml-3">
                             <span className="text-fg text-sm">{chat.displayName}</span>
                             <span className="text-fg-subtle text-xs">{chat.chatMembers.length + 1} members</span>
@@ -38,6 +38,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ chat, onClose }) => {
                                 className="w-11 h-11"
                                 AvatarKey={chatMember?.contact?.avatarKey ?? null}
                                 Username={chatMember?.name ?? "?"}
+                                Seed={chatMember?.userTag ?? "?"}
                             />
                         </div>
 
