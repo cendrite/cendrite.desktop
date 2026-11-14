@@ -79,6 +79,10 @@ export class LedgerSyncService implements ILedgerSyncService {
             );
         }
 
+        for (const verified of replayed.verified) {
+            await this.ledgerLogRepository.setVerifiedAuthor(groupId, verified.version, verified.userTag);
+        }
+
         if (replayed.stalledAt !== null) {
             await this.ledgerLogRepository.setStatus(groupId, replayed.stalledAt, LedgerEventStatus.Stalled);
         }

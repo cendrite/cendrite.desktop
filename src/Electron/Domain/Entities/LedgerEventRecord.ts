@@ -13,6 +13,7 @@ export class LedgerEventRecord {
     hash: Buffer;
     status: LedgerEventStatus;
     rejectReason: string | null;
+    verifiedAuthor: string | null;
 
     constructor(
         groupId: string,
@@ -27,6 +28,7 @@ export class LedgerEventRecord {
         keysRemoved: string[] = [],
         status: LedgerEventStatus = LedgerEventStatus.Applied,
         rejectReason: string | null = null,
+        verifiedAuthor: string | null = null,
     ) {
         this.groupId = groupId;
         this.version = version;
@@ -40,5 +42,6 @@ export class LedgerEventRecord {
         this.keysRemoved = keysRemoved;
         this.status = status;
         this.rejectReason = rejectReason;
+        this.verifiedAuthor = verifiedAuthor;
     }
 }

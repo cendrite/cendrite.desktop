@@ -618,3 +618,73 @@ describe('authors verified through their device chain', () => {
         expect(result.state.members.has('alice')).toBe(true);
     });
 });
+
+describe('remembered authors', () => {
+    const renamed = (author: Member, at: number) => ({
+        type: LedgerOperationType.SettingsChanged as const,
+        authorTag: author.userTag,
+        at,
+        name: 'Renamed',
+        messageTtl: null,
+    });
+
+    const noChain: IDeviceVerifier = {
+        verify: () => Promise.reject(new Error('the chain must not be asked')),
+    };
+
+    test('reports each author it verified through the chain', async () => {
+        const alice = new Member('alice', 'Alice');
+        const events = new LogBuilder()
+            .add(alice, created(alice), createdKeys(alice))
+            .add(alice, renamed(alice, 2))
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.verified).toEqual([
+            { version: 1, userTag: 'alice' },
+            { version: 2, userTag: 'alice' },
+        ]);
+    });
+
+    test('uses a remembered author without asking the chain again', async () => {
+        const alice = new Member('alice', 'Alice');
+        const events = new LogBuilder()
+            .add(alice, created(alice), createdKeys(alice))
+            .add(alice, renamed(alice, 2))
+            .build();
+        events.forEach((event) => (event.verifiedAuthor = 'alice'));
+
+        const result = await sut(undefined, noChain).replay(GROUP_ID, events);
+
+        expect(result.rejected).toEqual([]);
+        expect(result.verified).toEqual([]);
+        expect(result.state.name).toBe('Renamed');
+    });
+
+    test('rejects an operation whose remembered author is someone else', async () => {
+        const alice = new Member('alice', 'Alice');
+        const events = new LogBuilder()
+            .add(alice, created(alice), createdKeys(alice))
+            .add(alice, renamed(alice, 2))
+            .build();
+        events[0].verifiedAuthor = 'alice';
+        events[1].verifiedAuthor = 'mallory';
+
+        const result = await sut(undefined, noChain).replay(GROUP_ID, events);
+
+        expect(result.rejected).toEqual([{ version: 2, reason: 'the signing device does not belong to the author' }]);
+    });
+
+    test('remembers nothing for a device the chain does not approve', async () => {
+        const alice = new Member('alice', 'Alice');
+        const events = new LogBuilder()
+            .add(alice, created(alice), createdKeys(alice))
+            .add(alice, renamed(alice, 2), { signFrom: new Device('alice-unknown', null) })
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.verified).toEqual([{ version: 1, userTag: 'alice' }]);
+    });
+});

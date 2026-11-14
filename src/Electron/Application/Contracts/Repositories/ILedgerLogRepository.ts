@@ -7,5 +7,6 @@ export interface ILedgerLogRepository {
     getAll(groupId: string): Promise<LedgerEventRecord[]>;
     getLastVersion(groupId: string): Promise<number>;
     setStatus(groupId: string, version: number, status: LedgerEventStatus, rejectReason?: string | null): Promise<void>;
+    setVerifiedAuthor(groupId: string, version: number, userTag: string): Promise<void>;
     deleteAll(): Promise<void>;
 }

@@ -55,5 +55,9 @@ export const LedgerEventRecordSchema = new EntitySchema<LedgerEventRecord>({
             type: 'text',
             nullable: true,
         },
+        verifiedAuthor: {
+            type: 'text',
+            nullable: true,
+        },
     },
 });
