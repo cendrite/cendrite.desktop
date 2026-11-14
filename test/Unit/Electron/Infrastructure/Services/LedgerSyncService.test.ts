@@ -39,6 +39,7 @@ function event(version: number): LedgerEvent {
         Buffer.alloc(64, 0x7f),
         [],
         [],
+        [],
     );
 }
 

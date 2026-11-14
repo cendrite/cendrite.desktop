@@ -45,6 +45,7 @@ function record(version: number, status = LedgerEventStatus.Applied, groupId = G
         Buffer.alloc(64, 0x7f),
         Buffer.alloc(32, 0xfe),
         [Buffer.alloc(32, 0xb2).toString('base64')],
+        [Buffer.alloc(32, 0xd4).toString('base64')],
         [],
         status,
     );
@@ -62,6 +63,7 @@ describe('LedgerLogRepository', () => {
         expect(Buffer.from(stored.previousHash)).toEqual(Buffer.alloc(32, 1));
         expect(Buffer.from(stored.signature)).toHaveLength(64);
         expect(stored.keysAdded).toEqual([Buffer.alloc(32, 0xb2).toString('base64')]);
+        expect(stored.invitesAdded).toEqual([Buffer.alloc(32, 0xd4).toString('base64')]);
         expect(stored.keysRemoved).toEqual([]);
         expect(stored.status).toBe(LedgerEventStatus.Applied);
     });

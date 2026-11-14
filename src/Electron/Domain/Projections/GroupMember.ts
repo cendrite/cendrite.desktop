@@ -8,6 +8,7 @@ export class GroupMember {
         public readonly identityKey: string,
         public joinedAtVersion: number,
         public writeKeys: string[] = [],
+        public inviteKeys: string[] = [],
         public connectionIds: string[] = [],
     ) { }
 }

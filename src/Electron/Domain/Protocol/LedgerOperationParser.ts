@@ -27,7 +27,7 @@ export function parseLedgerOperation(json: string): LedgerOperation | null {
                 ? (value as unknown as LedgerOperation)
                 : null;
         case LedgerOperationType.MemberAdded:
-            return isMemberRef(value.member) && typeof value.writeKeyPublic === 'string'
+            return isMemberRef(value.member)
                 ? (value as unknown as LedgerOperation)
                 : null;
         case LedgerOperationType.MemberRemoved:
@@ -67,7 +67,8 @@ function isMemberRef(value: unknown): value is GroupMemberRef {
         isPrivilege(value.privilege) &&
         isNullableString(value.avatarKey) &&
         typeof value.identityKey === 'string' &&
-        typeof value.writeKeyPublic === 'string' &&
+        isArrayOf(value.writeKeys, isString) &&
+        isArrayOf(value.inviteKeys, isString) &&
         isArrayOf(value.connectionIds, isString)
     );
 }

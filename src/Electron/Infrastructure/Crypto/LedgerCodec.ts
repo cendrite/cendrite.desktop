@@ -34,6 +34,7 @@ export interface SigningInputParts {
     previousHash: Buffer;
     payload: Buffer;
     keysAdded?: Buffer[];
+    invitesAdded?: Buffer[];
     keysRemoved?: Buffer[];
 }
 
@@ -51,15 +52,16 @@ export function bytesToUuid(bytes: Buffer): string {
 /**
  * The server rebuilds these exact bytes to verify a signature, so the layout is protocol:
  * "ledger-v1" || groupId(16) || version(4 BE) || previousHash(32) || added count(4 BE) || sorted added
- * || removed count(4 BE) || sorted removed || payload
+ * || invites count(4 BE) || sorted invites || removed count(4 BE) || sorted removed || payload
  */
 export function buildSigningInput(parts: SigningInputParts): Buffer {
     const { groupId, version, previousHash, payload } = parts;
     const keysAdded = parts.keysAdded ?? [];
+    const invitesAdded = parts.invitesAdded ?? [];
     const keysRemoved = parts.keysRemoved ?? [];
 
     assertLength('previousHash', previousHash, HASH_BYTES);
-    [...keysAdded, ...keysRemoved].forEach((key) => assertLength('write key', key, WRITE_KEY_BYTES));
+    [...keysAdded, ...invitesAdded, ...keysRemoved].forEach((key) => assertLength('write key', key, WRITE_KEY_BYTES));
 
     return Buffer.concat([
         DOMAIN_PREFIX,
@@ -67,6 +69,7 @@ export function buildSigningInput(parts: SigningInputParts): Buffer {
         bigEndian(version),
         previousHash,
         writeKeyList(keysAdded),
+        writeKeyList(invitesAdded),
         writeKeyList(keysRemoved),
         payload,
     ]);

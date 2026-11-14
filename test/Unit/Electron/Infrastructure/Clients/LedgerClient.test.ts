@@ -37,6 +37,7 @@ function append(): LedgerAppend {
         Buffer.alloc(32, 0xa1),
         Buffer.alloc(64, 0x7f),
         [Buffer.alloc(32, 0xb2)],
+        [Buffer.alloc(32, 0xd4)],
         [Buffer.alloc(32, 0xc3)],
     );
 }
@@ -61,7 +62,7 @@ describe('createStream', () => {
             payload: Buffer.from([1, 2, 3]).toString('base64'),
             writeKey: Buffer.alloc(32, 0xa1).toString('base64'),
             signature: Buffer.alloc(64, 0x7f).toString('base64'),
-            keysAdded: [Buffer.alloc(32, 0xb2).toString('base64')],
+            keyChanges: { added: [], invitesAdded: [Buffer.alloc(32, 0xb2).toString('base64')], removed: [] },
         });
     });
 
@@ -88,8 +89,11 @@ describe('appendEvent', () => {
             payload: Buffer.from([0x09, 0x08]).toString('base64'),
             writeKeyPublic: Buffer.alloc(32, 0xa1).toString('base64'),
             signature: Buffer.alloc(64, 0x7f).toString('base64'),
-            keysAdded: [Buffer.alloc(32, 0xb2).toString('base64')],
-            keysRemoved: [Buffer.alloc(32, 0xc3).toString('base64')],
+            keyChanges: {
+                added: [Buffer.alloc(32, 0xb2).toString('base64')],
+                invitesAdded: [Buffer.alloc(32, 0xd4).toString('base64')],
+                removed: [Buffer.alloc(32, 0xc3).toString('base64')],
+            },
         });
     });
 
@@ -118,8 +122,7 @@ describe('archiveStream', () => {
         await sut.archiveStream(GROUP_ID, append());
 
         expect(calls[0].url).toBe(`${GROUP_ID}/archive`);
-        expect(calls[0].data).not.toHaveProperty('keysAdded');
-        expect(calls[0].data).not.toHaveProperty('keysRemoved');
+        expect(calls[0].data).not.toHaveProperty('keyChanges');
     });
 });
 
@@ -136,8 +139,11 @@ describe('getEvents', () => {
                     payload: Buffer.from([0x05]).toString('base64'),
                     writeKeyPublic: Buffer.alloc(32, 0xa1).toString('base64'),
                     signature: Buffer.alloc(64, 0x7f).toString('base64'),
-                    keysAdded: [Buffer.alloc(32, 0xb2).toString('base64')],
-                    keysRemoved: [],
+                    keyChanges: {
+                        added: [Buffer.alloc(32, 0xb2).toString('base64')],
+                        invitesAdded: [Buffer.alloc(32, 0xd4).toString('base64')],
+                        removed: [],
+                    },
                 },
             ],
         };
@@ -156,6 +162,7 @@ describe('getEvents', () => {
         expect(event.previousHash).toEqual(Buffer.alloc(32, 0x11));
         expect(event.payload).toEqual(Buffer.from([0x05]));
         expect(event.keysAdded[0]).toEqual(Buffer.alloc(32, 0xb2));
+        expect(event.invitesAdded[0]).toEqual(Buffer.alloc(32, 0xd4));
         expect(event.keysRemoved).toEqual([]);
     });
 

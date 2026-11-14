@@ -59,7 +59,16 @@ export class GroupService implements IGroupService {
             throw new Error(`Group ${group.groupId} has no keys`);
         }
 
-        const minted = new Map<string, WriteKeyPair>();
+        const inviteKeys = new Map<string, WriteKeyPair>();
+
+        const mintInviteKeys = (connectionIds: string[]): string[] =>
+            connectionIds.map((connectionId) => {
+                const inviteKey = generateWriteKeyPair();
+                inviteKeys.set(connectionId, inviteKey);
+                return inviteKey.publicKey.toString('base64');
+            });
+
+        const ownConnectionIds = [...new Set([device.connectionId, ...(user.connectionIds ?? []).map((c) => c.connectionId)])];
 
         const members: GroupMemberRef[] = [
             new GroupMemberRef(
@@ -68,15 +77,13 @@ export class GroupService implements IGroupService {
                 ChatPrivileges.Owner,
                 user.avatarKey,
                 (await this.ledgerIdentity.publicKey()).toString('base64'),
-                ownWriteKey.publicKey.toString('base64'),
-                [...new Set([device.connectionId, ...(user.connectionIds ?? []).map((c) => c.connectionId)])],
+                [ownWriteKey.publicKey.toString('base64')],
+                mintInviteKeys(ownConnectionIds.filter((connectionId) => connectionId !== device.connectionId)),
+                ownConnectionIds,
             ),
         ];
 
         for (const member of chat.members) {
-            const writeKey = generateWriteKeyPair();
-            minted.set(member.userTag, writeKey);
-
             members.push(
                 new GroupMemberRef(
                     member.userTag,
@@ -84,7 +91,8 @@ export class GroupService implements IGroupService {
                     ChatPrivileges.Member,
                     member.friend!.avatarKey,
                     '',
-                    writeKey.publicKey.toString('base64'),
+                    [],
+                    mintInviteKeys(member.devices),
                     member.devices,
                 ),
             );
@@ -92,7 +100,7 @@ export class GroupService implements IGroupService {
 
         const created = await this.ledgerWriter.createStream(
             group.groupId,
-            members.map((member) => Buffer.from(member.writeKeyPublic, 'base64')),
+            [...inviteKeys.values()].map((inviteKey) => inviteKey.publicKey),
             new GroupCreatedOperation(user.userTag, chat.groupName, members),
         );
 
@@ -106,30 +114,18 @@ export class GroupService implements IGroupService {
         const headHash = created.data.toString('base64');
         const epochKeys = [epochKey.key.toString('base64')];
 
-        const strapFor = (writeKeyPrivate: Buffer) =>
-            new GroupStrapPayload(
-                group.groupId,
-                chat.groupName,
-                1,
-                headHash,
-                epochKeys,
-                writeKeyPrivate.toString('base64'),
-                members,
-            );
-
-        for (const member of chat.members) {
-            const strap = strapFor(minted.get(member.userTag)!.privateKey);
-
-            for (const connectionId of member.devices) {
-                payloads[connectionId] = [strap];
-            }
-        }
-
-        // Our other devices are the same member, so they hold the same write key rather than a minted one.
-        const ownStrap = strapFor(ownWriteKey.privateKey);
-
-        for (const connectionId of members[0].connectionIds) {
-            if (connectionId !== device.connectionId) payloads[connectionId] = [ownStrap];
+        for (const [connectionId, inviteKey] of inviteKeys) {
+            payloads[connectionId] = [
+                new GroupStrapPayload(
+                    group.groupId,
+                    chat.groupName,
+                    1,
+                    headHash,
+                    epochKeys,
+                    inviteKey.privateKey.toString('base64'),
+                    members,
+                ),
+            ];
         }
 
         group.lifecycle = GroupLifecycle.Active;

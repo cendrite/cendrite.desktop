@@ -9,6 +9,7 @@ export class LedgerEvent {
         public readonly writeKeyPublic: Buffer,
         public readonly signature: Buffer,
         public readonly keysAdded: Buffer[],
+        public readonly invitesAdded: Buffer[],
         public readonly keysRemoved: Buffer[],
     ) { }
 }
@@ -19,8 +20,13 @@ export interface LedgerEventDto {
     payload: string;
     writeKeyPublic: string;
     signature: string;
-    keysAdded: string[];
-    keysRemoved: string[];
+    keyChanges: KeyChangesDto;
+}
+
+export interface KeyChangesDto {
+    added: string[];
+    invitesAdded: string[];
+    removed: string[];
 }
 
 export interface LedgerEventsPageDto {
@@ -63,12 +69,13 @@ export class LedgerAppend {
         public readonly writeKeyPublic: Buffer,
         public readonly signature: Buffer,
         public readonly keysAdded: Buffer[] = [],
+        public readonly invitesAdded: Buffer[] = [],
         public readonly keysRemoved: Buffer[] = [],
     ) { }
 }
 
 export interface ILedgerProvider {
-    createStream(groupId: string, payload: Buffer, writeKey: Buffer, keysAdded: Buffer[], signature: Buffer, privateToken: Buffer): Promise<Result<void>>;
+    createStream(groupId: string, payload: Buffer, writeKey: Buffer, invitesAdded: Buffer[], signature: Buffer, privateToken: Buffer): Promise<Result<void>>;
     appendEvent(groupId: string, append: LedgerAppend): Promise<Result<void>>;
     archiveStream(groupId: string, append: LedgerAppend): Promise<Result<void>>;
     getEvents(groupId: string, fromVersion: number, proof: LedgerReadProof, limit?: number): Promise<Result<LedgerEventsPage>>;

@@ -13,7 +13,7 @@ export class GroupState {
 
     public ownerOfWriteKey(writeKeyPublic: string): GroupMember | null {
         for (const member of this.members.values()) {
-            if (member.writeKeys.includes(writeKeyPublic)) return member;
+            if (member.writeKeys.includes(writeKeyPublic) || member.inviteKeys.includes(writeKeyPublic)) return member;
         }
         return null;
     }

@@ -11,7 +11,8 @@ const member = {
     privilege: 3,
     avatarKey: null,
     identityKey: 'aWQ=',
-    writeKeyPublic: 'd2s=',
+    writeKeys: ['d2s='],
+    inviteKeys: ['aW52'],
     connectionIds: ['c1'],
 };
 
@@ -83,7 +84,6 @@ describe('parseLedgerOperation', () => {
             ...base,
             type: LedgerOperationType.MemberAdded,
             member: { ...member, privilege: 42 },
-            writeKeyPublic: 'a',
         });
 
         expect(parseLedgerOperation(json)).toBeNull();

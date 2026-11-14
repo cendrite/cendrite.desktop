@@ -35,6 +35,10 @@ export const LedgerEventRecordSchema = new EntitySchema<LedgerEventRecord>({
             type: 'simple-json',
             nullable: false,
         },
+        invitesAdded: {
+            type: 'simple-json',
+            nullable: false,
+        },
         keysRemoved: {
             type: 'simple-json',
             nullable: false,

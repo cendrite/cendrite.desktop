@@ -25,9 +25,10 @@ const GOLDEN = {
     previousHash: fill(0x11, 32),
     payload: Buffer.from([0x01, 0x02, 0x03]),
     keysAdded: [fill(0xaa, 32), fill(0x22, 32)],
+    invitesAdded: [fill(0x44, 32)],
     keysRemoved: [fill(0x33, 32)],
     seed: fill(0x42, 32),
-    signingInputLength: 168,
+    signingInputLength: 204,
     signingInputHex:
         '6c65646765722d76310199673a3c1e7c2b9f2e5d8b1a4c7e1000000002' +
         '1111111111111111111111111111111111111111111111111111111111111111' +
@@ -35,13 +36,15 @@ const GOLDEN = {
         '2222222222222222222222222222222222222222222222222222222222222222' +
         'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' +
         '00000001' +
+        '4444444444444444444444444444444444444444444444444444444444444444' +
+        '00000001' +
         '3333333333333333333333333333333333333333333333333333333333333333' +
         '010203',
-    hashHex: 'd7f12dae588efc4429d4ce8b95f64da6cf9efa6791d7ce1be6c7d129c5119d7b',
+    hashHex: '84e0903bc185a13012d9313b509b48447acd84173feec290d7dba865f7bf76d8',
     publicKeyHex: '2152f8d19b791d24453242e15f2eab6cb7cffa7b6a5ed30097960e069881db12',
     signatureHex:
-        'a0e9075a9436dd6b43deffb7c49364d6fcc3bfe42321b0da2e86e749b4fbb874' +
-        '6026004c9bd6962ce70d873326f93e1986834d845cb427f14654afb8f7e8bc08',
+        '0fc63b513b886d40203454fbb70ed65a307f0a2e9b839a241dbf112192bfb9e6' +
+        '575c4f824d010fbd0d63e16b2c33ff8f7a4b07205f62833648d377af3cba2606',
 };
 
 const READ_GOLDEN = {
@@ -65,6 +68,7 @@ function goldenInput(): Buffer {
         previousHash: GOLDEN.previousHash,
         payload: GOLDEN.payload,
         keysAdded: GOLDEN.keysAdded,
+        invitesAdded: GOLDEN.invitesAdded,
         keysRemoved: GOLDEN.keysRemoved,
     });
 }
@@ -88,6 +92,7 @@ describe('signing input', () => {
             previousHash: GOLDEN.previousHash,
             payload: GOLDEN.payload,
             keysAdded: [...GOLDEN.keysAdded].reverse(),
+            invitesAdded: GOLDEN.invitesAdded,
             keysRemoved: GOLDEN.keysRemoved,
         });
 
@@ -120,6 +125,18 @@ describe('signing input', () => {
         expect(added.toString('hex')).not.toBe(removed.toString('hex'));
     });
 
+    test('distinguishes invites from added and removed', () => {
+        const key = fill(0x01, 32);
+        const base = { groupId: GOLDEN.groupId, version: 1, previousHash: Buffer.alloc(32), payload: Buffer.from([1]) };
+
+        const added = buildSigningInput({ ...base, keysAdded: [key] }).toString('hex');
+        const invited = buildSigningInput({ ...base, invitesAdded: [key] }).toString('hex');
+        const removed = buildSigningInput({ ...base, keysRemoved: [key] }).toString('hex');
+
+        expect(invited).not.toBe(added);
+        expect(invited).not.toBe(removed);
+    });
+
     test('writes zero counts when there are no key changes', () => {
         const input = buildSigningInput({
             groupId: GOLDEN.groupId,
@@ -128,7 +145,7 @@ describe('signing input', () => {
             payload: Buffer.from([0x09]),
         });
 
-        expect(input.length).toBe(9 + 16 + 4 + 32 + 4 + 4 + 1);
+        expect(input.length).toBe(9 + 16 + 4 + 32 + 4 + 4 + 4 + 1);
         expect(input.readInt32BE(9 + 16 + 4 + 32)).toBe(0);
     });
 
@@ -190,6 +207,7 @@ describe('signatures', () => {
             previousHash: GOLDEN.previousHash,
             payload: Buffer.from([0x09, 0x09, 0x09]),
             keysAdded: GOLDEN.keysAdded,
+            invitesAdded: GOLDEN.invitesAdded,
             keysRemoved: GOLDEN.keysRemoved,
         });
 

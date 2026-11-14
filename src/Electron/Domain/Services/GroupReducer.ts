@@ -8,7 +8,14 @@ export interface OperationContext {
     version: number;
     authorKey: string;
     keysAdded: string[];
+    invitesAdded: string[];
     keysRemoved: string[];
+}
+
+interface KeyChanges {
+    added: string[];
+    invites: string[];
+    removed: string[];
 }
 
 export function authorOf(state: GroupState, writeKeyPublic: string): GroupMember | null {
@@ -23,26 +30,28 @@ export function rejectReasonFor(
     if (operation.type === LedgerOperationType.GroupCreated) {
         if (context.version !== 1) return 'group creation is only valid as the first event';
 
-        if (!operation.members.some((member) => member.writeKeyPublic === context.authorKey)) {
-            return 'the creating write key is not among the declared members';
+        const writeKeys = operation.members.flatMap((member) => member.writeKeys);
+        const creator = operation.members.find((member) => member.userTag === operation.authorTag);
+
+        if (!creator?.writeKeys.includes(context.authorKey) || writeKeys.length !== 1) {
+            return 'only the creating write key may be a write key at creation';
         }
 
-        return sameKeys(declaredKeyChanges(state, operation).added, context.keysAdded)
-            ? null
-            : 'granted keys do not match the operation';
+        return keyChangeMismatch(declaredKeyChanges(state, operation), context);
     }
 
     const author = authorOf(state, context.authorKey);
     if (!author) return 'write key does not belong to a member';
     if (author.userTag !== operation.authorTag) return 'operation author does not match the signing key';
+    if (author.inviteKeys.includes(context.authorKey)) return 'an invite key may only register a write key';
 
-    const declaredKeys = declaredKeyChanges(state, operation);
-    if (!sameKeys(declaredKeys.added, context.keysAdded)) return 'granted keys do not match the operation';
-    if (!sameKeys(declaredKeys.removed, context.keysRemoved)) return 'revoked keys do not match the operation';
+    const mismatch = keyChangeMismatch(declaredKeyChanges(state, operation), context);
+    if (mismatch) return mismatch;
 
     switch (operation.type) {
         case LedgerOperationType.MemberAdded:
             if (state.members.has(operation.member.userTag)) return 'member is already in the group';
+            if (operation.member.writeKeys.length > 0) return 'a new member may only be given invite keys';
             return requireAdmin(author);
 
         case LedgerOperationType.MemberRemoved: {
@@ -80,7 +89,8 @@ export function applyOperation(state: GroupState, operation: LedgerOperation, co
                         member.privilege,
                         member.identityKey,
                         context.version,
-                        [member.writeKeyPublic],
+                        [...member.writeKeys],
+                        [...member.inviteKeys],
                         member.connectionIds,
                     ),
                 );
@@ -96,7 +106,8 @@ export function applyOperation(state: GroupState, operation: LedgerOperation, co
                     operation.member.privilege,
                     operation.member.identityKey,
                     context.version,
-                    [operation.writeKeyPublic],
+                    [],
+                    [...operation.member.inviteKeys],
                 ),
             );
             break;
@@ -124,20 +135,29 @@ function requireAdmin(author: GroupMember): string | null {
     return author.privilege >= ChatPrivileges.Admin ? null : 'author is not an admin';
 }
 
-function declaredKeyChanges(state: GroupState, operation: LedgerOperation): { added: string[]; removed: string[] } {
+function declaredKeyChanges(state: GroupState, operation: LedgerOperation): KeyChanges {
     switch (operation.type) {
         case LedgerOperationType.GroupCreated:
-            return { added: operation.members.map((member) => member.writeKeyPublic), removed: [] };
+            return { added: [], invites: operation.members.flatMap((member) => member.inviteKeys), removed: [] };
 
         case LedgerOperationType.MemberAdded:
-            return { added: [operation.writeKeyPublic], removed: [] };
+            return { added: [], invites: operation.member.inviteKeys, removed: [] };
 
-        case LedgerOperationType.MemberRemoved:
-            return { added: [], removed: state.members.get(operation.userTag)?.writeKeys ?? [] };
+        case LedgerOperationType.MemberRemoved: {
+            const member = state.members.get(operation.userTag);
+            return { added: [], invites: [], removed: member ? [...member.writeKeys, ...member.inviteKeys] : [] };
+        }
 
         default:
-            return { added: [], removed: [] };
+            return { added: [], invites: [], removed: [] };
     }
+}
+
+function keyChangeMismatch(declared: KeyChanges, context: OperationContext): string | null {
+    if (!sameKeys(declared.added, context.keysAdded)) return 'granted keys do not match the operation';
+    if (!sameKeys(declared.invites, context.invitesAdded)) return 'invited keys do not match the operation';
+    if (!sameKeys(declared.removed, context.keysRemoved)) return 'revoked keys do not match the operation';
+    return null;
 }
 
 function sameKeys(declared: string[], applied: string[]): boolean {
