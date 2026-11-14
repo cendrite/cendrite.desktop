@@ -12,6 +12,7 @@ import {
     generateWriteKeyPair,
     hashEvent,
     signOuter,
+    WriteKeyPair,
 } from '../../../../../src/Electron/Infrastructure/Crypto/LedgerCodec.js';
 import { LedgerEventRecord } from '../../../../../src/Electron/Domain/Entities/LedgerEventRecord.js';
 import {
@@ -19,6 +20,7 @@ import {
     GroupMemberRef,
     LedgerOperation,
     MemberAddedOperation,
+    WriteKeyRegisteredOperation,
 } from '../../../../../src/Electron/Domain/Protocol/LedgerOperation.js';
 import { LedgerOperationType } from '../../../../../src/Electron/Domain/Enums/LedgerOperationType.js';
 import { ChatPrivileges } from '../../../../../src/Shared/Enums/ChatPrivileges.js';
@@ -104,6 +106,7 @@ class LogBuilder {
             keysRemoved?: string[];
             signWith?: Member;
             signFrom?: Device;
+            outerKey?: WriteKeyPair;
             encryptAtVersion?: number;
             corruptPayload?: boolean;
             previousHash?: Buffer;
@@ -151,8 +154,8 @@ class LogBuilder {
                 version,
                 previousHash,
                 payload,
-                author.writeKey.publicKey,
-                Buffer.from(signOuter(author.writeKey.privateKey, signingInput)),
+                (options.outerKey ?? author.writeKey).publicKey,
+                Buffer.from(signOuter((options.outerKey ?? author.writeKey).privateKey, signingInput)),
                 hashEvent(signingInput),
                 keysAdded,
                 invitesAdded,
@@ -686,5 +689,127 @@ describe('remembered authors', () => {
         const result = await sut().replay(GROUP_ID, events);
 
         expect(result.verified).toEqual([{ version: 1, userTag: 'alice' }]);
+    });
+});
+
+describe('swapping an invite key for a write key', () => {
+    const b64 = (key: Buffer) => key.toString('base64');
+
+    function swapped(bob: Member, next: WriteKeyPair) {
+        return {
+            operation: new WriteKeyRegisteredOperation(bob.userTag, bob.writeKeyPublic, b64(next.publicKey)),
+            keys: { keysAdded: [b64(next.publicKey)], keysRemoved: [bob.writeKeyPublic] },
+        };
+    }
+
+    test('moves the invited member onto their own write key', async () => {
+        const alice = new Member('alice', 'Alice');
+        const bob = new Member('bob', 'Bob');
+        const next = generateWriteKeyPair();
+        const swap = swapped(bob, next);
+
+        const events = new LogBuilder()
+            .add(alice, created(alice, bob), createdKeys(alice, bob))
+            .add(bob, swap.operation, swap.keys)
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected).toEqual([]);
+        expect(result.state.members.get('bob')!.writeKeys).toEqual([b64(next.publicKey)]);
+        expect(result.state.members.get('bob')!.inviteKeys).toEqual([]);
+    });
+
+    test('lets the member author operations with the new key', async () => {
+        const alice = new Member('alice', 'Alice');
+        const bob = new Member('bob', 'Bob');
+        const next = generateWriteKeyPair();
+        const swap = swapped(bob, next);
+
+        const events = new LogBuilder()
+            .add(alice, created(alice, bob), createdKeys(alice, bob))
+            .add(bob, swap.operation, swap.keys)
+            .add(
+                bob,
+                {
+                    type: LedgerOperationType.DeviceListPublished,
+                    authorTag: bob.userTag,
+                    at: 3,
+                    userTag: bob.userTag,
+                    connectionIds: ['bob-device', 'bob-phone'],
+                },
+                { outerKey: next },
+            )
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected).toEqual([]);
+        expect(result.state.members.get('bob')!.connectionIds).toEqual(['bob-device', 'bob-phone']);
+    });
+
+    test('rejects the creator swapping an invitee\'s key from its own device', async () => {
+        const alice = new Member('alice', 'Alice');
+        const bob = new Member('bob', 'Bob');
+        const swap = swapped(bob, generateWriteKeyPair());
+
+        const events = new LogBuilder()
+            .add(alice, created(alice, bob), createdKeys(alice, bob))
+            .add(bob, swap.operation, { ...swap.keys, signWith: alice })
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected).toEqual([{ version: 2, reason: 'the signing device does not belong to the author' }]);
+        expect(result.state.members.get('bob')!.inviteKeys).toEqual([bob.writeKeyPublic]);
+    });
+
+    test('rejects a swap signed with a write key', async () => {
+        const alice = new Member('alice', 'Alice');
+        const next = generateWriteKeyPair();
+
+        const events = new LogBuilder()
+            .add(alice, created(alice), createdKeys(alice))
+            .add(alice, new WriteKeyRegisteredOperation(alice.userTag, alice.writeKeyPublic, b64(next.publicKey)), {
+                keysAdded: [b64(next.publicKey)],
+                keysRemoved: [alice.writeKeyPublic],
+            })
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected[0].reason).toBe('only an invite key may be swapped, and only by itself');
+    });
+
+    test('rejects a swap onto a key that is already in the group', async () => {
+        const alice = new Member('alice', 'Alice');
+        const bob = new Member('bob', 'Bob');
+
+        const events = new LogBuilder()
+            .add(alice, created(alice, bob), createdKeys(alice, bob))
+            .add(bob, new WriteKeyRegisteredOperation(bob.userTag, bob.writeKeyPublic, alice.writeKeyPublic), {
+                keysAdded: [alice.writeKeyPublic],
+                keysRemoved: [bob.writeKeyPublic],
+            })
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected[0].reason).toBe('the new write key is already in use');
+    });
+
+    test('rejects a swap whose key changes do not match', async () => {
+        const alice = new Member('alice', 'Alice');
+        const bob = new Member('bob', 'Bob');
+        const swap = swapped(bob, generateWriteKeyPair());
+
+        const events = new LogBuilder()
+            .add(alice, created(alice, bob), createdKeys(alice, bob))
+            .add(bob, swap.operation, { keysAdded: [b64(generateWriteKeyPair().publicKey)], keysRemoved: [bob.writeKeyPublic] })
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected[0].reason).toBe('granted keys do not match the operation');
     });
 });

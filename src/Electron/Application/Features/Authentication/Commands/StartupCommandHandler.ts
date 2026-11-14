@@ -18,6 +18,7 @@ export class StartupCommandHandler implements Handler<StartupCommand, StartupDto
         private readonly messagePump: IPump,
         private readonly deliveryStatusUpdatePump: IPump,
         private readonly preKeyPump: IPump,
+        private readonly writeKeySwapPump: IPump,
         private readonly purgeLocalDataService: IPurgeLocalData,
     ) { }
 
@@ -62,6 +63,7 @@ export class StartupCommandHandler implements Handler<StartupCommand, StartupDto
         this.messagePump.start();
         this.deliveryStatusUpdatePump.start();
         this.preKeyPump.start();
+        this.writeKeySwapPump.start();
 
         return Result.success({
             user: returnUsr,

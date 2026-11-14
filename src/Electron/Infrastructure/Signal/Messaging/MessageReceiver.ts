@@ -30,6 +30,7 @@ import { ChatMember } from '#electron/Domain/Entities/ChatMember';
 import { ChatPrivileges } from '#shared/Enums/ChatPrivileges';
 import { v4 as uuid } from 'uuid';
 import { INotificationService } from '#electron/Application/Contracts/Services/INotificationService';
+import { IPump } from '#electron/Application/Contracts/Services/IPump';
 
 export interface IMessageReceiver {
     handle(message: ServerMessage): void;
@@ -47,6 +48,7 @@ export class MessageReceiver implements IMessageReceiver {
         private readonly groupKeyRepository: IGroupKeyRepository,
         private readonly mainWindow: BrowserWindow,
         private readonly notificationService: INotificationService,
+        private readonly writeKeySwapPump: IPump,
     ) { }
 
     public async handle(message: ServerMessage): Promise<void> {
@@ -140,6 +142,8 @@ export class MessageReceiver implements IMessageReceiver {
         console.log(
             `MessageReceiver: joined group ${payload.groupId} from ${message.senderId} with ${members.length} other member(s)`,
         );
+
+        this.writeKeySwapPump.notify();
     }
 
     private async handleDeliveryStatusUpdate(message: ServerMessage, payload: DeliveryStatusPayload): Promise<void> {

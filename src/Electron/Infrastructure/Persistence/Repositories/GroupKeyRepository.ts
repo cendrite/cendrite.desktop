@@ -2,16 +2,19 @@ import { Repository } from 'typeorm/repository/Repository.js';
 import { IGroupKeyRepository } from '#electron/Application/Contracts/Repositories/IGroupKeyRepository';
 import { GroupEpochKey } from '#electron/Domain/Encryption/GroupEpochKey';
 import { GroupWriteKey } from '#electron/Domain/Encryption/GroupWriteKey';
+import { PendingGroupWriteKey } from '#electron/Domain/Encryption/PendingGroupWriteKey';
 import { getDbContext } from '../Context/DatabaseContext.js';
 import { CryptographyService } from '../Encryption/CryptographyService.js';
 
 export class GroupKeyRepository implements IGroupKeyRepository {
     private readonly writeKeys: Repository<GroupWriteKey>;
+    private readonly pendingWriteKeys: Repository<PendingGroupWriteKey>;
     private readonly epochKeys: Repository<GroupEpochKey>;
     private readonly cryptoService = CryptographyService.getInstance();
 
     public constructor() {
         this.writeKeys = getDbContext().getRepository(GroupWriteKey);
+        this.pendingWriteKeys = getDbContext().getRepository(PendingGroupWriteKey);
         this.epochKeys = getDbContext().getRepository(GroupEpochKey);
     }
 
@@ -26,6 +29,23 @@ export class GroupKeyRepository implements IGroupKeyRepository {
         if (!stored) return null;
 
         return new GroupWriteKey(stored.groupId, stored.publicKey, await this.unseal(stored.privateKey));
+    }
+
+    public async savePendingWriteKey(writeKey: PendingGroupWriteKey): Promise<void> {
+        await this.pendingWriteKeys.save(
+            new PendingGroupWriteKey(writeKey.groupId, writeKey.publicKey, await this.seal(writeKey.privateKey)),
+        );
+    }
+
+    public async getPendingWriteKey(groupId: string): Promise<PendingGroupWriteKey | null> {
+        const stored = await this.pendingWriteKeys.findOneBy({ groupId });
+        if (!stored) return null;
+
+        return new PendingGroupWriteKey(stored.groupId, stored.publicKey, await this.unseal(stored.privateKey));
+    }
+
+    public async deletePendingWriteKey(groupId: string): Promise<void> {
+        await this.pendingWriteKeys.delete({ groupId });
     }
 
     public async saveEpochKey(epochKey: GroupEpochKey): Promise<void> {
@@ -51,6 +71,7 @@ export class GroupKeyRepository implements IGroupKeyRepository {
 
     public async deleteAll(): Promise<void> {
         await this.writeKeys.clear();
+        await this.pendingWriteKeys.clear();
         await this.epochKeys.clear();
     }
 

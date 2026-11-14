@@ -29,6 +29,7 @@ function setup(overrides: { tokenInit?: () => Promise<void> } = {}) {
         messagePump: { start: vi.fn() },
         deliveryStatusUpdatePump: { start: vi.fn() },
         preKeyPump: { start: vi.fn() },
+        writeKeySwapPump: { start: vi.fn() },
         purgeLocalDataService: { purgeLocalData: track('purge') },
     };
 
@@ -42,6 +43,7 @@ function setup(overrides: { tokenInit?: () => Promise<void> } = {}) {
         deps.messagePump as never,
         deps.deliveryStatusUpdatePump as never,
         deps.preKeyPump as never,
+        deps.writeKeySwapPump as never,
         deps.purgeLocalDataService as never,
     );
 

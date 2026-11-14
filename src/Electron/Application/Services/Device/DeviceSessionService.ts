@@ -28,6 +28,7 @@ export class DeviceSessionService implements IDeviceSessionService {
         private readonly messagePump: IPump,
         private readonly deliveryStatusUpdatePump: IPump,
         private readonly preKeyPump: IPump,
+        private readonly writeKeySwapPump: IPump,
         private readonly purgeLocalDataService: IPurgeLocalData,
     ) { }
 
@@ -70,6 +71,7 @@ export class DeviceSessionService implements IDeviceSessionService {
         this.messagePump.start();
         this.deliveryStatusUpdatePump.start();
         this.preKeyPump.start();
+        this.writeKeySwapPump.start();
 
         return new UserContract(
             savedUser.id,
