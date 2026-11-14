@@ -1,4 +1,5 @@
 import { GroupLifecycle } from "../Enums/GroupLifecycle.js";
+import { PendingGroupStart } from "./PendingGroupStart.js";
 
 export class Group {
     groupId: string;
@@ -8,6 +9,7 @@ export class Group {
     epoch: number;
     archived: boolean;
     publishedDevicesHash: string | null;
+    pendingStart: PendingGroupStart | null;
 
     constructor(
         groupId: string,
@@ -17,6 +19,7 @@ export class Group {
         epoch: number = 1,
         archived: boolean = false,
         publishedDevicesHash: string | null = null,
+        pendingStart: PendingGroupStart | null = null,
     ) {
         this.groupId = groupId;
         this.lifecycle = lifecycle;
@@ -25,5 +28,6 @@ export class Group {
         this.epoch = epoch;
         this.archived = archived;
         this.publishedDevicesHash = publishedDevicesHash;
+        this.pendingStart = pendingStart;
     }
 }

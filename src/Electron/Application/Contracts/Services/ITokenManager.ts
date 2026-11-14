@@ -9,5 +9,6 @@ export class DeviceRevokedError extends Error {
 
 export interface ITokenManager {
     init(userId: string, deviceId: string): Promise<void>;
+    refreshTokens(): Promise<void>;
     disableAndClear(): void;
 }

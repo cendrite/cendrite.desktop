@@ -8,6 +8,7 @@ import { IFriendRepository } from '#electron/Application/Contracts/Repositories/
 import { Handler } from '#electron/Application/Mediator/Handler';
 import { CreateChatCommand } from '#shared/Chat/CreateChat';
 import { IGroupService } from '#electron/Application/Services/GroupService';
+import { v4 as uuid } from 'uuid';
 
 export class CreateChatCommandHandler implements Handler<CreateChatCommand, ChatContract> {
     constructor(
@@ -23,7 +24,7 @@ export class CreateChatCommandHandler implements Handler<CreateChatCommand, Chat
             throw new Error('Friend not found');
         }
 
-        const chatMembers = friend.map((f) => ChatMember.create(f.id, cmd.chatMemberPrivilege, f));
+        const chatMembers = friend.map((f) => ChatMember.create(uuid().toString(), cmd.chatMemberPrivilege, f));
 
         const newChat = new Chat(cmd.chatId, chatMembers, [], cmd.groupName);
 

@@ -38,5 +38,9 @@ export const GroupRecordSchema = new EntitySchema<Group>({
             type: 'text',
             nullable: true,
         },
+        pendingStart: {
+            type: 'simple-json',
+            nullable: true,
+        },
     },
 });
