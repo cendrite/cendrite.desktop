@@ -22,6 +22,7 @@ import {
     GroupCreatedOperation,
     GroupMemberRef,
     LedgerOperation,
+    MemberAddedOperation,
     SettingsChangedOperation,
 } from '../../../../../src/Electron/Domain/Protocol/LedgerOperation.js';
 import { LedgerOperationType } from '../../../../../src/Electron/Domain/Enums/LedgerOperationType.js';
@@ -41,6 +42,7 @@ const GROUP_ID = '0199673a-3c1e-7c2b-9f2e-5d8b1a4c7e10';
 
 const identity = PrivateKey.generate();
 const writeKeyPair = generateWriteKeyPair();
+const inviteKeyPair = generateWriteKeyPair();
 const epochKey = generateEpochKey();
 
 const ledgerIdentity: ILedgerIdentity = {
@@ -59,7 +61,7 @@ const keyRepository: IGroupKeyRepository = {
 };
 
 class FakeProvider implements ILedgerProvider {
-    public created: { payload: Buffer; writeKey: Buffer; keys: Buffer[]; signature: Buffer; privateToken: Buffer } | null = null;
+    public created: { payload: Buffer; writeKey: Buffer; invitesAdded: Buffer[]; signature: Buffer; privateToken: Buffer } | null = null;
     public appends: LedgerAppend[] = [];
     public conflictsLeft = 0;
 
@@ -67,11 +69,11 @@ class FakeProvider implements ILedgerProvider {
         _groupId: string,
         payload: Buffer,
         writeKey: Buffer,
-        keys: Buffer[],
+        invitesAdded: Buffer[],
         signature: Buffer,
         privateToken: Buffer,
     ) {
-        this.created = { payload, writeKey, keys, signature, privateToken };
+        this.created = { payload, writeKey, invitesAdded, signature, privateToken };
         return Result.success<void>();
     }
 
@@ -141,8 +143,19 @@ function created(): LedgerOperation {
             ChatPrivileges.Owner,
             null,
             Buffer.from(identity.getPublicKey().serialize()).toString('base64'),
-            writeKeyPair.publicKey.toString('base64'),
+            [writeKeyPair.publicKey.toString('base64')],
+            [],
             ['alice-device'],
+        ),
+        new GroupMemberRef(
+            'bob',
+            'Bob',
+            ChatPrivileges.Member,
+            null,
+            '',
+            [],
+            [inviteKeyPair.publicKey.toString('base64')],
+            ['bob-device'],
         ),
     ]);
 }
@@ -168,19 +181,20 @@ describe('creating a stream', () => {
             wallet(),
         );
 
-        const result = await sut.createStream(GROUP_ID, [writeKeyPair.publicKey], created());
+        const result = await sut.createStream(GROUP_ID, [inviteKeyPair.publicKey], created());
 
         expect(result.success).toBe(true);
 
-        const { payload, writeKey, signature } = provider.created!;
-        const keysAdded = [writeKeyPair.publicKey];
+        const { payload, writeKey, signature, invitesAdded } = provider.created!;
+
+        expect(invitesAdded).toEqual([inviteKeyPair.publicKey]);
 
         const signingInput = buildSigningInput({
             groupId: GROUP_ID,
             version: 1,
             previousHash: Buffer.alloc(32),
             payload,
-            keysAdded,
+            invitesAdded,
         });
 
         const record = new LedgerEventRecord(
@@ -191,7 +205,8 @@ describe('creating a stream', () => {
             writeKey,
             signature,
             hashEvent(signingInput),
-            keysAdded.map((key) => key.toString('base64')),
+            [],
+            invitesAdded.map((key) => key.toString('base64')),
         );
 
         const replayed = await new LedgerReplayService(keyRepository, ledgerIdentity).replay(GROUP_ID, [record]);
@@ -200,6 +215,7 @@ describe('creating a stream', () => {
         expect(replayed.rejected).toEqual([]);
         expect(replayed.state.name).toBe('Trip');
         expect(replayed.state.members.get('alice')!.writeKeys).toEqual([writeKeyPair.publicKey.toString('base64')]);
+        expect(replayed.state.members.get('bob')!.inviteKeys).toEqual([inviteKeyPair.publicKey.toString('base64')]);
     });
 
     test('signs with the group write key, not the identity key', async () => {
@@ -212,7 +228,7 @@ describe('creating a stream', () => {
             wallet(),
         );
 
-        await sut.createStream(GROUP_ID, [writeKeyPair.publicKey], created());
+        await sut.createStream(GROUP_ID, [inviteKeyPair.publicKey], created());
 
         expect(provider.created!.writeKey).toEqual(writeKeyPair.publicKey);
         expect(provider.created!.signature).toHaveLength(64);
@@ -229,7 +245,7 @@ describe('creating a stream', () => {
             tokens,
         );
 
-        await sut.createStream(GROUP_ID, [writeKeyPair.publicKey], created());
+        await sut.createStream(GROUP_ID, [inviteKeyPair.publicKey], created());
 
         expect(tokens.taken).toEqual(['ledger']);
         expect(provider.created!.privateToken).toEqual(PRIVATE_TOKEN);
@@ -245,7 +261,7 @@ describe('creating a stream', () => {
             wallet(null),
         );
 
-        const result = await sut.createStream(GROUP_ID, [writeKeyPair.publicKey], created());
+        const result = await sut.createStream(GROUP_ID, [inviteKeyPair.publicKey], created());
 
         expect(result.success).toBe(false);
         expect(result.errorMessage?.message).toContain('No private token');
@@ -310,7 +326,7 @@ describe('appending', () => {
         expect(provider.appends).toHaveLength(5);
     });
 
-    test('declares the removed member write keys the reducer expects', async () => {
+    test('declares the removed member write and invite keys the reducer expects', async () => {
         const state = new GroupState(GROUP_ID);
         state.members.set('bob', {
             userTag: 'bob',
@@ -319,6 +335,7 @@ describe('appending', () => {
             identityKey: 'bob-identity',
             joinedAtVersion: 2,
             writeKeys: [Buffer.alloc(32, 0xb2).toString('base64')],
+            inviteKeys: [Buffer.alloc(32, 0xd4).toString('base64')],
             connectionIds: [],
         });
 
@@ -338,8 +355,32 @@ describe('appending', () => {
             userTag: 'bob',
         });
 
-        expect(provider.appends[0].keysRemoved).toEqual([Buffer.alloc(32, 0xb2)]);
+        expect(provider.appends[0].keysRemoved).toEqual([Buffer.alloc(32, 0xb2), Buffer.alloc(32, 0xd4)]);
         expect(provider.appends[0].keysAdded).toEqual([]);
+        expect(provider.appends[0].invitesAdded).toEqual([]);
+    });
+
+    test('declares a new member\'s invite keys as invites', async () => {
+        const sut = new LedgerWriter(
+            provider,
+            keyRepository,
+            groupRepository(new Group(GROUP_ID, 0, 1, Buffer.alloc(32, 0x11))),
+            syncService(new GroupState(GROUP_ID)),
+            ledgerIdentity,
+            wallet(),
+        );
+
+        await sut.append(
+            GROUP_ID,
+            new MemberAddedOperation(
+                'alice',
+                new GroupMemberRef('bob', 'Bob', ChatPrivileges.Member, null, '', [], [Buffer.alloc(32, 0xd4).toString('base64')], []),
+            ),
+        );
+
+        expect(provider.appends[0].invitesAdded).toEqual([Buffer.alloc(32, 0xd4)]);
+        expect(provider.appends[0].keysAdded).toEqual([]);
+        expect(provider.appends[0].keysRemoved).toEqual([]);
     });
 
     test('fails when the group has no write key', async () => {

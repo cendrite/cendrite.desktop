@@ -8,7 +8,8 @@ export class GroupMemberRef {
         public readonly privilege: ChatPrivileges,
         public readonly avatarKey: string | null,
         public readonly identityKey: string,
-        public readonly writeKeyPublic: string,
+        public readonly writeKeys: string[],
+        public readonly inviteKeys: string[],
         public readonly connectionIds: string[],
     ) { }
 }
@@ -41,7 +42,6 @@ export class MemberAddedOperation extends LedgerOperationBase {
     constructor(
         authorTag: string,
         public readonly member: GroupMemberRef,
-        public readonly writeKeyPublic: string,
         at?: number,
     ) {
         super(authorTag, at);

@@ -8,6 +8,7 @@ export class LedgerEventRecord {
     writeKeyPublic: Buffer;
     signature: Buffer;
     keysAdded: string[];
+    invitesAdded: string[];
     keysRemoved: string[];
     hash: Buffer;
     status: LedgerEventStatus;
@@ -22,6 +23,7 @@ export class LedgerEventRecord {
         signature: Buffer,
         hash: Buffer,
         keysAdded: string[] = [],
+        invitesAdded: string[] = [],
         keysRemoved: string[] = [],
         status: LedgerEventStatus = LedgerEventStatus.Applied,
         rejectReason: string | null = null,
@@ -34,6 +36,7 @@ export class LedgerEventRecord {
         this.signature = signature;
         this.hash = hash;
         this.keysAdded = keysAdded;
+        this.invitesAdded = invitesAdded;
         this.keysRemoved = keysRemoved;
         this.status = status;
         this.rejectReason = rejectReason;

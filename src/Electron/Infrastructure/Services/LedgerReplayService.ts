@@ -42,6 +42,7 @@ export class LedgerReplayService implements ILedgerReplayService {
                 previousHash: event.previousHash,
                 payload: event.payload,
                 keysAdded: event.keysAdded.map(fromBase64),
+                invitesAdded: event.invitesAdded.map(fromBase64),
                 keysRemoved: event.keysRemoved.map(fromBase64),
             });
 
@@ -113,6 +114,7 @@ export class LedgerReplayService implements ILedgerReplayService {
             version: event.version,
             authorKey: Buffer.from(event.writeKeyPublic).toString('base64'),
             keysAdded: event.keysAdded,
+            invitesAdded: event.invitesAdded,
             keysRemoved: event.keysRemoved,
         };
 

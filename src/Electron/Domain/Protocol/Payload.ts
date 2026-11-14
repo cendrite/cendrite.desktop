@@ -75,7 +75,7 @@ export class GroupStrapPayload extends Payload {
         public readonly version: number,
         public readonly headHash: string,
         public readonly epochKeys: string[],
-        public readonly writeKeyPrivate: string,
+        public readonly inviteKeyPrivate: string,
         public readonly members: GroupMemberRef[],
     ) {
         super([]);

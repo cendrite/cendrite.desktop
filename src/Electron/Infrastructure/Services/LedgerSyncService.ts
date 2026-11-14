@@ -85,7 +85,7 @@ export class LedgerSyncService implements ILedgerSyncService {
     }
 }
 
-function toRecord(groupId: string, event: { version: number; previousHash: Buffer; payload: Buffer; writeKeyPublic: Buffer; signature: Buffer; keysAdded: Buffer[]; keysRemoved: Buffer[] }): LedgerEventRecord {
+function toRecord(groupId: string, event: { version: number; previousHash: Buffer; payload: Buffer; writeKeyPublic: Buffer; signature: Buffer; keysAdded: Buffer[]; invitesAdded: Buffer[]; keysRemoved: Buffer[] }): LedgerEventRecord {
     const hash = hashEvent(
         buildSigningInput({
             groupId,
@@ -93,6 +93,7 @@ function toRecord(groupId: string, event: { version: number; previousHash: Buffe
             previousHash: event.previousHash,
             payload: event.payload,
             keysAdded: event.keysAdded,
+            invitesAdded: event.invitesAdded,
             keysRemoved: event.keysRemoved,
         }),
     );
@@ -106,6 +107,7 @@ function toRecord(groupId: string, event: { version: number; previousHash: Buffe
         event.signature,
         hash,
         event.keysAdded.map((key) => key.toString('base64')),
+        event.invitesAdded.map((key) => key.toString('base64')),
         event.keysRemoved.map((key) => key.toString('base64')),
     );
 }

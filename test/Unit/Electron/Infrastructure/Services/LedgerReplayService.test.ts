@@ -74,6 +74,7 @@ class LogBuilder {
         operation: LedgerOperation,
         options: {
             keysAdded?: string[];
+            invitesAdded?: string[];
             keysRemoved?: string[];
             signWith?: Member;
             encryptAtVersion?: number;
@@ -85,6 +86,7 @@ class LogBuilder {
         const version = options.version ?? this.version + 1;
         const previousHash = options.previousHash ?? this.previousHash;
         const keysAdded = options.keysAdded ?? [];
+        const invitesAdded = options.invitesAdded ?? [];
         const keysRemoved = options.keysRemoved ?? [];
 
         const operationBytes = Buffer.from(JSON.stringify(operation), 'utf8');
@@ -111,6 +113,7 @@ class LogBuilder {
             previousHash,
             payload,
             keysAdded: keysAdded.map((k) => Buffer.from(k, 'base64')),
+            invitesAdded: invitesAdded.map((k) => Buffer.from(k, 'base64')),
             keysRemoved: keysRemoved.map((k) => Buffer.from(k, 'base64')),
         });
 
@@ -124,6 +127,7 @@ class LogBuilder {
                 Buffer.from(signOuter(author.writeKey.privateKey, signingInput)),
                 hashEvent(signingInput),
                 keysAdded,
+                invitesAdded,
                 keysRemoved,
             ),
         );
@@ -139,32 +143,32 @@ class LogBuilder {
     }
 }
 
-function ref(member: Member, privilege: ChatPrivileges): GroupMemberRef {
+function ref(member: Member, privilege: ChatPrivileges, invited = true): GroupMemberRef {
     return new GroupMemberRef(
         member.userTag,
         member.displayName,
         privilege,
         null,
         member.identityKey,
-        member.writeKeyPublic,
+        invited ? [] : [member.writeKeyPublic],
+        invited ? [member.writeKeyPublic] : [],
         [`${member.userTag}-device`],
     );
 }
 
-/** The creator seats the whole group in one event, so a later join needs no second round. */
 function created(owner: Member, ...members: Member[]): LedgerOperation {
     return new GroupCreatedOperation(owner.userTag, 'Trip', [
-        ref(owner, ChatPrivileges.Owner),
+        ref(owner, ChatPrivileges.Owner, false),
         ...members.map((member) => ref(member, ChatPrivileges.Member)),
     ]);
 }
 
-function createdKeys(owner: Member, ...members: Member[]): { keysAdded: string[] } {
-    return { keysAdded: [owner.writeKeyPublic, ...members.map((member) => member.writeKeyPublic)] };
+function createdKeys(_owner: Member, ...members: Member[]): { invitesAdded: string[] } {
+    return { invitesAdded: members.map((member) => member.writeKeyPublic) };
 }
 
 function memberAdded(author: Member, member: Member, privilege = ChatPrivileges.Member): LedgerOperation {
-    return new MemberAddedOperation(author.userTag, ref(member, privilege), member.writeKeyPublic);
+    return new MemberAddedOperation(author.userTag, ref(member, privilege));
 }
 
 describe('a well formed log', () => {
@@ -173,7 +177,7 @@ describe('a well formed log', () => {
         const bob = new Member('bob', 'Bob');
         const events = new LogBuilder()
             .add(alice, created(alice), createdKeys(alice))
-            .add(alice, memberAdded(alice, bob), { keysAdded: [bob.writeKeyPublic] })
+            .add(alice, memberAdded(alice, bob), { invitesAdded: [bob.writeKeyPublic] })
             .build();
 
         const result = await sut().replay(GROUP_ID, events);
@@ -187,12 +191,12 @@ describe('a well formed log', () => {
         expect(result.state.headHash).toEqual(events[1].hash);
     });
 
-    test('lets a member the log admitted write afterwards', async () => {
+    test('refuses operations from a member who only holds an invite key', async () => {
         const alice = new Member('alice', 'Alice');
         const bob = new Member('bob', 'Bob');
         const events = new LogBuilder()
             .add(alice, created(alice), createdKeys(alice))
-            .add(alice, memberAdded(alice, bob, ChatPrivileges.Admin), { keysAdded: [bob.writeKeyPublic] })
+            .add(alice, memberAdded(alice, bob, ChatPrivileges.Admin), { invitesAdded: [bob.writeKeyPublic] })
             .add(bob, {
                 type: LedgerOperationType.SettingsChanged,
                 authorTag: bob.userTag,
@@ -204,8 +208,21 @@ describe('a well formed log', () => {
 
         const result = await sut().replay(GROUP_ID, events);
 
+        expect(result.rejected).toEqual([{ version: 3, reason: 'an invite key may only register a write key' }]);
+        expect(result.state.name).toBe('Trip');
+    });
+
+    test('seats invitees with invite keys only', async () => {
+        const alice = new Member('alice', 'Alice');
+        const bob = new Member('bob', 'Bob');
+        const events = new LogBuilder().add(alice, created(alice, bob), createdKeys(alice, bob)).build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
         expect(result.rejected).toEqual([]);
-        expect(result.state.name).toBe('Renamed');
+        expect(result.state.members.get('alice')!.writeKeys).toEqual([alice.writeKeyPublic]);
+        expect(result.state.members.get('bob')!.writeKeys).toEqual([]);
+        expect(result.state.members.get('bob')!.inviteKeys).toEqual([bob.writeKeyPublic]);
     });
 
     test('is deterministic', async () => {
@@ -213,7 +230,7 @@ describe('a well formed log', () => {
         const bob = new Member('bob', 'Bob');
         const events = new LogBuilder()
             .add(alice, created(alice), createdKeys(alice))
-            .add(alice, memberAdded(alice, bob), { keysAdded: [bob.writeKeyPublic] })
+            .add(alice, memberAdded(alice, bob), { invitesAdded: [bob.writeKeyPublic] })
             .build();
 
         const first = await sut().replay(GROUP_ID, events);
@@ -228,7 +245,7 @@ describe('a well formed log', () => {
         const bob = new Member('bob', 'Bob');
         const events = new LogBuilder()
             .add(alice, created(alice), createdKeys(alice))
-            .add(alice, memberAdded(alice, bob), { keysAdded: [bob.writeKeyPublic] })
+            .add(alice, memberAdded(alice, bob), { invitesAdded: [bob.writeKeyPublic] })
             .add(
                 alice,
                 { type: LedgerOperationType.MemberRemoved, authorTag: alice.userTag, at: 3, userTag: bob.userTag },
@@ -240,6 +257,7 @@ describe('a well formed log', () => {
 
         expect(result.rejected).toEqual([]);
         expect(result.state.members.has('bob')).toBe(false);
+        expect(result.state.ownerOfWriteKey(bob.writeKeyPublic)).toBeNull();
     });
 
     test('records a member published device list', async () => {
@@ -279,7 +297,7 @@ describe('a log the server could not have produced honestly', () => {
         const events = new LogBuilder()
             .add(alice, created(alice), createdKeys(alice))
             .add(alice, memberAdded(alice, bob), {
-                keysAdded: [bob.writeKeyPublic],
+                invitesAdded: [bob.writeKeyPublic],
                 previousHash: Buffer.alloc(32, 0xff),
             })
             .build();
@@ -295,7 +313,7 @@ describe('a log the server could not have produced honestly', () => {
         const bob = new Member('bob', 'Bob');
         const events = new LogBuilder()
             .add(alice, created(alice), createdKeys(alice))
-            .add(alice, memberAdded(alice, bob), { keysAdded: [bob.writeKeyPublic], version: 5 })
+            .add(alice, memberAdded(alice, bob), { invitesAdded: [bob.writeKeyPublic], version: 5 })
             .build();
 
         const result = await sut().replay(GROUP_ID, events);
@@ -312,8 +330,8 @@ describe('operations the log rejects but still chains', () => {
 
         const events = new LogBuilder()
             .add(alice, created(alice), createdKeys(alice))
-            .add(alice, memberAdded(alice, bob), { keysAdded: [bob.writeKeyPublic] })
-            .add(bob, memberAdded(bob, carol), { keysAdded: [carol.writeKeyPublic] })
+            .add(alice, memberAdded(alice, bob), { invitesAdded: [bob.writeKeyPublic] })
+            .add(bob, memberAdded(bob, carol), { invitesAdded: [carol.writeKeyPublic] })
             .add(alice, {
                 type: LedgerOperationType.SettingsChanged,
                 authorTag: alice.userTag,
@@ -326,7 +344,7 @@ describe('operations the log rejects but still chains', () => {
         const result = await sut().replay(GROUP_ID, events);
 
         expect(result.halted).toBeNull();
-        expect(result.rejected).toEqual([{ version: 3, reason: 'author is not an admin' }]);
+        expect(result.rejected).toEqual([{ version: 3, reason: 'an invite key may only register a write key' }]);
         expect(result.state.members.has('carol')).toBe(false);
         expect(result.state.name).toBe('Still fine');
         expect(result.state.version).toBe(4);
@@ -337,7 +355,7 @@ describe('operations the log rejects but still chains', () => {
         const bob = new Member('bob', 'Bob');
         const events = new LogBuilder()
             .add(alice, created(alice), createdKeys(alice))
-            .add(alice, memberAdded(alice, bob), { keysAdded: [bob.writeKeyPublic] })
+            .add(alice, memberAdded(alice, bob), { invitesAdded: [bob.writeKeyPublic] })
             .add(
                 alice,
                 {
@@ -362,7 +380,7 @@ describe('operations the log rejects but still chains', () => {
         const bob = new Member('bob', 'Bob');
         const events = new LogBuilder()
             .add(alice, created(alice), createdKeys(alice))
-            .add(alice, memberAdded(alice, bob), { keysAdded: [bob.writeKeyPublic] })
+            .add(alice, memberAdded(alice, bob), { invitesAdded: [bob.writeKeyPublic] })
             .add(alice, {
                 type: LedgerOperationType.DeviceListPublished,
                 authorTag: alice.userTag,
@@ -392,6 +410,53 @@ describe('operations the log rejects but still chains', () => {
 
         expect(result.rejected[0].reason).toBe('granted keys do not match the operation');
         expect(result.state.members.has('bob')).toBe(false);
+    });
+
+    test('rejects inviting a key the operation never declared', async () => {
+        const alice = new Member('alice', 'Alice');
+        const bob = new Member('bob', 'Bob');
+        const mallory = new Member('mallory', 'Mallory');
+
+        const events = new LogBuilder()
+            .add(alice, created(alice), createdKeys(alice))
+            .add(alice, memberAdded(alice, bob), { invitesAdded: [mallory.writeKeyPublic] })
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected[0].reason).toBe('invited keys do not match the operation');
+        expect(result.state.members.has('bob')).toBe(false);
+    });
+
+    test('rejects a new member who is handed a write key instead of an invite key', async () => {
+        const alice = new Member('alice', 'Alice');
+        const bob = new Member('bob', 'Bob');
+
+        const events = new LogBuilder()
+            .add(alice, created(alice), createdKeys(alice))
+            .add(alice, new MemberAddedOperation(alice.userTag, ref(bob, ChatPrivileges.Member, false)))
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected[0].reason).toBe('a new member may only be given invite keys');
+        expect(result.state.members.has('bob')).toBe(false);
+    });
+
+    test('rejects a creation that hands an invitee a write key', async () => {
+        const alice = new Member('alice', 'Alice');
+        const bob = new Member('bob', 'Bob');
+        const operation = new GroupCreatedOperation(alice.userTag, 'Trip', [
+            ref(alice, ChatPrivileges.Owner, false),
+            ref(bob, ChatPrivileges.Member, false),
+        ]);
+
+        const events = new LogBuilder().add(alice, operation).build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected[0].reason).toBe('only the creating write key may be a write key at creation');
+        expect(result.state.members.size).toBe(0);
     });
 
     test('rejects a write key that belongs to no member', async () => {
