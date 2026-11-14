@@ -31,12 +31,12 @@ function signedChain() {
 }
 
 function setup(chain: Result<DeviceChain>, pinned: PinnedAccountKey | null = null) {
-    const provider = { getDeviceChain: vi.fn(async () => chain) };
+    const provider = { getDeviceChain: vi.fn(async (_connectionId: string) => chain) };
     const store = {
         getPinnedAccountKey: vi.fn(async () => pinned),
         savePinnedAccountKey: vi.fn(async (_pin: PinnedAccountKey) => undefined),
     };
-    return { store, sut: new DeviceVerifier(provider as never, store as never) };
+    return { store, provider, sut: new DeviceVerifier(provider as never, store as never) };
 }
 
 describe('device verifier', () => {
@@ -44,7 +44,7 @@ describe('device verifier', () => {
         const { chain, signal } = signedChain();
         const { sut, store } = setup(Result.success(chain));
 
-        expect(await sut.verify('conn-1', signal)).toBe(true);
+        expect(await sut.verify('conn-1', signal)).toEqual({ userTag: '482177301593', removed: false });
         expect(store.savePinnedAccountKey).toHaveBeenCalledWith(expect.objectContaining({ userTag: '482177301593', accountPublicKey: chain.accountPublicKey }));
     });
 
@@ -52,7 +52,7 @@ describe('device verifier', () => {
         const { chain } = signedChain();
         const { sut, store } = setup(Result.success(chain));
 
-        expect(await sut.verify('conn-1', b64(new Uint8Array([5, ...nacl.randomBytes(32)])))).toBe(false);
+        expect(await sut.verify('conn-1', b64(new Uint8Array([5, ...nacl.randomBytes(32)])))).toBeNull();
         expect(store.savePinnedAccountKey).not.toHaveBeenCalled();
     });
 
@@ -60,7 +60,7 @@ describe('device verifier', () => {
         const { chain, signal } = signedChain();
         const { sut } = setup(Result.success(chain), new PinnedAccountKey('482177301593', b64(nacl.sign.keyPair().publicKey), 0));
 
-        expect(await sut.verify('conn-1', signal)).toBe(false);
+        expect(await sut.verify('conn-1', signal)).toBeNull();
     });
 
     test('a failed lookup throws instead of marking the device untrusted', async () => {
@@ -75,5 +75,13 @@ describe('device verifier', () => {
 
         await expect(sut.verify('conn-1', signal)).rejects.toThrow('has no user tag');
         expect(store.savePinnedAccountKey).not.toHaveBeenCalled();
+    });
+
+    test('reports a device that has since been removed, so the caller can decide', async () => {
+        const { chain, signal } = signedChain();
+        chain.devices[0].removed = true;
+        const { sut } = setup(Result.success(chain));
+
+        expect(await sut.verify('conn-1', signal)).toEqual({ userTag: '482177301593', removed: true });
     });
 });

@@ -66,7 +66,6 @@ function setup(createResults: Result<void>[] = []) {
             }),
         } as never,
         ledgerWriter as never,
-        { publicKey: async () => Buffer.from('alice-identity') } as never,
     );
 
     return { sut, ledgerWriter, ownWriteKey, group, saved };

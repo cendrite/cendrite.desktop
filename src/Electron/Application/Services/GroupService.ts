@@ -7,7 +7,6 @@ import { ChatPrivileges } from '#shared/Enums/ChatPrivileges';
 import { GroupLifecycle } from '#electron/Domain/Enums/GroupLifecycle';
 import { GroupCreatedOperation, GroupMemberRef } from '#electron/Domain/Protocol/LedgerOperation';
 import { generateEpochKey, generateWriteKeyPair, publicKeyFromPrivate } from '#electron/Infrastructure/Crypto/LedgerCodec';
-import { ILedgerIdentity } from '#electron/Infrastructure/Interfaces/ILedgerIdentity';
 import { GroupStrapPayload, Payload } from '#electron/Domain/Protocol/Payload';
 import { IChatStore } from '../Contracts/Repositories/IChatStore.js';
 import { IDeviceRepository } from '../Contracts/Repositories/IDeviceRepository.js';
@@ -31,7 +30,6 @@ export class GroupService implements IGroupService {
         private readonly deviceRepository: IDeviceRepository,
         private readonly chatStore: IChatStore,
         private readonly ledgerWriter: ILedgerWriter,
-        private readonly ledgerIdentity: ILedgerIdentity
     ) { }
 
     public async createGroup(groupId: string): Promise<void> {
@@ -141,7 +139,6 @@ export class GroupService implements IGroupService {
                 user.displayName ?? user.username,
                 ChatPrivileges.Owner,
                 user.avatarKey,
-                (await this.ledgerIdentity.publicKey()).toString('base64'),
                 [ownWriteKey.publicKey.toString('base64')],
                 mintInviteKeys(ownConnectionIds.filter((connectionId) => connectionId !== device.connectionId)),
                 ownConnectionIds,
@@ -155,7 +152,6 @@ export class GroupService implements IGroupService {
                     member.displayName,
                     ChatPrivileges.Member,
                     member.friend!.avatarKey,
-                    '',
                     [],
                     mintInviteKeys(member.devices),
                     member.devices,

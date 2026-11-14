@@ -38,6 +38,7 @@ import { Result } from '../../../../../src/Shared/Result/Result.js';
 import { ErrorMessage } from '../../../../../src/Shared/Result/ErrorMessage.js';
 import { IPrivateTokenRepository } from '../../../../../src/Electron/Application/Contracts/Repositories/IPrivateTokenRepository.js';
 import { ITokenManager } from '../../../../../src/Electron/Application/Contracts/Services/ITokenManager.js';
+import { IDeviceVerifier } from '../../../../../src/Electron/Application/Contracts/Services/IDeviceVerifier.js';
 
 const GROUP_ID = '0199673a-3c1e-7c2b-9f2e-5d8b1a4c7e10';
 
@@ -49,7 +50,15 @@ const epochKey = generateEpochKey();
 const ledgerIdentity: ILedgerIdentity = {
     sign: async (data) => Buffer.from(identity.sign(data as Uint8Array<ArrayBuffer>)),
     publicKey: async () => Buffer.from(identity.getPublicKey().serialize()),
+    connectionId: async () => 'alice-device',
     verify: (key, data, signature) => PublicKey.deserialize(key).verify(data, signature),
+};
+
+const deviceVerifier: IDeviceVerifier = {
+    verify: async (connectionId, signalIdentityKey) =>
+        connectionId === 'alice-device' && signalIdentityKey === Buffer.from(identity.getPublicKey().serialize()).toString('base64')
+            ? { userTag: 'alice', removed: false }
+            : null,
 };
 
 const keyRepository: IGroupKeyRepository = {
@@ -146,7 +155,6 @@ function created(): LedgerOperation {
             'Alice',
             ChatPrivileges.Owner,
             null,
-            Buffer.from(identity.getPublicKey().serialize()).toString('base64'),
             [writeKeyPair.publicKey.toString('base64')],
             [],
             ['alice-device'],
@@ -156,7 +164,6 @@ function created(): LedgerOperation {
             'Bob',
             ChatPrivileges.Member,
             null,
-            '',
             [],
             [inviteKeyPair.publicKey.toString('base64')],
             ['bob-device'],
@@ -232,7 +239,7 @@ describe('creating a stream', () => {
             invitesAdded.map((key) => key.toString('base64')),
         );
 
-        const replayed = await new LedgerReplayService(keyRepository, ledgerIdentity).replay(GROUP_ID, [record]);
+        const replayed = await new LedgerReplayService(keyRepository, ledgerIdentity, deviceVerifier).replay(GROUP_ID, [record]);
 
         expect(replayed.halted).toBeNull();
         expect(replayed.rejected).toEqual([]);
@@ -472,7 +479,7 @@ describe('appending', () => {
             GROUP_ID,
             new MemberAddedOperation(
                 'alice',
-                new GroupMemberRef('bob', 'Bob', ChatPrivileges.Member, null, '', [], [Buffer.alloc(32, 0xd4).toString('base64')], []),
+                new GroupMemberRef('bob', 'Bob', ChatPrivileges.Member, null, [], [Buffer.alloc(32, 0xd4).toString('base64')], []),
             ),
         );
 
