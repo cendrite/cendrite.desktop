@@ -115,7 +115,8 @@ export class SignalProtocolStore
         const identityCache = await this.procolStore.getIdentityCache(address.toString());
         if (!identityCache) {
             const publicKey = Buffer.from(key.serialize());
-            if (await this.deviceVerifier.verify(address.name(), publicKey.toString('base64'))) return true;
+            const verified = await this.deviceVerifier.verify(address.name(), publicKey.toString('base64'));
+            if (verified && !verified.removed) return true;
 
             await this.procolStore.saveIdentity(new IdentityCache(address.toString(), publicKey, false, Date.now()));
             return false;

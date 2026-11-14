@@ -1,5 +1,5 @@
 import { IDeviceProvider } from '#electron/Application/Contracts/Providers/IDeviceProvider';
-import { IDeviceVerifier } from '#electron/Application/Contracts/Services/IDeviceVerifier';
+import { IDeviceVerifier, VerifiedDevice } from '#electron/Application/Contracts/Services/IDeviceVerifier';
 import { PinnedAccountKey } from '#electron/Domain/Encryption/PinnedAccountKey';
 import { IProtocolStore } from '../Interfaces/IProtocolStore.js';
 import { verifyDeviceChain } from '../Crypto/DeviceChain.js';
@@ -10,7 +10,7 @@ export class DeviceVerifier implements IDeviceVerifier {
         private readonly protocolStore: IProtocolStore,
     ) { }
 
-    public async verify(connectionId: string, signalIdentityKey: string): Promise<boolean> {
+    public async verify(connectionId: string, signalIdentityKey: string): Promise<VerifiedDevice | null> {
         const chain = await this.deviceProvider.getDeviceChain(connectionId);
         if (!chain.success) {
             throw new Error(`Could not fetch the device chain for ${connectionId}: ${chain.errorMessage.message}`);
@@ -22,13 +22,15 @@ export class DeviceVerifier implements IDeviceVerifier {
 
         const pinned = await this.protocolStore.getPinnedAccountKey(chain.data.userTag);
         if (!verifyDeviceChain(chain.data, connectionId, signalIdentityKey, pinned?.accountPublicKey ?? null)) {
-            return false;
+            return null;
         }
 
         if (pinned?.accountPublicKey !== chain.data.accountPublicKey) {
             await this.protocolStore.savePinnedAccountKey(new PinnedAccountKey(chain.data.userTag, chain.data.accountPublicKey, Date.now()));
         }
 
-        return true;
+        const device = chain.data.devices.find((d) => d.connectionId === connectionId)!;
+
+        return { userTag: chain.data.userTag, removed: device.removed };
     }
 }

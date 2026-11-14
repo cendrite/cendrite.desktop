@@ -147,6 +147,7 @@ export class LedgerWriter implements ILedgerWriter {
                 signature: (
                     await this.ledgerIdentity.sign(buildOperationSigningInput(groupId, version, operationBytes))
                 ).toString('base64'),
+                connectionId: await this.ledgerIdentity.connectionId(),
             }),
             'utf8',
         );

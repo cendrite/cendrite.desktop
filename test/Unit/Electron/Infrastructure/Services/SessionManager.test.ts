@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { describe, expect, test, vi } from 'vitest';
 import { CiphertextMessageType } from '@signalapp/libsignal-client';
+import { VerifiedDevice } from '#electron/Application/Contracts/Services/IDeviceVerifier';
 import { SessionManager } from '../../../../../src/Electron/Infrastructure/Services/SessionManager.js';
 import { SignalProtocolStore } from '../../../../../src/Electron/Infrastructure/Services/SignalProtocolStore.js';
 import { ProtocolStore } from '../../../../../src/Electron/Infrastructure/Persistence/Repositories/ProtocolStore.js';
@@ -108,7 +109,9 @@ async function createParty(server: IKeyStoreProvider, connectionId: string = ran
     await keyGenerator.generateKeyBundle(connectionId, identity);
 
     const mainWindow = { isDestroyed: () => false, webContents: { send: vi.fn() } };
-    const verifier = { verify: vi.fn(async (_connectionId: string, _signalIdentityKey: string) => true) };
+    const verifier = {
+        verify: vi.fn(async (_connectionId: string, _signalIdentityKey: string): Promise<VerifiedDevice | null> => ({ userTag: 'tag', removed: false })),
+    };
     const sessionManager = new SessionManager(new SignalProtocolStore(protocolStore, verifier), server, deviceRepository, mainWindow as never);
 
     return { connectionId, sessionManager, preKeys, mainWindow, verifier, identity };
@@ -265,7 +268,7 @@ describe('KeyGenerator', () => {
         const server = createKeyStoreServer();
         const alice = await createParty(server);
         const bob = await createParty(server);
-        alice.verifier.verify.mockResolvedValue(false);
+        alice.verifier.verify.mockResolvedValue(null);
 
         await expect(alice.sessionManager.encrypt(envelope('hi'), bob.connectionId)).rejects.toBeInstanceOf(UntrustedDeviceError);
 
@@ -274,11 +277,21 @@ describe('KeyGenerator', () => {
         expect(alice.mainWindow.webContents.send).toHaveBeenCalledWith('eventMessage', { kind: 'untrustedDevice', connectionId: bob.connectionId });
     });
 
+    test('refuses a device that has been removed, even though its chain verifies', async () => {
+        const server = createKeyStoreServer();
+        const alice = await createParty(server);
+        const bob = await createParty(server);
+        alice.verifier.verify.mockResolvedValue({ userTag: 'tag', removed: true });
+
+        await expect(alice.sessionManager.encrypt(envelope('hi'), bob.connectionId)).rejects.toBeInstanceOf(UntrustedDeviceError);
+        expect(await alice.sessionManager.getUntrustedDevices()).toEqual([bob.connectionId]);
+    });
+
     test('refuses an incoming session from a device whose chain does not verify', async () => {
         const server = createKeyStoreServer();
         const alice = await createParty(server);
         const bob = await createParty(server);
-        bob.verifier.verify.mockResolvedValue(false);
+        bob.verifier.verify.mockResolvedValue(null);
 
         const first = await alice.sessionManager.encrypt(envelope('hello bob'), bob.connectionId);
 

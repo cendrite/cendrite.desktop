@@ -8,12 +8,17 @@ export function parseSignedLedgerOperation(json: string): SignedLedgerOperation 
     const value = parseObject(json);
     if (!value) return null;
 
-    const { operation, identityKey, signature } = value;
-    if (typeof operation !== 'string' || typeof identityKey !== 'string' || typeof signature !== 'string') {
+    const { operation, identityKey, signature, connectionId } = value;
+    if (
+        typeof operation !== 'string' ||
+        typeof identityKey !== 'string' ||
+        typeof signature !== 'string' ||
+        typeof connectionId !== 'string'
+    ) {
         return null;
     }
 
-    return new SignedLedgerOperation(operation, identityKey, signature);
+    return new SignedLedgerOperation(operation, identityKey, signature, connectionId);
 }
 
 export function parseLedgerOperation(json: string): LedgerOperation | null {
@@ -66,7 +71,6 @@ function isMemberRef(value: unknown): value is GroupMemberRef {
         typeof value.displayName === 'string' &&
         isPrivilege(value.privilege) &&
         isNullableString(value.avatarKey) &&
-        typeof value.identityKey === 'string' &&
         isArrayOf(value.writeKeys, isString) &&
         isArrayOf(value.inviteKeys, isString) &&
         isArrayOf(value.connectionIds, isString)

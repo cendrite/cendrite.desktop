@@ -22,6 +22,7 @@ import {
 } from '../../../../../src/Electron/Domain/Protocol/LedgerOperation.js';
 import { LedgerOperationType } from '../../../../../src/Electron/Domain/Enums/LedgerOperationType.js';
 import { ChatPrivileges } from '../../../../../src/Shared/Enums/ChatPrivileges.js';
+import { IDeviceVerifier } from '../../../../../src/Electron/Application/Contracts/Services/IDeviceVerifier.js';
 
 const GROUP_ID = '0199673a-3c1e-7c2b-9f2e-5d8b1a4c7e10';
 const EPOCH = 1;
@@ -31,6 +32,7 @@ const epochKey = generateEpochKey();
 const ledgerIdentity: ILedgerIdentity = {
     sign: () => Promise.reject(new Error('replay never signs')),
     publicKey: () => Promise.reject(new Error('replay never needs the local key')),
+    connectionId: () => Promise.reject(new Error('replay never needs the local device')),
     verify: (identityKey, data, signature) => PublicKey.deserialize(identityKey).verify(data, signature),
 };
 
@@ -45,18 +47,42 @@ function keyRepository(keys: GroupEpochKey[] = [new GroupEpochKey(GROUP_ID, EPOC
     };
 }
 
-function sut(keys?: GroupEpochKey[]): LedgerReplayService {
-    return new LedgerReplayService(keyRepository(keys), ledgerIdentity);
+const devices = new Map<string, string>();
+const removedDevices = new Set<string>();
+
+const deviceVerifier: IDeviceVerifier = {
+    verify: async (connectionId, signalIdentityKey) => {
+        const userTag = devices.get(`${connectionId}:${signalIdentityKey}`);
+        return userTag ? { userTag, removed: removedDevices.has(connectionId) } : null;
+    },
+};
+
+function sut(keys?: GroupEpochKey[], verifier: IDeviceVerifier = deviceVerifier): LedgerReplayService {
+    return new LedgerReplayService(keyRepository(keys), ledgerIdentity, verifier);
 }
 
-class Member {
+class Device {
     public readonly identity = PrivateKey.generate();
-    public readonly writeKey = generateWriteKeyPair();
 
-    constructor(public readonly userTag: string, public readonly displayName: string) { }
+    constructor(public readonly connectionId: string, userTag: string | null) {
+        if (userTag) devices.set(`${connectionId}:${this.identityKey}`, userTag);
+    }
 
     public get identityKey(): string {
         return Buffer.from(this.identity.getPublicKey().serialize()).toString('base64');
+    }
+}
+
+class Member {
+    public readonly device: Device;
+    public readonly writeKey = generateWriteKeyPair();
+
+    constructor(public readonly userTag: string, public readonly displayName: string) {
+        this.device = new Device(`${userTag}-device`, userTag);
+    }
+
+    public addDevice(name: string): Device {
+        return new Device(`${this.userTag}-${name}`, this.userTag);
     }
 
     public get writeKeyPublic(): string {
@@ -77,6 +103,7 @@ class LogBuilder {
             invitesAdded?: string[];
             keysRemoved?: string[];
             signWith?: Member;
+            signFrom?: Device;
             encryptAtVersion?: number;
             corruptPayload?: boolean;
             previousHash?: Buffer;
@@ -90,7 +117,7 @@ class LogBuilder {
         const keysRemoved = options.keysRemoved ?? [];
 
         const operationBytes = Buffer.from(JSON.stringify(operation), 'utf8');
-        const signer = options.signWith ?? author;
+        const signer = options.signFrom ?? (options.signWith ?? author).device;
         const innerSignature = signer.identity.sign(
             buildOperationSigningInput(GROUP_ID, version, operationBytes),
         );
@@ -100,6 +127,7 @@ class LogBuilder {
                 operation: operationBytes.toString('base64'),
                 identityKey: signer.identityKey,
                 signature: Buffer.from(innerSignature).toString('base64'),
+                connectionId: signer.connectionId,
             }),
             'utf8',
         );
@@ -149,7 +177,6 @@ function ref(member: Member, privilege: ChatPrivileges, invited = true): GroupMe
         member.displayName,
         privilege,
         null,
-        member.identityKey,
         invited ? [] : [member.writeKeyPublic],
         invited ? [member.writeKeyPublic] : [],
         [`${member.userTag}-device`],
@@ -371,7 +398,7 @@ describe('operations the log rejects but still chains', () => {
 
         const result = await sut().replay(GROUP_ID, events);
 
-        expect(result.rejected[0].reason).toBe('identity key does not match the one pinned for this member');
+        expect(result.rejected[0].reason).toBe('the signing device does not belong to the author');
         expect(result.state.name).toBe('Trip');
     });
 
@@ -499,5 +526,95 @@ describe('a missing epoch key', () => {
         expect(result.stalledAt).toBe(1);
         expect(result.halted).toBeNull();
         expect(result.state.version).toBe(0);
+    });
+});
+
+describe('authors verified through their device chain', () => {
+    const renamed = (author: Member, at: number) => ({
+        type: LedgerOperationType.SettingsChanged as const,
+        authorTag: author.userTag,
+        at,
+        name: 'Renamed',
+        messageTtl: null,
+    });
+
+    test('accepts an operation signed from another of the author\'s devices', async () => {
+        const alice = new Member('alice', 'Alice');
+        const phone = alice.addDevice('phone');
+
+        const events = new LogBuilder()
+            .add(alice, created(alice), createdKeys(alice))
+            .add(alice, renamed(alice, 2), { signFrom: phone })
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected).toEqual([]);
+        expect(result.state.name).toBe('Renamed');
+    });
+
+    test('accepts an operation signed by a device the author has since removed', async () => {
+        const alice = new Member('alice', 'Alice');
+        const tablet = alice.addDevice('tablet');
+        removedDevices.add(tablet.connectionId);
+
+        const events = new LogBuilder()
+            .add(alice, created(alice), createdKeys(alice))
+            .add(alice, renamed(alice, 2), { signFrom: tablet })
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected).toEqual([]);
+        expect(result.state.name).toBe('Renamed');
+    });
+
+    test('rejects an operation signed by a device whose chain does not verify', async () => {
+        const alice = new Member('alice', 'Alice');
+        const unknown = new Device('alice-unknown', null);
+
+        const events = new LogBuilder()
+            .add(alice, created(alice), createdKeys(alice))
+            .add(alice, renamed(alice, 2), { signFrom: unknown })
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected).toEqual([{ version: 2, reason: 'the signing device does not belong to the author' }]);
+        expect(result.state.name).toBe('Trip');
+    });
+
+    test('rejects a creation signed by a device of someone else', async () => {
+        const alice = new Member('alice', 'Alice');
+        const mallory = new Member('mallory', 'Mallory');
+
+        const events = new LogBuilder().add(alice, created(alice), { ...createdKeys(alice), signWith: mallory }).build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected[0].reason).toBe('the signing device does not belong to the author');
+        expect(result.state.members.size).toBe(0);
+    });
+
+    test('stalls instead of rejecting when a device chain cannot be fetched', async () => {
+        const alice = new Member('alice', 'Alice');
+        const offline: IDeviceVerifier = {
+            verify: async (connectionId, signalIdentityKey) => {
+                if (connectionId === 'alice-phone') throw new Error('offline');
+                return deviceVerifier.verify(connectionId, signalIdentityKey);
+            },
+        };
+
+        const events = new LogBuilder()
+            .add(alice, created(alice), createdKeys(alice))
+            .add(alice, renamed(alice, 2), { signFrom: alice.addDevice('phone') })
+            .build();
+
+        const result = await sut(undefined, offline).replay(GROUP_ID, events);
+
+        expect(result.stalledAt).toBe(2);
+        expect(result.rejected).toEqual([]);
+        expect(result.state.version).toBe(1);
+        expect(result.state.members.has('alice')).toBe(true);
     });
 });

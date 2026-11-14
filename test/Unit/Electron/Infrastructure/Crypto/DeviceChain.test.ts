@@ -67,14 +67,14 @@ describe('device chain', () => {
         expect(check(chain(account.pk, [phone.record, laptop.record]), laptop.record)).toBe(true);
     });
 
-    test('a device linked from a since-removed device still verifies, but the removed device does not', () => {
+    test('a device linked from a since-removed device verifies, and so does the removed device itself', () => {
         const account = keys();
         const phone = byAccount(account, true);
         const laptop = byDevice(phone, account.pk);
         const c = chain(account.pk, [phone.record, laptop.record]);
 
         expect(check(c, laptop.record)).toBe(true);
-        expect(check(c, phone.record)).toBe(false);
+        expect(check(c, phone.record)).toBe(true);
     });
 
     test('after a rotation, devices from before and after it verify, pinned to the old or the new key', () => {

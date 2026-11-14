@@ -7,7 +7,6 @@ export class GroupMemberRef {
         public readonly displayName: string,
         public readonly privilege: ChatPrivileges,
         public readonly avatarKey: string | null,
-        public readonly identityKey: string,
         public readonly writeKeys: string[],
         public readonly inviteKeys: string[],
         public readonly connectionIds: string[],
@@ -116,5 +115,6 @@ export class SignedLedgerOperation {
         public readonly operation: string,
         public readonly identityKey: string,
         public readonly signature: string,
+        public readonly connectionId: string,
     ) { }
 }

@@ -27,7 +27,6 @@ export function verifyDeviceChain(
     const target = chain.devices.find((d) => d.connectionId === connectionId);
     return (
         target !== undefined &&
-        !target.removed &&
         target.signalIdentityKey === signalIdentityKey &&
         isApproved(chain, target, accountKeys, new Set())
     );

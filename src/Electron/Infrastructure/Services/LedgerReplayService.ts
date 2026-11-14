@@ -8,9 +8,8 @@ import { IGroupKeyRepository } from '#electron/Application/Contracts/Repositorie
 import { applyOperation, OperationContext, rejectReasonFor } from '#electron/Domain/Services/GroupReducer';
 import { GroupState } from '#electron/Domain/Projections/GroupState';
 import { LedgerEventRecord } from '#electron/Domain/Entities/LedgerEventRecord';
-import { LedgerOperation } from '#electron/Domain/Protocol/LedgerOperation';
 import { parseLedgerOperation, parseSignedLedgerOperation } from '#electron/Domain/Protocol/LedgerOperationParser';
-import { LedgerOperationType } from '#electron/Domain/Enums/LedgerOperationType';
+import { IDeviceVerifier, VerifiedDevice } from '#electron/Application/Contracts/Services/IDeviceVerifier';
 import {
     buildOperationSigningInput,
     buildSigningInput,
@@ -21,10 +20,13 @@ import {
 } from '../Crypto/LedgerCodec.js';
 import { ILedgerIdentity } from '../Interfaces/ILedgerIdentity.js';
 
+const UNVERIFIED = Symbol('unverified');
+
 export class LedgerReplayService implements ILedgerReplayService {
     constructor(
         private readonly groupKeyRepository: IGroupKeyRepository,
         private readonly ledgerIdentity: ILedgerIdentity,
+        private readonly deviceVerifier: IDeviceVerifier,
     ) { }
 
     public async replay(groupId: string, events: LedgerEventRecord[]): Promise<ReplayResult> {
@@ -56,7 +58,8 @@ export class LedgerReplayService implements ILedgerReplayService {
             const epochKey = epochKeys.get(readEpoch(event.payload));
             if (!epochKey) return { state, rejected, halted: null, stalledAt: event.version };
 
-            const reason = this.applyIfValid(state, event, epochKey);
+            const reason = await this.applyIfValid(state, event, epochKey);
+            if (reason === UNVERIFIED) return { state, rejected, halted: null, stalledAt: event.version };
             if (reason) rejected.push({ version: event.version, reason });
 
             // A rejected event still advances the chain: skipping its hash would break the next link.
@@ -84,7 +87,11 @@ export class LedgerReplayService implements ILedgerReplayService {
         return null;
     }
 
-    private applyIfValid(state: GroupState, event: LedgerEventRecord, epochKey: Buffer): string | null {
+    private async applyIfValid(
+        state: GroupState,
+        event: LedgerEventRecord,
+        epochKey: Buffer,
+    ): Promise<string | typeof UNVERIFIED | null> {
         let plaintext: Buffer;
 
         try {
@@ -107,8 +114,15 @@ export class LedgerReplayService implements ILedgerReplayService {
             return 'operation signature does not verify';
         }
 
-        const pinnedFailure = this.identityPinFailure(state, operation, signed.identityKey);
-        if (pinnedFailure) return pinnedFailure;
+        let author: VerifiedDevice | null;
+
+        try {
+            author = await this.deviceVerifier.verify(signed.connectionId, signed.identityKey);
+        } catch {
+            return UNVERIFIED;
+        }
+
+        if (author?.userTag !== operation.authorTag) return 'the signing device does not belong to the author';
 
         const context: OperationContext = {
             version: event.version,
@@ -125,20 +139,6 @@ export class LedgerReplayService implements ILedgerReplayService {
         return null;
     }
 
-    private identityPinFailure(state: GroupState, operation: LedgerOperation, identityKey: string): string | null {
-        if (operation.type === LedgerOperationType.GroupCreated) {
-            const creator = operation.members.find((member) => member.userTag === operation.authorTag);
-
-            return creator?.identityKey === identityKey
-                ? null
-                : 'creator identity key does not match the operation';
-        }
-
-        const author = state.members.get(operation.authorTag);
-        if (!author) return null;
-
-        return author.identityKey === identityKey ? null : 'identity key does not match the one pinned for this member';
-    }
 }
 
 function fromBase64(value: string): Buffer {

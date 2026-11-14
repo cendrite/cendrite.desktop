@@ -10,7 +10,6 @@ const member = {
     displayName: 'Alice',
     privilege: 3,
     avatarKey: null,
-    identityKey: 'aWQ=',
     writeKeys: ['d2s='],
     inviteKeys: ['aW52'],
     connectionIds: ['c1'],
@@ -19,19 +18,21 @@ const member = {
 const base = { authorTag: 'alice', at: 1 };
 
 describe('parseSignedLedgerOperation', () => {
-    it('accepts the three string fields', () => {
+    it('accepts the four string fields', () => {
         const result = parseSignedLedgerOperation(
-            JSON.stringify({ operation: 'b3A=', identityKey: 'aWQ=', signature: 'c2ln' }),
+            JSON.stringify({ operation: 'b3A=', identityKey: 'aWQ=', signature: 'c2ln', connectionId: 'conn-1' }),
         );
 
         expect(result?.signature).toBe('c2ln');
+        expect(result?.connectionId).toBe('conn-1');
     });
 
     it.each([
         ['not json', 'nope'],
         ['an array', '[]'],
         ['null', 'null'],
-        ['a missing signature', JSON.stringify({ operation: 'a', identityKey: 'b' })],
+        ['a missing signature', JSON.stringify({ operation: 'a', identityKey: 'b', connectionId: 'c' })],
+        ['a missing connection id', JSON.stringify({ operation: 'a', identityKey: 'b', signature: 'c' })],
         ['a non-string field', JSON.stringify({ operation: 1, identityKey: 'b', signature: 'c' })],
     ])('rejects %s', (_, json) => {
         expect(parseSignedLedgerOperation(json)).toBeNull();
