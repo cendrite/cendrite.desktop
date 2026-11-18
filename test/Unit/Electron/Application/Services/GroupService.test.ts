@@ -135,7 +135,8 @@ describe('starting a group', () => {
 
         expect(ledgerWriter.createStream).toHaveBeenCalledTimes(1);
         expect(Object.keys(first.data!)).toHaveLength(3);
-        expect(second.data).toEqual(first.data);
+        expect(second.success).toBe(true);
+        expect(second.data).toBeNull();
     });
 
     test('keeps the prepared start when the create fails and retries it unchanged', async () => {
@@ -166,13 +167,13 @@ describe('starting a group', () => {
 
         const result = await sut.startGroup(GROUP_ID);
 
-        expect(result.data).toEqual({});
+        expect(result.data).toBeNull();
         expect(ledgerWriter.createStream).not.toHaveBeenCalled();
     });
 });
 
 describe('straps waiting to be sent', () => {
-    test('hands out the same straps again until they are sent', async () => {
+    test('hands out the straps again with every send until they are sent', async () => {
         const { sut, ledgerWriter } = setup();
 
         const first = (await sut.startGroup(GROUP_ID)).data!;
@@ -182,21 +183,36 @@ describe('straps waiting to be sent', () => {
         expect(again).toEqual(first);
     });
 
-    test('keeps the straps on the group when it activates', async () => {
-        const { sut, saved } = setup();
+    test('drops only the straps that went out', async () => {
+        const { sut } = setup();
 
         const straps = (await sut.startGroup(GROUP_ID)).data!;
+        await sut.strapsSent(GROUP_ID, { 'bob-laptop': straps['bob-laptop'] });
 
-        expect(Object.keys(saved.at(-1)!.pendingStraps!).sort()).toEqual(Object.keys(straps).sort());
+        const left = (await sut.startGroup(GROUP_ID)).data!;
+        expect(Object.keys(left).sort()).toEqual(['alice-phone', 'bob-phone']);
     });
 
-    test('stops handing out straps once they are sent', async () => {
+    test('keeps a newer strap for a device when an older one went out', async () => {
         const { sut, group } = setup();
 
-        await sut.startGroup(GROUP_ID);
-        await sut.strapsSent(GROUP_ID);
+        const straps = (await sut.startGroup(GROUP_ID)).data!;
+        const older = straps['bob-laptop'];
+        const newer = new GroupStrapPayload(GROUP_ID, 'Trip', 3, 'head', [], 'newer-invite', []);
+        group.pendingStraps = { ...group.pendingStraps, 'bob-laptop': newer };
+
+        await sut.strapsSent(GROUP_ID, { 'bob-laptop': older });
+
+        expect(group.pendingStraps!['bob-laptop']).toBe(newer);
+    });
+
+    test('hands out nothing once every strap is sent', async () => {
+        const { sut, group } = setup();
+
+        const straps = (await sut.startGroup(GROUP_ID)).data!;
+        await sut.strapsSent(GROUP_ID, straps);
 
         expect(group.pendingStraps).toBeNull();
-        expect((await sut.startGroup(GROUP_ID)).data).toEqual({});
+        expect((await sut.startGroup(GROUP_ID)).data).toBeNull();
     });
 });

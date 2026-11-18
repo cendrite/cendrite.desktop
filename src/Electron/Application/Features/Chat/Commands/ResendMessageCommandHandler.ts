@@ -46,7 +46,7 @@ export class ResendMessageCommandHandler implements Handler<ResendMessageCommand
             const started = await this.groupService.startGroup(cmd.ChatId);
             if (!started.success) return Result.fail(started.errorMessage);
 
-            payloads = started.data;
+            payloads = started.data ?? {};
         }
 
         const mediaContracts: MediaContract[] = [];

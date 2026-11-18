@@ -45,7 +45,7 @@ export class SendMessageCommandHandler implements Handler<SendMessageCommand, Me
                 message.deliveryStatus = DeliveryStatus.Failed;
             }
 
-            payloads = startGroupResult.success ? startGroupResult.data : {};
+            payloads = startGroupResult.success ? (startGroupResult.data ?? {}) : {};
         }
 
         await this.chatStore.storeMessage(message);

@@ -7,7 +7,7 @@ import { ChatPrivileges } from '#shared/Enums/ChatPrivileges';
 import { GroupLifecycle } from '#electron/Domain/Enums/GroupLifecycle';
 import { GroupCreatedOperation, GroupMemberRef } from '#electron/Domain/Protocol/LedgerOperation';
 import { generateEpochKey, generateWriteKeyPair, publicKeyFromPrivate } from '#electron/Infrastructure/Crypto/LedgerCodec';
-import { GroupStrapPayload, Payload } from '#electron/Domain/Protocol/Payload';
+import { GroupStrapPayload, Payload, PayloadType } from '#electron/Domain/Protocol/Payload';
 import { IChatStore } from '../Contracts/Repositories/IChatStore.js';
 import { IDeviceRepository } from '../Contracts/Repositories/IDeviceRepository.js';
 import { IGroupKeyRepository } from '../Contracts/Repositories/IGroupKeyRepository.js';
@@ -17,12 +17,12 @@ import { ILedgerWriter } from '../Contracts/Services/ILedgerWriter.js';
 
 export interface IGroupService {
     createGroup(groupId: string): Promise<void>;
-    startGroup(groupId: string): Promise<Result<Record<string, Payload[]>>>;
-    strapsSent(groupId: string): Promise<void>;
+    startGroup(groupId: string): Promise<Result<Record<string, Payload[]> | null>>;
+    strapsSent(groupId: string, sent: Record<string, Payload[]>): Promise<void>;
 }
 
 export class GroupService implements IGroupService {
-    private readonly starting = new Map<string, Promise<Result<void>>>();
+    private readonly starting = new Map<string, Promise<Result<Record<string, Payload[]> | null>>>();
 
     constructor(
         private readonly groupRepository: IGroupRepository,
@@ -41,47 +41,29 @@ export class GroupService implements IGroupService {
         await this.groupRepository.create(new Group(groupId));
     }
 
-    public async startGroup(groupId: string): Promise<Result<Record<string, Payload[]>>> {
-        let start = this.starting.get(groupId);
-        if (!start) {
-            start = this.start(groupId).finally(() => this.starting.delete(groupId));
-            this.starting.set(groupId, start);
-        }
+    public startGroup(groupId: string): Promise<Result<Record<string, Payload[]> | null>> {
+        const inFlight = this.starting.get(groupId);
+        if (inFlight) return inFlight.then((result) => (result.success ? Result.success(null) : result));
 
-        const started = await start;
-        if (!started.success) return Result.fail<Record<string, Payload[]>>(started.errorMessage);
+        const start = this.start(groupId).finally(() => this.starting.delete(groupId));
+        this.starting.set(groupId, start);
 
-        const group = await this.groupRepository.get(groupId);
-        const straps: Record<string, Payload[]> = {};
-
-        for (const [connectionId, strap] of Object.entries(group?.pendingStraps ?? {})) {
-            straps[connectionId] = [strap];
-        }
-
-        return Result.success(straps);
+        return start;
     }
 
-    public async strapsSent(groupId: string): Promise<void> {
-        const group = await this.groupRepository.get(groupId);
-        if (!group?.pendingStraps) return;
-
-        group.pendingStraps = null;
-        await this.groupRepository.update(group);
-    }
-
-    private async start(groupId: string): Promise<Result<void>> {
+    private async start(groupId: string): Promise<Result<Record<string, Payload[]> | null>> {
         const group = await this.groupRepository.get(groupId);
 
         if (!group) throw new Error(`Group with ID ${groupId} not found`);
 
-        if (group.lifecycle !== GroupLifecycle.Draft) return Result.success();
+        if (group.lifecycle !== GroupLifecycle.Draft) return Result.success(pendingStrapsOf(group));
 
         const epochKey = await this.groupKeyRepository.getEpochKey(group.groupId, group.epoch);
         if (!epochKey) throw new Error(`Group ${group.groupId} has no keys`);
 
         if (!group.pendingStart) {
             const prepared = await this.prepareStart(group);
-            if (!prepared.success) return Result.fail(prepared.errorMessage);
+            if (!prepared.success) return Result.fail<Record<string, Payload[]> | null>(prepared.errorMessage);
 
             group.pendingStart = prepared.data;
             await this.groupRepository.update(group);
@@ -102,11 +84,11 @@ export class GroupService implements IGroupService {
             },
         );
 
-        if (!created.success) return Result.fail(created.errorMessage);
+        if (!created.success) return Result.fail<Record<string, Payload[]> | null>(created.errorMessage);
 
         const chat = await this.chatStore.getChatWithMembers(groupId);
         const epochKeys = [epochKey.key.toString('base64')];
-        const straps: Record<string, GroupStrapPayload> = {};
+        const straps: Record<string, GroupStrapPayload> = { ...group.pendingStraps };
 
         for (const [connectionId, privateKey] of inviteKeys) {
             straps[connectionId] = new GroupStrapPayload(
@@ -127,7 +109,24 @@ export class GroupService implements IGroupService {
         group.pendingStraps = straps;
         await this.groupRepository.update(group);
 
-        return Result.success();
+        return Result.success<Record<string, Payload[]> | null>(pendingStrapsOf(group));
+    }
+
+    public async strapsSent(groupId: string, sent: Record<string, Payload[]>): Promise<void> {
+        const group = await this.groupRepository.get(groupId);
+        if (!group?.pendingStraps) return;
+
+        const remaining = Object.entries(group.pendingStraps).filter(
+            ([connectionId, strap]) =>
+                !(sent[connectionId] ?? []).some(
+                    (payload) =>
+                        payload.type === PayloadType.GroupCreated &&
+                        (payload as GroupStrapPayload).inviteKeyPrivate === strap.inviteKeyPrivate,
+                ),
+        );
+
+        group.pendingStraps = remaining.length > 0 ? Object.fromEntries(remaining) : null;
+        await this.groupRepository.update(group);
     }
 
     private async prepareStart(group: Group): Promise<Result<PendingGroupStart>> {
@@ -195,4 +194,11 @@ export class GroupService implements IGroupService {
             ),
         );
     }
+}
+
+function pendingStrapsOf(group: Group): Record<string, Payload[]> | null {
+    const entries = Object.entries(group.pendingStraps ?? {});
+    if (entries.length === 0) return null;
+
+    return Object.fromEntries(entries.map(([connectionId, strap]) => [connectionId, [strap]]));
 }

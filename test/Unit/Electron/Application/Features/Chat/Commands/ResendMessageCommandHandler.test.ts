@@ -16,7 +16,7 @@ import { Result } from '../../../../../../../src/Shared/Result/Result.js';
 import { ErrorMessage } from '../../../../../../../src/Shared/Result/ErrorMessage.js';
 
 function createHandler(
-    overrides: { chatStore?: Partial<IChatStore>; group?: boolean; startGroup?: () => Promise<Result<Record<string, Payload[]>>> } = {},
+    overrides: { chatStore?: Partial<IChatStore>; group?: boolean; startGroup?: () => Promise<Result<Record<string, Payload[]> | null>> } = {},
 ) {
     const eventRepository: IEventRepository = {
         appendEvent: vi.fn().mockResolvedValue(undefined),
@@ -46,7 +46,7 @@ function createHandler(
 
     const groupService = {
         createGroup: vi.fn(),
-        startGroup: vi.fn(overrides.startGroup ?? (async () => Result.success<Record<string, Payload[]>>({}))),
+        startGroup: vi.fn(overrides.startGroup ?? (async () => Result.success<Record<string, Payload[]> | null>(null))),
     } as unknown as IGroupService;
 
     const handler = new ResendMessageCommandHandler(
@@ -111,11 +111,11 @@ describe('ResendMessageCommandHandler', () => {
         expect(messagePump.notify).toHaveBeenCalledTimes(1);
     });
 
-    test('sends the straps that are still waiting with the message', async () => {
+    test('starts a group that never started and sends its straps with the message', async () => {
         const straps = { 'bob-laptop': [] as Payload[] };
         const { handler, chatStore, eventRepository, groupService } = createHandler({
             group: true,
-            startGroup: async () => Result.success<Record<string, Payload[]>>(straps),
+            startGroup: async () => Result.success<Record<string, Payload[]> | null>(straps),
         });
         (chatStore.getMessage as ReturnType<typeof vi.fn>).mockResolvedValue(createFailedMessage());
 
@@ -131,7 +131,7 @@ describe('ResendMessageCommandHandler', () => {
     test('fails without sending when the group still cannot start', async () => {
         const { handler, chatStore, eventRepository, messagePump } = createHandler({
             group: true,
-            startGroup: async () => Result.fail<Record<string, Payload[]>>(new ErrorMessage('LedgerWriter', 'No private token')),
+            startGroup: async () => Result.fail<Record<string, Payload[]> | null>(new ErrorMessage('LedgerWriter', 'No private token')),
         });
         (chatStore.getMessage as ReturnType<typeof vi.fn>).mockResolvedValue(createFailedMessage());
 

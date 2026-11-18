@@ -61,7 +61,7 @@ export class MessagePump extends Pump {
             }
 
             if (deliveryStatus !== DeliveryStatus.Failed && Object.keys(msgEvent.payloads).length > 0) {
-                await this.groupService.strapsSent(msgEvent.message.chatId);
+                await this.groupService.strapsSent(msgEvent.message.chatId, msgEvent.payloads);
             }
 
             await this.chatStore.markMessage(pendingMessage.id, deliveryStatus);

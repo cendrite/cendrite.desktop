@@ -8,7 +8,7 @@ import { DeliveryStatus } from '#shared/Enums/DeliveryStatus';
 import { Result } from '#shared/Result/Result';
 import { ErrorMessage } from '#shared/Result/ErrorMessage';
 
-function setup(startGroup: () => Promise<Result<Record<string, Payload[]>>>) {
+function setup(startGroup: () => Promise<Result<Record<string, Payload[]> | null>>) {
     const stored: Message[] = [];
     const eventRepository = { appendEvent: vi.fn(async () => undefined) };
     const messagePump = { notify: vi.fn(), start: vi.fn(), stop: vi.fn() };
@@ -29,7 +29,7 @@ const groupMessage = () => new SendMessageCommand('chat-1', 'msg-1', 'alice-lapt
 describe('sending a group message', () => {
     test('stores the message as failed and sends nothing when the group cannot start', async () => {
         const { sut, stored, eventRepository, messagePump } = setup(async () =>
-            Result.fail<Record<string, Payload[]>>(new ErrorMessage('LedgerWriter', 'No private token')),
+            Result.fail<Record<string, Payload[]> | null>(new ErrorMessage('LedgerWriter', 'No private token')),
         );
 
         const result = await sut.handle(groupMessage());
@@ -44,7 +44,7 @@ describe('sending a group message', () => {
     test('sends the straps with the first message of a group', async () => {
         const straps = { 'bob-laptop': [] as Payload[] };
         const { sut, stored, eventRepository, messagePump } = setup(async () =>
-            Result.success<Record<string, Payload[]>>(straps),
+            Result.success<Record<string, Payload[]> | null>(straps),
         );
 
         const result = await sut.handle(groupMessage());
