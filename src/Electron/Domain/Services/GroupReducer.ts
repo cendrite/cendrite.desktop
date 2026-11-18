@@ -55,6 +55,7 @@ export function rejectReasonFor(
         case LedgerOperationType.MemberAdded:
             if (state.members.has(operation.member.userTag)) return 'member is already in the group';
             if (operation.member.writeKeys.length > 0) return 'a new member may only be given invite keys';
+            if (operation.member.privilege >= author.privilege) return 'author does not outrank the new member';
             return requireAdmin(author);
 
         case LedgerOperationType.MemberRemoved: {
