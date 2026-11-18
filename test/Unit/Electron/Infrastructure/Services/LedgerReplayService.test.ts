@@ -473,6 +473,47 @@ describe('operations the log rejects but still chains', () => {
         expect(result.state.members.has('bob')).toBe(false);
     });
 
+    test('rejects the owner adding another owner', async () => {
+        const alice = new Member('alice', 'Alice');
+        const bob = new Member('bob', 'Bob');
+
+        const events = new LogBuilder()
+            .add(alice, created(alice), createdKeys(alice))
+            .add(alice, memberAdded(alice, bob, ChatPrivileges.Owner), { invitesAdded: [bob.writeKeyPublic] })
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected).toEqual([{ version: 2, reason: 'author does not outrank the new member' }]);
+        expect(result.state.members.has('bob')).toBe(false);
+    });
+
+    test('rejects an admin adding a member at their own privilege', async () => {
+        const alice = new Member('alice', 'Alice');
+        const bob = new Member('bob', 'Bob');
+        const carol = new Member('carol', 'Carol');
+        const next = generateWriteKeyPair();
+        const nextPublic = next.publicKey.toString('base64');
+
+        const events = new LogBuilder()
+            .add(alice, created(alice), createdKeys(alice))
+            .add(alice, memberAdded(alice, bob, ChatPrivileges.Admin), { invitesAdded: [bob.writeKeyPublic] })
+            .add(bob, new WriteKeyRegisteredOperation(bob.userTag, bob.writeKeyPublic, nextPublic), {
+                keysAdded: [nextPublic],
+                keysRemoved: [bob.writeKeyPublic],
+            })
+            .add(bob, memberAdded(bob, carol, ChatPrivileges.Admin), {
+                invitesAdded: [carol.writeKeyPublic],
+                outerKey: next,
+            })
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected).toEqual([{ version: 4, reason: 'author does not outrank the new member' }]);
+        expect(result.state.members.has('carol')).toBe(false);
+    });
+
     test('rejects a creation that hands an invitee a write key', async () => {
         const alice = new Member('alice', 'Alice');
         const bob = new Member('bob', 'Bob');
