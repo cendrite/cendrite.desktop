@@ -4,6 +4,7 @@ import { MessageSentCommand } from '#electron/Application/Features/Chat/Events/M
 import { Mediator } from '#electron/Application/Mediator/Mediator';
 import { IGroupService } from '#electron/Application/Services/GroupService';
 import { DeliveryStatus } from '#shared/Enums/DeliveryStatus';
+import { Payload } from '#electron/Domain/Protocol/Payload';
 import { MessageSentEvent } from '#electron/Domain/Events/MessageSentEvent';
 import { IOutboxRepository } from '../Interfaces/IOutboxRepository.js';
 import { SignalManager } from '../Signal/SignalManager.js';
@@ -73,22 +74,27 @@ export class MessagePump extends Pump {
         let event = msgEvent;
 
         if (await this.groupRepository.get(event.message.chatId)) {
-            const started = await this.groupService.startGroup(event.message.chatId);
-            if (!started.success) return { status: DeliveryStatus.Failed, error: started.errorMessage.message };
+            const startGroupResult = await this.groupService.startGroup(event.message.chatId);
+            if (!startGroupResult.success) return { status: DeliveryStatus.Failed, error: startGroupResult.errorMessage.message };
 
-            if (started.data) {
-                event = new MessageSentEvent(event.id, event.message, event.connectionIds, event.participants, event.occurredOn, started.data);
+            if (startGroupResult.data) {
+                const payloads: Record<string, Payload[]> = {};
+                for (const [connectionId, strap] of Object.entries(startGroupResult.data)) {
+                    payloads[connectionId] = [strap];
+                }
+
+                event = new MessageSentEvent(event.id, event.message, event.connectionIds, event.participants, event.occurredOn, payloads);
                 await this.eventRepository.appendEvent(event);
             }
         }
 
-        const result = await this.mediator.send(
+        const messageSentResult = await this.mediator.send(
             new MessageSentCommand(event.message, event.connectionIds, event.participants, event.payloads),
         );
 
-        if (!result.success) return { status: DeliveryStatus.Failed, error: result.errorMessage.message };
-        if (result.data === DeliveryStatus.Failed) return { status: DeliveryStatus.Failed, error: 'No device accepted the message' };
+        if (!messageSentResult.success) return { status: DeliveryStatus.Failed, error: messageSentResult.errorMessage.message };
+        if (messageSentResult.data === DeliveryStatus.Failed) return { status: DeliveryStatus.Failed, error: 'No device accepted the message' };
 
-        return { status: result.data, error: '' };
+        return { status: messageSentResult.data, error: '' };
     }
 }

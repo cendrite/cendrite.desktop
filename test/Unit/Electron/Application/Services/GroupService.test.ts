@@ -5,7 +5,7 @@ import { Group } from '#electron/Domain/Entities/Group';
 import { GroupEpochKey } from '#electron/Domain/Encryption/GroupEpochKey';
 import { GroupWriteKey } from '#electron/Domain/Encryption/GroupWriteKey';
 import { GroupCreatedOperation } from '#electron/Domain/Protocol/LedgerOperation';
-import { GroupStrapPayload, Payload } from '#electron/Domain/Protocol/Payload';
+import { GroupStrapPayload } from '#electron/Domain/Protocol/Payload';
 import { GroupLifecycle } from '#electron/Domain/Enums/GroupLifecycle';
 import { generateEpochKey, generateWriteKeyPair, publicKeyFromPrivate } from '#electron/Infrastructure/Crypto/LedgerCodec';
 import { Result } from '#shared/Result/Result';
@@ -71,9 +71,8 @@ function setup(createResults: Result<void>[] = []) {
     return { sut, ledgerWriter, ownWriteKey, group, saved };
 }
 
-function inviteKeyOf(straps: Record<string, Payload[]>, connectionId: string): string {
-    const strap = straps[connectionId][0] as GroupStrapPayload;
-    return publicKeyFromPrivate(Buffer.from(strap.inviteKeyPrivate, 'base64')).toString('base64');
+function inviteKeyOf(straps: Record<string, GroupStrapPayload>, connectionId: string): string {
+    return publicKeyFromPrivate(Buffer.from(straps[connectionId].inviteKeyPrivate, 'base64')).toString('base64');
 }
 
 const conflict = () => Result.fail(new ErrorMessage('Conflict', 'Ledger already exists.'));
@@ -98,8 +97,8 @@ describe('starting a group', () => {
 
         const straps = (await sut.startGroup(GROUP_ID)).data!;
 
-        for (const payloads of Object.values(straps)) {
-            expect((payloads[0] as GroupStrapPayload).inviteKeyPrivate).not.toBe(ownWriteKey.privateKey.toString('base64'));
+        for (const strap of Object.values(straps)) {
+            expect(strap.inviteKeyPrivate).not.toBe(ownWriteKey.privateKey.toString('base64'));
         }
     });
 

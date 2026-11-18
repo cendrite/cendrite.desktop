@@ -7,7 +7,7 @@ import { ChatPrivileges } from '#shared/Enums/ChatPrivileges';
 import { GroupLifecycle } from '#electron/Domain/Enums/GroupLifecycle';
 import { GroupCreatedOperation, GroupMemberRef } from '#electron/Domain/Protocol/LedgerOperation';
 import { generateEpochKey, generateWriteKeyPair, publicKeyFromPrivate } from '#electron/Infrastructure/Crypto/LedgerCodec';
-import { GroupStrapPayload, Payload } from '#electron/Domain/Protocol/Payload';
+import { GroupStrapPayload } from '#electron/Domain/Protocol/Payload';
 import { IChatStore } from '../Contracts/Repositories/IChatStore.js';
 import { IDeviceRepository } from '../Contracts/Repositories/IDeviceRepository.js';
 import { IGroupKeyRepository } from '../Contracts/Repositories/IGroupKeyRepository.js';
@@ -17,11 +17,11 @@ import { ILedgerWriter } from '../Contracts/Services/ILedgerWriter.js';
 
 export interface IGroupService {
     createGroup(groupId: string): Promise<void>;
-    startGroup(groupId: string): Promise<Result<Record<string, Payload[]> | null>>;
+    startGroup(groupId: string): Promise<Result<Record<string, GroupStrapPayload> | null>>;
 }
 
 export class GroupService implements IGroupService {
-    private readonly starting = new Map<string, Promise<Result<Record<string, Payload[]> | null>>>();
+    private readonly starting = new Map<string, Promise<Result<Record<string, GroupStrapPayload> | null>>>();
 
     constructor(
         private readonly groupRepository: IGroupRepository,
@@ -40,7 +40,7 @@ export class GroupService implements IGroupService {
         await this.groupRepository.create(new Group(groupId));
     }
 
-    public startGroup(groupId: string): Promise<Result<Record<string, Payload[]> | null>> {
+    public startGroup(groupId: string): Promise<Result<Record<string, GroupStrapPayload> | null>> {
         const inFlight = this.starting.get(groupId);
         if (inFlight) return inFlight.then((result) => (result.success ? Result.success(null) : result));
 
@@ -50,32 +50,26 @@ export class GroupService implements IGroupService {
         return start;
     }
 
-    private async start(groupId: string): Promise<Result<Record<string, Payload[]> | null>> {
+    private async start(groupId: string): Promise<Result<Record<string, GroupStrapPayload> | null>> {
         const group = await this.groupRepository.get(groupId);
 
         if (!group) throw new Error(`Group with ID ${groupId} not found`);
 
         if (group.lifecycle !== GroupLifecycle.Draft) return Result.success(null);
 
-        const epochKey = await this.groupKeyRepository.getEpochKey(group.groupId, group.epoch);
-        if (!epochKey) throw new Error(`Group ${group.groupId} has no keys`);
-
         if (!group.pendingStart) {
-            const prepared = await this.prepareStart(group);
-            if (!prepared.success) return Result.fail<Record<string, Payload[]> | null>(prepared.errorMessage);
+            const prepareStartResult = await this.prepareStart(group);
+            if (!prepareStartResult.success) return Result.fail<Record<string, GroupStrapPayload> | null>(prepareStartResult.errorMessage);
 
-            group.pendingStart = prepared.data;
+            group.pendingStart = prepareStartResult.data;
             await this.groupRepository.update(group);
         }
 
         const pending = group.pendingStart;
-        const inviteKeys = Object.entries(pending.inviteKeys).map(
-            ([connectionId, privateKey]) => [connectionId, Buffer.from(privateKey, 'base64')] as const,
-        );
 
-        const created = await this.ledgerWriter.createStream(
+        const createStreamResult = await this.ledgerWriter.createStream(
             group.groupId,
-            inviteKeys.map(([, privateKey]) => publicKeyFromPrivate(privateKey)),
+            Object.values(pending.straps).map((strap) => publicKeyFromPrivate(Buffer.from(strap.inviteKeyPrivate, 'base64'))),
             {
                 payload: Buffer.from(pending.payload, 'base64'),
                 signature: Buffer.from(pending.signature, 'base64'),
@@ -83,25 +77,7 @@ export class GroupService implements IGroupService {
             },
         );
 
-        if (!created.success) return Result.fail<Record<string, Payload[]> | null>(created.errorMessage);
-
-        const chat = await this.chatStore.getChatWithMembers(groupId);
-        const epochKeys = [epochKey.key.toString('base64')];
-        const payloads: Record<string, Payload[]> = {};
-
-        for (const [connectionId, privateKey] of inviteKeys) {
-            payloads[connectionId] = [
-                new GroupStrapPayload(
-                    group.groupId,
-                    chat.groupName,
-                    1,
-                    pending.hash,
-                    epochKeys,
-                    privateKey.toString('base64'),
-                    pending.members,
-                ),
-            ];
-        }
+        if (!createStreamResult.success) return Result.fail<Record<string, GroupStrapPayload> | null>(createStreamResult.errorMessage);
 
         group.lifecycle = GroupLifecycle.Active;
         group.version = 1;
@@ -109,7 +85,7 @@ export class GroupService implements IGroupService {
         group.pendingStart = null;
         await this.groupRepository.update(group);
 
-        return Result.success<Record<string, Payload[]> | null>(payloads);
+        return Result.success<Record<string, GroupStrapPayload> | null>(pending.straps);
     }
 
     private async prepareStart(group: Group): Promise<Result<PendingGroupStart>> {
@@ -120,7 +96,8 @@ export class GroupService implements IGroupService {
         if (device === null) throw new Error('Device not found');
 
         const ownWriteKey = await this.groupKeyRepository.getWriteKey(group.groupId);
-        if (!ownWriteKey) throw new Error(`Group ${group.groupId} has no keys`);
+        const epochKey = await this.groupKeyRepository.getEpochKey(group.groupId, group.epoch);
+        if (!ownWriteKey || !epochKey) throw new Error(`Group ${group.groupId} has no keys`);
 
         const inviteKeys: Record<string, string> = {};
 
@@ -159,21 +136,28 @@ export class GroupService implements IGroupService {
             );
         }
 
-        const sealed = await this.ledgerWriter.sealCreate(
+        const sealCreateResult = await this.ledgerWriter.sealCreate(
             group.groupId,
             Object.values(inviteKeys).map((privateKey) => publicKeyFromPrivate(Buffer.from(privateKey, 'base64'))),
             new GroupCreatedOperation(user.userTag, chat.groupName, members),
         );
 
-        if (!sealed.success) return Result.fail<PendingGroupStart>(sealed.errorMessage);
+        if (!sealCreateResult.success) return Result.fail<PendingGroupStart>(sealCreateResult.errorMessage);
+
+        const hash = sealCreateResult.data.hash.toString('base64');
+        const epochKeys = [epochKey.key.toString('base64')];
+        const straps: Record<string, GroupStrapPayload> = {};
+
+        for (const [connectionId, privateKey] of Object.entries(inviteKeys)) {
+            straps[connectionId] = new GroupStrapPayload(group.groupId, chat.groupName, 1, hash, epochKeys, privateKey, members);
+        }
 
         return Result.success(
             new PendingGroupStart(
-                members,
-                inviteKeys,
-                sealed.data.payload.toString('base64'),
-                sealed.data.signature.toString('base64'),
-                sealed.data.hash.toString('base64'),
+                straps,
+                sealCreateResult.data.payload.toString('base64'),
+                sealCreateResult.data.signature.toString('base64'),
+                hash,
             ),
         );
     }

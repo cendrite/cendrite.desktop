@@ -2,13 +2,15 @@ import { describe, expect, test, vi } from 'vitest';
 import { MessagePump } from '#electron/Infrastructure/Pumps/MessagePump';
 import { MessageSentEvent } from '#electron/Domain/Events/MessageSentEvent';
 import { Group } from '#electron/Domain/Entities/Group';
-import { Payload } from '#electron/Domain/Protocol/Payload';
+import { GroupStrapPayload, Payload } from '#electron/Domain/Protocol/Payload';
 import { MessageContract } from '#shared/Models/MessageContract';
 import { DeliveryStatus } from '#shared/Enums/DeliveryStatus';
 import { ErrorMessage } from '#shared/Result/ErrorMessage';
 import { Result } from '#shared/Result/Result';
 
-const straps = { 'bob-laptop': [{ type: 6 }] as unknown as Payload[] };
+const strap = { type: 6, inviteKeyPrivate: 'k1' } as unknown as GroupStrapPayload;
+const straps = { 'bob-laptop': strap };
+const strapPayloads = { 'bob-laptop': [strap] as Payload[] };
 
 function queued(payloads: Record<string, Payload[]> = {}): MessageSentEvent {
     return new MessageSentEvent(
@@ -23,7 +25,7 @@ function queued(payloads: Record<string, Payload[]> = {}): MessageSentEvent {
 
 interface Setup {
     group?: boolean;
-    startGroup?: Result<Record<string, Payload[]> | null>;
+    startGroup?: Result<Record<string, GroupStrapPayload> | null>;
     send?: Result<DeliveryStatus>;
     message?: boolean;
 }
@@ -108,18 +110,18 @@ describe('delivering a group message', () => {
         await sut.deliver(queued());
 
         expect(eventRepository.appendEvent.mock.calls[0][0].id).toBe('msg-1');
-        expect(eventRepository.appendEvent.mock.calls[0][0].payloads).toBe(straps);
-        expect(mediator.send.mock.calls[0][0].payloads).toBe(straps);
+        expect(eventRepository.appendEvent.mock.calls[0][0].payloads).toEqual(strapPayloads);
+        expect(mediator.send.mock.calls[0][0].payloads).toEqual(strapPayloads);
         expect(order).toEqual(['append', 'send']);
     });
 
     test('sends the stored straps when the group had already started', async () => {
         const { sut, eventRepository, mediator } = setup({ group: true });
 
-        await sut.deliver(queued(straps));
+        await sut.deliver(queued(strapPayloads));
 
         expect(eventRepository.appendEvent).not.toHaveBeenCalled();
-        expect(mediator.send.mock.calls[0][0].payloads).toBe(straps);
+        expect(mediator.send.mock.calls[0][0].payloads).toBe(strapPayloads);
     });
 
     test('keeps the event as failed without sending when the group cannot start', async () => {
