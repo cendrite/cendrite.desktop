@@ -54,15 +54,24 @@ function setup({ syncs, append = Result.success(), pending, lifecycle = GroupLif
     const ledgerSyncService = { sync: vi.fn(async () => results[Math.min(syncCount++, results.length - 1)]) };
     const ledgerWriter = { append: vi.fn(async (_groupId: string, _operation: WriteKeyRegisteredOperation) => append) };
 
+    const group = new Group(GROUP_ID, lifecycle);
+    const groupRepository = {
+        getIds: async () => [GROUP_ID],
+        get: async () => group,
+        update: vi.fn(async () => undefined),
+    };
+    const mainWindow = { webContents: { send: vi.fn() } };
+
     const sut = new WriteKeySwapPump(
-        { getIds: async () => [GROUP_ID], get: async () => new Group(GROUP_ID, lifecycle) } as never,
+        groupRepository as never,
         groupKeyRepository as never,
         { get: async () => ({ userTag: TAG }) } as never,
         ledgerSyncService as never,
         ledgerWriter as never,
+        mainWindow as never,
     );
 
-    return { sut, keys, invite, ledgerWriter, groupKeyRepository };
+    return { sut, keys, invite, ledgerWriter, groupKeyRepository, group, groupRepository, mainWindow };
 }
 
 const holdingInvite = (invite: WriteKeyPair) => [replayed({ inviteKeys: [b64(invite.publicKey)] })];
@@ -156,5 +165,63 @@ describe('swapping invite keys', () => {
 
         expect(groupKeyRepository.getWriteKey).not.toHaveBeenCalled();
         expect(ledgerWriter.append).not.toHaveBeenCalled();
+    });
+});
+
+describe('membership tampering', () => {
+    const notFound = () => Result.fail<ReplayResult>(new ErrorMessage('Not Found', 'Ledger not found.'));
+    const offline = () => Result.fail<ReplayResult>(new ErrorMessage('ApiError', 'An unexpected error occurred.'));
+    const tamperedEvent = { kind: 'membershipTampered', groupId: GROUP_ID };
+
+    test('flags the group when its key is no longer in the group', async () => {
+        const { sut, group, mainWindow } = setup({ syncs: () => [replayed({ writeKeys: ['someone-else'] })] });
+
+        await sut.reconcile(GROUP_ID);
+
+        expect(group.membershipTampered).toBe(true);
+        expect(mainWindow.webContents.send).toHaveBeenCalledWith('eventMessage', tamperedEvent);
+    });
+
+    test('flags the group when its invite key was already used', async () => {
+        const { sut, group } = setup({ syncs: holdingInvite, append: Result.fail(new ErrorMessage('Forbidden', 'used')) });
+
+        await sut.reconcile(GROUP_ID);
+
+        expect(group.membershipTampered).toBe(true);
+    });
+
+    test('flags the group when the ledger no longer lets this device read', async () => {
+        const { sut, group } = setup({ syncs: () => [notFound()] });
+
+        await sut.reconcile(GROUP_ID);
+
+        expect(group.membershipTampered).toBe(true);
+    });
+
+    test('does not flag the group when the ledger cannot be reached', async () => {
+        const { sut, group, mainWindow } = setup({ syncs: () => [offline()] });
+
+        await sut.reconcile(GROUP_ID);
+
+        expect(group.membershipTampered).toBe(false);
+        expect(mainWindow.webContents.send).not.toHaveBeenCalled();
+    });
+
+    test('does not flag the group when the swap only conflicts', async () => {
+        const { sut, group } = setup({ syncs: holdingInvite, append: Result.fail(new ErrorMessage('Conflict', 'busy')) });
+
+        await sut.reconcile(GROUP_ID);
+
+        expect(group.membershipTampered).toBe(false);
+    });
+
+    test('stores and announces the flag once', async () => {
+        const { sut, groupRepository, mainWindow } = setup({ syncs: () => [replayed({ writeKeys: ['someone-else'] })] });
+
+        await sut.reconcile(GROUP_ID);
+        await sut.reconcile(GROUP_ID);
+
+        expect(groupRepository.update).toHaveBeenCalledOnce();
+        expect(mainWindow.webContents.send).toHaveBeenCalledOnce();
     });
 });

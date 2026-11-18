@@ -17,6 +17,7 @@ export class WriteKeySwapPump extends Pump {
         private readonly userRepository: IUserRepository,
         private readonly ledgerSyncService: ILedgerSyncService,
         private readonly ledgerWriter: ILedgerWriter,
+        private readonly mainWindow: Electron.BrowserWindow,
     ) {
         super();
     }
@@ -49,7 +50,9 @@ export class WriteKeySwapPump extends Pump {
 
         if (!synced.success) {
             if (!pending) {
-                console.error(`WriteKeySwapPump: this device can no longer read group ${groupId}, membership may have been tampered with`);
+                if (synced.errorMessage.code === 'Not Found') {
+                    await this.flagTampered(groupId, 'this device can no longer read the group');
+                }
                 return;
             }
 
@@ -76,7 +79,7 @@ export class WriteKeySwapPump extends Pump {
         }
 
         if (!member.inviteKeys.includes(activePublic)) {
-            console.error(`WriteKeySwapPump: this device's key is no longer in group ${groupId}, membership may have been tampered with`);
+            await this.flagTampered(groupId, "this device's key is no longer in the group");
             return;
         }
 
@@ -94,13 +97,25 @@ export class WriteKeySwapPump extends Pump {
 
         if (!appended.success) {
             if (appended.errorMessage?.code === 'Forbidden') {
-                console.error(`WriteKeySwapPump: the invite key for group ${groupId} was already used, membership may have been tampered with`);
+                await this.flagTampered(groupId, 'the invite key was already used');
             }
             return;
         }
 
         await this.groupKeyRepository.saveWriteKey(new GroupWriteKey(groupId, next.publicKey, next.privateKey));
         await this.groupKeyRepository.deletePendingWriteKey(groupId);
+    }
+
+    private async flagTampered(groupId: string, reason: string): Promise<void> {
+        console.error(`WriteKeySwapPump: ${reason} (group ${groupId}), membership may have been tampered with`);
+
+        const group = await this.groupRepository.get(groupId);
+        if (!group || group.membershipTampered) return;
+
+        group.membershipTampered = true;
+        await this.groupRepository.update(group);
+
+        this.mainWindow.webContents.send('eventMessage', { kind: 'membershipTampered', groupId });
     }
 
     private newPendingKey(groupId: string): PendingGroupWriteKey {

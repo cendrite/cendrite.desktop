@@ -17,7 +17,8 @@ declare global {
         | { kind: 'deliveryStatus'; chatId: string; messageIds: string[]; status: DeliveryStatus }
         | { kind: 'textEdit'; messageId: string; newText: string }
         | { kind: 'delete'; messageId: string }
-        | { kind: 'untrustedDevice'; connectionId: string };
+        | { kind: 'untrustedDevice'; connectionId: string }
+        | { kind: 'membershipTampered'; groupId: string };
 
     interface AppEventMap {
         changeEvent: ChangeEvent;

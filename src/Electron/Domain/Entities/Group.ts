@@ -12,6 +12,7 @@ export class Group {
     publishedDevicesHash: string | null;
     pendingStart: PendingGroupStart | null;
     pendingStraps: Record<string, GroupStrapPayload> | null;
+    membershipTampered: boolean;
 
     constructor(
         groupId: string,
@@ -23,6 +24,7 @@ export class Group {
         publishedDevicesHash: string | null = null,
         pendingStart: PendingGroupStart | null = null,
         pendingStraps: Record<string, GroupStrapPayload> | null = null,
+        membershipTampered: boolean = false,
     ) {
         this.groupId = groupId;
         this.lifecycle = lifecycle;
@@ -33,5 +35,6 @@ export class Group {
         this.publishedDevicesHash = publishedDevicesHash;
         this.pendingStart = pendingStart;
         this.pendingStraps = pendingStraps;
+        this.membershipTampered = membershipTampered;
     }
 }

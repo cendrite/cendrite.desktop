@@ -32,6 +32,11 @@ export class GroupRepository implements IGroupRepository {
         return groups.map((group) => group.groupId);
     }
 
+    public async getTamperedIds(): Promise<string[]> {
+        const groups = await this.repository.find({ select: { groupId: true }, where: { membershipTampered: true } });
+        return groups.map((group) => group.groupId);
+    }
+
     public async deleteAll(): Promise<void> {
         await this.repository.clear();
     }

@@ -27,6 +27,7 @@ import { SyncFriendsQueryHandler } from './Features/Friends/Queries/SyncFriendsQ
 import { GetProfileByTagQueryHandler } from './Features/Friends/Queries/GetProfileByTagQueryHandler.js';
 import { GetDevicesQueryHandler } from './Features/Devices/Queries/GetDevicesQueryHandler.js';
 import { GetUntrustedDevicesQueryHandler } from './Features/Devices/Queries/GetUntrustedDevicesQueryHandler.js';
+import { GetTamperedGroupsQueryHandler } from './Features/Chat/Queries/GetTamperedGroupsQueryHandler.js';
 import { DeleteDeviceCommandHandler } from './Features/Devices/Commands/DeleteDeviceCommandHandler.js';
 import { RenameDeviceCommandHandler } from './Features/Devices/Commands/RenameDeviceCommandHandler.js';
 import { GetMediaQueryHandler } from './Features/Files/Queries/GetMediaQueryHandler.js';
@@ -127,6 +128,7 @@ const friendHandlers = {
 const deviceHandlers = {
     getDevicesQueryHandler: asClass(GetDevicesQueryHandler, { lifetime: Lifetime.SINGLETON }),
     getUntrustedDevicesQueryHandler: asClass(GetUntrustedDevicesQueryHandler, { lifetime: Lifetime.SINGLETON }),
+    getTamperedGroupsQueryHandler: asClass(GetTamperedGroupsQueryHandler, { lifetime: Lifetime.SINGLETON }),
     deleteDeviceCommandHandler: asClass(DeleteDeviceCommandHandler, { lifetime: Lifetime.SINGLETON }),
     renameDeviceCommandHandler: asClass(RenameDeviceCommandHandler, { lifetime: Lifetime.SINGLETON }),
 };
