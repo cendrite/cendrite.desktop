@@ -135,8 +135,7 @@ describe('starting a group', () => {
 
         expect(ledgerWriter.createStream).toHaveBeenCalledTimes(1);
         expect(Object.keys(first.data!)).toHaveLength(3);
-        expect(second.success).toBe(true);
-        expect(second.data).toBeNull();
+        expect(second.data).toEqual(first.data);
     });
 
     test('keeps the prepared start when the create fails and retries it unchanged', async () => {
@@ -167,7 +166,37 @@ describe('starting a group', () => {
 
         const result = await sut.startGroup(GROUP_ID);
 
-        expect(result.data).toBeNull();
+        expect(result.data).toEqual({});
         expect(ledgerWriter.createStream).not.toHaveBeenCalled();
+    });
+});
+
+describe('straps waiting to be sent', () => {
+    test('hands out the same straps again until they are sent', async () => {
+        const { sut, ledgerWriter } = setup();
+
+        const first = (await sut.startGroup(GROUP_ID)).data!;
+        const again = (await sut.startGroup(GROUP_ID)).data!;
+
+        expect(ledgerWriter.createStream).toHaveBeenCalledTimes(1);
+        expect(again).toEqual(first);
+    });
+
+    test('keeps the straps on the group when it activates', async () => {
+        const { sut, saved } = setup();
+
+        const straps = (await sut.startGroup(GROUP_ID)).data!;
+
+        expect(Object.keys(saved.at(-1)!.pendingStraps!).sort()).toEqual(Object.keys(straps).sort());
+    });
+
+    test('stops handing out straps once they are sent', async () => {
+        const { sut, group } = setup();
+
+        await sut.startGroup(GROUP_ID);
+        await sut.strapsSent(GROUP_ID);
+
+        expect(group.pendingStraps).toBeNull();
+        expect((await sut.startGroup(GROUP_ID)).data).toEqual({});
     });
 });

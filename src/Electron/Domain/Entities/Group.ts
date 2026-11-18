@@ -1,4 +1,5 @@
 import { GroupLifecycle } from "../Enums/GroupLifecycle.js";
+import { GroupStrapPayload } from "../Protocol/Payload.js";
 import { PendingGroupStart } from "./PendingGroupStart.js";
 
 export class Group {
@@ -10,6 +11,7 @@ export class Group {
     archived: boolean;
     publishedDevicesHash: string | null;
     pendingStart: PendingGroupStart | null;
+    pendingStraps: Record<string, GroupStrapPayload> | null;
 
     constructor(
         groupId: string,
@@ -20,6 +22,7 @@ export class Group {
         archived: boolean = false,
         publishedDevicesHash: string | null = null,
         pendingStart: PendingGroupStart | null = null,
+        pendingStraps: Record<string, GroupStrapPayload> | null = null,
     ) {
         this.groupId = groupId;
         this.lifecycle = lifecycle;
@@ -29,5 +32,6 @@ export class Group {
         this.archived = archived;
         this.publishedDevicesHash = publishedDevicesHash;
         this.pendingStart = pendingStart;
+        this.pendingStraps = pendingStraps;
     }
 }

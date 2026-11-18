@@ -17,11 +17,12 @@ import { ILedgerWriter } from '../Contracts/Services/ILedgerWriter.js';
 
 export interface IGroupService {
     createGroup(groupId: string): Promise<void>;
-    startGroup(groupId: string): Promise<Result<Record<string, Payload[]> | null>>;
+    startGroup(groupId: string): Promise<Result<Record<string, Payload[]>>>;
+    strapsSent(groupId: string): Promise<void>;
 }
 
 export class GroupService implements IGroupService {
-    private readonly starting = new Map<string, Promise<Result<Record<string, Payload[]> | null>>>();
+    private readonly starting = new Map<string, Promise<Result<void>>>();
 
     constructor(
         private readonly groupRepository: IGroupRepository,
@@ -40,29 +41,47 @@ export class GroupService implements IGroupService {
         await this.groupRepository.create(new Group(groupId));
     }
 
-    public startGroup(groupId: string): Promise<Result<Record<string, Payload[]> | null>> {
-        const inFlight = this.starting.get(groupId);
-        if (inFlight) return inFlight.then((result) => (result.success ? Result.success(null) : result));
+    public async startGroup(groupId: string): Promise<Result<Record<string, Payload[]>>> {
+        let start = this.starting.get(groupId);
+        if (!start) {
+            start = this.start(groupId).finally(() => this.starting.delete(groupId));
+            this.starting.set(groupId, start);
+        }
 
-        const start = this.start(groupId).finally(() => this.starting.delete(groupId));
-        this.starting.set(groupId, start);
+        const started = await start;
+        if (!started.success) return Result.fail<Record<string, Payload[]>>(started.errorMessage);
 
-        return start;
+        const group = await this.groupRepository.get(groupId);
+        const straps: Record<string, Payload[]> = {};
+
+        for (const [connectionId, strap] of Object.entries(group?.pendingStraps ?? {})) {
+            straps[connectionId] = [strap];
+        }
+
+        return Result.success(straps);
     }
 
-    private async start(groupId: string): Promise<Result<Record<string, Payload[]> | null>> {
+    public async strapsSent(groupId: string): Promise<void> {
+        const group = await this.groupRepository.get(groupId);
+        if (!group?.pendingStraps) return;
+
+        group.pendingStraps = null;
+        await this.groupRepository.update(group);
+    }
+
+    private async start(groupId: string): Promise<Result<void>> {
         const group = await this.groupRepository.get(groupId);
 
         if (!group) throw new Error(`Group with ID ${groupId} not found`);
 
-        if (group.lifecycle !== GroupLifecycle.Draft) return Result.success(null);
+        if (group.lifecycle !== GroupLifecycle.Draft) return Result.success();
 
         const epochKey = await this.groupKeyRepository.getEpochKey(group.groupId, group.epoch);
         if (!epochKey) throw new Error(`Group ${group.groupId} has no keys`);
 
         if (!group.pendingStart) {
             const prepared = await this.prepareStart(group);
-            if (!prepared.success) return Result.fail<Record<string, Payload[]> | null>(prepared.errorMessage);
+            if (!prepared.success) return Result.fail(prepared.errorMessage);
 
             group.pendingStart = prepared.data;
             await this.groupRepository.update(group);
@@ -83,33 +102,32 @@ export class GroupService implements IGroupService {
             },
         );
 
-        if (!created.success) return Result.fail<Record<string, Payload[]> | null>(created.errorMessage);
+        if (!created.success) return Result.fail(created.errorMessage);
 
         const chat = await this.chatStore.getChatWithMembers(groupId);
         const epochKeys = [epochKey.key.toString('base64')];
-        const payloads: Record<string, Payload[]> = {};
+        const straps: Record<string, GroupStrapPayload> = {};
 
         for (const [connectionId, privateKey] of inviteKeys) {
-            payloads[connectionId] = [
-                new GroupStrapPayload(
-                    group.groupId,
-                    chat.groupName,
-                    1,
-                    pending.hash,
-                    epochKeys,
-                    privateKey.toString('base64'),
-                    pending.members,
-                ),
-            ];
+            straps[connectionId] = new GroupStrapPayload(
+                group.groupId,
+                chat.groupName,
+                1,
+                pending.hash,
+                epochKeys,
+                privateKey.toString('base64'),
+                pending.members,
+            );
         }
 
         group.lifecycle = GroupLifecycle.Active;
         group.version = 1;
         group.headHash = Buffer.from(pending.hash, 'base64');
         group.pendingStart = null;
+        group.pendingStraps = straps;
         await this.groupRepository.update(group);
 
-        return Result.success<Record<string, Payload[]> | null>(payloads);
+        return Result.success();
     }
 
     private async prepareStart(group: Group): Promise<Result<PendingGroupStart>> {

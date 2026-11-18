@@ -42,5 +42,9 @@ export const GroupRecordSchema = new EntitySchema<Group>({
             type: 'simple-json',
             nullable: true,
         },
+        pendingStraps: {
+            type: 'simple-json',
+            nullable: true,
+        },
     },
 });

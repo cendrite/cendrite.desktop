@@ -1,4 +1,5 @@
 import { IChatStore } from '#electron/Application/Contracts/Repositories/IChatStore';
+import { IGroupService } from '#electron/Application/Services/GroupService';
 import { MessageSentCommand } from '#electron/Application/Features/Chat/Events/MessageSentEventHandler';
 import { Mediator } from '#electron/Application/Mediator/Mediator';
 import { DeliveryStatus } from '#shared/Enums/DeliveryStatus';
@@ -14,6 +15,7 @@ export class MessagePump extends Pump {
         private readonly mediator: Mediator,
         private readonly mainWindow: Electron.BrowserWindow,
         private readonly signalManager: SignalManager,
+        private readonly groupService: IGroupService,
     ) {
         super();
     }
@@ -56,6 +58,10 @@ export class MessagePump extends Pump {
                 deliveryStatus = result.data;
             } else {
                 deliveryStatus = DeliveryStatus.Failed;
+            }
+
+            if (deliveryStatus !== DeliveryStatus.Failed && Object.keys(msgEvent.payloads).length > 0) {
+                await this.groupService.strapsSent(msgEvent.message.chatId);
             }
 
             await this.chatStore.markMessage(pendingMessage.id, deliveryStatus);
