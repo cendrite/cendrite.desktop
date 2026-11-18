@@ -24,7 +24,6 @@ export class ChatService {
         chatId: string,
         text: string | null,
         media: Media[] = [],
-        isGroup: boolean = false,
     ): Promise<MessageViewModel | null> {
         if (!text && media.length === 0) return null;
 
@@ -37,7 +36,6 @@ export class ChatService {
                 [...connectionIds, user.externalConnectionIds].flat(),
                 text || '',
                 media,
-                isGroup,
             ),
         );
 

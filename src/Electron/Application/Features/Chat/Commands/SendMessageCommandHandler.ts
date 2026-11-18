@@ -3,7 +3,6 @@ import { Message } from '#electron/Domain/Entities/Message';
 import { MessageMedia } from '#electron/Domain/Entities/MessageMedia';
 import { DeliveryStatus } from '#shared/Enums/DeliveryStatus';
 import { MessageSentEvent } from '#electron/Domain/Events/MessageSentEvent';
-import {  Payload } from '#electron/Domain/Protocol/Payload';
 import { MessageContract } from '#shared/Models/MessageContract';
 import { IEventRepository } from '#electron/Application/Contracts/Providers/IEventRepository';
 import { IChatStore } from '#electron/Application/Contracts/Repositories/IChatStore';
@@ -12,7 +11,6 @@ import { IPump } from '#electron/Application/Contracts/Services/IPump';
 import { Handler } from '#electron/Application/Mediator/Handler';
 import { SendMessageCommand } from '#shared/Chat/SendMessage';
 import { v4 as uuid } from 'uuid';
-import { IGroupService } from '#electron/Application/Services/GroupService';
 
 export class SendMessageCommandHandler implements Handler<SendMessageCommand, MessageContract> {
     constructor(
@@ -20,7 +18,6 @@ export class SendMessageCommandHandler implements Handler<SendMessageCommand, Me
         private readonly chatStore: IChatStore,
         private readonly mediaStore: IMediaStore,
         private readonly messagePump: IPump,
-        private readonly groupService: IGroupService,
     ) { }
 
     public async handle(cmd: SendMessageCommand): Promise<Result<MessageContract>> {
@@ -34,19 +31,6 @@ export class SendMessageCommandHandler implements Handler<SendMessageCommand, Me
             DeliveryStatus.Pending,
             uuid().toString(),
         );
-
-        let payloads: Record<string, Payload[]> = {};
-
-        if (cmd.isGroup) {
-            const startGroupResult = await this.groupService.startGroup(cmd.chatId);
-
-            if (!startGroupResult.success) {
-                console.warn(`SendMessage: could not start group ${cmd.chatId}: ${startGroupResult.errorMessage.message}`);
-                message.deliveryStatus = DeliveryStatus.Failed;
-            }
-
-            payloads = startGroupResult.success ? (startGroupResult.data ?? {}) : {};
-        }
 
         await this.chatStore.storeMessage(message);
 
@@ -72,14 +56,8 @@ export class SendMessageCommandHandler implements Handler<SendMessageCommand, Me
                 cmd.connectionIds,
                 cmd.participants,
                 new Date(),
-                payloads,
             ),
         );
-
-        if (message.deliveryStatus === DeliveryStatus.Failed) {
-            await this.eventRepository.markAsFailed(message.id, 'The group could not be started');
-            return Result.success(messageContract);
-        }
 
         this.messagePump.notify();
 

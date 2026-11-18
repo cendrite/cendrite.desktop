@@ -8,16 +8,12 @@ import { IChatStore } from '#electron/Application/Contracts/Repositories/IChatSt
 import { IPump } from '#electron/Application/Contracts/Services/IPump';
 import { Handler } from '#electron/Application/Mediator/Handler';
 import { ResendMessageCommand } from '#shared/Chat/ResendMessage';
-import { IGroupRepository } from '#electron/Application/Contracts/Repositories/IGroupRepository';
-import { IGroupService } from '#electron/Application/Services/GroupService';
 
 export class ResendMessageCommandHandler implements Handler<ResendMessageCommand> {
     constructor(
         private readonly eventRepository: IEventRepository,
         private readonly chatStore: IChatStore,
         private readonly messagePump: IPump,
-        private readonly groupRepository: IGroupRepository,
-        private readonly groupService: IGroupService,
     ) { }
 
     async handle(cmd: ResendMessageCommand): Promise<Result> {
@@ -43,15 +39,6 @@ export class ResendMessageCommandHandler implements Handler<ResendMessageCommand
             );
         }
 
-        let payloads = event.payloads;
-
-        if (await this.groupRepository.get(cmd.ChatId)) {
-            const started = await this.groupService.startGroup(cmd.ChatId);
-            if (!started.success) return Result.fail(started.errorMessage);
-
-            if (started.data) payloads = started.data;
-        }
-
         const messageContract = new MessageContract(
             event.message.id,
             event.message.chatId,
@@ -64,7 +51,7 @@ export class ResendMessageCommandHandler implements Handler<ResendMessageCommand
         );
 
         await this.eventRepository.appendEvent(
-            new MessageSentEvent(event.id, messageContract, event.connectionIds, event.participants, new Date(), payloads),
+            new MessageSentEvent(event.id, messageContract, event.connectionIds, event.participants, new Date(), event.payloads),
         );
 
         this.messagePump.notify();

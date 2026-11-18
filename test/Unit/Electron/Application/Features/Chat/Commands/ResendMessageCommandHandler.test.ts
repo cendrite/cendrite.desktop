@@ -7,12 +7,7 @@ import { Message } from '../../../../../../../src/Electron/Domain/Entities/Messa
 import { DeliveryStatus } from '../../../../../../../src/Shared/Enums/DeliveryStatus.js';
 import { MessageSentEvent } from '../../../../../../../src/Electron/Domain/Events/MessageSentEvent.js';
 import { MessageContract } from '../../../../../../../src/Shared/Models/MessageContract.js';
-import { IGroupRepository } from '../../../../../../../src/Electron/Application/Contracts/Repositories/IGroupRepository.js';
-import { IGroupService } from '../../../../../../../src/Electron/Application/Services/GroupService.js';
-import { Group } from '../../../../../../../src/Electron/Domain/Entities/Group.js';
 import { Payload } from '../../../../../../../src/Electron/Domain/Protocol/Payload.js';
-import { Result } from '../../../../../../../src/Shared/Result/Result.js';
-import { ErrorMessage } from '../../../../../../../src/Shared/Result/ErrorMessage.js';
 
 const storedStraps = { 'bob-laptop': [{ type: 6 }] as unknown as Payload[] };
 
@@ -27,17 +22,10 @@ function storedEvent(payloads: Record<string, Payload[]> = {}): MessageSentEvent
     );
 }
 
-function createHandler(
-    overrides: {
-        event?: MessageSentEvent | null;
-        group?: boolean;
-        startGroup?: () => Promise<Result<Record<string, Payload[]> | null>>;
-    } = {},
-) {
+function createHandler(overrides: { event?: MessageSentEvent | null } = {}) {
     const eventRepository = {
         appendEvent: vi.fn().mockResolvedValue(undefined),
         getEventById: vi.fn().mockResolvedValue(overrides.event === undefined ? storedEvent() : overrides.event),
-        markAsFailed: vi.fn().mockResolvedValue(undefined),
     };
 
     const chatStore = {
@@ -50,18 +38,9 @@ function createHandler(
         stop: vi.fn(),
     };
 
-    const groupRepository = {
-        get: vi.fn().mockResolvedValue(overrides.group ? new Group('chat-1') : null),
-    } as unknown as IGroupRepository;
+    const handler = new ResendMessageCommandHandler(eventRepository, chatStore, messagePump);
 
-    const groupService = {
-        createGroup: vi.fn(),
-        startGroup: vi.fn(overrides.startGroup ?? (async () => Result.success<Record<string, Payload[]> | null>(null))),
-    } as unknown as IGroupService;
-
-    const handler = new ResendMessageCommandHandler(eventRepository, chatStore, messagePump, groupRepository, groupService);
-
-    return { handler, eventRepository, chatStore, messagePump, groupService };
+    return { handler, eventRepository, chatStore, messagePump };
 }
 
 function createFailedMessage(): Message {
@@ -124,38 +103,11 @@ describe('ResendMessageCommandHandler', () => {
         expect(messagePump.notify).toHaveBeenCalledTimes(1);
     });
 
-    test('keeps the stored straps when the group had already started', async () => {
-        const { handler, eventRepository } = createHandler({ event: storedEvent(storedStraps), group: true });
+    test('sends the stored straps again', async () => {
+        const { handler, eventRepository } = createHandler({ event: storedEvent(storedStraps) });
 
         await handler.handle(new ResendMessageCommand('chat-1', 'msg-1'));
 
         expect(appended(eventRepository).payloads).toBe(storedStraps);
-    });
-
-    test('sends the straps of a group that only starts now', async () => {
-        const straps = { 'bob-laptop': [] as Payload[] };
-        const { handler, eventRepository, groupService } = createHandler({
-            group: true,
-            startGroup: async () => Result.success<Record<string, Payload[]> | null>(straps),
-        });
-
-        const result = await handler.handle(new ResendMessageCommand('chat-1', 'msg-1'));
-
-        expect(result.success).toBe(true);
-        expect(groupService.startGroup).toHaveBeenCalledWith('chat-1');
-        expect(appended(eventRepository).payloads).toBe(straps);
-    });
-
-    test('fails without sending when the group still cannot start', async () => {
-        const { handler, eventRepository, messagePump } = createHandler({
-            group: true,
-            startGroup: async () => Result.fail<Record<string, Payload[]> | null>(new ErrorMessage('LedgerWriter', 'No private token')),
-        });
-
-        const result = await handler.handle(new ResendMessageCommand('chat-1', 'msg-1'));
-
-        expect(result.success).toBe(false);
-        expect(eventRepository.appendEvent).not.toHaveBeenCalled();
-        expect(messagePump.notify).not.toHaveBeenCalled();
     });
 });
