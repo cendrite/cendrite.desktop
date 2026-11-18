@@ -59,7 +59,12 @@ export class MessagePump extends Pump {
             }
 
             await this.chatStore.markMessage(pendingMessage.id, deliveryStatus);
-            await this.eventRepository.deleteEvent(msgEvent.id);
+
+            if (deliveryStatus === DeliveryStatus.Failed) {
+                await this.eventRepository.markAsFailed(msgEvent.id, result.success ? 'No device accepted the message' : result.errorMessage.message);
+            } else {
+                await this.eventRepository.deleteEvent(msgEvent.id);
+            }
 
             this.mainWindow.webContents.send('eventMessage', {
                 kind: 'deliveryStatus',

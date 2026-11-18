@@ -51,10 +51,8 @@ export class ChatService {
         return message;
     }
 
-    public async resendMessage(chatId: string, messageId: string, connectionIds: string[], recipientTags: string[]) {
-        const result = await window.electron.sendRequestAsync(
-            new ResendMessageCommand(chatId, messageId, connectionIds, recipientTags),
-        );
+    public async resendMessage(chatId: string, messageId: string) {
+        const result = await window.electron.sendRequestAsync(new ResendMessageCommand(chatId, messageId));
 
         if (!result.success) {
             console.error('Failed to resend message:', result.errorMessage);

@@ -10,7 +10,7 @@ import { ErrorMessage } from '#shared/Result/ErrorMessage';
 
 function setup(startGroup: () => Promise<Result<Record<string, Payload[]> | null>>) {
     const stored: Message[] = [];
-    const eventRepository = { appendEvent: vi.fn(async () => undefined) };
+    const eventRepository = { appendEvent: vi.fn(async () => undefined), markAsFailed: vi.fn(async () => undefined) };
     const messagePump = { notify: vi.fn(), start: vi.fn(), stop: vi.fn() };
 
     const sut = new SendMessageCommandHandler(
@@ -27,7 +27,7 @@ function setup(startGroup: () => Promise<Result<Record<string, Payload[]> | null
 const groupMessage = () => new SendMessageCommand('chat-1', 'msg-1', 'alice-laptop', ['alice', 'bob'], ['bob-laptop'], 'hi', [], true);
 
 describe('sending a group message', () => {
-    test('stores the message as failed and sends nothing when the group cannot start', async () => {
+    test('stores the message and its event as failed and sends nothing when the group cannot start', async () => {
         const { sut, stored, eventRepository, messagePump } = setup(async () =>
             Result.fail<Record<string, Payload[]> | null>(new ErrorMessage('LedgerWriter', 'No private token')),
         );
@@ -37,7 +37,10 @@ describe('sending a group message', () => {
         expect(result.success).toBe(true);
         expect(result.data!.deliveryStatus).toBe(DeliveryStatus.Failed);
         expect(stored[0].deliveryStatus).toBe(DeliveryStatus.Failed);
-        expect(eventRepository.appendEvent).not.toHaveBeenCalled();
+
+        const [event] = eventRepository.appendEvent.mock.calls[0] as unknown as [MessageSentEvent];
+        expect(event.id).toBe('msg-1');
+        expect(eventRepository.markAsFailed).toHaveBeenCalledWith('msg-1', 'The group could not be started');
         expect(messagePump.notify).not.toHaveBeenCalled();
     });
 
@@ -53,7 +56,9 @@ describe('sending a group message', () => {
         expect(stored[0].deliveryStatus).toBe(DeliveryStatus.Pending);
 
         const [event] = eventRepository.appendEvent.mock.calls[0] as unknown as [MessageSentEvent];
+        expect(event.id).toBe('msg-1');
         expect(event.payloads).toBe(straps);
+        expect(eventRepository.markAsFailed).not.toHaveBeenCalled();
         expect(messagePump.notify).toHaveBeenCalled();
     });
 });

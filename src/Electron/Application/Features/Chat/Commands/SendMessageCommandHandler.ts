@@ -65,11 +65,9 @@ export class SendMessageCommandHandler implements Handler<SendMessageCommand, Me
             message.messageToken,
         );
 
-        if (message.deliveryStatus === DeliveryStatus.Failed) return Result.success(messageContract);
-
         await this.eventRepository.appendEvent(
             new MessageSentEvent(
-                uuid().toString(),
+                message.id,
                 messageContract,
                 cmd.connectionIds,
                 cmd.participants,
@@ -77,6 +75,11 @@ export class SendMessageCommandHandler implements Handler<SendMessageCommand, Me
                 payloads,
             ),
         );
+
+        if (message.deliveryStatus === DeliveryStatus.Failed) {
+            await this.eventRepository.markAsFailed(message.id, 'The group could not be started');
+            return Result.success(messageContract);
+        }
 
         this.messagePump.notify();
 

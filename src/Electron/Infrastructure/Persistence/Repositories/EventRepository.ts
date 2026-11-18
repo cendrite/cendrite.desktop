@@ -84,6 +84,24 @@ export class EventRepository implements IEventRepository, IOutboxRepository {
         return deserializer(parseEventContent(event.content), event.occurredOn) as T;
     }
 
+    public async getEventById<T extends DomainEvent>(id: string): Promise<T | null> {
+        const event = await this.ctx.findOneBy({ id });
+
+        if (!event) {
+            return null;
+        }
+
+        const deserializer = resolveDeserializer(event.type);
+        if (!deserializer) {
+            throw new Error(`No registered deserializer for type: ${event.type}`);
+        }
+        return deserializer(parseEventContent(event.content), event.occurredOn) as T;
+    }
+
+    public async markAsFailed(id: string, error: string): Promise<void> {
+        await this.ctx.update({ id }, { error, processedOn: new Date() });
+    }
+
     public async deleteEvent(id: string): Promise<void> {
         await this.ctx.delete({ id });
     }
