@@ -58,10 +58,7 @@ export class GroupService implements IGroupService {
         if (group.lifecycle !== GroupLifecycle.Draft) return Result.success(null);
 
         if (!group.pendingStart) {
-            const prepareStartResult = await this.prepareStart(group);
-            if (!prepareStartResult.success) return Result.fail<Record<string, GroupStrapPayload> | null>(prepareStartResult.errorMessage);
-
-            group.pendingStart = prepareStartResult.data;
+            group.pendingStart = await this.prepareStart(group);
             await this.groupRepository.update(group);
         }
 
@@ -88,7 +85,7 @@ export class GroupService implements IGroupService {
         return Result.success<Record<string, GroupStrapPayload> | null>(pending.straps);
     }
 
-    private async prepareStart(group: Group): Promise<Result<PendingGroupStart>> {
+    private async prepareStart(group: Group): Promise<PendingGroupStart> {
         const chat = await this.chatStore.getChatWithMembers(group.groupId);
         const user = await this.userRepository.get(true);
         const device = await this.deviceRepository.get();
@@ -142,7 +139,7 @@ export class GroupService implements IGroupService {
             new GroupCreatedOperation(user.userTag, chat.groupName, members),
         );
 
-        if (!sealCreateResult.success) return Result.fail<PendingGroupStart>(sealCreateResult.errorMessage);
+        if (!sealCreateResult.success) throw new Error(sealCreateResult.errorMessage.message);
 
         const hash = sealCreateResult.data.hash.toString('base64');
         const epochKeys = [epochKey.key.toString('base64')];
@@ -152,13 +149,11 @@ export class GroupService implements IGroupService {
             straps[connectionId] = new GroupStrapPayload(group.groupId, chat.groupName, 1, hash, epochKeys, privateKey, members);
         }
 
-        return Result.success(
-            new PendingGroupStart(
-                straps,
-                sealCreateResult.data.payload.toString('base64'),
-                sealCreateResult.data.signature.toString('base64'),
-                hash,
-            ),
+        return new PendingGroupStart(
+            straps,
+            sealCreateResult.data.payload.toString('base64'),
+            sealCreateResult.data.signature.toString('base64'),
+            hash,
         );
     }
 }
