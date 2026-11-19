@@ -1,9 +1,8 @@
-import { GroupMemberRef } from '../Protocol/LedgerOperation.js';
+import { GroupStrapPayload } from '../Protocol/Payload.js';
 
 export class PendingGroupStart {
     constructor(
-        public readonly members: GroupMemberRef[],
-        public readonly inviteKeys: Record<string, string>,
+        public readonly straps: Record<string, GroupStrapPayload>,
         public readonly payload: string,
         public readonly signature: string,
         public readonly hash: string,

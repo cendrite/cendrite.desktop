@@ -4,7 +4,5 @@ export class ResendMessageCommand implements MediatorRequest<void> {
     constructor(
         public readonly ChatId: string,
         public readonly MessageId: string,
-        public readonly connectionIds: string[],
-        public readonly participants: string[],
     ) { }
 }

@@ -37,7 +37,6 @@ export function useMessageService() {
                 chat.id,
                 text,
                 media,
-                chat.isGroup,
             );
 
             if (msg) {
@@ -56,12 +55,7 @@ export function useMessageService() {
                 return;
             }
 
-            await chatService.resendMessage(
-                chat.id,
-                message.id,
-                chat.chatMembers.map((m) => m.devices).flat(),
-                chat.chatMembers.map((m) => m.userTag),
-            );
+            await chatService.resendMessage(chat.id, message.id);
         },
         [chatService],
     );
