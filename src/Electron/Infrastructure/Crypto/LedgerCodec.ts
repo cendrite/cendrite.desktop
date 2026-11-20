@@ -9,6 +9,7 @@ import {
     sign as edSign,
     verify as edVerify,
 } from 'crypto';
+import { LedgerKeyGrant } from '#electron/Application/Contracts/Providers/ILedgerProvider';
 
 export const EPOCH_HEADER_BYTES = 4;
 export const IV_BYTES = 12;
@@ -34,8 +35,9 @@ export interface SigningInputParts {
     previousHash: Buffer;
     payload: Buffer;
     keysAdded?: Buffer[];
-    invitesAdded?: Buffer[];
+    invitesAdded?: LedgerKeyGrant[];
     keysRemoved?: Buffer[];
+    rolesChanged?: LedgerKeyGrant[];
 }
 
 export function uuidToBytes(uuid: string): Buffer {
@@ -52,16 +54,19 @@ export function bytesToUuid(bytes: Buffer): string {
 /**
  * The server rebuilds these exact bytes to verify a signature, so the layout is protocol:
  * "ledger-v1" || groupId(16) || version(4 BE) || previousHash(32) || added count(4 BE) || sorted added
- * || invites count(4 BE) || sorted invites || removed count(4 BE) || sorted removed || payload
+ * || invites count(4 BE) || sorted (invite key || role byte) || removed count(4 BE) || sorted removed
+ * || role changes count(4 BE) || sorted (key || role byte) || payload
  */
 export function buildSigningInput(parts: SigningInputParts): Buffer {
     const { groupId, version, previousHash, payload } = parts;
     const keysAdded = parts.keysAdded ?? [];
     const invitesAdded = parts.invitesAdded ?? [];
     const keysRemoved = parts.keysRemoved ?? [];
+    const rolesChanged = parts.rolesChanged ?? [];
 
     assertLength('previousHash', previousHash, HASH_BYTES);
-    [...keysAdded, ...invitesAdded, ...keysRemoved].forEach((key) => assertLength('write key', key, WRITE_KEY_BYTES));
+    [...keysAdded, ...keysRemoved, ...[...invitesAdded, ...rolesChanged].map((grant) => grant.publicKey)]
+        .forEach((key) => assertLength('write key', key, WRITE_KEY_BYTES));
 
     return Buffer.concat([
         DOMAIN_PREFIX,
@@ -69,8 +74,9 @@ export function buildSigningInput(parts: SigningInputParts): Buffer {
         bigEndian(version),
         previousHash,
         writeKeyList(keysAdded),
-        writeKeyList(invitesAdded),
+        grantList(invitesAdded),
         writeKeyList(keysRemoved),
+        grantList(rolesChanged),
         payload,
     ]);
 }
@@ -183,6 +189,11 @@ function additionalData(groupId: string, version: number, epoch: number): Buffer
 function writeKeyList(keys: Buffer[]): Buffer {
     const sorted = [...keys].sort(Buffer.compare);
     return Buffer.concat([bigEndian(sorted.length), ...sorted]);
+}
+
+function grantList(grants: LedgerKeyGrant[]): Buffer {
+    const sorted = [...grants].sort((a, b) => Buffer.compare(a.publicKey, b.publicKey));
+    return Buffer.concat([bigEndian(sorted.length), ...sorted.map((grant) => Buffer.concat([grant.publicKey, Buffer.from([grant.role])]))]);
 }
 
 function bigEndian(value: number): Buffer {

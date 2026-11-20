@@ -8,6 +8,7 @@ import {
     LedgerEvent,
     LedgerEventsPage,
     LedgerHead,
+    LedgerKeyGrant,
 } from '../../../../../src/Electron/Application/Contracts/Providers/ILedgerProvider.js';
 import { IGroupKeyRepository } from '../../../../../src/Electron/Application/Contracts/Repositories/IGroupKeyRepository.js';
 import { IGroupRepository } from '../../../../../src/Electron/Application/Contracts/Repositories/IGroupRepository.js';
@@ -23,10 +24,12 @@ import {
     GroupMemberRef,
     LedgerOperation,
     MemberAddedOperation,
+    PrivilegeChangedOperation,
     SettingsChangedOperation,
     WriteKeyRegisteredOperation,
 } from '../../../../../src/Electron/Domain/Protocol/LedgerOperation.js';
 import { LedgerOperationType } from '../../../../../src/Electron/Domain/Enums/LedgerOperationType.js';
+import { WriteKeyRole } from '../../../../../src/Electron/Domain/Enums/WriteKeyRole.js';
 import { ChatPrivileges } from '../../../../../src/Shared/Enums/ChatPrivileges.js';
 import { ReplayResult } from '../../../../../src/Electron/Application/Contracts/Services/ILedgerReplayService.js';
 import {
@@ -72,7 +75,7 @@ const keyRepository: IGroupKeyRepository = {
 };
 
 class FakeProvider implements ILedgerProvider {
-    public created: { payload: Buffer; writeKey: Buffer; invitesAdded: Buffer[]; signature: Buffer; privateToken: Buffer } | null = null;
+    public created: { payload: Buffer; writeKey: Buffer; invitesAdded: LedgerKeyGrant[]; signature: Buffer; privateToken: Buffer } | null = null;
     public appends: LedgerAppend[] = [];
     public conflictsLeft = 0;
     public createConflict = false;
@@ -81,7 +84,7 @@ class FakeProvider implements ILedgerProvider {
         _groupId: string,
         payload: Buffer,
         writeKey: Buffer,
-        invitesAdded: Buffer[],
+        invitesAdded: LedgerKeyGrant[],
         signature: Buffer,
         privateToken: Buffer,
     ) {
@@ -186,8 +189,8 @@ function tokenManager(onRefresh: () => void = () => undefined): ITokenManager & 
 }
 
 async function create(sut: LedgerWriter) {
-    const sealed = await sut.sealCreate(GROUP_ID, [inviteKeyPair.publicKey], created());
-    return sut.createStream(GROUP_ID, [inviteKeyPair.publicKey], sealed.data!);
+    const sealed = await sut.sealCreate(GROUP_ID, created());
+    return sut.createStream(GROUP_ID, sealed.data!);
 }
 
 function settingsChanged(): LedgerOperation {
@@ -218,7 +221,7 @@ describe('creating a stream', () => {
 
         const { payload, writeKey, signature, invitesAdded } = provider.created!;
 
-        expect(invitesAdded).toEqual([inviteKeyPair.publicKey]);
+        expect(invitesAdded).toEqual([{ publicKey: inviteKeyPair.publicKey, role: WriteKeyRole.Writer }]);
 
         const signingInput = buildSigningInput({
             groupId: GROUP_ID,
@@ -237,7 +240,7 @@ describe('creating a stream', () => {
             signature,
             hashEvent(signingInput),
             [],
-            invitesAdded.map((key) => key.toString('base64')),
+            invitesAdded.map((grant) => ({ publicKey: grant.publicKey.toString('base64'), role: grant.role })),
         );
 
         const replayed = await new LedgerReplayService(keyRepository, ledgerIdentity, deviceVerifier).replay(GROUP_ID, [record]);
@@ -338,11 +341,11 @@ describe('creating a stream', () => {
             tokenManager(),
         );
 
-        const sealed = await sut.sealCreate(GROUP_ID, [inviteKeyPair.publicKey], created());
+        const sealed = await sut.sealCreate(GROUP_ID, created());
         state.version = 1;
         state.headHash = sealed.data!.hash;
 
-        const result = await sut.createStream(GROUP_ID, [inviteKeyPair.publicKey], sealed.data!);
+        const result = await sut.createStream(GROUP_ID, sealed.data!);
 
         expect(result.success).toBe(true);
     });
@@ -463,6 +466,41 @@ describe('appending', () => {
         expect(provider.appends[0].keysRemoved).toEqual([Buffer.alloc(32, 0xb2), Buffer.alloc(32, 0xd4)]);
         expect(provider.appends[0].keysAdded).toEqual([]);
         expect(provider.appends[0].invitesAdded).toEqual([]);
+        expect(provider.appends[0].rolesChanged).toEqual([]);
+    });
+
+    test('declares a privilege change as a role change for every key of that member', async () => {
+        const state = new GroupState(GROUP_ID);
+        state.members.set('bob', {
+            userTag: 'bob',
+            displayName: 'Bob',
+            privilege: ChatPrivileges.Member,
+            identityKey: 'bob-identity',
+            joinedAtVersion: 2,
+            writeKeys: [Buffer.alloc(32, 0xb2).toString('base64')],
+            inviteKeys: [Buffer.alloc(32, 0xd4).toString('base64')],
+            connectionIds: [],
+        });
+
+        const sut = new LedgerWriter(
+            provider,
+            keyRepository,
+            groupRepository(new Group(GROUP_ID, 0, 2, Buffer.alloc(32, 0x11))),
+            syncService(state),
+            ledgerIdentity,
+            wallet(),
+            tokenManager(),
+        );
+
+        await sut.append(GROUP_ID, new PrivilegeChangedOperation('alice', 'bob', ChatPrivileges.Admin));
+
+        expect(provider.appends[0].rolesChanged).toEqual([
+            { publicKey: Buffer.alloc(32, 0xb2), role: WriteKeyRole.Admin },
+            { publicKey: Buffer.alloc(32, 0xd4), role: WriteKeyRole.Admin },
+        ]);
+        expect(provider.appends[0].keysAdded).toEqual([]);
+        expect(provider.appends[0].keysRemoved).toEqual([]);
+        expect(provider.appends[0].invitesAdded).toEqual([]);
     });
 
     test('declares a swap as removing the invite key and adding the new write key', async () => {
@@ -505,7 +543,7 @@ describe('appending', () => {
             ),
         );
 
-        expect(provider.appends[0].invitesAdded).toEqual([Buffer.alloc(32, 0xd4)]);
+        expect(provider.appends[0].invitesAdded).toEqual([{ publicKey: Buffer.alloc(32, 0xd4), role: WriteKeyRole.Writer }]);
         expect(provider.appends[0].keysAdded).toEqual([]);
         expect(provider.appends[0].keysRemoved).toEqual([]);
     });

@@ -1,6 +1,6 @@
 import { Result } from '#shared/Result/Result';
 import { ErrorMessage } from '#shared/Result/ErrorMessage';
-import { ILedgerProvider, LedgerReadProof } from '#electron/Application/Contracts/Providers/ILedgerProvider';
+import { ILedgerProvider, LedgerEvent, LedgerKeyGrant, LedgerReadProof } from '#electron/Application/Contracts/Providers/ILedgerProvider';
 import { IGroupKeyRepository } from '#electron/Application/Contracts/Repositories/IGroupKeyRepository';
 import { IGroupRepository } from '#electron/Application/Contracts/Repositories/IGroupRepository';
 import { ILedgerLogRepository } from '#electron/Application/Contracts/Repositories/ILedgerLogRepository';
@@ -10,6 +10,7 @@ import { Group } from '#electron/Domain/Entities/Group';
 import { LedgerEventRecord } from '#electron/Domain/Entities/LedgerEventRecord';
 import { LedgerEventStatus } from '#electron/Domain/Enums/LedgerEventStatus';
 import { GroupWriteKey } from '#electron/Domain/Encryption/GroupWriteKey';
+import { KeyGrant } from '#electron/Domain/Protocol/KeyChanges';
 import { buildReadSigningInput, buildSigningInput, hashEvent, signOuter } from '../Crypto/LedgerCodec.js';
 
 const PAGE_SIZE = 500;
@@ -89,7 +90,7 @@ export class LedgerSyncService implements ILedgerSyncService {
     }
 }
 
-function toRecord(groupId: string, event: { version: number; previousHash: Buffer; payload: Buffer; writeKeyPublic: Buffer; signature: Buffer; keysAdded: Buffer[]; invitesAdded: Buffer[]; keysRemoved: Buffer[] }): LedgerEventRecord {
+function toRecord(groupId: string, event: LedgerEvent): LedgerEventRecord {
     const hash = hashEvent(
         buildSigningInput({
             groupId,
@@ -99,6 +100,7 @@ function toRecord(groupId: string, event: { version: number; previousHash: Buffe
             keysAdded: event.keysAdded,
             invitesAdded: event.invitesAdded,
             keysRemoved: event.keysRemoved,
+            rolesChanged: event.rolesChanged,
         }),
     );
 
@@ -111,9 +113,14 @@ function toRecord(groupId: string, event: { version: number; previousHash: Buffe
         event.signature,
         hash,
         event.keysAdded.map((key) => key.toString('base64')),
-        event.invitesAdded.map((key) => key.toString('base64')),
+        event.invitesAdded.map(toStoredGrant),
         event.keysRemoved.map((key) => key.toString('base64')),
+        event.rolesChanged.map(toStoredGrant),
     );
+}
+
+function toStoredGrant(grant: LedgerKeyGrant): KeyGrant {
+    return { publicKey: grant.publicKey.toString('base64'), role: grant.role };
 }
 
 function readProof(groupId: string, writeKey: GroupWriteKey): LedgerReadProof {

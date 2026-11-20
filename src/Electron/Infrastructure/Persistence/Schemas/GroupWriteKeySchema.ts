@@ -19,5 +19,9 @@ export const GroupWriteKeySchema = new EntitySchema<GroupWriteKey>({
             type: 'blob',
             nullable: false,
         },
+        isInvite: {
+            type: 'boolean',
+            nullable: false,
+        },
     },
 });

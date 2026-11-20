@@ -6,15 +6,17 @@ import {
     ILedgerProvider,
     isLedgerConflict,
     LedgerAppend,
+    LedgerKeyGrant,
 } from '#electron/Application/Contracts/Providers/ILedgerProvider';
 import { ILedgerWriter, SealedCreate } from '#electron/Application/Contracts/Services/ILedgerWriter';
 import { ITokenManager } from '#electron/Application/Contracts/Services/ITokenManager';
 import { ILedgerSyncService } from '#electron/Application/Contracts/Services/ILedgerSyncService';
 import { LEDGER_TOKEN_ORIGIN } from '#electron/Application/Contracts/Services/IBlindTokenService';
 import { IPrivateTokenRepository } from '#electron/Application/Contracts/Repositories/IPrivateTokenRepository';
-import { LedgerOperationType } from '#electron/Domain/Enums/LedgerOperationType';
+import { KeyChanges, KeyGrant } from '#electron/Domain/Protocol/KeyChanges';
 import { LedgerOperation } from '#electron/Domain/Protocol/LedgerOperation';
 import { GroupState } from '#electron/Domain/Projections/GroupState';
+import { keyChangesFor } from '#electron/Domain/Services/GroupReducer';
 import { buildOperationSigningInput, buildSigningInput, encryptPayload, hashEvent, signOuter } from '../Crypto/LedgerCodec.js';
 import { ILedgerIdentity } from '../Interfaces/ILedgerIdentity.js';
 
@@ -32,16 +34,17 @@ export class LedgerWriter implements ILedgerWriter {
         private readonly tokenManager: ITokenManager,
     ) { }
 
-    public async sealCreate(groupId: string, invites: Buffer[], operation: LedgerOperation): Promise<Result<SealedCreate>> {
-        const sealed = await this.seal(groupId, 1, GENESIS_PREVIOUS_HASH, operation, { added: [], invites, removed: [] });
+    public async sealCreate(groupId: string, operation: LedgerOperation): Promise<Result<SealedCreate>> {
+        const keyChanges = keyChangesFor(new GroupState(groupId), operation);
+        const sealed = await this.seal(groupId, 1, GENESIS_PREVIOUS_HASH, operation, keyChanges);
         if (!sealed.success) return Result.fail<SealedCreate>(sealed.errorMessage);
 
         const { payload, signature, hash } = sealed.data;
 
-        return Result.success({ payload, signature, hash });
+        return Result.success({ payload, signature, hash, invites: keyChanges.invites });
     }
 
-    public async createStream(groupId: string, invites: Buffer[], sealed: SealedCreate): Promise<Result<void>> {
+    public async createStream(groupId: string, sealed: SealedCreate): Promise<Result<void>> {
         const writeKey = await this.groupKeyRepository.getWriteKey(groupId);
         if (!writeKey) return Result.fail(new ErrorMessage('LedgerWriter', `No write key for group ${groupId}`));
 
@@ -54,7 +57,7 @@ export class LedgerWriter implements ILedgerWriter {
             groupId,
             sealed.payload,
             writeKey.publicKey,
-            invites,
+            sealed.invites.map(toLedgerGrant),
             sealed.signature,
             privateToken,
         );
@@ -73,7 +76,7 @@ export class LedgerWriter implements ILedgerWriter {
             if (!group) return Result.fail(new ErrorMessage('LedgerWriter', `Unknown group ${groupId}`));
 
             const version = group.version + 1;
-            const keyChanges = keyChangesFor(operation, synced.data.state);
+            const keyChanges = keyChangesFor(synced.data.state, operation);
 
             const sealed = await this.seal(
                 groupId,
@@ -94,9 +97,10 @@ export class LedgerWriter implements ILedgerWriter {
                     payload,
                     writeKey.publicKey,
                     signature,
-                    keyChanges.added,
-                    keyChanges.invites,
-                    keyChanges.removed,
+                    keyChanges.added.map(fromBase64),
+                    keyChanges.invites.map(toLedgerGrant),
+                    keyChanges.removed.map(fromBase64),
+                    keyChanges.roles.map(toLedgerGrant),
                 ),
             );
 
@@ -159,9 +163,10 @@ export class LedgerWriter implements ILedgerWriter {
             version,
             previousHash,
             payload,
-            keysAdded: keyChanges.added,
-            invitesAdded: keyChanges.invites,
-            keysRemoved: keyChanges.removed,
+            keysAdded: keyChanges.added.map(fromBase64),
+            invitesAdded: keyChanges.invites.map(toLedgerGrant),
+            keysRemoved: keyChanges.removed.map(fromBase64),
+            rolesChanged: keyChanges.roles.map(toLedgerGrant),
         });
         const signature = signOuter(writeKey.privateKey, signingInput);
 
@@ -176,28 +181,8 @@ interface SealedOperation {
     signature: Buffer;
 }
 
-interface KeyChanges {
-    added: Buffer[];
-    invites: Buffer[];
-    removed: Buffer[];
-}
-
-function keyChangesFor(operation: LedgerOperation, state: GroupState): KeyChanges {
-    switch (operation.type) {
-        case LedgerOperationType.MemberAdded:
-            return { added: [], invites: operation.member.inviteKeys.map(fromBase64), removed: [] };
-
-        case LedgerOperationType.MemberRemoved: {
-            const member = state.members.get(operation.userTag);
-            return { added: [], invites: [], removed: member ? [...member.writeKeys, ...member.inviteKeys].map(fromBase64) : [] };
-        }
-
-        case LedgerOperationType.WriteKeyRegistered:
-            return { added: [fromBase64(operation.writeKeyPublic)], invites: [], removed: [fromBase64(operation.inviteKeyPublic)] };
-
-        default:
-            return { added: [], invites: [], removed: [] };
-    }
+function toLedgerGrant(grant: KeyGrant): LedgerKeyGrant {
+    return { publicKey: fromBase64(grant.publicKey), role: grant.role };
 }
 
 function fromBase64(value: string): Buffer {

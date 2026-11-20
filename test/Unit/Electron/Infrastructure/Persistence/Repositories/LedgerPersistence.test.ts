@@ -17,6 +17,7 @@ import { GroupRepository } from '../../../../../../src/Electron/Infrastructure/P
 import { GroupKeyRepository } from '../../../../../../src/Electron/Infrastructure/Persistence/Repositories/GroupKeyRepository.js';
 import { LedgerEventRecord } from '../../../../../../src/Electron/Domain/Entities/LedgerEventRecord.js';
 import { LedgerEventStatus } from '../../../../../../src/Electron/Domain/Enums/LedgerEventStatus.js';
+import { WriteKeyRole } from '../../../../../../src/Electron/Domain/Enums/WriteKeyRole.js';
 import { Group } from '../../../../../../src/Electron/Domain/Entities/Group.js';
 import { GroupLifecycle } from '../../../../../../src/Electron/Domain/Enums/GroupLifecycle.js';
 import { PendingGroupWriteKey } from '../../../../../../src/Electron/Domain/Encryption/PendingGroupWriteKey.js';
@@ -46,8 +47,9 @@ function record(version: number, status = LedgerEventStatus.Applied, groupId = G
         Buffer.alloc(64, 0x7f),
         Buffer.alloc(32, 0xfe),
         [Buffer.alloc(32, 0xb2).toString('base64')],
-        [Buffer.alloc(32, 0xd4).toString('base64')],
+        [{ publicKey: Buffer.alloc(32, 0xd4).toString('base64'), role: WriteKeyRole.Writer }],
         [],
+        [{ publicKey: Buffer.alloc(32, 0xe5).toString('base64'), role: WriteKeyRole.Admin }],
         status,
     );
 }
@@ -64,8 +66,9 @@ describe('LedgerLogRepository', () => {
         expect(Buffer.from(stored.previousHash)).toEqual(Buffer.alloc(32, 1));
         expect(Buffer.from(stored.signature)).toHaveLength(64);
         expect(stored.keysAdded).toEqual([Buffer.alloc(32, 0xb2).toString('base64')]);
-        expect(stored.invitesAdded).toEqual([Buffer.alloc(32, 0xd4).toString('base64')]);
+        expect(stored.invitesAdded).toEqual([{ publicKey: Buffer.alloc(32, 0xd4).toString('base64'), role: WriteKeyRole.Writer }]);
         expect(stored.keysRemoved).toEqual([]);
+        expect(stored.rolesChanged).toEqual([{ publicKey: Buffer.alloc(32, 0xe5).toString('base64'), role: WriteKeyRole.Admin }]);
         expect(stored.status).toBe(LedgerEventStatus.Applied);
     });
 
@@ -168,6 +171,17 @@ describe('GroupKeyRepository', () => {
 
         expect(Buffer.from(stored!.publicKey)).toEqual(Buffer.alloc(32, 0xa1));
         expect(Buffer.from(stored!.privateKey)).toEqual(privateKey);
+    });
+
+    test('remembers whether the write key is still an invite key', async () => {
+        const sut = new GroupKeyRepository();
+        await sut.saveWriteKey(new GroupWriteKey(GROUP_ID, Buffer.alloc(32, 0xa1), Buffer.alloc(32, 0x42), true));
+
+        expect((await sut.getWriteKey(GROUP_ID))!.isInvite).toBe(true);
+
+        await sut.saveWriteKey(new GroupWriteKey(GROUP_ID, Buffer.alloc(32, 0xb2), Buffer.alloc(32, 0x43)));
+
+        expect((await sut.getWriteKey(GROUP_ID))!.isInvite).toBe(false);
     });
 
     test('never writes the private key in the clear', async () => {

@@ -37,7 +37,7 @@ interface Setup {
 function setup({ syncs, append = Result.success(), pending, lifecycle = GroupLifecycle.Active }: Setup) {
     const invite = generateWriteKeyPair();
     const keys = {
-        current: new GroupWriteKey(GROUP_ID, invite.publicKey, invite.privateKey),
+        current: new GroupWriteKey(GROUP_ID, invite.publicKey, invite.privateKey, true),
         pending: pending ? new PendingGroupWriteKey(GROUP_ID, pending.publicKey, pending.privateKey) : null,
     };
 
@@ -53,6 +53,7 @@ function setup({ syncs, append = Result.success(), pending, lifecycle = GroupLif
     let syncCount = 0;
     const ledgerSyncService = { sync: vi.fn(async () => results[Math.min(syncCount++, results.length - 1)]) };
     const ledgerWriter = { append: vi.fn(async (_groupId: string, _operation: WriteKeyRegisteredOperation) => append) };
+    const send = vi.fn();
 
     const sut = new WriteKeySwapPump(
         { getIds: async () => [GROUP_ID], get: async () => new Group(GROUP_ID, lifecycle) } as never,
@@ -60,9 +61,10 @@ function setup({ syncs, append = Result.success(), pending, lifecycle = GroupLif
         { get: async () => ({ userTag: TAG }) } as never,
         ledgerSyncService as never,
         ledgerWriter as never,
+        { webContents: { send } } as never,
     );
 
-    return { sut, keys, invite, ledgerWriter, groupKeyRepository };
+    return { sut, keys, invite, ledgerWriter, groupKeyRepository, send };
 }
 
 const holdingInvite = (invite: WriteKeyPair) => [replayed({ inviteKeys: [b64(invite.publicKey)] })];
@@ -77,7 +79,16 @@ describe('swapping invite keys', () => {
         expect(operation.authorTag).toBe(TAG);
         expect(operation.inviteKeyPublic).toBe(b64(invite.publicKey));
         expect(b64(keys.current.publicKey)).toBe(operation.writeKeyPublic);
+        expect(keys.current.isInvite).toBe(false);
         expect(keys.pending).toBeNull();
+    });
+
+    test('tells the window the group can be edited once the swap is stored', async () => {
+        const { sut, send } = setup({ syncs: holdingInvite });
+
+        await sut.reconcile(GROUP_ID);
+
+        expect(send).toHaveBeenCalledWith('eventMessage', { kind: 'groupEditable', groupId: GROUP_ID });
     });
 
     test('saves the new key as pending before asking the ledger', async () => {
@@ -93,19 +104,21 @@ describe('swapping invite keys', () => {
     });
 
     test('keeps the invite key when the append fails, and retries with the same pending key', async () => {
-        const { sut, keys, invite, ledgerWriter } = setup({ syncs: holdingInvite, append: Result.fail(new ErrorMessage('Conflict', 'busy')) });
+        const { sut, keys, invite, ledgerWriter, send } = setup({ syncs: holdingInvite, append: Result.fail(new ErrorMessage('Conflict', 'busy')) });
 
         await sut.reconcile(GROUP_ID);
         const pending = keys.pending!;
         await sut.reconcile(GROUP_ID);
 
         expect(keys.current.publicKey).toEqual(invite.publicKey);
+        expect(keys.current.isInvite).toBe(true);
+        expect(send).not.toHaveBeenCalled();
         expect(ledgerWriter.append.mock.calls[1][1].writeKeyPublic).toBe(b64(pending.publicKey));
     });
 
     test('promotes the pending key when the swap went through but the new key was never stored', async () => {
         const next = generateWriteKeyPair();
-        const { sut, keys, ledgerWriter } = setup({
+        const { sut, keys, ledgerWriter, send } = setup({
             pending: next,
             syncs: () => [unreadable(), replayed({ writeKeys: [b64(next.publicKey)] })],
         });
@@ -113,6 +126,8 @@ describe('swapping invite keys', () => {
         await sut.reconcile(GROUP_ID);
 
         expect(keys.current.publicKey).toEqual(next.publicKey);
+        expect(keys.current.isInvite).toBe(false);
+        expect(send).toHaveBeenCalledWith('eventMessage', { kind: 'groupEditable', groupId: GROUP_ID });
         expect(keys.pending).toBeNull();
         expect(ledgerWriter.append).not.toHaveBeenCalled();
     });

@@ -6,7 +6,7 @@ import { PendingGroupStart } from '#electron/Domain/Entities/PendingGroupStart';
 import { ChatPrivileges } from '#shared/Enums/ChatPrivileges';
 import { GroupLifecycle } from '#electron/Domain/Enums/GroupLifecycle';
 import { GroupCreatedOperation, GroupMemberRef } from '#electron/Domain/Protocol/LedgerOperation';
-import { generateEpochKey, generateWriteKeyPair, publicKeyFromPrivate } from '#electron/Infrastructure/Crypto/LedgerCodec';
+import { generateEpochKey, generateWriteKeyPair } from '#electron/Infrastructure/Crypto/LedgerCodec';
 import { GroupStrapPayload } from '#electron/Domain/Protocol/Payload';
 import { IChatStore } from '../Contracts/Repositories/IChatStore.js';
 import { IDeviceRepository } from '../Contracts/Repositories/IDeviceRepository.js';
@@ -64,15 +64,12 @@ export class GroupService implements IGroupService {
 
         const pending = group.pendingStart;
 
-        const createStreamResult = await this.ledgerWriter.createStream(
-            group.groupId,
-            Object.values(pending.straps).map((strap) => publicKeyFromPrivate(Buffer.from(strap.inviteKeyPrivate, 'base64'))),
-            {
-                payload: Buffer.from(pending.payload, 'base64'),
-                signature: Buffer.from(pending.signature, 'base64'),
-                hash: Buffer.from(pending.hash, 'base64'),
-            },
-        );
+        const createStreamResult = await this.ledgerWriter.createStream(group.groupId, {
+            payload: Buffer.from(pending.payload, 'base64'),
+            signature: Buffer.from(pending.signature, 'base64'),
+            hash: Buffer.from(pending.hash, 'base64'),
+            invites: pending.invites,
+        });
 
         if (!createStreamResult.success) return Result.fail<Record<string, GroupStrapPayload> | null>(createStreamResult.errorMessage);
 
@@ -135,7 +132,6 @@ export class GroupService implements IGroupService {
 
         const sealCreateResult = await this.ledgerWriter.sealCreate(
             group.groupId,
-            Object.values(inviteKeys).map((privateKey) => publicKeyFromPrivate(Buffer.from(privateKey, 'base64'))),
             new GroupCreatedOperation(user.userTag, chat.groupName, members),
         );
 
@@ -154,6 +150,7 @@ export class GroupService implements IGroupService {
             sealCreateResult.data.payload.toString('base64'),
             sealCreateResult.data.signature.toString('base64'),
             hash,
+            sealCreateResult.data.invites,
         );
     }
 }

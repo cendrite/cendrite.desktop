@@ -1,4 +1,5 @@
 import { LedgerEventStatus } from "../Enums/LedgerEventStatus.js";
+import { KeyGrant } from "../Protocol/KeyChanges.js";
 
 export class LedgerEventRecord {
     groupId: string;
@@ -8,8 +9,9 @@ export class LedgerEventRecord {
     writeKeyPublic: Buffer;
     signature: Buffer;
     keysAdded: string[];
-    invitesAdded: string[];
+    invitesAdded: KeyGrant[];
     keysRemoved: string[];
+    rolesChanged: KeyGrant[];
     hash: Buffer;
     status: LedgerEventStatus;
     rejectReason: string | null;
@@ -24,8 +26,9 @@ export class LedgerEventRecord {
         signature: Buffer,
         hash: Buffer,
         keysAdded: string[] = [],
-        invitesAdded: string[] = [],
+        invitesAdded: KeyGrant[] = [],
         keysRemoved: string[] = [],
+        rolesChanged: KeyGrant[] = [],
         status: LedgerEventStatus = LedgerEventStatus.Applied,
         rejectReason: string | null = null,
         verifiedAuthor: string | null = null,
@@ -40,6 +43,7 @@ export class LedgerEventRecord {
         this.keysAdded = keysAdded;
         this.invitesAdded = invitesAdded;
         this.keysRemoved = keysRemoved;
+        this.rolesChanged = rolesChanged;
         this.status = status;
         this.rejectReason = rejectReason;
         this.verifiedAuthor = verifiedAuthor;

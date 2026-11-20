@@ -1,22 +1,21 @@
 import { ChatPrivileges } from '#shared/Enums/ChatPrivileges';
 import { LedgerOperationType } from '../Enums/LedgerOperationType.js';
+import { WriteKeyRole } from '../Enums/WriteKeyRole.js';
 import { GroupMember } from '../Projections/GroupMember.js';
 import { GroupState } from '../Projections/GroupState.js';
+import { KeyChanges, KeyGrant } from '../Protocol/KeyChanges.js';
 import { LedgerOperation } from '../Protocol/LedgerOperation.js';
 
 export interface OperationContext {
     version: number;
     authorKey: string;
     keysAdded: string[];
-    invitesAdded: string[];
+    invitesAdded: KeyGrant[];
     keysRemoved: string[];
+    rolesChanged: KeyGrant[];
 }
 
-interface KeyChanges {
-    added: string[];
-    invites: string[];
-    removed: string[];
-}
+const NO_KEY_CHANGES: KeyChanges = { added: [], invites: [], removed: [], roles: [] };
 
 export function authorOf(state: GroupState, writeKeyPublic: string): GroupMember | null {
     return state.ownerOfWriteKey(writeKeyPublic);
@@ -37,7 +36,7 @@ export function rejectReasonFor(
             return 'only the creating write key may be a write key at creation';
         }
 
-        return keyChangeMismatch(declaredKeyChanges(state, operation), context);
+        return keyChangeMismatch(keyChangesFor(state, operation), context);
     }
 
     const author = authorOf(state, context.authorKey);
@@ -48,7 +47,7 @@ export function rejectReasonFor(
         return 'an invite key may only register a write key';
     }
 
-    const mismatch = keyChangeMismatch(declaredKeyChanges(state, operation), context);
+    const mismatch = keyChangeMismatch(keyChangesFor(state, operation), context);
     if (mismatch) return mismatch;
 
     switch (operation.type) {
@@ -151,32 +150,58 @@ function requireAdmin(author: GroupMember): string | null {
     return author.privilege >= ChatPrivileges.Admin ? null : 'author is not an admin';
 }
 
-function declaredKeyChanges(state: GroupState, operation: LedgerOperation): KeyChanges {
+export function roleFor(privilege: ChatPrivileges): WriteKeyRole {
+    switch (privilege) {
+        case ChatPrivileges.Owner:
+            return WriteKeyRole.Owner;
+        case ChatPrivileges.Admin:
+            return WriteKeyRole.Admin;
+        default:
+            return WriteKeyRole.Writer;
+    }
+}
+
+export function keyChangesFor(state: GroupState, operation: LedgerOperation): KeyChanges {
     switch (operation.type) {
         case LedgerOperationType.GroupCreated:
-            return { added: [], invites: operation.members.flatMap((member) => member.inviteKeys), removed: [] };
+            return { ...NO_KEY_CHANGES, invites: operation.members.flatMap((member) => grants(member.inviteKeys, member.privilege)) };
 
         case LedgerOperationType.MemberAdded:
-            return { added: [], invites: operation.member.inviteKeys, removed: [] };
+            return { ...NO_KEY_CHANGES, invites: grants(operation.member.inviteKeys, operation.member.privilege) };
 
         case LedgerOperationType.MemberRemoved: {
             const member = state.members.get(operation.userTag);
-            return { added: [], invites: [], removed: member ? [...member.writeKeys, ...member.inviteKeys] : [] };
+            return { ...NO_KEY_CHANGES, removed: member ? [...member.writeKeys, ...member.inviteKeys] : [] };
+        }
+
+        case LedgerOperationType.PrivilegeChanged: {
+            const member = state.members.get(operation.userTag);
+            return { ...NO_KEY_CHANGES, roles: member ? grants([...member.writeKeys, ...member.inviteKeys], operation.privilege) : [] };
         }
 
         case LedgerOperationType.WriteKeyRegistered:
-            return { added: [operation.writeKeyPublic], invites: [], removed: [operation.inviteKeyPublic] };
+            return { ...NO_KEY_CHANGES, added: [operation.writeKeyPublic], removed: [operation.inviteKeyPublic] };
 
         default:
-            return { added: [], invites: [], removed: [] };
+            return NO_KEY_CHANGES;
     }
+}
+
+function grants(keys: string[], privilege: ChatPrivileges): KeyGrant[] {
+    const role = roleFor(privilege);
+    return keys.map((publicKey) => ({ publicKey, role }));
 }
 
 function keyChangeMismatch(declared: KeyChanges, context: OperationContext): string | null {
     if (!sameKeys(declared.added, context.keysAdded)) return 'granted keys do not match the operation';
-    if (!sameKeys(declared.invites, context.invitesAdded)) return 'invited keys do not match the operation';
+    if (!sameKeys(declared.invites.map(grantText), context.invitesAdded.map(grantText))) return 'invited keys do not match the operation';
     if (!sameKeys(declared.removed, context.keysRemoved)) return 'revoked keys do not match the operation';
+    if (!sameKeys(declared.roles.map(grantText), context.rolesChanged.map(grantText))) return 'role changes do not match the operation';
     return null;
+}
+
+function grantText(grant: KeyGrant): string {
+    return `${grant.publicKey}:${grant.role}`;
 }
 
 function sameKeys(declared: string[], applied: string[]): boolean {
