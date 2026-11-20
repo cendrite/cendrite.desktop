@@ -105,7 +105,7 @@ export class MessageReceiver implements IMessageReceiver {
         const inviteKeyPrivate = Buffer.from(payload.inviteKeyPrivate, 'base64');
 
         await this.groupKeyRepository.saveWriteKey(
-            new GroupWriteKey(payload.groupId, publicKeyFromPrivate(inviteKeyPrivate), inviteKeyPrivate),
+            new GroupWriteKey(payload.groupId, publicKeyFromPrivate(inviteKeyPrivate), inviteKeyPrivate, true),
         );
 
         for (const [index, epochKey] of payload.epochKeys.entries()) {

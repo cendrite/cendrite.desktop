@@ -1,11 +1,13 @@
 import { Result } from '#shared/Result/Result';
 import {
     ILedgerProvider,
+    KeyGrantDto,
     LedgerAppend,
     LedgerEventsPage,
     LedgerEventsPageDto,
     LedgerHead,
     LedgerHeadDto,
+    LedgerKeyGrant,
     LedgerReadProof,
 } from '#electron/Application/Contracts/Providers/ILedgerProvider';
 import { LedgerEvent } from '#electron/Application/Contracts/Providers/ILedgerProvider';
@@ -22,7 +24,7 @@ export class LedgerClient implements ILedgerProvider {
         groupId: string,
         payload: Buffer,
         writeKey: Buffer,
-        invitesAdded: Buffer[],
+        invitesAdded: LedgerKeyGrant[],
         signature: Buffer,
         privateToken: Buffer,
     ): Promise<Result<void>> {
@@ -35,7 +37,7 @@ export class LedgerClient implements ILedgerProvider {
                     payload: toBase64(payload),
                     writeKey: toBase64(writeKey),
                     signature: toBase64(signature),
-                    keyChanges: { added: [], invitesAdded: invitesAdded.map(toBase64), removed: [] },
+                    keyChanges: { added: [], invitesAdded: invitesAdded.map(toGrantDto), removed: [], rolesChanged: [] },
                 },
             },
             true,
@@ -55,8 +57,9 @@ export class LedgerClient implements ILedgerProvider {
                     signature: toBase64(append.signature),
                     keyChanges: {
                         added: append.keysAdded.map(toBase64),
-                        invitesAdded: append.invitesAdded.map(toBase64),
+                        invitesAdded: append.invitesAdded.map(toGrantDto),
                         removed: append.keysRemoved.map(toBase64),
+                        rolesChanged: append.rolesChanged.map(toGrantDto),
                     },
                 },
             },
@@ -112,8 +115,9 @@ export class LedgerClient implements ILedgerProvider {
                         fromBase64(event.writeKeyPublic),
                         fromBase64(event.signature),
                         event.keyChanges.added.map(fromBase64),
-                        event.keyChanges.invitesAdded.map(fromBase64),
+                        event.keyChanges.invitesAdded.map(fromGrantDto),
                         event.keyChanges.removed.map(fromBase64),
+                        event.keyChanges.rolesChanged.map(fromGrantDto),
                     ),
             ),
         });
@@ -152,4 +156,12 @@ function toBase64(value: Buffer): string {
 
 function fromBase64(value: string): Buffer {
     return Buffer.from(value, 'base64');
+}
+
+function toGrantDto(grant: LedgerKeyGrant): KeyGrantDto {
+    return { publicKey: toBase64(grant.publicKey), role: grant.role };
+}
+
+function fromGrantDto(grant: KeyGrantDto): LedgerKeyGrant {
+    return { publicKey: fromBase64(grant.publicKey), role: grant.role };
 }

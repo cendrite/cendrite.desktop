@@ -17,6 +17,7 @@ export class WriteKeySwapPump extends Pump {
         private readonly userRepository: IUserRepository,
         private readonly ledgerSyncService: ILedgerSyncService,
         private readonly ledgerWriter: ILedgerWriter,
+        private readonly mainWindow: Electron.BrowserWindow,
     ) {
         super();
     }
@@ -71,7 +72,10 @@ export class WriteKeySwapPump extends Pump {
         const activePublic = active.publicKey.toString('base64');
 
         if (member.writeKeys.includes(activePublic)) {
-            if (pending) await this.groupKeyRepository.deletePendingWriteKey(groupId);
+            if (pending) {
+                await this.groupKeyRepository.deletePendingWriteKey(groupId);
+                this.mainWindow.webContents.send('eventMessage', { kind: 'groupEditable', groupId });
+            }
             return;
         }
 
@@ -101,6 +105,7 @@ export class WriteKeySwapPump extends Pump {
 
         await this.groupKeyRepository.saveWriteKey(new GroupWriteKey(groupId, next.publicKey, next.privateKey));
         await this.groupKeyRepository.deletePendingWriteKey(groupId);
+        this.mainWindow.webContents.send('eventMessage', { kind: 'groupEditable', groupId });
     }
 
     private newPendingKey(groupId: string): PendingGroupWriteKey {

@@ -20,10 +20,13 @@ import {
     GroupMemberRef,
     LedgerOperation,
     MemberAddedOperation,
+    PrivilegeChangedOperation,
     WriteKeyRegisteredOperation,
 } from '../../../../../src/Electron/Domain/Protocol/LedgerOperation.js';
 import { LedgerOperationType } from '../../../../../src/Electron/Domain/Enums/LedgerOperationType.js';
 import { ChatPrivileges } from '../../../../../src/Shared/Enums/ChatPrivileges.js';
+import { KeyGrant } from '../../../../../src/Electron/Domain/Protocol/KeyChanges.js';
+import { roleFor } from '../../../../../src/Electron/Domain/Services/GroupReducer.js';
 import { IDeviceVerifier } from '../../../../../src/Electron/Application/Contracts/Services/IDeviceVerifier.js';
 
 const GROUP_ID = '0199673a-3c1e-7c2b-9f2e-5d8b1a4c7e10';
@@ -102,8 +105,9 @@ class LogBuilder {
         operation: LedgerOperation,
         options: {
             keysAdded?: string[];
-            invitesAdded?: string[];
+            invitesAdded?: KeyGrant[];
             keysRemoved?: string[];
+            rolesChanged?: KeyGrant[];
             signWith?: Member;
             signFrom?: Device;
             outerKey?: WriteKeyPair;
@@ -118,6 +122,7 @@ class LogBuilder {
         const keysAdded = options.keysAdded ?? [];
         const invitesAdded = options.invitesAdded ?? [];
         const keysRemoved = options.keysRemoved ?? [];
+        const rolesChanged = options.rolesChanged ?? [];
 
         const operationBytes = Buffer.from(JSON.stringify(operation), 'utf8');
         const signer = options.signFrom ?? (options.signWith ?? author).device;
@@ -144,8 +149,9 @@ class LogBuilder {
             previousHash,
             payload,
             keysAdded: keysAdded.map((k) => Buffer.from(k, 'base64')),
-            invitesAdded: invitesAdded.map((k) => Buffer.from(k, 'base64')),
+            invitesAdded: invitesAdded.map(toLedgerGrant),
             keysRemoved: keysRemoved.map((k) => Buffer.from(k, 'base64')),
+            rolesChanged: rolesChanged.map(toLedgerGrant),
         });
 
         this.events.push(
@@ -160,6 +166,7 @@ class LogBuilder {
                 keysAdded,
                 invitesAdded,
                 keysRemoved,
+                rolesChanged,
             ),
         );
 
@@ -193,8 +200,20 @@ function created(owner: Member, ...members: Member[]): LedgerOperation {
     ]);
 }
 
-function createdKeys(_owner: Member, ...members: Member[]): { invitesAdded: string[] } {
-    return { invitesAdded: members.map((member) => member.writeKeyPublic) };
+function createdKeys(_owner: Member, ...members: Member[]): { invitesAdded: KeyGrant[] } {
+    return { invitesAdded: members.map((member) => invite(member.writeKeyPublic)) };
+}
+
+function privilegeChanged(author: Member, member: Member, privilege: ChatPrivileges): LedgerOperation {
+    return new PrivilegeChangedOperation(author.userTag, member.userTag, privilege);
+}
+
+function invite(publicKey: string, privilege = ChatPrivileges.Member): KeyGrant {
+    return { publicKey, role: roleFor(privilege) };
+}
+
+function toLedgerGrant(grant: KeyGrant) {
+    return { publicKey: Buffer.from(grant.publicKey, 'base64'), role: grant.role };
 }
 
 function memberAdded(author: Member, member: Member, privilege = ChatPrivileges.Member): LedgerOperation {
@@ -207,7 +226,7 @@ describe('a well formed log', () => {
         const bob = new Member('bob', 'Bob');
         const events = new LogBuilder()
             .add(alice, created(alice), createdKeys(alice))
-            .add(alice, memberAdded(alice, bob), { invitesAdded: [bob.writeKeyPublic] })
+            .add(alice, memberAdded(alice, bob), { invitesAdded: [invite(bob.writeKeyPublic)] })
             .build();
 
         const result = await sut().replay(GROUP_ID, events);
@@ -226,7 +245,7 @@ describe('a well formed log', () => {
         const bob = new Member('bob', 'Bob');
         const events = new LogBuilder()
             .add(alice, created(alice), createdKeys(alice))
-            .add(alice, memberAdded(alice, bob, ChatPrivileges.Admin), { invitesAdded: [bob.writeKeyPublic] })
+            .add(alice, memberAdded(alice, bob, ChatPrivileges.Admin), { invitesAdded: [invite(bob.writeKeyPublic, ChatPrivileges.Admin)] })
             .add(bob, {
                 type: LedgerOperationType.SettingsChanged,
                 authorTag: bob.userTag,
@@ -260,7 +279,7 @@ describe('a well formed log', () => {
         const bob = new Member('bob', 'Bob');
         const events = new LogBuilder()
             .add(alice, created(alice), createdKeys(alice))
-            .add(alice, memberAdded(alice, bob), { invitesAdded: [bob.writeKeyPublic] })
+            .add(alice, memberAdded(alice, bob), { invitesAdded: [invite(bob.writeKeyPublic)] })
             .build();
 
         const first = await sut().replay(GROUP_ID, events);
@@ -275,7 +294,7 @@ describe('a well formed log', () => {
         const bob = new Member('bob', 'Bob');
         const events = new LogBuilder()
             .add(alice, created(alice), createdKeys(alice))
-            .add(alice, memberAdded(alice, bob), { invitesAdded: [bob.writeKeyPublic] })
+            .add(alice, memberAdded(alice, bob), { invitesAdded: [invite(bob.writeKeyPublic)] })
             .add(
                 alice,
                 { type: LedgerOperationType.MemberRemoved, authorTag: alice.userTag, at: 3, userTag: bob.userTag },
@@ -327,7 +346,7 @@ describe('a log the server could not have produced honestly', () => {
         const events = new LogBuilder()
             .add(alice, created(alice), createdKeys(alice))
             .add(alice, memberAdded(alice, bob), {
-                invitesAdded: [bob.writeKeyPublic],
+                invitesAdded: [invite(bob.writeKeyPublic)],
                 previousHash: Buffer.alloc(32, 0xff),
             })
             .build();
@@ -343,7 +362,7 @@ describe('a log the server could not have produced honestly', () => {
         const bob = new Member('bob', 'Bob');
         const events = new LogBuilder()
             .add(alice, created(alice), createdKeys(alice))
-            .add(alice, memberAdded(alice, bob), { invitesAdded: [bob.writeKeyPublic], version: 5 })
+            .add(alice, memberAdded(alice, bob), { invitesAdded: [invite(bob.writeKeyPublic)], version: 5 })
             .build();
 
         const result = await sut().replay(GROUP_ID, events);
@@ -360,8 +379,8 @@ describe('operations the log rejects but still chains', () => {
 
         const events = new LogBuilder()
             .add(alice, created(alice), createdKeys(alice))
-            .add(alice, memberAdded(alice, bob), { invitesAdded: [bob.writeKeyPublic] })
-            .add(bob, memberAdded(bob, carol), { invitesAdded: [carol.writeKeyPublic] })
+            .add(alice, memberAdded(alice, bob), { invitesAdded: [invite(bob.writeKeyPublic)] })
+            .add(bob, memberAdded(bob, carol), { invitesAdded: [invite(carol.writeKeyPublic)] })
             .add(alice, {
                 type: LedgerOperationType.SettingsChanged,
                 authorTag: alice.userTag,
@@ -385,7 +404,7 @@ describe('operations the log rejects but still chains', () => {
         const bob = new Member('bob', 'Bob');
         const events = new LogBuilder()
             .add(alice, created(alice), createdKeys(alice))
-            .add(alice, memberAdded(alice, bob), { invitesAdded: [bob.writeKeyPublic] })
+            .add(alice, memberAdded(alice, bob), { invitesAdded: [invite(bob.writeKeyPublic)] })
             .add(
                 alice,
                 {
@@ -410,7 +429,7 @@ describe('operations the log rejects but still chains', () => {
         const bob = new Member('bob', 'Bob');
         const events = new LogBuilder()
             .add(alice, created(alice), createdKeys(alice))
-            .add(alice, memberAdded(alice, bob), { invitesAdded: [bob.writeKeyPublic] })
+            .add(alice, memberAdded(alice, bob), { invitesAdded: [invite(bob.writeKeyPublic)] })
             .add(alice, {
                 type: LedgerOperationType.DeviceListPublished,
                 authorTag: alice.userTag,
@@ -449,7 +468,7 @@ describe('operations the log rejects but still chains', () => {
 
         const events = new LogBuilder()
             .add(alice, created(alice), createdKeys(alice))
-            .add(alice, memberAdded(alice, bob), { invitesAdded: [mallory.writeKeyPublic] })
+            .add(alice, memberAdded(alice, bob), { invitesAdded: [invite(mallory.writeKeyPublic)] })
             .build();
 
         const result = await sut().replay(GROUP_ID, events);
@@ -473,13 +492,60 @@ describe('operations the log rejects but still chains', () => {
         expect(result.state.members.has('bob')).toBe(false);
     });
 
+    test('rejects an invite whose role does not match the new member privilege', async () => {
+        const alice = new Member('alice', 'Alice');
+        const bob = new Member('bob', 'Bob');
+
+        const events = new LogBuilder()
+            .add(alice, created(alice), createdKeys(alice))
+            .add(alice, memberAdded(alice, bob), { invitesAdded: [invite(bob.writeKeyPublic, ChatPrivileges.Admin)] })
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected).toEqual([{ version: 2, reason: 'invited keys do not match the operation' }]);
+        expect(result.state.members.has('bob')).toBe(false);
+    });
+
+    test('changes a privilege when every key of the member changes role with it', async () => {
+        const alice = new Member('alice', 'Alice');
+        const bob = new Member('bob', 'Bob');
+
+        const events = new LogBuilder()
+            .add(alice, created(alice, bob), createdKeys(alice, bob))
+            .add(alice, privilegeChanged(alice, bob, ChatPrivileges.Admin), {
+                rolesChanged: [invite(bob.writeKeyPublic, ChatPrivileges.Admin)],
+            })
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected).toEqual([]);
+        expect(result.state.members.get('bob')!.privilege).toBe(ChatPrivileges.Admin);
+    });
+
+    test('rejects a privilege change whose role changes do not match', async () => {
+        const alice = new Member('alice', 'Alice');
+        const bob = new Member('bob', 'Bob');
+
+        const events = new LogBuilder()
+            .add(alice, created(alice, bob), createdKeys(alice, bob))
+            .add(alice, privilegeChanged(alice, bob, ChatPrivileges.Admin))
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected).toEqual([{ version: 2, reason: 'role changes do not match the operation' }]);
+        expect(result.state.members.get('bob')!.privilege).toBe(ChatPrivileges.Member);
+    });
+
     test('rejects the owner adding another owner', async () => {
         const alice = new Member('alice', 'Alice');
         const bob = new Member('bob', 'Bob');
 
         const events = new LogBuilder()
             .add(alice, created(alice), createdKeys(alice))
-            .add(alice, memberAdded(alice, bob, ChatPrivileges.Owner), { invitesAdded: [bob.writeKeyPublic] })
+            .add(alice, memberAdded(alice, bob, ChatPrivileges.Owner), { invitesAdded: [invite(bob.writeKeyPublic, ChatPrivileges.Owner)] })
             .build();
 
         const result = await sut().replay(GROUP_ID, events);
@@ -497,13 +563,13 @@ describe('operations the log rejects but still chains', () => {
 
         const events = new LogBuilder()
             .add(alice, created(alice), createdKeys(alice))
-            .add(alice, memberAdded(alice, bob, ChatPrivileges.Admin), { invitesAdded: [bob.writeKeyPublic] })
+            .add(alice, memberAdded(alice, bob, ChatPrivileges.Admin), { invitesAdded: [invite(bob.writeKeyPublic, ChatPrivileges.Admin)] })
             .add(bob, new WriteKeyRegisteredOperation(bob.userTag, bob.writeKeyPublic, nextPublic), {
                 keysAdded: [nextPublic],
                 keysRemoved: [bob.writeKeyPublic],
             })
             .add(bob, memberAdded(bob, carol, ChatPrivileges.Admin), {
-                invitesAdded: [carol.writeKeyPublic],
+                invitesAdded: [invite(carol.writeKeyPublic, ChatPrivileges.Admin)],
                 outerKey: next,
             })
             .build();

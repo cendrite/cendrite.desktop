@@ -7,6 +7,9 @@ import { GroupWriteKey } from '#electron/Domain/Encryption/GroupWriteKey';
 import { GroupCreatedOperation } from '#electron/Domain/Protocol/LedgerOperation';
 import { GroupStrapPayload } from '#electron/Domain/Protocol/Payload';
 import { GroupLifecycle } from '#electron/Domain/Enums/GroupLifecycle';
+import { WriteKeyRole } from '#electron/Domain/Enums/WriteKeyRole';
+import { GroupState } from '#electron/Domain/Projections/GroupState';
+import { keyChangesFor } from '#electron/Domain/Services/GroupReducer';
 import { generateEpochKey, generateWriteKeyPair, publicKeyFromPrivate } from '#electron/Infrastructure/Crypto/LedgerCodec';
 import { Result } from '#shared/Result/Result';
 import { ErrorMessage } from '#shared/Result/ErrorMessage';
@@ -19,14 +22,15 @@ function setup(createResults: Result<void>[] = []) {
     const saved: Group[] = [];
 
     const ledgerWriter = {
-        sealCreate: vi.fn(async (_groupId: string, _invites: Buffer[], _operation: GroupCreatedOperation) =>
+        sealCreate: vi.fn(async (groupId: string, operation: GroupCreatedOperation) =>
             Result.success<SealedCreate>({
                 payload: Buffer.from([1, 2, 3]),
                 signature: Buffer.alloc(64, 0x07),
                 hash: Buffer.alloc(32, 0x0f),
+                invites: keyChangesFor(new GroupState(groupId), operation).invites,
             }),
         ),
-        createStream: vi.fn(async (_groupId: string, _invites: Buffer[], _sealed: SealedCreate) =>
+        createStream: vi.fn(async (_groupId: string, _sealed: SealedCreate) =>
             createResults.shift() ?? Result.success(),
         ),
     };
@@ -85,11 +89,24 @@ describe('starting a group', () => {
 
         expect(Object.keys(straps).sort()).toEqual(['alice-phone', 'bob-laptop', 'bob-phone']);
 
-        const [, invites] = ledgerWriter.createStream.mock.calls[0];
+        const [, sealed] = ledgerWriter.createStream.mock.calls[0];
         const strapKeys = Object.keys(straps).map((connectionId) => inviteKeyOf(straps, connectionId));
 
-        expect(invites.map((key) => key.toString('base64')).sort()).toEqual([...strapKeys].sort());
+        expect(sealed.invites.map((grant) => grant.publicKey).sort()).toEqual([...strapKeys].sort());
         expect(new Set(strapKeys).size).toBe(3);
+    });
+
+    test('invites every member as a writer and the creator own devices as owner', async () => {
+        const { sut, ledgerWriter } = setup();
+
+        const straps = (await sut.startGroup(GROUP_ID)).data!;
+
+        const [, sealed] = ledgerWriter.createStream.mock.calls[0];
+        const roleOf = (connectionId: string) => sealed.invites.find((grant) => grant.publicKey === inviteKeyOf(straps, connectionId))?.role;
+
+        expect(roleOf('bob-laptop')).toBe(WriteKeyRole.Writer);
+        expect(roleOf('bob-phone')).toBe(WriteKeyRole.Writer);
+        expect(roleOf('alice-phone')).toBe(WriteKeyRole.Owner);
     });
 
     test('never sends the creator write key to another device', async () => {
@@ -107,7 +124,7 @@ describe('starting a group', () => {
 
         const straps = (await sut.startGroup(GROUP_ID)).data!;
 
-        const [, , operation] = ledgerWriter.sealCreate.mock.calls[0];
+        const [, operation] = ledgerWriter.sealCreate.mock.calls[0];
         const [alice, bob] = operation.members;
 
         expect(alice.writeKeys).toEqual([ownWriteKey.publicKey.toString('base64')]);
@@ -152,11 +169,10 @@ describe('starting a group', () => {
         expect(retried.success).toBe(true);
         expect(ledgerWriter.sealCreate).toHaveBeenCalledTimes(1);
 
-        const [[, firstInvites, firstSealed], [, retryInvites, retrySealed]] = ledgerWriter.createStream.mock.calls;
-        expect(retryInvites).toEqual(firstInvites);
+        const [[, firstSealed], [, retrySealed]] = ledgerWriter.createStream.mock.calls;
         expect(retrySealed).toEqual(firstSealed);
         expect(Object.keys(retried.data!).map((connectionId) => inviteKeyOf(retried.data!, connectionId)).sort()).toEqual(
-            firstInvites.map((key) => key.toString('base64')).sort(),
+            firstSealed.invites.map((grant) => grant.publicKey).sort(),
         );
     });
 

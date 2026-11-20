@@ -9,6 +9,8 @@ import { IGroupKeyRepository } from '#electron/Application/Contracts/Repositorie
 import { applyOperation, OperationContext, rejectReasonFor } from '#electron/Domain/Services/GroupReducer';
 import { GroupState } from '#electron/Domain/Projections/GroupState';
 import { LedgerEventRecord } from '#electron/Domain/Entities/LedgerEventRecord';
+import { KeyGrant } from '#electron/Domain/Protocol/KeyChanges';
+import { LedgerKeyGrant } from '#electron/Application/Contracts/Providers/ILedgerProvider';
 import { parseLedgerOperation, parseSignedLedgerOperation } from '#electron/Domain/Protocol/LedgerOperationParser';
 import { IDeviceVerifier, VerifiedDevice } from '#electron/Application/Contracts/Services/IDeviceVerifier';
 import {
@@ -46,8 +48,9 @@ export class LedgerReplayService implements ILedgerReplayService {
                 previousHash: event.previousHash,
                 payload: event.payload,
                 keysAdded: event.keysAdded.map(fromBase64),
-                invitesAdded: event.invitesAdded.map(fromBase64),
+                invitesAdded: event.invitesAdded.map(fromStoredGrant),
                 keysRemoved: event.keysRemoved.map(fromBase64),
+                rolesChanged: event.rolesChanged.map(fromStoredGrant),
             });
 
             if (!verifyOuter(event.writeKeyPublic, signingInput, event.signature)) {
@@ -142,6 +145,7 @@ export class LedgerReplayService implements ILedgerReplayService {
             keysAdded: event.keysAdded,
             invitesAdded: event.invitesAdded,
             keysRemoved: event.keysRemoved,
+            rolesChanged: event.rolesChanged,
         };
 
         const reason = rejectReasonFor(state, operation, context);
@@ -155,4 +159,8 @@ export class LedgerReplayService implements ILedgerReplayService {
 
 function fromBase64(value: string): Buffer {
     return Buffer.from(value, 'base64');
+}
+
+function fromStoredGrant(grant: KeyGrant): LedgerKeyGrant {
+    return { publicKey: fromBase64(grant.publicKey), role: grant.role };
 }

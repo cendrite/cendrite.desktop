@@ -20,7 +20,7 @@ export class GroupKeyRepository implements IGroupKeyRepository {
 
     public async saveWriteKey(writeKey: GroupWriteKey): Promise<void> {
         await this.writeKeys.save(
-            new GroupWriteKey(writeKey.groupId, writeKey.publicKey, await this.seal(writeKey.privateKey)),
+            new GroupWriteKey(writeKey.groupId, writeKey.publicKey, await this.seal(writeKey.privateKey), writeKey.isInvite),
         );
     }
 
@@ -28,7 +28,7 @@ export class GroupKeyRepository implements IGroupKeyRepository {
         const stored = await this.writeKeys.findOneBy({ groupId });
         if (!stored) return null;
 
-        return new GroupWriteKey(stored.groupId, stored.publicKey, await this.unseal(stored.privateKey));
+        return new GroupWriteKey(stored.groupId, stored.publicKey, await this.unseal(stored.privateKey), stored.isInvite);
     }
 
     public async savePendingWriteKey(writeKey: PendingGroupWriteKey): Promise<void> {

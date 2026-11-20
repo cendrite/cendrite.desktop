@@ -40,6 +40,7 @@ function event(version: number): LedgerEvent {
         [],
         [],
         [],
+        [],
     );
 }
 

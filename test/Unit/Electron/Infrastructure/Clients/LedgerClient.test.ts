@@ -5,6 +5,7 @@ import { ApiClient } from '../../../../../src/Electron/Infrastructure/Clients/Ba
 import { isLedgerConflict, LedgerAppend } from '../../../../../src/Electron/Application/Contracts/Providers/ILedgerProvider.js';
 import { Result } from '../../../../../src/Shared/Result/Result.js';
 import { ErrorMessage } from '../../../../../src/Shared/Result/ErrorMessage.js';
+import { WriteKeyRole } from '../../../../../src/Electron/Domain/Enums/WriteKeyRole.js';
 
 const GROUP_ID = '0199673a-3c1e-7c2b-9f2e-5d8b1a4c7e10';
 
@@ -37,8 +38,9 @@ function append(): LedgerAppend {
         Buffer.alloc(32, 0xa1),
         Buffer.alloc(64, 0x7f),
         [Buffer.alloc(32, 0xb2)],
-        [Buffer.alloc(32, 0xd4)],
+        [{ publicKey: Buffer.alloc(32, 0xd4), role: WriteKeyRole.Admin }],
         [Buffer.alloc(32, 0xc3)],
+        [{ publicKey: Buffer.alloc(32, 0xe5), role: WriteKeyRole.Owner }],
     );
 }
 
@@ -50,7 +52,7 @@ describe('createStream', () => {
             GROUP_ID,
             Buffer.from([1, 2, 3]),
             Buffer.alloc(32, 0xa1),
-            [Buffer.alloc(32, 0xb2)],
+            [{ publicKey: Buffer.alloc(32, 0xb2), role: WriteKeyRole.Writer }],
             Buffer.alloc(64, 0x7f),
             PRIVATE_TOKEN,
         );
@@ -62,7 +64,12 @@ describe('createStream', () => {
             payload: Buffer.from([1, 2, 3]).toString('base64'),
             writeKey: Buffer.alloc(32, 0xa1).toString('base64'),
             signature: Buffer.alloc(64, 0x7f).toString('base64'),
-            keyChanges: { added: [], invitesAdded: [Buffer.alloc(32, 0xb2).toString('base64')], removed: [] },
+            keyChanges: {
+                added: [],
+                invitesAdded: [{ publicKey: Buffer.alloc(32, 0xb2).toString('base64'), role: WriteKeyRole.Writer }],
+                removed: [],
+                rolesChanged: [],
+            },
         });
     });
 
@@ -91,8 +98,9 @@ describe('appendEvent', () => {
             signature: Buffer.alloc(64, 0x7f).toString('base64'),
             keyChanges: {
                 added: [Buffer.alloc(32, 0xb2).toString('base64')],
-                invitesAdded: [Buffer.alloc(32, 0xd4).toString('base64')],
+                invitesAdded: [{ publicKey: Buffer.alloc(32, 0xd4).toString('base64'), role: WriteKeyRole.Admin }],
                 removed: [Buffer.alloc(32, 0xc3).toString('base64')],
+                rolesChanged: [{ publicKey: Buffer.alloc(32, 0xe5).toString('base64'), role: WriteKeyRole.Owner }],
             },
         });
     });
@@ -141,8 +149,9 @@ describe('getEvents', () => {
                     signature: Buffer.alloc(64, 0x7f).toString('base64'),
                     keyChanges: {
                         added: [Buffer.alloc(32, 0xb2).toString('base64')],
-                        invitesAdded: [Buffer.alloc(32, 0xd4).toString('base64')],
+                        invitesAdded: [{ publicKey: Buffer.alloc(32, 0xd4).toString('base64'), role: WriteKeyRole.Admin }],
                         removed: [],
+                        rolesChanged: [{ publicKey: Buffer.alloc(32, 0xe5).toString('base64'), role: WriteKeyRole.Owner }],
                     },
                 },
             ],
@@ -162,8 +171,9 @@ describe('getEvents', () => {
         expect(event.previousHash).toEqual(Buffer.alloc(32, 0x11));
         expect(event.payload).toEqual(Buffer.from([0x05]));
         expect(event.keysAdded[0]).toEqual(Buffer.alloc(32, 0xb2));
-        expect(event.invitesAdded[0]).toEqual(Buffer.alloc(32, 0xd4));
+        expect(event.invitesAdded).toEqual([{ publicKey: Buffer.alloc(32, 0xd4), role: WriteKeyRole.Admin }]);
         expect(event.keysRemoved).toEqual([]);
+        expect(event.rolesChanged).toEqual([{ publicKey: Buffer.alloc(32, 0xe5), role: WriteKeyRole.Owner }]);
     });
 
     test('omits the limit when the caller does not set one', async () => {
