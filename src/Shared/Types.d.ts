@@ -1,6 +1,7 @@
 import { MessageContract } from './Models/MessageContract';
 import { ChangeEvent } from './Events/ChangeEvent.ts';
 import { DeliveryStatus } from './Enums/DeliveryStatus.ts';
+import { MembershipWarning } from './Enums/MembershipWarning.ts';
 import { Theme as AppTheme } from './Theme.ts';
 import { Result } from './Result/Result.ts';
 
@@ -18,7 +19,8 @@ declare global {
         | { kind: 'textEdit'; messageId: string; newText: string }
         | { kind: 'delete'; messageId: string }
         | { kind: 'untrustedDevice'; connectionId: string }
-        | { kind: 'groupEditable'; groupId: string };
+        | { kind: 'groupEditable'; groupId: string }
+        | { kind: 'membershipWarning'; groupId: string; warning: MembershipWarning | null };
 
     interface AppEventMap {
         changeEvent: ChangeEvent;

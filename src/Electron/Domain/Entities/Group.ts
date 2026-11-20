@@ -1,3 +1,4 @@
+import { MembershipWarning } from "#shared/Enums/MembershipWarning";
 import { GroupLifecycle } from "../Enums/GroupLifecycle.js";
 import { PendingGroupStart } from "./PendingGroupStart.js";
 
@@ -10,6 +11,7 @@ export class Group {
     archived: boolean;
     publishedDevicesHash: string | null;
     pendingStart: PendingGroupStart | null;
+    membershipWarning: MembershipWarning | null;
 
     constructor(
         groupId: string,
@@ -20,6 +22,7 @@ export class Group {
         archived: boolean = false,
         publishedDevicesHash: string | null = null,
         pendingStart: PendingGroupStart | null = null,
+        membershipWarning: MembershipWarning | null = null,
     ) {
         this.groupId = groupId;
         this.lifecycle = lifecycle;
@@ -29,5 +32,6 @@ export class Group {
         this.archived = archived;
         this.publishedDevicesHash = publishedDevicesHash;
         this.pendingStart = pendingStart;
+        this.membershipWarning = membershipWarning;
     }
 }
