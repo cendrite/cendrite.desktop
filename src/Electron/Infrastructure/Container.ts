@@ -45,6 +45,7 @@ import { PendingFlowStore } from './Services/PendingFlowStore.js';
 import { MessagePump } from './Pumps/MessagePump.js';
 import { DeliveryStatusUpdatePump } from './Pumps/DeliveryUpdatePump.js';
 import { PreKeyPump } from './Pumps/PreKeyPump.js';
+import { GroupMemberService } from './Services/GroupMemberService.js';
 import { WriteKeySwapPump } from './Pumps/WriteKeySwapPump.js';
 import { MetaDataStripper } from './Services/MediaMetadataStripper.js';
 import { BlindTokenService } from './Services/BlindTokenService.js';
@@ -126,6 +127,7 @@ const jobs = {
     deliveryStatusUpdatePump: asClass(DeliveryStatusUpdatePump, { lifetime: Lifetime.SINGLETON }),
     preKeyPump: asClass(PreKeyPump, { lifetime: Lifetime.SINGLETON }),
     writeKeySwapPump: asClass(WriteKeySwapPump, { lifetime: Lifetime.SINGLETON }),
+    groupMemberService: asClass(GroupMemberService, { lifetime: Lifetime.SINGLETON }),
 }
 
 const httpClients = {

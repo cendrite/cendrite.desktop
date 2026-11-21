@@ -240,6 +240,20 @@ describe('a well formed log', () => {
         expect(result.state.headHash).toEqual(events[1].hash);
     });
 
+    test('keeps the devices of an added member', async () => {
+        const alice = new Member('alice', 'Alice');
+        const bob = new Member('bob', 'Bob');
+        const events = new LogBuilder()
+            .add(alice, created(alice), createdKeys(alice))
+            .add(alice, memberAdded(alice, bob), { invitesAdded: [{ publicKey: bob.writeKeyPublic, role: roleFor(ChatPrivileges.Member) }] })
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected).toEqual([]);
+        expect(result.state.members.get('bob')!.connectionIds).toEqual(['bob-device']);
+    });
+
     test('refuses operations from a member who only holds an invite key', async () => {
         const alice = new Member('alice', 'Alice');
         const bob = new Member('bob', 'Bob');
@@ -442,7 +456,7 @@ describe('operations the log rejects but still chains', () => {
         const result = await sut().replay(GROUP_ID, events);
 
         expect(result.rejected[0].reason).toBe('a member may only publish their own devices');
-        expect(result.state.members.get('bob')!.connectionIds).toEqual([]);
+        expect(result.state.members.get('bob')!.connectionIds).toEqual(['bob-device']);
     });
 
     test('rejects granting a key the operation never declared', async () => {
