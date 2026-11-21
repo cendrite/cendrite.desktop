@@ -7,6 +7,7 @@ import { ChatActionType } from '@/React/Context/Chat/ChatReducer.ts';
 import { useMessageService } from '@/React/Common/Hooks/MessageService.ts';
 import MessageList from './MessageList.tsx';
 import UntrustedDeviceBanner from './UntrustedDeviceBanner.tsx';
+import MembershipWarningBanner from './MembershipWarningBanner.tsx';
 
 interface ChatPageProps {
     chatId: string;
@@ -55,6 +56,8 @@ const ChatPage: React.FC<ChatPageProps> = ({ chatId, onClose }) => {
                     <ChatHeader chat={currentChat} onClose={() => handleSlide()} />
 
                     <UntrustedDeviceBanner members={currentChat.chatMembers} />
+
+                    {currentChat.isGroup && <MembershipWarningBanner groupId={currentChat.id} />}
 
                     <MessageList key={currentChat.id} chat={currentChat} />
 

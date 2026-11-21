@@ -5,7 +5,9 @@ import { ILedgerSyncService } from '#electron/Application/Contracts/Services/ILe
 import { ILedgerWriter } from '#electron/Application/Contracts/Services/ILedgerWriter';
 import { GroupWriteKey } from '#electron/Domain/Encryption/GroupWriteKey';
 import { PendingGroupWriteKey } from '#electron/Domain/Encryption/PendingGroupWriteKey';
+import { Group } from '#electron/Domain/Entities/Group';
 import { GroupLifecycle } from '#electron/Domain/Enums/GroupLifecycle';
+import { MembershipWarning } from '#shared/Enums/MembershipWarning';
 import { WriteKeyRegisteredOperation } from '#electron/Domain/Protocol/LedgerOperation';
 import { generateWriteKeyPair } from '../Crypto/LedgerCodec.js';
 import { Pump } from './Pump.js';
@@ -48,22 +50,24 @@ export class WriteKeySwapPump extends Pump {
 
         let synced = await this.ledgerSyncService.sync(groupId);
 
-        if (!synced.success) {
-            if (!pending) {
-                console.error(`WriteKeySwapPump: this device can no longer read group ${groupId}, membership may have been tampered with`);
-                return;
-            }
-
+        if (!synced.success && pending) {
             await this.groupKeyRepository.saveWriteKey(new GroupWriteKey(groupId, pending.publicKey, pending.privateKey));
             synced = await this.ledgerSyncService.sync(groupId);
 
-            if (!synced.success) {
-                await this.groupKeyRepository.saveWriteKey(current);
-                return;
-            }
+            if (!synced.success) await this.groupKeyRepository.saveWriteKey(current);
         }
 
-        if (synced.data.halted || synced.data.stalledAt !== null) return;
+        if (!synced.success) {
+            if (isRefused(synced.errorMessage?.code)) await this.warn(group, MembershipWarning.LostAccess);
+            return;
+        }
+
+        if (synced.data.halted) {
+            await this.warn(group, MembershipWarning.Tampered);
+            return;
+        }
+
+        if (synced.data.stalledAt !== null) return;
 
         const member = synced.data.state.members.get(userTag);
         if (!member) return;
@@ -72,22 +76,26 @@ export class WriteKeySwapPump extends Pump {
         const activePublic = active.publicKey.toString('base64');
 
         if (member.writeKeys.includes(activePublic)) {
+            await this.warn(group, null);
             if (pending) {
                 await this.groupKeyRepository.deletePendingWriteKey(groupId);
-                this.mainWindow.webContents.send('eventMessage', { kind: 'groupEditable', groupId });
+                this.sendEvent({ kind: 'groupEditable', groupId });
             }
             return;
         }
 
         if (!member.inviteKeys.includes(activePublic)) {
-            console.error(`WriteKeySwapPump: this device's key is no longer in group ${groupId}, membership may have been tampered with`);
+            await this.warn(group, MembershipWarning.Tampered);
             return;
         }
 
-        await this.swap(groupId, userTag, active, pending);
+        if (group.membershipWarning === MembershipWarning.LostAccess) await this.warn(group, null);
+
+        await this.swap(group, userTag, active, pending);
     }
 
-    private async swap(groupId: string, userTag: string, invite: GroupWriteKey, pending: PendingGroupWriteKey | null): Promise<void> {
+    private async swap(group: Group, userTag: string, invite: GroupWriteKey, pending: PendingGroupWriteKey | null): Promise<void> {
+        const groupId = group.groupId;
         const next = pending ?? this.newPendingKey(groupId);
         if (!pending) await this.groupKeyRepository.savePendingWriteKey(next);
 
@@ -97,19 +105,36 @@ export class WriteKeySwapPump extends Pump {
         );
 
         if (!appended.success) {
-            if (appended.errorMessage?.code === 'Forbidden') {
-                console.error(`WriteKeySwapPump: the invite key for group ${groupId} was already used, membership may have been tampered with`);
-            }
+            if (appended.errorMessage?.code === 'Forbidden') await this.warn(group, MembershipWarning.Tampered);
             return;
         }
 
         await this.groupKeyRepository.saveWriteKey(new GroupWriteKey(groupId, next.publicKey, next.privateKey));
         await this.groupKeyRepository.deletePendingWriteKey(groupId);
-        this.mainWindow.webContents.send('eventMessage', { kind: 'groupEditable', groupId });
+        await this.warn(group, null);
+        this.sendEvent({ kind: 'groupEditable', groupId });
+    }
+
+    private async warn(group: Group, warning: MembershipWarning | null): Promise<void> {
+        if (group.membershipWarning === warning) return;
+
+        if (warning !== null) console.error(`WriteKeySwapPump: membership of group ${group.groupId} may have been tampered with (${MembershipWarning[warning]})`);
+
+        group.membershipWarning = warning;
+        await this.groupRepository.setMembershipWarning(group.groupId, warning);
+        this.sendEvent({ kind: 'membershipWarning', groupId: group.groupId, warning });
+    }
+
+    private sendEvent(event: EventMessage): void {
+        if (!this.mainWindow.isDestroyed()) this.mainWindow.webContents.send('eventMessage', event);
     }
 
     private newPendingKey(groupId: string): PendingGroupWriteKey {
         const key = generateWriteKeyPair();
         return new PendingGroupWriteKey(groupId, key.publicKey, key.privateKey);
     }
+}
+
+function isRefused(code: string | null | undefined): boolean {
+    return code === 'Forbidden' || code === 'Not Found';
 }

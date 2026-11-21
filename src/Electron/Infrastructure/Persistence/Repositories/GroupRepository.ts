@@ -3,6 +3,7 @@ import { IGroupRepository } from '#electron/Application/Contracts/Repositories/I
 import { GroupLifecycle } from '#electron/Domain/Enums/GroupLifecycle';
 import { getDbContext } from '../Context/DatabaseContext.js';
 import { Group } from '#electron/Domain/Entities/Group';
+import { MembershipWarning } from '#shared/Enums/MembershipWarning';
 
 export class GroupRepository implements IGroupRepository {
     private readonly repository: Repository<Group>;
@@ -13,6 +14,10 @@ export class GroupRepository implements IGroupRepository {
 
     public async update(group: Group): Promise<void> {
         await this.repository.save(group);
+    }
+
+    public async setMembershipWarning(groupId: string, warning: MembershipWarning | null): Promise<void> {
+        await this.repository.update({ groupId }, { membershipWarning: warning });
     }
 
     public async create(group: Group): Promise<void> {

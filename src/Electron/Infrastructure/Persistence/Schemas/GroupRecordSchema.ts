@@ -42,5 +42,9 @@ export const GroupRecordSchema = new EntitySchema<Group>({
             type: 'simple-json',
             nullable: true,
         },
+        membershipWarning: {
+            type: 'integer',
+            nullable: true,
+        },
     },
 });

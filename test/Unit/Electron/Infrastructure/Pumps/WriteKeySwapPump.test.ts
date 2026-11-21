@@ -10,6 +10,7 @@ import { WriteKeyRegisteredOperation } from '#electron/Domain/Protocol/LedgerOpe
 import { ReplayResult } from '#electron/Application/Contracts/Services/ILedgerReplayService';
 import { generateWriteKeyPair, WriteKeyPair } from '#electron/Infrastructure/Crypto/LedgerCodec';
 import { ChatPrivileges } from '#shared/Enums/ChatPrivileges';
+import { MembershipWarning } from '#shared/Enums/MembershipWarning';
 import { ErrorMessage } from '#shared/Result/ErrorMessage';
 import { Result } from '#shared/Result/Result';
 
@@ -26,15 +27,24 @@ function replayed(member: { writeKeys?: string[]; inviteKeys?: string[] } | null
 }
 
 const unreadable = () => Result.fail<ReplayResult>(new ErrorMessage('Forbidden', 'Write key is not authorized for this ledger.'));
+const offline = () => Result.fail<ReplayResult>(new ErrorMessage('ApiError', 'An unexpected error occurred.'));
+const halted = () => Result.success<ReplayResult>({
+    state: new GroupState(GROUP_ID),
+    rejected: [],
+    verified: [],
+    halted: { version: 2, reason: 'outer signature does not verify' },
+    stalledAt: null,
+});
 
 interface Setup {
     syncs: (invite: WriteKeyPair) => Result<ReplayResult>[];
     append?: Result<void>;
     pending?: WriteKeyPair;
     lifecycle?: GroupLifecycle;
+    warning?: MembershipWarning | null;
 }
 
-function setup({ syncs, append = Result.success(), pending, lifecycle = GroupLifecycle.Active }: Setup) {
+function setup({ syncs, append = Result.success(), pending, lifecycle = GroupLifecycle.Active, warning = null }: Setup) {
     const invite = generateWriteKeyPair();
     const keys = {
         current: new GroupWriteKey(GROUP_ID, invite.publicKey, invite.privateKey, true),
@@ -54,17 +64,24 @@ function setup({ syncs, append = Result.success(), pending, lifecycle = GroupLif
     const ledgerSyncService = { sync: vi.fn(async () => results[Math.min(syncCount++, results.length - 1)]) };
     const ledgerWriter = { append: vi.fn(async (_groupId: string, _operation: WriteKeyRegisteredOperation) => append) };
     const send = vi.fn();
+    const group = new Group(GROUP_ID, lifecycle);
+    group.membershipWarning = warning;
+    const groupRepository = {
+        getIds: async () => [GROUP_ID],
+        get: async () => group,
+        setMembershipWarning: vi.fn(async () => undefined),
+    };
 
     const sut = new WriteKeySwapPump(
-        { getIds: async () => [GROUP_ID], get: async () => new Group(GROUP_ID, lifecycle) } as never,
+        groupRepository as never,
         groupKeyRepository as never,
         { get: async () => ({ userTag: TAG }) } as never,
         ledgerSyncService as never,
         ledgerWriter as never,
-        { webContents: { send } } as never,
+        { isDestroyed: () => false, webContents: { send } } as never,
     );
 
-    return { sut, keys, invite, ledgerWriter, groupKeyRepository, send };
+    return { sut, keys, invite, ledgerWriter, groupKeyRepository, groupRepository, send };
 }
 
 const holdingInvite = (invite: WriteKeyPair) => [replayed({ inviteKeys: [b64(invite.publicKey)] })];
@@ -171,5 +188,110 @@ describe('swapping invite keys', () => {
 
         expect(groupKeyRepository.getWriteKey).not.toHaveBeenCalled();
         expect(ledgerWriter.append).not.toHaveBeenCalled();
+    });
+});
+
+describe('membership warnings', () => {
+    const warned = (warning: MembershipWarning | null) => ['eventMessage', { kind: 'membershipWarning', groupId: GROUP_ID, warning }];
+
+    test('warns of tampering when its own invite key was already used', async () => {
+        const { sut, groupRepository, send } = setup({ syncs: holdingInvite, append: Result.fail(new ErrorMessage('Forbidden', 'used')) });
+
+        await sut.reconcile(GROUP_ID);
+
+        expect(groupRepository.setMembershipWarning).toHaveBeenCalledWith(GROUP_ID, MembershipWarning.Tampered);
+        expect(send).toHaveBeenCalledWith(...warned(MembershipWarning.Tampered));
+    });
+
+    test('warns of tampering when its key is no longer in the group', async () => {
+        const { sut, groupRepository } = setup({ syncs: () => [replayed({ writeKeys: ['someone-else'] })] });
+
+        await sut.reconcile(GROUP_ID);
+
+        expect(groupRepository.setMembershipWarning).toHaveBeenCalledWith(GROUP_ID, MembershipWarning.Tampered);
+    });
+
+    test('warns of tampering when replay halts on the log', async () => {
+        const { sut, groupRepository, ledgerWriter } = setup({ syncs: () => [halted()] });
+
+        await sut.reconcile(GROUP_ID);
+
+        expect(groupRepository.setMembershipWarning).toHaveBeenCalledWith(GROUP_ID, MembershipWarning.Tampered);
+        expect(ledgerWriter.append).not.toHaveBeenCalled();
+    });
+
+    test('warns of lost access when the ledger refuses its key', async () => {
+        const { sut, groupRepository } = setup({ syncs: () => [unreadable()] });
+
+        await sut.reconcile(GROUP_ID);
+
+        expect(groupRepository.setMembershipWarning).toHaveBeenCalledWith(GROUP_ID, MembershipWarning.LostAccess);
+    });
+
+    test('does not warn when the ledger cannot be reached', async () => {
+        const { sut, groupRepository, send } = setup({ syncs: () => [offline()] });
+
+        await sut.reconcile(GROUP_ID);
+
+        expect(groupRepository.setMembershipWarning).not.toHaveBeenCalled();
+        expect(send).not.toHaveBeenCalled();
+    });
+
+    test('clears the warning once its write key is in the group again', async () => {
+        const { sut, groupRepository, send } = setup({
+            warning: MembershipWarning.LostAccess,
+            syncs: (invite) => [replayed({ writeKeys: [b64(invite.publicKey)] })],
+        });
+
+        await sut.reconcile(GROUP_ID);
+
+        expect(groupRepository.setMembershipWarning).toHaveBeenCalledWith(GROUP_ID, null);
+        expect(send).toHaveBeenCalledWith(...warned(null));
+    });
+
+    test('keeps the tampered warning without announcing it again when the swap is refused again', async () => {
+        const { sut, groupRepository, send } = setup({
+            warning: MembershipWarning.Tampered,
+            syncs: holdingInvite,
+            append: Result.fail(new ErrorMessage('Forbidden', 'used')),
+        });
+
+        await sut.reconcile(GROUP_ID);
+
+        expect(groupRepository.setMembershipWarning).not.toHaveBeenCalled();
+        expect(send).not.toHaveBeenCalled();
+    });
+
+    test('clears the tampered warning once the swap goes through', async () => {
+        const { sut, groupRepository, send } = setup({ warning: MembershipWarning.Tampered, syncs: holdingInvite });
+
+        await sut.reconcile(GROUP_ID);
+
+        expect(groupRepository.setMembershipWarning).toHaveBeenCalledWith(GROUP_ID, null);
+        expect(send).toHaveBeenCalledWith(...warned(null));
+    });
+
+    test('clears lost access once its invite key can read again, even if the swap has to retry', async () => {
+        const { sut, groupRepository } = setup({
+            warning: MembershipWarning.LostAccess,
+            syncs: holdingInvite,
+            append: Result.fail(new ErrorMessage('Conflict', 'busy')),
+        });
+
+        await sut.reconcile(GROUP_ID);
+
+        expect(groupRepository.setMembershipWarning).toHaveBeenCalledWith(GROUP_ID, null);
+    });
+
+    test('does not store or announce a warning that has not changed', async () => {
+        const { sut, groupRepository, send } = setup({
+            warning: MembershipWarning.Tampered,
+            syncs: () => [replayed({ writeKeys: ['someone-else'] })],
+        });
+
+        await sut.reconcile(GROUP_ID);
+
+        expect(groupRepository.setMembershipWarning).not.toHaveBeenCalled();
+        expect(send).not.toHaveBeenCalled();
     });
 });

@@ -18,6 +18,7 @@ import { GroupKeyRepository } from '../../../../../../src/Electron/Infrastructur
 import { LedgerEventRecord } from '../../../../../../src/Electron/Domain/Entities/LedgerEventRecord.js';
 import { LedgerEventStatus } from '../../../../../../src/Electron/Domain/Enums/LedgerEventStatus.js';
 import { WriteKeyRole } from '../../../../../../src/Electron/Domain/Enums/WriteKeyRole.js';
+import { MembershipWarning } from '../../../../../../src/Shared/Enums/MembershipWarning.js';
 import { Group } from '../../../../../../src/Electron/Domain/Entities/Group.js';
 import { GroupLifecycle } from '../../../../../../src/Electron/Domain/Enums/GroupLifecycle.js';
 import { PendingGroupWriteKey } from '../../../../../../src/Electron/Domain/Encryption/PendingGroupWriteKey.js';
@@ -133,6 +134,21 @@ describe('GroupRepository', () => {
         expect(Buffer.from(stored!.headHash)).toEqual(Buffer.alloc(32, 0x5a));
         expect(stored!.epoch).toBe(2);
         expect(stored!.publishedDevicesHash).toBe('abc');
+    });
+
+    test('sets and clears the membership warning without touching the rest of the group', async () => {
+        const sut = new GroupRepository();
+        await sut.create(new Group(GROUP_ID, GroupLifecycle.Active, 7, Buffer.alloc(32, 0x5a)));
+
+        await sut.setMembershipWarning(GROUP_ID, MembershipWarning.LostAccess);
+        const warned = await sut.get(GROUP_ID);
+
+        expect(warned!.membershipWarning).toBe(MembershipWarning.LostAccess);
+        expect(warned!.version).toBe(7);
+
+        await sut.setMembershipWarning(GROUP_ID, null);
+
+        expect((await sut.get(GROUP_ID))!.membershipWarning).toBeNull();
     });
 
     test('defaults a new group to draft at version zero', async () => {
