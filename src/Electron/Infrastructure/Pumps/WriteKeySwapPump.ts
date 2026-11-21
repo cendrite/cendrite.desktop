@@ -89,7 +89,8 @@ export class WriteKeySwapPump extends Pump {
             return;
         }
 
-        await this.warn(group, null);
+        if (group.membershipWarning === MembershipWarning.LostAccess) await this.warn(group, null);
+
         await this.swap(group, userTag, active, pending);
     }
 
@@ -110,6 +111,7 @@ export class WriteKeySwapPump extends Pump {
 
         await this.groupKeyRepository.saveWriteKey(new GroupWriteKey(groupId, next.publicKey, next.privateKey));
         await this.groupKeyRepository.deletePendingWriteKey(groupId);
+        await this.warn(group, null);
         this.sendEvent({ kind: 'groupEditable', groupId });
     }
 

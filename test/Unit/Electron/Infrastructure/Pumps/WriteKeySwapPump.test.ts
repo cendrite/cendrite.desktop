@@ -249,6 +249,40 @@ describe('membership warnings', () => {
         expect(send).toHaveBeenCalledWith(...warned(null));
     });
 
+    test('keeps the tampered warning without announcing it again when the swap is refused again', async () => {
+        const { sut, groupRepository, send } = setup({
+            warning: MembershipWarning.Tampered,
+            syncs: holdingInvite,
+            append: Result.fail(new ErrorMessage('Forbidden', 'used')),
+        });
+
+        await sut.reconcile(GROUP_ID);
+
+        expect(groupRepository.setMembershipWarning).not.toHaveBeenCalled();
+        expect(send).not.toHaveBeenCalled();
+    });
+
+    test('clears the tampered warning once the swap goes through', async () => {
+        const { sut, groupRepository, send } = setup({ warning: MembershipWarning.Tampered, syncs: holdingInvite });
+
+        await sut.reconcile(GROUP_ID);
+
+        expect(groupRepository.setMembershipWarning).toHaveBeenCalledWith(GROUP_ID, null);
+        expect(send).toHaveBeenCalledWith(...warned(null));
+    });
+
+    test('clears lost access once its invite key can read again, even if the swap has to retry', async () => {
+        const { sut, groupRepository } = setup({
+            warning: MembershipWarning.LostAccess,
+            syncs: holdingInvite,
+            append: Result.fail(new ErrorMessage('Conflict', 'busy')),
+        });
+
+        await sut.reconcile(GROUP_ID);
+
+        expect(groupRepository.setMembershipWarning).toHaveBeenCalledWith(GROUP_ID, null);
+    });
+
     test('does not store or announce a warning that has not changed', async () => {
         const { sut, groupRepository, send } = setup({
             warning: MembershipWarning.Tampered,
