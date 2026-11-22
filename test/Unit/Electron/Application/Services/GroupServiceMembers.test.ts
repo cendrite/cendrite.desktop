@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from 'vitest';
-import { GroupMemberService } from '#electron/Infrastructure/Services/GroupMemberService';
+import { GroupService } from '#electron/Application/Services/GroupService';
 import { Group } from '#electron/Domain/Entities/Group';
 import { GroupLifecycle } from '#electron/Domain/Enums/GroupLifecycle';
 import { GroupMemberAddedEvent } from '#electron/Domain/Events/GroupMemberAddedEvent';
@@ -45,21 +45,26 @@ function invite() {
 
 interface Setup {
     syncState?: GroupState;
+    afterAppend?: GroupState;
     invite?: boolean;
-    pending?: GroupMemberAddedEvent[];
     append?: Result<void>;
     send?: () => Promise<DeliveryStatus>;
     chatMembers?: { userTag: string; avatar: string | null }[];
 }
 
-function setup({ syncState = stateWith(alice(), bob()), invite: inviteOnly = false, pending = [], append = Result.success(), send = async () => DeliveryStatus.Sent, chatMembers = [{ userTag: BOB, avatar: null }] }: Setup = {}) {
+function setup({ syncState = stateWith(alice(), bob()), afterAppend, invite: inviteOnly = false, append = Result.success(), send = async () => DeliveryStatus.Sent, chatMembers = [{ userTag: BOB, avatar: null }] }: Setup = {}) {
     const chat = { members: [...chatMembers] };
-    const chatStore = { getChat: vi.fn(async () => chat), getChatWithMembers: vi.fn(async () => chat), create: vi.fn(async () => chat) };
-    const ledgerSyncService = { sync: vi.fn(async () => replayed(syncState)) };
-    const ledgerWriter = { append: vi.fn(async (_groupId: string, _operation: MemberAddedOperation) => append) };
+    const chatStore = { getChatWithMembers: vi.fn(async () => chat) };
+    let current = syncState;
+    const ledgerSyncService = { sync: vi.fn(async () => replayed(current)) };
+    const ledgerWriter = {
+        append: vi.fn(async (_groupId: string, _operation: MemberAddedOperation) => {
+            if (append.success && afterAppend) current = afterAppend;
+            return append;
+        }),
+    };
     const eventRepository = {
         appendEvent: vi.fn(async (_event: GroupMemberAddedEvent) => undefined),
-        getEvents: vi.fn(async () => pending),
         deleteEvent: vi.fn(async (_id: string) => undefined),
         markAsFailed: vi.fn(async (_id: string, _error: string) => undefined),
     };
@@ -71,27 +76,25 @@ function setup({ syncState = stateWith(alice(), bob()), invite: inviteOnly = fal
         }),
     };
     const messageHubHandler = { sendMessage: vi.fn(async (_messages: ServerMessage[]) => send()) };
-    const windowSend = vi.fn();
 
-    const sut = new GroupMemberService(
-        chatStore as never,
-        { getById: async () => ({ id: CAROL, username: 'carol', displayName: 'Carol', avatarKey: null, connectionIds: [{ connectionId: 'carol-laptop' }, { connectionId: 'carol-phone' }] }) } as never,
-        { get: async () => ({ userTag: ALICE, avatarKey: null }) } as never,
-        { get: async () => ({ connectionId: 'alice-laptop' }) } as never,
+    const sut = new GroupService(
         { get: async () => new Group(GROUP_ID, GroupLifecycle.Active) } as never,
         {
             getWriteKey: async () => ({ isInvite: inviteOnly }),
             getEpochKeys: async () => [{ epoch: 2, key: Buffer.from('second') }, { epoch: 1, key: Buffer.from('first') }],
         } as never,
-        ledgerSyncService as never,
+        { get: async () => ({ userTag: ALICE, avatarKey: null }) } as never,
+        { get: async () => ({ connectionId: 'alice-laptop' }) } as never,
+        chatStore as never,
         ledgerWriter as never,
+        { getById: async () => ({ id: CAROL, username: 'carol', displayName: 'Carol', avatarKey: null, connectionIds: [{ connectionId: 'carol-laptop' }, { connectionId: 'carol-phone' }] }) } as never,
+        ledgerSyncService as never,
         eventRepository as never,
         sessionManager as never,
         messageHubHandler as never,
-        { isDestroyed: () => false, webContents: { send: windowSend } } as never,
     );
 
-    return { sut, chat, chatStore, ledgerWriter, ledgerSyncService, eventRepository, encrypted, messageHubHandler, windowSend };
+    return { sut, ledgerWriter, eventRepository, encrypted, messageHubHandler };
 }
 
 describe('adding a member', () => {
@@ -123,9 +126,9 @@ describe('adding a member', () => {
 describe('delivering an invite', () => {
     test('writes the member, sends the strap at the new head and tells the other devices', async () => {
         const after = stateWith(alice(), bob(), carol());
-        const { sut, ledgerWriter, encrypted, eventRepository } = setup({ syncState: after, pending: [invite()] });
+        const { sut, ledgerWriter, encrypted, eventRepository } = setup({ afterAppend: after });
 
-        await sut.reconcile(GROUP_ID, stateWith(alice(), bob()));
+        expect(await sut.deliverInvite(invite())).toBe(true);
 
         expect(ledgerWriter.append).toHaveBeenCalledOnce();
         const strap = encrypted.get('carol-laptop') as GroupStrapPayload;
@@ -141,72 +144,48 @@ describe('delivering an invite', () => {
     });
 
     test('does not write the member again when only the send is left', async () => {
-        const state = stateWith(alice(), bob(), carol());
-        const { sut, ledgerWriter, messageHubHandler, eventRepository } = setup({ syncState: state, pending: [invite()] });
+        const { sut, ledgerWriter, messageHubHandler, eventRepository } = setup({ syncState: stateWith(alice(), bob(), carol()) });
 
-        await sut.reconcile(GROUP_ID, state);
+        expect(await sut.deliverInvite(invite())).toBe(true);
 
         expect(ledgerWriter.append).not.toHaveBeenCalled();
         expect(messageHubHandler.sendMessage).toHaveBeenCalledOnce();
         expect(eventRepository.deleteEvent).toHaveBeenCalledWith('event-1');
     });
 
-    test('keeps the invite for the next try when the send fails', async () => {
-        const state = stateWith(alice(), bob(), carol());
-        const { sut, eventRepository } = setup({ syncState: state, pending: [invite()], send: async () => { throw new Error('offline'); } });
+    test('keeps the invite for the next try when the send is not accepted', async () => {
+        const { sut, eventRepository } = setup({ syncState: stateWith(alice(), bob(), carol()), send: async () => DeliveryStatus.Failed });
 
-        await sut.reconcile(GROUP_ID, state);
+        expect(await sut.deliverInvite(invite())).toBe(false);
 
         expect(eventRepository.deleteEvent).not.toHaveBeenCalled();
         expect(eventRepository.markAsFailed).not.toHaveBeenCalled();
     });
 
     test('keeps the invite when the ledger cannot be reached', async () => {
-        const { sut, eventRepository, messageHubHandler } = setup({ pending: [invite()], append: Result.fail(new ErrorMessage('ApiError', 'offline')) });
+        const { sut, eventRepository, messageHubHandler } = setup({ append: Result.fail(new ErrorMessage('ApiError', 'offline')) });
 
-        await sut.reconcile(GROUP_ID, stateWith(alice(), bob()));
+        expect(await sut.deliverInvite(invite())).toBe(false);
 
         expect(messageHubHandler.sendMessage).not.toHaveBeenCalled();
         expect(eventRepository.markAsFailed).not.toHaveBeenCalled();
     });
 
     test('stops retrying when the ledger refuses the member', async () => {
-        const { sut, eventRepository, messageHubHandler } = setup({ pending: [invite()], append: Result.fail(new ErrorMessage('Forbidden', 'no')) });
+        const { sut, eventRepository, messageHubHandler } = setup({ append: Result.fail(new ErrorMessage('Forbidden', 'no')) });
 
-        await sut.reconcile(GROUP_ID, stateWith(alice(), bob()));
+        expect(await sut.deliverInvite(invite())).toBe(true);
 
         expect(eventRepository.markAsFailed).toHaveBeenCalledWith('event-1', 'no');
         expect(messageHubHandler.sendMessage).not.toHaveBeenCalled();
     });
 
     test('stops retrying when the member was added with other keys', async () => {
-        const state = stateWith(alice(), carol(['someone-elses-invite']));
-        const { sut, eventRepository, messageHubHandler } = setup({ syncState: state, pending: [invite()] });
+        const { sut, eventRepository, messageHubHandler } = setup({ syncState: stateWith(alice(), carol(['someone-elses-invite'])) });
 
-        await sut.reconcile(GROUP_ID, state);
+        expect(await sut.deliverInvite(invite())).toBe(true);
 
         expect(eventRepository.markAsFailed).toHaveBeenCalledOnce();
         expect(messageHubHandler.sendMessage).not.toHaveBeenCalled();
-    });
-});
-
-describe('keeping the chat in step with the ledger', () => {
-    test('adds a member the chat does not know and tells the window', async () => {
-        const { sut, chat, chatStore, windowSend } = setup();
-
-        await sut.reconcile(GROUP_ID, stateWith(alice(), bob(), carol()));
-
-        expect(chat.members.map((member) => member.userTag)).toEqual([BOB, CAROL]);
-        expect(chatStore.create).toHaveBeenCalledOnce();
-        expect(windowSend).toHaveBeenCalledWith('eventMessage', { kind: 'groupChanged', groupId: GROUP_ID });
-    });
-
-    test('does nothing when the chat is up to date', async () => {
-        const { sut, chatStore, windowSend } = setup();
-
-        await sut.reconcile(GROUP_ID, stateWith(alice(), bob()));
-
-        expect(chatStore.create).not.toHaveBeenCalled();
-        expect(windowSend).not.toHaveBeenCalled();
     });
 });

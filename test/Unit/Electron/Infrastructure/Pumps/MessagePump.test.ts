@@ -115,6 +115,14 @@ describe('delivering a group message', () => {
         expect(order).toEqual(['append', 'send']);
     });
 
+    test('tells the window the group can be edited once it starts', async () => {
+        const { sut, mainWindow } = setup({ group: true, startGroup: Result.success(straps) });
+
+        await sut.deliver(queued());
+
+        expect(mainWindow.webContents.send).toHaveBeenCalledWith('eventMessage', { kind: 'groupEditable', groupId: 'chat-1' });
+    });
+
     test('sends the stored straps when the group had already started', async () => {
         const { sut, eventRepository, mediator } = setup({ group: true });
 

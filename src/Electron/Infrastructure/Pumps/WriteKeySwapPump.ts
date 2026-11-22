@@ -3,7 +3,6 @@ import { IGroupRepository } from '#electron/Application/Contracts/Repositories/I
 import { IUserRepository } from '#electron/Application/Contracts/Repositories/IUserRepository';
 import { ILedgerSyncService } from '#electron/Application/Contracts/Services/ILedgerSyncService';
 import { ILedgerWriter } from '#electron/Application/Contracts/Services/ILedgerWriter';
-import { IGroupMemberService } from '#electron/Application/Contracts/Services/IGroupMemberService';
 import { GroupWriteKey } from '#electron/Domain/Encryption/GroupWriteKey';
 import { PendingGroupWriteKey } from '#electron/Domain/Encryption/PendingGroupWriteKey';
 import { Group } from '#electron/Domain/Entities/Group';
@@ -21,7 +20,6 @@ export class WriteKeySwapPump extends Pump {
         private readonly ledgerSyncService: ILedgerSyncService,
         private readonly ledgerWriter: ILedgerWriter,
         private readonly mainWindow: Electron.BrowserWindow,
-        private readonly groupMemberService: IGroupMemberService,
     ) {
         super();
     }
@@ -70,8 +68,6 @@ export class WriteKeySwapPump extends Pump {
         }
 
         if (synced.data.stalledAt !== null) return;
-
-        await this.groupMemberService.reconcile(groupId, synced.data.state);
 
         const member = synced.data.state.members.get(userTag);
         if (!member) return;

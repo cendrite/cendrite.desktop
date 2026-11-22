@@ -79,7 +79,6 @@ function setup({ syncs, append = Result.success(), pending, lifecycle = GroupLif
         ledgerSyncService as never,
         ledgerWriter as never,
         { isDestroyed: () => false, webContents: { send } } as never,
-        { reconcile: vi.fn(async () => undefined) } as never,
     );
 
     return { sut, keys, invite, ledgerWriter, groupKeyRepository, groupRepository, send };
