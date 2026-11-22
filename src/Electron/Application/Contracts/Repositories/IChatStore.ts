@@ -15,6 +15,11 @@ export interface IChatStore {
     addMembers(chatId: string, members: ChatMember[]): Promise<void>;
 
     /**
+     * Set the name of a group chat
+     **/
+    setGroupName(chatId: string, name: string | null): Promise<void>;
+
+    /**
      * Show a chat in the chat list
      **/
     markListed(chatId: string): Promise<void>;

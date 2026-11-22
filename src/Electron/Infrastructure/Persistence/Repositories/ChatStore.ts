@@ -124,6 +124,10 @@ export class ChatStore implements IChatStore {
         await this.memberRepository.save(members);
     }
 
+    public async setGroupName(chatId: string, name: string | null): Promise<void> {
+        await this.chatRepository.update({ id: chatId }, { groupName: name });
+    }
+
     public async markListed(chatId: string): Promise<void> {
         await this.chatRepository.update({ id: chatId, listed: false }, { listed: true });
     }

@@ -4,6 +4,7 @@ import { ChatViewModel } from '@/React/Models/ChatViewModel.ts';
 import { useChatSettings } from '@/React/Common/Hooks/ChatSettings.ts';
 import { useGroupEditable } from '@/React/Common/Hooks/GroupEditable.ts';
 import AddMemberModal from '../Modals/AddMemberModal.tsx';
+import RenameGroupModal from '../Modals/RenameGroupModal.tsx';
 import { DotsThreeIcon } from '@phosphor-icons/react';
 
 interface ChatSettingsMenu {
@@ -16,6 +17,7 @@ const ChatSettingsMenu: React.FC<ChatSettingsMenu> = ({ chat }) => {
     const { deleteChat } = useChatSettings();
     const editable = useGroupEditable(chat.id);
     const [addingMember, setAddingMember] = useState(false);
+    const [renaming, setRenaming] = useState(false);
 
     return (
         <>
@@ -60,6 +62,23 @@ const ChatSettingsMenu: React.FC<ChatSettingsMenu> = ({ chat }) => {
                                                     }}
                                                 >
                                                     Add member
+                                                </button>
+                                            )}
+                                        </MenuItem>
+                                    )}
+
+                                    {chat.isGroup && (
+                                        <MenuItem disabled={!editable}>
+                                            {({ focus }) => (
+                                                <button
+                                                    disabled={!editable}
+                                                    className={`${menuButtonClass} ${focus ? 'bg-surface-hover' : ''} disabled:cursor-not-allowed disabled:opacity-50`}
+                                                    onClick={() => {
+                                                        close();
+                                                        setRenaming(true);
+                                                    }}
+                                                >
+                                                    Rename group
                                                 </button>
                                             )}
                                         </MenuItem>
@@ -116,6 +135,7 @@ const ChatSettingsMenu: React.FC<ChatSettingsMenu> = ({ chat }) => {
             </Menu>
 
             <AddMemberModal chat={chat} isOpen={addingMember} onClose={() => setAddingMember(false)} />
+            <RenameGroupModal chat={chat} isOpen={renaming} onClose={() => setRenaming(false)} />
         </>
     );
 };

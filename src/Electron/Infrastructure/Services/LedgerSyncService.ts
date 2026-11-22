@@ -96,25 +96,31 @@ export class LedgerSyncService implements ILedgerSyncService {
             await this.ledgerLogRepository.setStatus(groupId, replayed.stalledAt, LedgerEventStatus.Stalled);
         }
 
-        if (replayed.halted === null && replayed.stalledAt === null) await this.syncChatMembers(groupId, replayed.state);
+        if (replayed.halted === null && replayed.stalledAt === null) await this.syncChat(groupId, replayed.state);
     }
 
-    private async syncChatMembers(groupId: string, state: GroupState): Promise<void> {
+    private async syncChat(groupId: string, state: GroupState): Promise<void> {
         if (state.members.size === 0 || !(await this.chatStore.getChat(groupId))) return;
 
         const chat = await this.chatStore.getChatWithMembers(groupId);
         const { userTag } = await this.userRepository.get(true);
         const known = new Set(chat.members.map((member) => member.userTag));
         const missing = [...state.members.values()].filter((member) => member.userTag !== userTag && !known.has(member.userTag));
+        const name = state.name ?? null;
+        const renamed = name !== (chat.groupName ?? null);
 
-        if (missing.length === 0) return;
+        if (missing.length === 0 && !renamed) return;
 
-        await this.chatStore.addMembers(
-            groupId,
-            missing.map((member) =>
-                ChatMember.createExternal(uuid().toString(), member.privilege, member.userTag, member.displayName, member.connectionIds),
-            ),
-        );
+        if (missing.length > 0) {
+            await this.chatStore.addMembers(
+                groupId,
+                missing.map((member) =>
+                    ChatMember.createExternal(uuid().toString(), member.privilege, member.userTag, member.displayName, member.connectionIds),
+                ),
+            );
+        }
+
+        if (renamed) await this.chatStore.setGroupName(groupId, name);
 
         if (!this.mainWindow.isDestroyed()) this.mainWindow.webContents.send('eventMessage', { kind: 'groupChanged', groupId });
     }

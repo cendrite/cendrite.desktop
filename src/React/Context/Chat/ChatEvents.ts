@@ -76,7 +76,7 @@ export function useChatEvents(
             if (!chat) return;
 
             chatDispatch({ type: ChatActionType.AddChat, payload: chat });
-            chatDispatch({ type: ChatActionType.SetChatMembers, payload: chat });
+            chatDispatch({ type: ChatActionType.SyncGroup, payload: chat });
         },
         [chatDispatch, chatService, contacts],
     );

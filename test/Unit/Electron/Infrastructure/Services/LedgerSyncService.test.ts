@@ -89,12 +89,13 @@ function replayService(result: Partial<ReplayResult> = {}): ILedgerReplayService
     };
 }
 
-function chatDependencies(chat: { members: { userTag: string }[] } | null = null, send = vi.fn()) {
+function chatDependencies(chat: { members: { userTag: string }[]; groupName?: string | null } | null = null, send = vi.fn()) {
     return [
         {
             getChat: async () => chat,
             getChatWithMembers: async () => chat,
             addMembers: vi.fn(async (_chatId: string, members: { userTag: string }[]) => void chat?.members.push(...members)),
+            setGroupName: vi.fn(async (_chatId: string, name: string | null) => void (chat && (chat.groupName = name))),
         },
         { get: async () => ({ userTag: 'alice' }) },
         { isDestroyed: () => false, webContents: { send } },
@@ -264,6 +265,40 @@ describe('syncing', () => {
 
         expect(chat.members.map((member) => member.userTag)).toEqual(['bob', 'carol']);
         expect(send).toHaveBeenCalledWith('eventMessage', { kind: 'groupChanged', groupId: GROUP_ID });
+    });
+
+    test('copies a new group name from the ledger and tells the window', async () => {
+        const log = logRepository();
+        const groups = groupRepository();
+        const { provider: p } = provider([{ version: 1, archived: false, hasMore: false, events: [event(1)] }]);
+        const state = new GroupState(GROUP_ID);
+        state.name = 'New name';
+        state.members.set('bob', new GroupMember('bob', 'bob', ChatPrivileges.Member, 1, [], [], ['bob-device']));
+        const chat = { members: [{ userTag: 'bob' }], groupName: 'Old name' as string | null };
+        const send = vi.fn();
+
+        const sut = new LedgerSyncService(p, log.repository, groups.repository, replayService({ state }), groupKeys(), ...chatDependencies(chat, send));
+
+        await sut.sync(GROUP_ID);
+
+        expect(chat.groupName).toBe('New name');
+        expect(send).toHaveBeenCalledWith('eventMessage', { kind: 'groupChanged', groupId: GROUP_ID });
+    });
+
+    test('does not announce anything when the chat already matches', async () => {
+        const log = logRepository();
+        const groups = groupRepository();
+        const { provider: p } = provider([{ version: 1, archived: false, hasMore: false, events: [event(1)] }]);
+        const state = new GroupState(GROUP_ID);
+        state.name = 'Trip';
+        state.members.set('bob', new GroupMember('bob', 'bob', ChatPrivileges.Member, 1, [], [], ['bob-device']));
+        const send = vi.fn();
+
+        const sut = new LedgerSyncService(p, log.repository, groups.repository, replayService({ state }), groupKeys(), ...chatDependencies({ members: [{ userTag: 'bob' }], groupName: 'Trip' }, send));
+
+        await sut.sync(GROUP_ID);
+
+        expect(send).not.toHaveBeenCalled();
     });
 
     test('does not touch the chat from a log that halted', async () => {
