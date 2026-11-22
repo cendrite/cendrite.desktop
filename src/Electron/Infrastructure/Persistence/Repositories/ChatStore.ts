@@ -73,6 +73,7 @@ export class ChatStore implements IChatStore {
             .leftJoinAndSelect('members.friend', 'friend')
             .leftJoinAndSelect('friend.connectionIds', 'connectionIds')
             .leftJoinAndSelect('chat.messages', 'messages')
+            .where('chat.listed = :listed', { listed: true })
             .addSelect('MAX(messages.timestamp)', 'latestMessage')
             .groupBy('chat.id')
             .addGroupBy('members.id')
@@ -115,6 +116,16 @@ export class ChatStore implements IChatStore {
 
     public async create(chat: Chat): Promise<Chat> {
         return await this.chatRepository.save(chat);
+    }
+
+    public async addMembers(chatId: string, members: ChatMember[]): Promise<void> {
+        for (const member of members) member.chat = { id: chatId } as Chat;
+
+        await this.memberRepository.save(members);
+    }
+
+    public async markListed(chatId: string): Promise<void> {
+        await this.chatRepository.update({ id: chatId, listed: false }, { listed: true });
     }
 
     public async clear(): Promise<void> {

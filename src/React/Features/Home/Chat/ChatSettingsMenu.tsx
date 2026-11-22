@@ -59,7 +59,7 @@ const ChatSettingsMenu: React.FC<ChatSettingsMenu> = ({ chat }) => {
                                                         setAddingMember(true);
                                                     }}
                                                 >
-                                                    {editable ? 'Add member' : 'Add member (send a message first)'}
+                                                    Add member
                                                 </button>
                                             )}
                                         </MenuItem>

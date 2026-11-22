@@ -1,4 +1,5 @@
 import { Chat } from '#electron/Domain/Aggregates/Chat';
+import { ChatMember } from '#electron/Domain/Entities/ChatMember';
 import { Message } from '#electron/Domain/Entities/Message';
 import { DeliveryStatus } from '#shared/Enums/DeliveryStatus';
 
@@ -7,6 +8,16 @@ export interface IChatStore {
      * Create a new chat in the store
      **/
     create(chat: Chat): Promise<Chat>;
+
+    /**
+     * Add members to an existing chat
+     **/
+    addMembers(chatId: string, members: ChatMember[]): Promise<void>;
+
+    /**
+     * Show a chat in the chat list
+     **/
+    markListed(chatId: string): Promise<void>;
 
     /**
      * Store a message in the store

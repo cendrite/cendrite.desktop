@@ -2,7 +2,7 @@ import { describe, expect, test, vi } from 'vitest';
 import { GroupService } from '#electron/Application/Services/GroupService';
 import { Group } from '#electron/Domain/Entities/Group';
 import { GroupLifecycle } from '#electron/Domain/Enums/GroupLifecycle';
-import { GroupMemberAddedEvent } from '#electron/Domain/Events/GroupMemberAddedEvent';
+import { GroupChangeEvent } from '#electron/Domain/Events/GroupChangeEvent';
 import { GroupMember } from '#electron/Domain/Projections/GroupMember';
 import { GroupState } from '#electron/Domain/Projections/GroupState';
 import { GroupMemberRef, MemberAddedOperation } from '#electron/Domain/Protocol/LedgerOperation';
@@ -34,7 +34,7 @@ const carol = (inviteKeys = ['carol-invite']) => new GroupMember(CAROL, 'Carol',
 const replayed = (state: GroupState) => Result.success<ReplayResult>({ state, rejected: [], verified: [], halted: null, stalledAt: null });
 
 function invite() {
-    return new GroupMemberAddedEvent(
+    return new GroupChangeEvent(
         'event-1',
         GROUP_ID,
         new MemberAddedOperation(ALICE, new GroupMemberRef(CAROL, 'Carol', ChatPrivileges.Member, null, [], ['carol-invite'], ['carol-laptop'])),
@@ -46,15 +46,17 @@ function invite() {
 interface Setup {
     syncState?: GroupState;
     afterAppend?: GroupState;
+    group?: Group;
+    pending?: GroupChangeEvent[];
     invite?: boolean;
     append?: Result<void>;
     send?: () => Promise<DeliveryStatus>;
     chatMembers?: { userTag: string; avatar: string | null }[];
 }
 
-function setup({ syncState = stateWith(alice(), bob()), afterAppend, invite: inviteOnly = false, append = Result.success(), send = async () => DeliveryStatus.Sent, chatMembers = [{ userTag: BOB, avatar: null }] }: Setup = {}) {
+function setup({ syncState = stateWith(alice(), bob()), afterAppend, group = new Group(GROUP_ID, GroupLifecycle.Active), pending = [], invite: inviteOnly = false, append = Result.success(), send = async () => DeliveryStatus.Sent, chatMembers = [{ userTag: BOB, avatar: null }] }: Setup = {}) {
     const chat = { members: [...chatMembers] };
-    const chatStore = { getChatWithMembers: vi.fn(async () => chat) };
+    const chatStore = { getChatWithMembers: vi.fn(async () => chat), addMembers: vi.fn(async (_chatId: string, _members: { userTag: string }[]) => undefined) };
     let current = syncState;
     const ledgerSyncService = { sync: vi.fn(async () => replayed(current)) };
     const ledgerWriter = {
@@ -64,7 +66,8 @@ function setup({ syncState = stateWith(alice(), bob()), afterAppend, invite: inv
         }),
     };
     const eventRepository = {
-        appendEvent: vi.fn(async (_event: GroupMemberAddedEvent) => undefined),
+        appendEvent: vi.fn(async (_event: GroupChangeEvent) => undefined),
+        getEvents: vi.fn(async () => pending),
         deleteEvent: vi.fn(async (_id: string) => undefined),
         markAsFailed: vi.fn(async (_id: string, _error: string) => undefined),
     };
@@ -77,8 +80,10 @@ function setup({ syncState = stateWith(alice(), bob()), afterAppend, invite: inv
     };
     const messageHubHandler = { sendMessage: vi.fn(async (_messages: ServerMessage[]) => send()) };
 
+    const windowSend = vi.fn();
+
     const sut = new GroupService(
-        { get: async () => new Group(GROUP_ID, GroupLifecycle.Active) } as never,
+        { get: async () => group } as never,
         {
             getWriteKey: async () => ({ isInvite: inviteOnly }),
             getEpochKeys: async () => [{ epoch: 2, key: Buffer.from('second') }, { epoch: 1, key: Buffer.from('first') }],
@@ -92,9 +97,10 @@ function setup({ syncState = stateWith(alice(), bob()), afterAppend, invite: inv
         eventRepository as never,
         sessionManager as never,
         messageHubHandler as never,
+        { isDestroyed: () => false, webContents: { send: windowSend } } as never,
     );
 
-    return { sut, ledgerWriter, eventRepository, encrypted, messageHubHandler };
+    return { sut, ledgerWriter, ledgerSyncService, chatStore, eventRepository, encrypted, messageHubHandler, windowSend };
 }
 
 describe('adding a member', () => {
@@ -123,12 +129,62 @@ describe('adding a member', () => {
     });
 });
 
+describe('adding a member before the first message', () => {
+    const draft = () => new Group(GROUP_ID, GroupLifecycle.Draft);
+    const prepared = () => Object.assign(draft(), { pendingStart: { straps: {} } });
+
+    test('puts them straight in the chat, with nothing on the ledger or in the queue', async () => {
+        const { sut, chatStore, eventRepository, ledgerSyncService, windowSend } = setup({ group: draft() });
+
+        const result = await sut.addMember(GROUP_ID, CAROL);
+
+        expect(result.success).toBe(true);
+        expect(chatStore.addMembers.mock.calls[0][1].map((member) => member.userTag)).toEqual([CAROL]);
+        expect(eventRepository.appendEvent).not.toHaveBeenCalled();
+        expect(ledgerSyncService.sync).not.toHaveBeenCalled();
+        expect(windowSend).toHaveBeenCalledWith('eventMessage', { kind: 'groupChanged', groupId: GROUP_ID });
+    });
+
+    test('refuses someone already in the draft', async () => {
+        const { sut, chatStore } = setup({ group: draft(), chatMembers: [{ userTag: CAROL, avatar: null }] });
+
+        expect((await sut.addMember(GROUP_ID, CAROL)).success).toBe(false);
+        expect(chatStore.addMembers).not.toHaveBeenCalled();
+    });
+
+    test('queues the change when the first send is already prepared', async () => {
+        const { sut, chatStore, eventRepository } = setup({ group: prepared() as Group });
+
+        expect((await sut.addMember(GROUP_ID, CAROL)).success).toBe(true);
+
+        expect(chatStore.addMembers).not.toHaveBeenCalled();
+        expect(eventRepository.appendEvent).toHaveBeenCalledOnce();
+    });
+
+    test('refuses someone already waiting in the queue', async () => {
+        const { sut, eventRepository } = setup({ group: prepared() as Group, pending: [invite()] });
+
+        expect((await sut.addMember(GROUP_ID, CAROL)).success).toBe(false);
+        expect(eventRepository.appendEvent).not.toHaveBeenCalled();
+    });
+
+    test('holds a queued change until the group is active', async () => {
+        const { sut, ledgerWriter, ledgerSyncService, eventRepository } = setup({ group: prepared() as Group });
+
+        expect(await sut.deliverChange(invite())).toBe(false);
+
+        expect(ledgerSyncService.sync).not.toHaveBeenCalled();
+        expect(ledgerWriter.append).not.toHaveBeenCalled();
+        expect(eventRepository.deleteEvent).not.toHaveBeenCalled();
+    });
+});
+
 describe('delivering an invite', () => {
     test('writes the member, sends the strap at the new head and tells the other devices', async () => {
         const after = stateWith(alice(), bob(), carol());
         const { sut, ledgerWriter, encrypted, eventRepository } = setup({ afterAppend: after });
 
-        expect(await sut.deliverInvite(invite())).toBe(true);
+        expect(await sut.deliverChange(invite())).toBe(true);
 
         expect(ledgerWriter.append).toHaveBeenCalledOnce();
         const strap = encrypted.get('carol-laptop') as GroupStrapPayload;
@@ -146,7 +202,7 @@ describe('delivering an invite', () => {
     test('does not write the member again when only the send is left', async () => {
         const { sut, ledgerWriter, messageHubHandler, eventRepository } = setup({ syncState: stateWith(alice(), bob(), carol()) });
 
-        expect(await sut.deliverInvite(invite())).toBe(true);
+        expect(await sut.deliverChange(invite())).toBe(true);
 
         expect(ledgerWriter.append).not.toHaveBeenCalled();
         expect(messageHubHandler.sendMessage).toHaveBeenCalledOnce();
@@ -156,7 +212,7 @@ describe('delivering an invite', () => {
     test('keeps the invite for the next try when the send is not accepted', async () => {
         const { sut, eventRepository } = setup({ syncState: stateWith(alice(), bob(), carol()), send: async () => DeliveryStatus.Failed });
 
-        expect(await sut.deliverInvite(invite())).toBe(false);
+        expect(await sut.deliverChange(invite())).toBe(false);
 
         expect(eventRepository.deleteEvent).not.toHaveBeenCalled();
         expect(eventRepository.markAsFailed).not.toHaveBeenCalled();
@@ -165,7 +221,7 @@ describe('delivering an invite', () => {
     test('keeps the invite when the ledger cannot be reached', async () => {
         const { sut, eventRepository, messageHubHandler } = setup({ append: Result.fail(new ErrorMessage('ApiError', 'offline')) });
 
-        expect(await sut.deliverInvite(invite())).toBe(false);
+        expect(await sut.deliverChange(invite())).toBe(false);
 
         expect(messageHubHandler.sendMessage).not.toHaveBeenCalled();
         expect(eventRepository.markAsFailed).not.toHaveBeenCalled();
@@ -174,7 +230,7 @@ describe('delivering an invite', () => {
     test('stops retrying when the ledger refuses the member', async () => {
         const { sut, eventRepository, messageHubHandler } = setup({ append: Result.fail(new ErrorMessage('Forbidden', 'no')) });
 
-        expect(await sut.deliverInvite(invite())).toBe(true);
+        expect(await sut.deliverChange(invite())).toBe(true);
 
         expect(eventRepository.markAsFailed).toHaveBeenCalledWith('event-1', 'no');
         expect(messageHubHandler.sendMessage).not.toHaveBeenCalled();
@@ -183,7 +239,7 @@ describe('delivering an invite', () => {
     test('stops retrying when the member was added with other keys', async () => {
         const { sut, eventRepository, messageHubHandler } = setup({ syncState: stateWith(alice(), carol(['someone-elses-invite'])) });
 
-        expect(await sut.deliverInvite(invite())).toBe(true);
+        expect(await sut.deliverChange(invite())).toBe(true);
 
         expect(eventRepository.markAsFailed).toHaveBeenCalledOnce();
         expect(messageHubHandler.sendMessage).not.toHaveBeenCalled();

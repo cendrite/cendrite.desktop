@@ -13,7 +13,7 @@ export class GetGroupEditableQueryHandler implements Handler<GetGroupEditableQue
 
     public async handle(query: GetGroupEditableQuery): Promise<Result<boolean>> {
         const group = await this.groupRepository.get(query.groupId);
-        if (group?.lifecycle !== GroupLifecycle.Active) return Result.success(false);
+        if (group?.lifecycle !== GroupLifecycle.Active && group?.lifecycle !== GroupLifecycle.Draft) return Result.success(false);
 
         const writeKey = await this.groupKeyRepository.getWriteKey(query.groupId);
 

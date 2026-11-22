@@ -60,12 +60,6 @@ export class MessageReceiver implements IMessageReceiver {
                 case PayloadType.GroupCreated:
                     console.log(`MessageReceiver: received group creation for from ${message.senderId}`);
                     await this.handleGroupCreated(message, payload as GroupStrapPayload);
-                    if (!envelope.payloads.some((other) => other.type === PayloadType.ChatMessage)) {
-                        this.mainWindow.webContents.send('eventMessage', {
-                            kind: 'groupChanged',
-                            groupId: (payload as GroupStrapPayload).groupId,
-                        });
-                    }
                     break;
                 case PayloadType.GroupUpdated:
                     this.writeKeySwapPump.notify();
@@ -136,7 +130,7 @@ export class MessageReceiver implements IMessageReceiver {
                 ),
             );
 
-        await this.chatStore.create(new Chat(payload.groupId, members, [], payload.groupName));
+        await this.chatStore.create(new Chat(payload.groupId, members, [], payload.groupName, 0, false, false));
 
         await this.groupRepository.create(
             new Group(
@@ -178,6 +172,7 @@ export class MessageReceiver implements IMessageReceiver {
         }
 
         await this.ensureChat(payload.chatId, payload);
+        await this.chatStore.markListed(payload.chatId);
 
         await this.chatStore.storeMessage(
             new Message(

@@ -75,6 +75,7 @@ function setup(createResults: Result<void>[] = []) {
         {} as never,
         {} as never,
         {} as never,
+        {} as never,
     );
 
     return { sut, ledgerWriter, ownWriteKey, group, saved };

@@ -29,10 +29,10 @@ describe('whether a group can be edited from this device', () => {
         expect(result.data).toBe(false);
     });
 
-    test('cannot be edited before the group has started', async () => {
+    test('can be edited by its creator before the first message', async () => {
         const result = await setup(new Group(GROUP_ID, GroupLifecycle.Draft), key(false)).handle(new GetGroupEditableQuery(GROUP_ID));
 
-        expect(result.data).toBe(false);
+        expect(result.data).toBe(true);
     });
 
     test('cannot be edited without a write key', async () => {

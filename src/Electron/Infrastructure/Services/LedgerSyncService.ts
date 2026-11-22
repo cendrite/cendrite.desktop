@@ -109,12 +109,12 @@ export class LedgerSyncService implements ILedgerSyncService {
 
         if (missing.length === 0) return;
 
-        chat.members.push(
-            ...missing.map((member) =>
+        await this.chatStore.addMembers(
+            groupId,
+            missing.map((member) =>
                 ChatMember.createExternal(uuid().toString(), member.privilege, member.userTag, member.displayName, member.connectionIds),
             ),
         );
-        await this.chatStore.create(chat);
 
         if (!this.mainWindow.isDestroyed()) this.mainWindow.webContents.send('eventMessage', { kind: 'groupChanged', groupId });
     }

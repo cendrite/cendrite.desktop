@@ -3,7 +3,7 @@ import { IGroupRepository } from '#electron/Application/Contracts/Repositories/I
 import { MessageSentCommand } from '#electron/Application/Features/Chat/Events/MessageSentEventHandler';
 import { Mediator } from '#electron/Application/Mediator/Mediator';
 import { IGroupService } from '#electron/Application/Services/GroupService';
-import { GroupMemberAddedEvent } from '#electron/Domain/Events/GroupMemberAddedEvent';
+import { GroupChangeEvent } from '#electron/Domain/Events/GroupChangeEvent';
 import { DeliveryStatus } from '#shared/Enums/DeliveryStatus';
 import { Payload } from '#electron/Domain/Protocol/Payload';
 import { MessageSentEvent } from '#electron/Domain/Events/MessageSentEvent';
@@ -11,10 +11,11 @@ import { IOutboxRepository } from '../Interfaces/IOutboxRepository.js';
 import { SignalManager } from '../Signal/SignalManager.js';
 import { Pump } from './Pump.js';
 
-const INVITE_RETRY_MS = 5_000;
+const GROUP_CHANGE_RETRY_MS = 5_000;
+const MAX_PENDING_GROUP_CHANGES = 200;
 
 export class MessagePump extends Pump {
-    private nextInviteAttempt = 0;
+    private readonly nextChangeAttempt = new Map<string, number>();
 
     constructor(
         private readonly chatStore: IChatStore,
@@ -35,7 +36,7 @@ export class MessagePump extends Pump {
                 continue;
             }
 
-            if (await this.deliverNextInvite()) continue;
+            if (await this.deliverNextChange()) continue;
 
             const msgEvent = await this.eventRepository.getEvent<MessageSentEvent>(MessageSentEvent.type);
 
@@ -48,19 +49,28 @@ export class MessagePump extends Pump {
         }
     }
 
-    private async deliverNextInvite(): Promise<boolean> {
-        if (Date.now() < this.nextInviteAttempt) return false;
+    public async deliverNextChange(): Promise<boolean> {
+        const pending = await this.eventRepository.getEvents<GroupChangeEvent>(GroupChangeEvent.type, MAX_PENDING_GROUP_CHANGES);
+        const attempted = new Set<string>();
 
-        const invite = await this.eventRepository.getEvent<GroupMemberAddedEvent>(GroupMemberAddedEvent.type);
-        if (!invite) return false;
+        for (const change of pending) {
+            if (attempted.has(change.groupId)) continue;
+            attempted.add(change.groupId);
 
-        try {
-            if (await this.groupService.deliverInvite(invite)) return true;
-        } catch (error) {
-            console.error(`MessagePump: could not deliver the invite for group ${invite.groupId}`, error);
+            if (Date.now() < (this.nextChangeAttempt.get(change.groupId) ?? 0)) continue;
+
+            try {
+                if (await this.groupService.deliverChange(change)) {
+                    this.nextChangeAttempt.delete(change.groupId);
+                    return true;
+                }
+            } catch (error) {
+                console.error(`MessagePump: could not deliver a change for group ${change.groupId}`, error);
+            }
+
+            this.nextChangeAttempt.set(change.groupId, Date.now() + GROUP_CHANGE_RETRY_MS);
         }
 
-        this.nextInviteAttempt = Date.now() + INVITE_RETRY_MS;
         return false;
     }
 
@@ -108,7 +118,7 @@ export class MessagePump extends Pump {
 
                 event = new MessageSentEvent(event.id, event.message, event.connectionIds, event.participants, event.occurredOn, payloads);
                 await this.eventRepository.appendEvent(event);
-                this.mainWindow.webContents.send('eventMessage', { kind: 'groupEditable', groupId: event.message.chatId });
+                this.nextChangeAttempt.delete(event.message.chatId);
             }
         }
 

@@ -91,7 +91,11 @@ function replayService(result: Partial<ReplayResult> = {}): ILedgerReplayService
 
 function chatDependencies(chat: { members: { userTag: string }[] } | null = null, send = vi.fn()) {
     return [
-        { getChat: async () => chat, getChatWithMembers: async () => chat, create: vi.fn(async () => chat) },
+        {
+            getChat: async () => chat,
+            getChatWithMembers: async () => chat,
+            addMembers: vi.fn(async (_chatId: string, members: { userTag: string }[]) => void chat?.members.push(...members)),
+        },
         { get: async () => ({ userTag: 'alice' }) },
         { isDestroyed: () => false, webContents: { send } },
     ] as unknown as [IChatStore, IUserRepository, Electron.BrowserWindow];

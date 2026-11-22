@@ -2,6 +2,8 @@ import { describe, expect, test, vi } from 'vitest';
 import { MessagePump } from '#electron/Infrastructure/Pumps/MessagePump';
 import { MessageSentEvent } from '#electron/Domain/Events/MessageSentEvent';
 import { Group } from '#electron/Domain/Entities/Group';
+import { GroupChangeEvent } from '#electron/Domain/Events/GroupChangeEvent';
+import { MemberAddedOperation } from '#electron/Domain/Protocol/LedgerOperation';
 import { GroupStrapPayload, Payload } from '#electron/Domain/Protocol/Payload';
 import { MessageContract } from '#shared/Models/MessageContract';
 import { DeliveryStatus } from '#shared/Enums/DeliveryStatus';
@@ -36,6 +38,7 @@ function setup({ group = false, startGroup = Result.success(null), send = Result
         appendEvent: vi.fn(async (_event: MessageSentEvent) => void order.push('append')),
         markAsFailed: vi.fn(async (_id: string, _error: string) => undefined),
         deleteEvent: vi.fn(async (_id: string) => undefined),
+        getEvents: vi.fn(async (): Promise<GroupChangeEvent[]> => []),
     };
     const chatStore = {
         getMessage: vi.fn(async () => (message ? { id: 'msg-1', chatId: 'chat-1' } : null)),
@@ -48,7 +51,10 @@ function setup({ group = false, startGroup = Result.success(null), send = Result
         }),
     };
     const mainWindow = { webContents: { send: vi.fn() } };
-    const groupService = { startGroup: vi.fn(async () => startGroup) };
+    const groupService = {
+        startGroup: vi.fn(async () => startGroup),
+        deliverChange: vi.fn(async (_change: GroupChangeEvent) => true),
+    };
 
     const sut = new MessagePump(
         chatStore as never,
@@ -115,14 +121,6 @@ describe('delivering a group message', () => {
         expect(order).toEqual(['append', 'send']);
     });
 
-    test('tells the window the group can be edited once it starts', async () => {
-        const { sut, mainWindow } = setup({ group: true, startGroup: Result.success(straps) });
-
-        await sut.deliver(queued());
-
-        expect(mainWindow.webContents.send).toHaveBeenCalledWith('eventMessage', { kind: 'groupEditable', groupId: 'chat-1' });
-    });
-
     test('sends the stored straps when the group had already started', async () => {
         const { sut, eventRepository, mediator } = setup({ group: true });
 
@@ -149,5 +147,61 @@ describe('delivering a group message', () => {
             messageIds: ['msg-1'],
             status: DeliveryStatus.Failed,
         });
+    });
+});
+
+describe('delivering queued group changes', () => {
+    const change = (id: string, groupId: string) => new GroupChangeEvent(id, groupId, {} as MemberAddedOperation, {}, new Date(1));
+
+    test('delivers the oldest change of a group first and never skips ahead in it', async () => {
+        const { sut, eventRepository, groupService } = setup();
+        eventRepository.getEvents.mockResolvedValue([change('first', 'group-a'), change('second', 'group-a')]);
+        groupService.deliverChange.mockResolvedValue(false);
+
+        await sut.deliverNextChange();
+
+        expect(groupService.deliverChange).toHaveBeenCalledOnce();
+        expect(groupService.deliverChange.mock.calls[0][0].id).toBe('first');
+    });
+
+    test('a waiting group does not block another group', async () => {
+        const { sut, eventRepository, groupService } = setup();
+        eventRepository.getEvents.mockResolvedValue([change('waiting', 'group-a'), change('ready', 'group-b')]);
+        groupService.deliverChange.mockImplementation(async (event) => event.groupId === 'group-b');
+
+        expect(await sut.deliverNextChange()).toBe(true);
+
+        expect(groupService.deliverChange.mock.calls.map(([event]) => event.id)).toEqual(['waiting', 'ready']);
+    });
+
+    test('waits before trying a failed group again', async () => {
+        const { sut, eventRepository, groupService } = setup();
+        eventRepository.getEvents.mockResolvedValue([change('waiting', 'group-a')]);
+        groupService.deliverChange.mockResolvedValue(false);
+
+        await sut.deliverNextChange();
+        await sut.deliverNextChange();
+
+        expect(groupService.deliverChange).toHaveBeenCalledOnce();
+    });
+
+    test('a change that throws does not stop the pump', async () => {
+        const { sut, eventRepository, groupService } = setup();
+        eventRepository.getEvents.mockResolvedValue([change('broken', 'group-a')]);
+        groupService.deliverChange.mockRejectedValue(new Error('boom'));
+
+        await expect(sut.deliverNextChange()).resolves.toBe(false);
+    });
+
+    test('retries a waiting change as soon as its group starts', async () => {
+        const { sut, eventRepository, groupService } = setup({ group: true, startGroup: Result.success(straps) });
+        eventRepository.getEvents.mockResolvedValue([change('waiting', 'chat-1')]);
+        groupService.deliverChange.mockResolvedValueOnce(false);
+
+        await sut.deliverNextChange();
+        await sut.deliver(queued());
+        await sut.deliverNextChange();
+
+        expect(groupService.deliverChange).toHaveBeenCalledTimes(2);
     });
 });
