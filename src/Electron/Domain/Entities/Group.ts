@@ -1,3 +1,4 @@
+import { ChatPrivileges } from "#shared/Enums/ChatPrivileges";
 import { MembershipWarning } from "#shared/Enums/MembershipWarning";
 import { GroupLifecycle } from "../Enums/GroupLifecycle.js";
 import { PendingGroupStart } from "./PendingGroupStart.js";
@@ -12,6 +13,7 @@ export class Group {
     publishedDevicesHash: string | null;
     pendingStart: PendingGroupStart | null;
     membershipWarning: MembershipWarning | null;
+    privilege: ChatPrivileges;
 
     constructor(
         groupId: string,
@@ -23,6 +25,7 @@ export class Group {
         publishedDevicesHash: string | null = null,
         pendingStart: PendingGroupStart | null = null,
         membershipWarning: MembershipWarning | null = null,
+        privilege: ChatPrivileges = ChatPrivileges.Member,
     ) {
         this.groupId = groupId;
         this.lifecycle = lifecycle;
@@ -33,5 +36,6 @@ export class Group {
         this.publishedDevicesHash = publishedDevicesHash;
         this.pendingStart = pendingStart;
         this.membershipWarning = membershipWarning;
+        this.privilege = privilege;
     }
 }

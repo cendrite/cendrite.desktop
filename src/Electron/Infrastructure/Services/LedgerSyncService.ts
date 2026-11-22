@@ -77,6 +77,12 @@ export class LedgerSyncService implements ILedgerSyncService {
         group.epoch = replayed.state.epoch;
         group.archived = archived;
 
+        const trusted = replayed.halted === null && replayed.stalledAt === null;
+        const { userTag } = await this.userRepository.get(true);
+        const privilege = trusted ? replayed.state.members.get(userTag)?.privilege : undefined;
+        const privilegeChanged = privilege !== undefined && privilege !== group.privilege;
+        if (privilegeChanged) group.privilege = privilege;
+
         await this.groupRepository.create(group);
 
         for (const rejected of replayed.rejected) {
@@ -96,20 +102,23 @@ export class LedgerSyncService implements ILedgerSyncService {
             await this.ledgerLogRepository.setStatus(groupId, replayed.stalledAt, LedgerEventStatus.Stalled);
         }
 
-        if (replayed.halted === null && replayed.stalledAt === null) await this.syncChat(groupId, replayed.state);
+        const chatChanged = trusted && (await this.syncChat(groupId, replayed.state, userTag));
+
+        if ((chatChanged || privilegeChanged) && !this.mainWindow.isDestroyed()) {
+            this.mainWindow.webContents.send('eventMessage', { kind: 'groupChanged', groupId });
+        }
     }
 
-    private async syncChat(groupId: string, state: GroupState): Promise<void> {
-        if (state.members.size === 0 || !(await this.chatStore.getChat(groupId))) return;
+    private async syncChat(groupId: string, state: GroupState, userTag: string): Promise<boolean> {
+        if (state.members.size === 0 || !(await this.chatStore.getChat(groupId))) return false;
 
         const chat = await this.chatStore.getChatWithMembers(groupId);
-        const { userTag } = await this.userRepository.get(true);
         const known = new Set(chat.members.map((member) => member.userTag));
         const missing = [...state.members.values()].filter((member) => member.userTag !== userTag && !known.has(member.userTag));
         const name = state.name ?? null;
         const renamed = name !== (chat.groupName ?? null);
 
-        if (missing.length === 0 && !renamed) return;
+        if (missing.length === 0 && !renamed) return false;
 
         if (missing.length > 0) {
             await this.chatStore.addMembers(
@@ -122,7 +131,7 @@ export class LedgerSyncService implements ILedgerSyncService {
 
         if (renamed) await this.chatStore.setGroupName(groupId, name);
 
-        if (!this.mainWindow.isDestroyed()) this.mainWindow.webContents.send('eventMessage', { kind: 'groupChanged', groupId });
+        return true;
     }
 }
 

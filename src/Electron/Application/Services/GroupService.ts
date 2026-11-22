@@ -101,6 +101,7 @@ export class GroupService implements IGroupService {
         group.version = 1;
         group.headHash = Buffer.from(pending.hash, 'base64');
         group.pendingStart = null;
+        group.privilege = ChatPrivileges.Owner;
         await this.groupRepository.update(group);
 
         return Result.success<Record<string, GroupStrapPayload> | null>(pending.straps);

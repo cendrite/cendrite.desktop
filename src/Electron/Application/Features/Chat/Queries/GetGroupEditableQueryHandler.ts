@@ -1,5 +1,6 @@
 import { Result } from '#shared/Result/Result';
 import { GetGroupEditableQuery } from '#shared/Chat/GetGroupEditable';
+import { ChatPrivileges } from '#shared/Enums/ChatPrivileges';
 import { IGroupKeyRepository } from '#electron/Application/Contracts/Repositories/IGroupKeyRepository';
 import { IGroupRepository } from '#electron/Application/Contracts/Repositories/IGroupRepository';
 import { Handler } from '#electron/Application/Mediator/Handler';
@@ -14,6 +15,7 @@ export class GetGroupEditableQueryHandler implements Handler<GetGroupEditableQue
     public async handle(query: GetGroupEditableQuery): Promise<Result<boolean>> {
         const group = await this.groupRepository.get(query.groupId);
         if (group?.lifecycle !== GroupLifecycle.Active && group?.lifecycle !== GroupLifecycle.Draft) return Result.success(false);
+        if (group.lifecycle === GroupLifecycle.Active && group.privilege < ChatPrivileges.Admin) return Result.success(false);
 
         const writeKey = await this.groupKeyRepository.getWriteKey(query.groupId);
 

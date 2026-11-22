@@ -50,12 +50,11 @@ const ChatSettingsMenu: React.FC<ChatSettingsMenu> = ({ chat }) => {
                                 leaveTo="transform opacity-0 scale-95"
                             >
                                 <MenuItems className="absolute right-0 mt-2 w-56 origin-top-right rounded-xl bg-overlay shadow-lg ring-1 ring-line focus:outline-none p-2 z-[1100]">
-                                    {chat.isGroup && (
-                                        <MenuItem disabled={!editable}>
+                                    {chat.isGroup && editable && (
+                                        <MenuItem>
                                             {({ focus }) => (
                                                 <button
-                                                    disabled={!editable}
-                                                    className={`${menuButtonClass} ${focus ? 'bg-surface-hover' : ''} disabled:cursor-not-allowed disabled:opacity-50`}
+                                                    className={`${menuButtonClass} ${focus ? 'bg-surface-hover' : ''}`}
                                                     onClick={() => {
                                                         close();
                                                         setAddingMember(true);
@@ -67,12 +66,11 @@ const ChatSettingsMenu: React.FC<ChatSettingsMenu> = ({ chat }) => {
                                         </MenuItem>
                                     )}
 
-                                    {chat.isGroup && (
-                                        <MenuItem disabled={!editable}>
+                                    {chat.isGroup && editable && (
+                                        <MenuItem>
                                             {({ focus }) => (
                                                 <button
-                                                    disabled={!editable}
-                                                    className={`${menuButtonClass} ${focus ? 'bg-surface-hover' : ''} disabled:cursor-not-allowed disabled:opacity-50`}
+                                                    className={`${menuButtonClass} ${focus ? 'bg-surface-hover' : ''}`}
                                                     onClick={() => {
                                                         close();
                                                         setRenaming(true);
