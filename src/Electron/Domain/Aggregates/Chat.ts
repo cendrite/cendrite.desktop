@@ -9,6 +9,7 @@ export class Chat {
     messageTtl: number | null;
     muted: boolean;
     muteTimer: number | null;
+    listed: boolean;
 
     constructor(
         id: string,
@@ -17,6 +18,7 @@ export class Chat {
         groupName: string | null = null,
         messageTtl: number = 0,
         muted: boolean = false,
+        listed: boolean = true,
     ) {
         this.id = id;
         this.members = members;
@@ -24,6 +26,7 @@ export class Chat {
         this.groupName = groupName;
         this.messageTtl = messageTtl;
         this.muted = muted;
+        this.listed = listed;
         this.messages = messages;
     }
 }

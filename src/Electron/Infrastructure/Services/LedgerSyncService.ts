@@ -1,16 +1,21 @@
 import { Result } from '#shared/Result/Result';
 import { ErrorMessage } from '#shared/Result/ErrorMessage';
 import { ILedgerProvider, LedgerEvent, LedgerKeyGrant, LedgerReadProof } from '#electron/Application/Contracts/Providers/ILedgerProvider';
+import { IChatStore } from '#electron/Application/Contracts/Repositories/IChatStore';
 import { IGroupKeyRepository } from '#electron/Application/Contracts/Repositories/IGroupKeyRepository';
+import { IUserRepository } from '#electron/Application/Contracts/Repositories/IUserRepository';
 import { IGroupRepository } from '#electron/Application/Contracts/Repositories/IGroupRepository';
 import { ILedgerLogRepository } from '#electron/Application/Contracts/Repositories/ILedgerLogRepository';
 import { ILedgerReplayService, ReplayResult } from '#electron/Application/Contracts/Services/ILedgerReplayService';
 import { ILedgerSyncService } from '#electron/Application/Contracts/Services/ILedgerSyncService';
+import { ChatMember } from '#electron/Domain/Entities/ChatMember';
 import { Group } from '#electron/Domain/Entities/Group';
+import { GroupState } from '#electron/Domain/Projections/GroupState';
 import { LedgerEventRecord } from '#electron/Domain/Entities/LedgerEventRecord';
 import { LedgerEventStatus } from '#electron/Domain/Enums/LedgerEventStatus';
 import { GroupWriteKey } from '#electron/Domain/Encryption/GroupWriteKey';
 import { KeyGrant } from '#electron/Domain/Protocol/KeyChanges';
+import { v4 as uuid } from 'uuid';
 import { buildReadSigningInput, buildSigningInput, hashEvent, signOuter } from '../Crypto/LedgerCodec.js';
 
 const PAGE_SIZE = 500;
@@ -22,6 +27,9 @@ export class LedgerSyncService implements ILedgerSyncService {
         private readonly groupRepository: IGroupRepository,
         private readonly ledgerReplayService: ILedgerReplayService,
         private readonly groupKeyRepository: IGroupKeyRepository,
+        private readonly chatStore: IChatStore,
+        private readonly userRepository: IUserRepository,
+        private readonly mainWindow: Electron.BrowserWindow,
     ) { }
 
     public async sync(groupId: string): Promise<Result<ReplayResult>> {
@@ -87,6 +95,28 @@ export class LedgerSyncService implements ILedgerSyncService {
         if (replayed.stalledAt !== null) {
             await this.ledgerLogRepository.setStatus(groupId, replayed.stalledAt, LedgerEventStatus.Stalled);
         }
+
+        if (replayed.halted === null && replayed.stalledAt === null) await this.syncChatMembers(groupId, replayed.state);
+    }
+
+    private async syncChatMembers(groupId: string, state: GroupState): Promise<void> {
+        if (state.members.size === 0 || !(await this.chatStore.getChat(groupId))) return;
+
+        const chat = await this.chatStore.getChatWithMembers(groupId);
+        const { userTag } = await this.userRepository.get(true);
+        const known = new Set(chat.members.map((member) => member.userTag));
+        const missing = [...state.members.values()].filter((member) => member.userTag !== userTag && !known.has(member.userTag));
+
+        if (missing.length === 0) return;
+
+        await this.chatStore.addMembers(
+            groupId,
+            missing.map((member) =>
+                ChatMember.createExternal(uuid().toString(), member.privilege, member.userTag, member.displayName, member.connectionIds),
+            ),
+        );
+
+        if (!this.mainWindow.isDestroyed()) this.mainWindow.webContents.send('eventMessage', { kind: 'groupChanged', groupId });
     }
 }
 

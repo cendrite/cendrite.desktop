@@ -69,6 +69,19 @@ export function useChatEvents(
         [chatDispatch],
     );
 
+    const handleGroupChanged = useCallback(
+        async (evt: Extract<EventMessage, { kind: 'groupChanged' }>) => {
+            const loaded = await chatService.getChats(contacts);
+            const chat = loaded.find((c) => c.id === evt.groupId);
+            if (!chat) return;
+
+            chatDispatch({ type: ChatActionType.AddChat, payload: chat });
+            chatDispatch({ type: ChatActionType.SetChatMembers, payload: chat });
+        },
+        [chatDispatch, chatService, contacts],
+    );
+
+    useMessageEdit('groupChanged', handleGroupChanged);
     useMessageEdit('deliveryStatus', handleDeliveryStatusUpdate);
     useMessageEdit('message', receiveMessage);
     useSignalEvent<FriendDeletedEvent>(ChangeEventType.FriendRemoved, handleFriendDeleted);

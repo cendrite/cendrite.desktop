@@ -1,6 +1,7 @@
 ﻿import { ChatViewModel } from '@/React/Models/ChatViewModel.ts';
 import { CreateChatCommand } from '@/Shared/Chat/CreateChat.ts';
 import { DeleteChatCommand } from '@/Shared/Chat/DeleteChat.ts';
+import { AddGroupMemberCommand } from '@/Shared/Chat/AddGroupMember.ts';
 import { v4 as uuid } from 'uuid';
 import { ChatPrivileges } from '@/Shared/Enums/ChatPrivileges.ts';
 import { ChatMemberViewModel } from '@/React/Models/ChatMemberViewModel.ts';
@@ -90,6 +91,12 @@ export class ChatService {
 
     public async deleteChat(chatId: string): Promise<void> {
         await window.electron.sendRequestAsync(new DeleteChatCommand(chatId));
+    }
+
+    public async addGroupMember(groupId: string, friendId: string): Promise<string | null> {
+        const result = await window.electron.sendRequestAsync(new AddGroupMemberCommand(groupId, friendId));
+
+        return result.success ? null : result.errorMessage.message;
     }
 
     public async initializeChat(user: User, contact: Contact): Promise<ChatViewModel> {

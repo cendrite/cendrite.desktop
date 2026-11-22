@@ -30,6 +30,10 @@ export const ChatSchema = new EntitySchema<Chat>({
             type: "integer",
             nullable: true,
         },
+        listed: {
+            type: "boolean",
+            default: true,
+        },
     },
     relations: {
         members: {

@@ -116,6 +116,7 @@ export function applyOperation(state: GroupState, operation: LedgerOperation, co
                     context.version,
                     [],
                     [...operation.member.inviteKeys],
+                    [...operation.member.connectionIds],
                 ),
             );
             break;

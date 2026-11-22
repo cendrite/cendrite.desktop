@@ -20,6 +20,7 @@ export enum ChatActionType {
     ClearActiveChat = 11,
     PrependMessages = 12,
     UpdateMessageDeliveryStatus = 13,
+    SetChatMembers = 14,
 }
 
 export type ChatAction =
@@ -40,7 +41,8 @@ export type ChatAction =
     | {
         type: ChatActionType.UpdateMessageDeliveryStatus;
         payload: { chatId: string; messageIds: string[]; status: DeliveryStatus };
-    };
+    }
+    | { type: ChatActionType.SetChatMembers; payload: ChatViewModel };
 
 export const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
     switch (action.type) {
@@ -56,6 +58,16 @@ export const chatReducer = (state: ChatState, action: ChatAction): ChatState => 
         case ChatActionType.AddChat:
             if (state.chats.some((c) => c.id === action.payload.id)) return state;
             return { ...state, chats: [...state.chats, action.payload] };
+
+        case ChatActionType.SetChatMembers:
+            return {
+                ...state,
+                chats: state.chats.map((chat) =>
+                    chat.id === action.payload.id
+                        ? new ChatViewModel(chat.id, action.payload.chatMembers, chat.messages, chat.isGroup, chat.groupName, chat.muted, chat.mutedTimer)
+                        : chat,
+                ),
+            };
 
         case ChatActionType.RemoveChat: {
             const chats = state.chats.filter((c) => c.id !== action.payload.id);
