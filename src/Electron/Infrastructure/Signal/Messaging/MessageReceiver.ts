@@ -139,6 +139,11 @@ export class MessageReceiver implements IMessageReceiver {
                 payload.version,
                 Buffer.from(payload.headHash, 'base64'),
                 payload.epochKeys.length,
+                false,
+                null,
+                null,
+                null,
+                payload.members.find((member) => member.userTag === user.userTag)!.privilege,
             ),
         );
 

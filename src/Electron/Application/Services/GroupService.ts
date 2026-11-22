@@ -2,6 +2,7 @@ import { v4 as uuid } from 'uuid';
 import { Result } from '#shared/Result/Result';
 import { ErrorMessage } from '#shared/Result/ErrorMessage';
 import { DeliveryStatus } from '#shared/Enums/DeliveryStatus';
+import { GROUP_NAME_MAX_LENGTH } from '#shared/Chat/RenameGroup';
 import { GroupEpochKey } from '#electron/Domain/Encryption/GroupEpochKey';
 import { GroupWriteKey } from '#electron/Domain/Encryption/GroupWriteKey';
 import { Group } from '#electron/Domain/Entities/Group';
@@ -12,7 +13,7 @@ import { GroupChangeEvent } from '#electron/Domain/Events/GroupChangeEvent';
 import { ChatMember } from '#electron/Domain/Entities/ChatMember';
 import { LedgerOperationType } from '#electron/Domain/Enums/LedgerOperationType';
 import { GroupState } from '#electron/Domain/Projections/GroupState';
-import { GroupCreatedOperation, GroupMemberRef, LedgerOperation, MemberAddedOperation } from '#electron/Domain/Protocol/LedgerOperation';
+import { GroupCreatedOperation, GroupMemberRef, LedgerOperation, MemberAddedOperation, SettingsChangedOperation } from '#electron/Domain/Protocol/LedgerOperation';
 import { generateEpochKey, generateWriteKeyPair } from '#electron/Infrastructure/Crypto/LedgerCodec';
 import { Envelope, GroupStrapPayload, GroupUpdatedPayload, Payload } from '#electron/Domain/Protocol/Payload';
 import { IOutboxRepository } from '#electron/Infrastructure/Interfaces/IOutboxRepository';
@@ -33,6 +34,7 @@ export interface IGroupService {
     createGroup(groupId: string): Promise<void>;
     startGroup(groupId: string): Promise<Result<Record<string, GroupStrapPayload> | null>>;
     addMember(groupId: string, friendId: string): Promise<Result>;
+    renameGroup(groupId: string, name: string): Promise<Result>;
     deliverChange(change: GroupChangeEvent): Promise<boolean>;
 }
 
@@ -99,6 +101,7 @@ export class GroupService implements IGroupService {
         group.version = 1;
         group.headHash = Buffer.from(pending.hash, 'base64');
         group.pendingStart = null;
+        group.privilege = ChatPrivileges.Owner;
         await this.groupRepository.update(group);
 
         return Result.success<Record<string, GroupStrapPayload> | null>(pending.straps);
@@ -227,6 +230,37 @@ export class GroupService implements IGroupService {
         return Result.success();
     }
 
+    public async renameGroup(groupId: string, name: string): Promise<Result> {
+        const trimmed = name.trim();
+        if (trimmed.length === 0) return refused('Enter a group name');
+        if (trimmed.length > GROUP_NAME_MAX_LENGTH) return refused(`Name can be at most ${GROUP_NAME_MAX_LENGTH} characters`);
+
+        const group = await this.groupRepository.get(groupId);
+        if (group?.lifecycle !== GroupLifecycle.Draft && group?.lifecycle !== GroupLifecycle.Active) return refused('This group cannot be changed');
+
+        const writeKey = await this.groupKeyRepository.getWriteKey(groupId);
+        if (!writeKey || writeKey.isInvite) return refused('This device cannot change the group yet');
+
+        if (group.lifecycle === GroupLifecycle.Draft && !group.pendingStart) {
+            await this.chatStore.setGroupName(groupId, trimmed);
+            this.announceGroupChanged(groupId);
+            return Result.success();
+        }
+
+        const { userTag } = await this.userRepository.get(true);
+
+        if (group.lifecycle === GroupLifecycle.Active) {
+            const adminStateResult = await this.adminState(groupId, userTag, 'Only an owner or admin can rename the group');
+            if (!adminStateResult.success) return adminStateResult;
+            if (adminStateResult.data.name === trimmed) return Result.success();
+        }
+
+        const operation = new SettingsChangedOperation(userTag, trimmed, null);
+        await this.eventRepository.appendEvent(new GroupChangeEvent(uuid().toString(), groupId, operation, {}, new Date()));
+
+        return Result.success();
+    }
+
     public async deliverChange(change: GroupChangeEvent): Promise<boolean> {
         const group = await this.groupRepository.get(change.groupId);
         if (group?.lifecycle !== GroupLifecycle.Active) return false;
@@ -271,17 +305,24 @@ export class GroupService implements IGroupService {
             return chat.members.some((member) => member.userTag === friendId) ? refused('This contact is already in the group') : Result.success();
         }
 
-        const syncResult = await this.ledgerSyncService.sync(group.groupId);
-        if (!syncResult.success) return Result.fail(syncResult.errorMessage);
-
-        const { state, halted, stalledAt } = syncResult.data;
-        if (halted || stalledAt !== null) return refused('The group membership could not be verified');
-
-        const author = state.members.get(userTag);
-        if (!author || author.privilege < ChatPrivileges.Admin) return refused('Only an owner or admin can add members');
-        if (state.members.has(friendId)) return refused('This contact is already in the group');
+        const adminStateResult = await this.adminState(group.groupId, userTag, 'Only an owner or admin can add members');
+        if (!adminStateResult.success) return adminStateResult;
+        if (adminStateResult.data.members.has(friendId)) return refused('This contact is already in the group');
 
         return Result.success();
+    }
+
+    private async adminState(groupId: string, userTag: string, notAdminMessage: string): Promise<Result<GroupState>> {
+        const syncResult = await this.ledgerSyncService.sync(groupId);
+        if (!syncResult.success) return Result.fail<GroupState>(syncResult.errorMessage);
+
+        const { state, halted, stalledAt } = syncResult.data;
+        if (halted || stalledAt !== null) return Result.fail<GroupState>(new ErrorMessage('Forbidden', 'The group membership could not be verified'));
+
+        const author = state.members.get(userTag);
+        if (!author || author.privilege < ChatPrivileges.Admin) return Result.fail<GroupState>(new ErrorMessage('Forbidden', notAdminMessage));
+
+        return Result.success(state);
     }
 
     private async sendChange(change: GroupChangeEvent, state: GroupState): Promise<boolean> {
@@ -358,6 +399,11 @@ function changeStatus(state: GroupState, operation: LedgerOperation): 'pending' 
             const existing = state.members.get(operation.member.userTag);
             if (!existing) return 'pending';
             return operation.member.inviteKeys.some((key) => existing.inviteKeys.includes(key)) ? 'applied' : 'conflict';
+        }
+        case LedgerOperationType.SettingsChanged: {
+            const nameApplied = operation.name === null || state.name === operation.name;
+            const ttlApplied = operation.messageTtl === null || state.messageTtl === operation.messageTtl;
+            return nameApplied && ttlApplied ? 'applied' : 'pending';
         }
         default:
             return 'pending';

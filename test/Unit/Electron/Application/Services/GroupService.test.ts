@@ -11,6 +11,7 @@ import { WriteKeyRole } from '#electron/Domain/Enums/WriteKeyRole';
 import { GroupState } from '#electron/Domain/Projections/GroupState';
 import { keyChangesFor } from '#electron/Domain/Services/GroupReducer';
 import { generateEpochKey, generateWriteKeyPair, publicKeyFromPrivate } from '#electron/Infrastructure/Crypto/LedgerCodec';
+import { ChatPrivileges } from '#shared/Enums/ChatPrivileges';
 import { Result } from '#shared/Result/Result';
 import { ErrorMessage } from '#shared/Result/ErrorMessage';
 
@@ -148,6 +149,7 @@ describe('starting a group', () => {
         expect(group.version).toBe(1);
         expect(group.headHash).toEqual(Buffer.alloc(32, 0x0f));
         expect(group.pendingStart).toBeNull();
+        expect(group.privilege).toBe(ChatPrivileges.Owner);
     });
 
     test('creates the stream once when two sends start the group at the same time', async () => {

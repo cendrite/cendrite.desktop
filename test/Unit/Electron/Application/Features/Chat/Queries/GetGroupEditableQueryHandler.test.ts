@@ -4,6 +4,7 @@ import { GetGroupEditableQuery } from '#shared/Chat/GetGroupEditable';
 import { Group } from '#electron/Domain/Entities/Group';
 import { GroupWriteKey } from '#electron/Domain/Encryption/GroupWriteKey';
 import { GroupLifecycle } from '#electron/Domain/Enums/GroupLifecycle';
+import { ChatPrivileges } from '#shared/Enums/ChatPrivileges';
 
 const GROUP_ID = '0199673a-3c1e-7c2b-9f2e-5d8b1a4c7e10';
 
@@ -14,17 +15,30 @@ function setup(group: Group | null, writeKey: GroupWriteKey | null) {
     );
 }
 
+const active = (privilege = ChatPrivileges.Owner) => Object.assign(new Group(GROUP_ID, GroupLifecycle.Active), { privilege });
 const key = (isInvite: boolean) => new GroupWriteKey(GROUP_ID, Buffer.alloc(32, 0xa1), Buffer.alloc(32, 0x42), isInvite);
 
 describe('whether a group can be edited from this device', () => {
     test('can be edited once this device holds its own write key', async () => {
-        const result = await setup(new Group(GROUP_ID, GroupLifecycle.Active), key(false)).handle(new GetGroupEditableQuery(GROUP_ID));
+        const result = await setup(active(), key(false)).handle(new GetGroupEditableQuery(GROUP_ID));
 
         expect(result.data).toBe(true);
     });
 
+    test('can be edited by an admin', async () => {
+        const result = await setup(active(ChatPrivileges.Admin), key(false)).handle(new GetGroupEditableQuery(GROUP_ID));
+
+        expect(result.data).toBe(true);
+    });
+
+    test('cannot be edited by a plain member', async () => {
+        const result = await setup(active(ChatPrivileges.Member), key(false)).handle(new GetGroupEditableQuery(GROUP_ID));
+
+        expect(result.data).toBe(false);
+    });
+
     test('cannot be edited while this device only holds an invite key', async () => {
-        const result = await setup(new Group(GROUP_ID, GroupLifecycle.Active), key(true)).handle(new GetGroupEditableQuery(GROUP_ID));
+        const result = await setup(active(), key(true)).handle(new GetGroupEditableQuery(GROUP_ID));
 
         expect(result.data).toBe(false);
     });
@@ -36,7 +50,7 @@ describe('whether a group can be edited from this device', () => {
     });
 
     test('cannot be edited without a write key', async () => {
-        const result = await setup(new Group(GROUP_ID, GroupLifecycle.Active), null).handle(new GetGroupEditableQuery(GROUP_ID));
+        const result = await setup(active(), null).handle(new GetGroupEditableQuery(GROUP_ID));
 
         expect(result.data).toBe(false);
     });

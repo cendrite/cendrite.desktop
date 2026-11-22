@@ -46,5 +46,10 @@ export const GroupRecordSchema = new EntitySchema<Group>({
             type: 'integer',
             nullable: true,
         },
+        privilege: {
+            type: 'integer',
+            nullable: false,
+            default: 1,
+        },
     },
 });
