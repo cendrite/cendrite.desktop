@@ -1,0 +1,217 @@
+import { describe, expect, test, vi } from 'vitest';
+import { GroupService } from '#electron/Application/Services/GroupService';
+import { ReplayResult } from '#electron/Application/Contracts/Services/ILedgerReplayService';
+import { Group } from '#electron/Domain/Entities/Group';
+import { GroupLifecycle } from '#electron/Domain/Enums/GroupLifecycle';
+import { LedgerOperationType } from '#electron/Domain/Enums/LedgerOperationType';
+import { GroupChangeEvent } from '#electron/Domain/Events/GroupChangeEvent';
+import { GroupMember } from '#electron/Domain/Projections/GroupMember';
+import { GroupState } from '#electron/Domain/Projections/GroupState';
+import { PrivilegeChangedOperation } from '#electron/Domain/Protocol/LedgerOperation';
+import { Envelope, Payload, PayloadType } from '#electron/Domain/Protocol/Payload';
+import { ChatPrivileges } from '#shared/Enums/ChatPrivileges';
+import { DeliveryStatus } from '#shared/Enums/DeliveryStatus';
+import { Result } from '#shared/Result/Result';
+
+const GROUP_ID = '0199673a-3c1e-7c2b-9f2e-5d8b1a4c7e10';
+const ALICE = '111111111111';
+const BOB = '222222222222';
+const CAROL = '333333333333';
+
+function stateWith(author: ChatPrivileges, bob: ChatPrivileges = ChatPrivileges.Member) {
+    const state = new GroupState(GROUP_ID);
+    state.headHash = Buffer.alloc(32, 5);
+    state.members.set(ALICE, new GroupMember(ALICE, 'Alice', author, 1, ['alice-key'], [], ['alice-laptop']));
+    state.members.set(BOB, new GroupMember(BOB, 'Bob', bob, 1, ['bob-key'], [], ['bob-laptop']));
+    return state;
+}
+
+function setup(group: Group, state = stateWith(ChatPrivileges.Owner), afterAppend?: GroupState, inviteOnly = false) {
+    let current = state;
+    const chat = { members: [{ id: 'member-bob', userTag: BOB, avatar: null }] };
+    const chatStore = { getChatWithMembers: vi.fn(async () => chat), setMemberPrivilege: vi.fn(async () => undefined) };
+    const ledgerSyncService = { sync: vi.fn(async () => Result.success<ReplayResult>({ state: current, rejected: [], verified: [], halted: null, stalledAt: null })) };
+    const ledgerWriter = {
+        append: vi.fn(async () => {
+            if (afterAppend) current = afterAppend;
+            return Result.success();
+        }),
+    };
+    const eventRepository = {
+        appendEvent: vi.fn(async (_event: GroupChangeEvent) => undefined),
+        getEvents: vi.fn(async (): Promise<GroupChangeEvent[]> => []),
+        deleteEvent: vi.fn(async (_id: string) => undefined),
+        markAsFailed: vi.fn(async (_id: string, _error: string) => undefined),
+    };
+    const encrypted = new Map<string, Payload>();
+    const sessionManager = {
+        encrypt: vi.fn(async (envelope: Envelope<Payload>, connectionId: string) => {
+            encrypted.set(connectionId, envelope.payloads[0]);
+            return 'cipher';
+        }),
+    };
+    const messageHubHandler = { sendMessage: vi.fn(async () => DeliveryStatus.Sent) };
+    const windowSend = vi.fn();
+
+    const sut = new GroupService(
+        { get: async () => group } as never,
+        { getWriteKey: async () => ({ isInvite: inviteOnly }), getEpochKeys: async () => [] } as never,
+        { get: async () => ({ userTag: ALICE, avatarKey: null }) } as never,
+        { get: async () => ({ connectionId: 'alice-laptop' }) } as never,
+        chatStore as never,
+        ledgerWriter as never,
+        {} as never,
+        ledgerSyncService as never,
+        eventRepository as never,
+        sessionManager as never,
+        messageHubHandler as never,
+        { isDestroyed: () => false, webContents: { send: windowSend } } as never,
+    );
+
+    return { sut, chatStore, ledgerSyncService, ledgerWriter, eventRepository, encrypted, messageHubHandler, windowSend };
+}
+
+const active = () => new Group(GROUP_ID, GroupLifecycle.Active);
+const draft = () => new Group(GROUP_ID, GroupLifecycle.Draft);
+const prepared = () => Object.assign(draft(), { pendingStart: { straps: {} } }) as Group;
+const change = (privilege = ChatPrivileges.Admin, target = BOB) =>
+    new GroupChangeEvent('event-1', GROUP_ID, new PrivilegeChangedOperation(ALICE, target, privilege), {}, new Date(1));
+
+describe('changing a member privilege', () => {
+    test('changes a draft locally, with nothing on the ledger or in the queue', async () => {
+        const { sut, chatStore, eventRepository, ledgerSyncService, windowSend } = setup(draft());
+
+        expect((await sut.changeMemberPrivilege(GROUP_ID, BOB, ChatPrivileges.Admin)).success).toBe(true);
+
+        expect(chatStore.setMemberPrivilege).toHaveBeenCalledWith('member-bob', ChatPrivileges.Admin);
+        expect(eventRepository.appendEvent).not.toHaveBeenCalled();
+        expect(ledgerSyncService.sync).not.toHaveBeenCalled();
+        expect(windowSend).toHaveBeenCalledWith('eventMessage', { kind: 'groupChanged', groupId: GROUP_ID });
+    });
+
+    test('queues the change when the first send is already prepared', async () => {
+        const { sut, chatStore, eventRepository } = setup(prepared());
+
+        expect((await sut.changeMemberPrivilege(GROUP_ID, BOB, ChatPrivileges.Admin)).success).toBe(true);
+
+        expect(chatStore.setMemberPrivilege).not.toHaveBeenCalled();
+        expect(eventRepository.appendEvent).toHaveBeenCalledOnce();
+    });
+
+    test('the owner queues a privilege change', async () => {
+        const { sut, eventRepository, ledgerWriter } = setup(active());
+
+        expect((await sut.changeMemberPrivilege(GROUP_ID, BOB, ChatPrivileges.Admin)).success).toBe(true);
+
+        const operation = eventRepository.appendEvent.mock.calls[0][0].operation as PrivilegeChangedOperation;
+        expect(operation.type).toBe(LedgerOperationType.PrivilegeChanged);
+        expect(operation.userTag).toBe(BOB);
+        expect(operation.privilege).toBe(ChatPrivileges.Admin);
+        expect(ledgerWriter.append).not.toHaveBeenCalled();
+    });
+
+    test.each([ChatPrivileges.Member, ChatPrivileges.Admin])('refuses privilege %s from changing roles', async (author) => {
+        const { sut, eventRepository } = setup(active(), stateWith(author));
+
+        expect((await sut.changeMemberPrivilege(GROUP_ID, BOB, ChatPrivileges.Admin)).success).toBe(false);
+        expect(eventRepository.appendEvent).not.toHaveBeenCalled();
+    });
+
+    test.each([ChatPrivileges.Owner, ChatPrivileges.None])('refuses making someone privilege %s', async (privilege) => {
+        const { sut, eventRepository } = setup(active());
+
+        expect((await sut.changeMemberPrivilege(GROUP_ID, BOB, privilege)).success).toBe(false);
+        expect(eventRepository.appendEvent).not.toHaveBeenCalled();
+    });
+
+    test('refuses changing your own role', async () => {
+        const { sut, eventRepository } = setup(active());
+
+        expect((await sut.changeMemberPrivilege(GROUP_ID, ALICE, ChatPrivileges.Member)).success).toBe(false);
+        expect(eventRepository.appendEvent).not.toHaveBeenCalled();
+    });
+
+    test('refuses changing another owner', async () => {
+        const { sut, eventRepository } = setup(active(), stateWith(ChatPrivileges.Owner, ChatPrivileges.Owner));
+
+        expect((await sut.changeMemberPrivilege(GROUP_ID, BOB, ChatPrivileges.Member)).success).toBe(false);
+        expect(eventRepository.appendEvent).not.toHaveBeenCalled();
+    });
+
+    test('refuses someone outside the group', async () => {
+        const { sut, eventRepository } = setup(active());
+
+        expect((await sut.changeMemberPrivilege(GROUP_ID, CAROL, ChatPrivileges.Admin)).success).toBe(false);
+        expect(eventRepository.appendEvent).not.toHaveBeenCalled();
+    });
+
+    test('refuses a device holding only an invite key', async () => {
+        const { sut, eventRepository } = setup(active(), stateWith(ChatPrivileges.Owner), undefined, true);
+
+        expect((await sut.changeMemberPrivilege(GROUP_ID, BOB, ChatPrivileges.Admin)).success).toBe(false);
+        expect(eventRepository.appendEvent).not.toHaveBeenCalled();
+    });
+
+    test('queues a change back while the first change is still waiting', async () => {
+        const { sut, eventRepository } = setup(active());
+        eventRepository.getEvents.mockResolvedValue([change(ChatPrivileges.Admin)]);
+
+        expect((await sut.changeMemberPrivilege(GROUP_ID, BOB, ChatPrivileges.Member)).success).toBe(true);
+
+        const operation = eventRepository.appendEvent.mock.calls[0][0].operation as PrivilegeChangedOperation;
+        expect(operation.privilege).toBe(ChatPrivileges.Member);
+    });
+
+    test('does not queue the same change twice', async () => {
+        const { sut, eventRepository } = setup(active());
+        eventRepository.getEvents.mockResolvedValue([change(ChatPrivileges.Admin)]);
+
+        expect((await sut.changeMemberPrivilege(GROUP_ID, BOB, ChatPrivileges.Admin)).success).toBe(true);
+        expect(eventRepository.appendEvent).not.toHaveBeenCalled();
+    });
+
+    test('does nothing when they already have that role', async () => {
+        const { sut, eventRepository } = setup(active(), stateWith(ChatPrivileges.Owner, ChatPrivileges.Admin));
+
+        expect((await sut.changeMemberPrivilege(GROUP_ID, BOB, ChatPrivileges.Admin)).success).toBe(true);
+        expect(eventRepository.appendEvent).not.toHaveBeenCalled();
+    });
+});
+
+describe('delivering a privilege change', () => {
+    test('writes it to the ledger, tells the other devices and clears it', async () => {
+        const { sut, ledgerWriter, encrypted, eventRepository } = setup(active(), stateWith(ChatPrivileges.Owner), stateWith(ChatPrivileges.Owner, ChatPrivileges.Admin));
+
+        expect(await sut.deliverChange(change())).toBe(true);
+
+        expect(ledgerWriter.append).toHaveBeenCalledOnce();
+        expect(encrypted.get('bob-laptop')?.type).toBe(PayloadType.GroupUpdated);
+        expect(encrypted.has('alice-laptop')).toBe(false);
+        expect(eventRepository.deleteEvent).toHaveBeenCalledWith('event-1');
+    });
+
+    test('does not write it twice when only the send is left', async () => {
+        const { sut, ledgerWriter, messageHubHandler } = setup(active(), stateWith(ChatPrivileges.Owner, ChatPrivileges.Admin));
+
+        expect(await sut.deliverChange(change())).toBe(true);
+
+        expect(ledgerWriter.append).not.toHaveBeenCalled();
+        expect(messageHubHandler.sendMessage).toHaveBeenCalledOnce();
+    });
+
+    test('stops retrying when the member is gone', async () => {
+        const { sut, ledgerWriter, eventRepository } = setup(active());
+
+        expect(await sut.deliverChange(change(ChatPrivileges.Admin, CAROL))).toBe(true);
+
+        expect(ledgerWriter.append).not.toHaveBeenCalled();
+        expect(eventRepository.markAsFailed).toHaveBeenCalledOnce();
+    });
+
+    test('waits until the group is active', async () => {
+        const { sut, ledgerWriter } = setup(prepared());
+
+        expect(await sut.deliverChange(change())).toBe(false);
+        expect(ledgerWriter.append).not.toHaveBeenCalled();
+    });
+});

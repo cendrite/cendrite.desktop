@@ -1,6 +1,7 @@
 import { Chat } from '#electron/Domain/Aggregates/Chat';
 import { ChatMember } from '#electron/Domain/Entities/ChatMember';
 import { Message } from '#electron/Domain/Entities/Message';
+import { ChatPrivileges } from '#shared/Enums/ChatPrivileges';
 import { DeliveryStatus } from '#shared/Enums/DeliveryStatus';
 
 export interface IChatStore {
@@ -18,6 +19,11 @@ export interface IChatStore {
      * Set the name of a group chat
      **/
     setGroupName(chatId: string, name: string | null): Promise<void>;
+
+    /**
+     * Set the privilege of a chat member
+     **/
+    setMemberPrivilege(memberId: string, privilege: ChatPrivileges): Promise<void>;
 
     /**
      * Show a chat in the chat list

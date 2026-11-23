@@ -2,9 +2,11 @@
 import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react';
 import { ChatViewModel } from '@/React/Models/ChatViewModel.ts';
 import { useChatSettings } from '@/React/Common/Hooks/ChatSettings.ts';
-import { useGroupEditable } from '@/React/Common/Hooks/GroupEditable.ts';
+import { useGroupPrivilege } from '@/React/Common/Hooks/GroupPrivilege.ts';
+import { ChatPrivileges } from '@/Shared/Enums/ChatPrivileges';
 import AddMemberModal from '../Modals/AddMemberModal.tsx';
 import RenameGroupModal from '../Modals/RenameGroupModal.tsx';
+import ManageMembersModal from '../Modals/ManageMembersModal.tsx';
 import { DotsThreeIcon } from '@phosphor-icons/react';
 
 interface ChatSettingsMenu {
@@ -15,9 +17,11 @@ const menuButtonClass = 'w-full text-left px-3 py-2 text-sm text-fg-muted hover:
 
 const ChatSettingsMenu: React.FC<ChatSettingsMenu> = ({ chat }) => {
     const { deleteChat } = useChatSettings();
-    const editable = useGroupEditable(chat.id);
+    const privilege = useGroupPrivilege(chat.id);
+    const editable = privilege >= ChatPrivileges.Admin;
     const [addingMember, setAddingMember] = useState(false);
     const [renaming, setRenaming] = useState(false);
+    const [managingMembers, setManagingMembers] = useState(false);
 
     return (
         <>
@@ -82,6 +86,22 @@ const ChatSettingsMenu: React.FC<ChatSettingsMenu> = ({ chat }) => {
                                         </MenuItem>
                                     )}
 
+                                    {chat.isGroup && privilege === ChatPrivileges.Owner && (
+                                        <MenuItem>
+                                            {({ focus }) => (
+                                                <button
+                                                    className={`${menuButtonClass} ${focus ? 'bg-surface-hover' : ''}`}
+                                                    onClick={() => {
+                                                        close();
+                                                        setManagingMembers(true);
+                                                    }}
+                                                >
+                                                    Manage members
+                                                </button>
+                                            )}
+                                        </MenuItem>
+                                    )}
+
                                     <MenuItem>
                                         {({ focus }) => (
                                             <button
@@ -134,6 +154,7 @@ const ChatSettingsMenu: React.FC<ChatSettingsMenu> = ({ chat }) => {
 
             <AddMemberModal chat={chat} isOpen={addingMember} onClose={() => setAddingMember(false)} />
             <RenameGroupModal chat={chat} isOpen={renaming} onClose={() => setRenaming(false)} />
+            <ManageMembersModal chat={chat} isOpen={managingMembers} onClose={() => setManagingMembers(false)} />
         </>
     );
 };

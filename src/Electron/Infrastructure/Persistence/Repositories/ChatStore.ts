@@ -3,6 +3,7 @@ import { Chat } from '#electron/Domain/Aggregates/Chat';
 import { getDbContext } from '../Context/DatabaseContext.js';
 import { ChatMember } from '#electron/Domain/Entities/ChatMember';
 import { Message } from '#electron/Domain/Entities/Message';
+import { ChatPrivileges } from '#shared/Enums/ChatPrivileges';
 import { DeliveryStatus } from '#shared/Enums/DeliveryStatus';
 import { IChatStore } from '#electron/Application/Contracts/Repositories/IChatStore';
 
@@ -126,6 +127,10 @@ export class ChatStore implements IChatStore {
 
     public async setGroupName(chatId: string, name: string | null): Promise<void> {
         await this.chatRepository.update({ id: chatId }, { groupName: name });
+    }
+
+    public async setMemberPrivilege(memberId: string, privilege: ChatPrivileges): Promise<void> {
+        await this.memberRepository.update({ id: memberId }, { privilege });
     }
 
     public async markListed(chatId: string): Promise<void> {

@@ -64,6 +64,7 @@ function setup(createResults: Result<void>[] = []) {
                     {
                         userTag: '222222222222',
                         displayName: 'Bob',
+                        privilege: ChatPrivileges.Member,
                         devices: ['bob-laptop', 'bob-phone'],
                         friend: { avatarKey: null },
                     },
