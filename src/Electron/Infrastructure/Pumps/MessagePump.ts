@@ -1,5 +1,6 @@
 import { IChatStore } from '#electron/Application/Contracts/Repositories/IChatStore';
 import { IGroupRepository } from '#electron/Application/Contracts/Repositories/IGroupRepository';
+import { IUserRepository } from '#electron/Application/Contracts/Repositories/IUserRepository';
 import { MessageSentCommand } from '#electron/Application/Features/Chat/Events/MessageSentEventHandler';
 import { Mediator } from '#electron/Application/Mediator/Mediator';
 import { IGroupService } from '#electron/Application/Services/GroupService';
@@ -25,6 +26,7 @@ export class MessagePump extends Pump {
         private readonly signalManager: SignalManager,
         private readonly groupRepository: IGroupRepository,
         private readonly groupService: IGroupService,
+        private readonly userRepository: IUserRepository,
     ) {
         super();
     }
@@ -36,7 +38,7 @@ export class MessagePump extends Pump {
                 continue;
             }
 
-            if (await this.deliverNextChange()) continue;
+            if (await this.processGroupChange()) continue;
 
             const msgEvent = await this.eventRepository.getEvent<MessageSentEvent>(MessageSentEvent.type);
 
@@ -45,11 +47,11 @@ export class MessagePump extends Pump {
                 continue;
             }
 
-            await this.deliver(msgEvent);
+            await this.processMessageEvent(msgEvent);
         }
     }
 
-    public async deliverNextChange(): Promise<boolean> {
+    public async processGroupChange(): Promise<boolean> {
         const pending = await this.eventRepository.getEvents<GroupChangeEvent>(GroupChangeEvent.type, MAX_PENDING_GROUP_CHANGES);
         const attempted = new Set<string>();
 
@@ -74,7 +76,7 @@ export class MessagePump extends Pump {
         return false;
     }
 
-    public async deliver(msgEvent: MessageSentEvent): Promise<void> {
+    public async processMessageEvent(msgEvent: MessageSentEvent): Promise<void> {
         const pendingMessage = await this.chatStore.getMessage(msgEvent.message.chatId, msgEvent.message.id);
 
         if (!pendingMessage) {
@@ -105,8 +107,9 @@ export class MessagePump extends Pump {
 
     private async send(msgEvent: MessageSentEvent): Promise<{ status: DeliveryStatus; error: string }> {
         let event = msgEvent;
+        const isGroup = (await this.groupRepository.get(event.message.chatId)) !== null;
 
-        if (await this.groupRepository.get(event.message.chatId)) {
+        if (isGroup) {
             const startGroupResult = await this.groupService.startGroup(event.message.chatId);
             if (!startGroupResult.success) return { status: DeliveryStatus.Failed, error: startGroupResult.errorMessage.message };
 
@@ -122,13 +125,26 @@ export class MessagePump extends Pump {
             }
         }
 
+        const recipients = isGroup ? await this.currentGroupDevices(event) : event.connectionIds;
+
         const messageSentResult = await this.mediator.send(
-            new MessageSentCommand(event.message, event.connectionIds, event.participants, event.payloads),
+            new MessageSentCommand(event.message, recipients, event.participants, event.payloads),
         );
 
         if (!messageSentResult.success) return { status: DeliveryStatus.Failed, error: messageSentResult.errorMessage.message };
         if (messageSentResult.data === DeliveryStatus.Failed) return { status: DeliveryStatus.Failed, error: 'No device accepted the message' };
 
         return { status: messageSentResult.data, error: '' };
+    }
+
+    private async currentGroupDevices(event: MessageSentEvent): Promise<string[]> {
+        const chat = await this.chatStore.getChatWithMembers(event.message.chatId);
+        const user = await this.userRepository.get(true);
+        const current = new Set([
+            ...chat.members.flatMap((member) => member.devices),
+            ...(user.connectionIds ?? []).map((connection) => connection.connectionId),
+        ]);
+
+        return event.connectionIds.filter((connectionId) => current.has(connectionId));
     }
 }
