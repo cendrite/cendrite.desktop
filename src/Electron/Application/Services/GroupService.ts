@@ -13,7 +13,7 @@ import { GroupChangeEvent } from '#electron/Domain/Events/GroupChangeEvent';
 import { ChatMember } from '#electron/Domain/Entities/ChatMember';
 import { LedgerOperationType } from '#electron/Domain/Enums/LedgerOperationType';
 import { GroupState } from '#electron/Domain/Projections/GroupState';
-import { GroupCreatedOperation, GroupMemberRef, LedgerOperation, MemberAddedOperation, SettingsChangedOperation } from '#electron/Domain/Protocol/LedgerOperation';
+import { GroupCreatedOperation, GroupMemberRef, LedgerOperation, MemberAddedOperation, PrivilegeChangedOperation, SettingsChangedOperation } from '#electron/Domain/Protocol/LedgerOperation';
 import { generateEpochKey, generateWriteKeyPair } from '#electron/Infrastructure/Crypto/LedgerCodec';
 import { Envelope, GroupStrapPayload, GroupUpdatedPayload, Payload } from '#electron/Domain/Protocol/Payload';
 import { IOutboxRepository } from '#electron/Infrastructure/Interfaces/IOutboxRepository';
@@ -35,6 +35,7 @@ export interface IGroupService {
     startGroup(groupId: string): Promise<Result<Record<string, GroupStrapPayload> | null>>;
     addMember(groupId: string, friendId: string): Promise<Result>;
     renameGroup(groupId: string, name: string): Promise<Result>;
+    changeMemberPrivilege(groupId: string, userTag: string, privilege: ChatPrivileges): Promise<Result>;
     deliverChange(change: GroupChangeEvent): Promise<boolean>;
 }
 
@@ -146,7 +147,7 @@ export class GroupService implements IGroupService {
                 new GroupMemberRef(
                     member.userTag,
                     member.displayName,
-                    ChatPrivileges.Member,
+                    member.privilege,
                     member.friend!.avatarKey,
                     [],
                     mintInviteKeys(member.devices),
@@ -261,6 +262,44 @@ export class GroupService implements IGroupService {
         return Result.success();
     }
 
+    public async changeMemberPrivilege(groupId: string, targetTag: string, privilege: ChatPrivileges): Promise<Result> {
+        if (privilege !== ChatPrivileges.Member && privilege !== ChatPrivileges.Admin) return refused('A member can only be made a member or an admin');
+
+        const group = await this.groupRepository.get(groupId);
+        if (group?.lifecycle !== GroupLifecycle.Draft && group?.lifecycle !== GroupLifecycle.Active) return refused('This group cannot be changed');
+
+        const writeKey = await this.groupKeyRepository.getWriteKey(groupId);
+        if (!writeKey || writeKey.isInvite) return refused('This device cannot change the group yet');
+
+        const { userTag } = await this.userRepository.get(true);
+        if (targetTag === userTag) return refused('You cannot change your own role');
+
+        if (group.lifecycle === GroupLifecycle.Draft) {
+            const chat = await this.chatStore.getChatWithMembers(groupId);
+            const member = chat.members.find((candidate) => candidate.userTag === targetTag);
+            if (!member) return refused('This person is not in the group');
+
+            if (!group.pendingStart) {
+                await this.chatStore.setMemberPrivilege(member.id, privilege);
+                this.announceGroupChanged(groupId);
+                return Result.success();
+            }
+        } else {
+            const ownerStateResult = await this.adminState(groupId, userTag, 'Only the owner can change roles', ChatPrivileges.Owner);
+            if (!ownerStateResult.success) return ownerStateResult;
+
+            const target = ownerStateResult.data.members.get(targetTag);
+            if (!target) return refused('This person is not in the group');
+            if (target.privilege === ChatPrivileges.Owner) return refused('The owner\'s role cannot be changed');
+            if (target.privilege === privilege) return Result.success();
+        }
+
+        const operation = new PrivilegeChangedOperation(userTag, targetTag, privilege);
+        await this.eventRepository.appendEvent(new GroupChangeEvent(uuid().toString(), groupId, operation, {}, new Date()));
+
+        return Result.success();
+    }
+
     public async deliverChange(change: GroupChangeEvent): Promise<boolean> {
         const group = await this.groupRepository.get(change.groupId);
         if (group?.lifecycle !== GroupLifecycle.Active) return false;
@@ -312,7 +351,7 @@ export class GroupService implements IGroupService {
         return Result.success();
     }
 
-    private async adminState(groupId: string, userTag: string, notAdminMessage: string): Promise<Result<GroupState>> {
+    private async adminState(groupId: string, userTag: string, notAdminMessage: string, required: ChatPrivileges = ChatPrivileges.Admin): Promise<Result<GroupState>> {
         const syncResult = await this.ledgerSyncService.sync(groupId);
         if (!syncResult.success) return Result.fail<GroupState>(syncResult.errorMessage);
 
@@ -320,7 +359,7 @@ export class GroupService implements IGroupService {
         if (halted || stalledAt !== null) return Result.fail<GroupState>(new ErrorMessage('Forbidden', 'The group membership could not be verified'));
 
         const author = state.members.get(userTag);
-        if (!author || author.privilege < ChatPrivileges.Admin) return Result.fail<GroupState>(new ErrorMessage('Forbidden', notAdminMessage));
+        if (!author || author.privilege < required) return Result.fail<GroupState>(new ErrorMessage('Forbidden', notAdminMessage));
 
         return Result.success(state);
     }
@@ -404,6 +443,11 @@ function changeStatus(state: GroupState, operation: LedgerOperation): 'pending' 
             const nameApplied = operation.name === null || state.name === operation.name;
             const ttlApplied = operation.messageTtl === null || state.messageTtl === operation.messageTtl;
             return nameApplied && ttlApplied ? 'applied' : 'pending';
+        }
+        case LedgerOperationType.PrivilegeChanged: {
+            const member = state.members.get(operation.userTag);
+            if (!member) return 'conflict';
+            return member.privilege === operation.privilege ? 'applied' : 'pending';
         }
         default:
             return 'pending';

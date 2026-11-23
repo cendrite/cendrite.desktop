@@ -118,7 +118,12 @@ export class LedgerSyncService implements ILedgerSyncService {
         const name = state.name ?? null;
         const renamed = name !== (chat.groupName ?? null);
 
-        if (missing.length === 0 && !renamed) return false;
+        const changedPrivileges = chat.members.flatMap((member) => {
+            const privilege = state.members.get(member.userTag)?.privilege;
+            return privilege !== undefined && privilege !== member.privilege ? [{ memberId: member.id, privilege }] : [];
+        });
+
+        if (missing.length === 0 && !renamed && changedPrivileges.length === 0) return false;
 
         if (missing.length > 0) {
             await this.chatStore.addMembers(
@@ -130,6 +135,10 @@ export class LedgerSyncService implements ILedgerSyncService {
         }
 
         if (renamed) await this.chatStore.setGroupName(groupId, name);
+
+        for (const { memberId, privilege } of changedPrivileges) {
+            await this.chatStore.setMemberPrivilege(memberId, privilege);
+        }
 
         return true;
     }
