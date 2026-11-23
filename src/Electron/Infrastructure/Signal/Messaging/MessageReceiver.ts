@@ -31,6 +31,7 @@ import { ChatPrivileges } from '#shared/Enums/ChatPrivileges';
 import { v4 as uuid } from 'uuid';
 import { INotificationService } from '#electron/Application/Contracts/Services/INotificationService';
 import { IPump } from '#electron/Application/Contracts/Services/IPump';
+import { ILedgerSyncService } from '#electron/Application/Contracts/Services/ILedgerSyncService';
 
 export interface IMessageReceiver {
     handle(message: ServerMessage): void;
@@ -49,6 +50,7 @@ export class MessageReceiver implements IMessageReceiver {
         private readonly mainWindow: BrowserWindow,
         private readonly notificationService: INotificationService,
         private readonly writeKeySwapPump: IPump,
+        private readonly ledgerSyncService: ILedgerSyncService,
     ) { }
 
     public async handle(message: ServerMessage): Promise<void> {
@@ -155,6 +157,11 @@ export class MessageReceiver implements IMessageReceiver {
     }
 
     private async handleDeliveryStatusUpdate(message: ServerMessage, payload: DeliveryStatusPayload): Promise<void> {
+        if (!(await this.isFromGroupMember(payload.chatId, message.senderId))) {
+            console.warn(`MessageReceiver: dropped a delivery status from ${message.senderId}, not a member of ${payload.chatId}`);
+            return;
+        }
+
         await this.chatStore.updateDeliveryStatus(payload.chatId, payload.messageIds, payload.deliveryStatus);
 
         console.log(
@@ -169,7 +176,29 @@ export class MessageReceiver implements IMessageReceiver {
         });
     }
 
+    private async isFromGroupMember(chatId: string, senderId: string): Promise<boolean> {
+        if (!(await this.groupRepository.get(chatId))) return true;
+
+        const user = await this.userRepository.get(true);
+        if (user.connectionIds?.some((connection) => connection.connectionId === senderId)) return true;
+
+        if (await this.chatStore.getChat(chatId)) {
+            const chat = await this.chatStore.getChatWithMembers(chatId);
+            if (chat.members.some((member) => member.devices.includes(senderId))) return true;
+        }
+
+        const syncResult = await this.ledgerSyncService.sync(chatId);
+        if (!syncResult.success || syncResult.data.halted || syncResult.data.stalledAt !== null) return false;
+
+        return [...syncResult.data.state.members.values()].some((member) => member.connectionIds.includes(senderId));
+    }
+
     private async handleChatMessage(message: ServerMessage, payload: MessagePayload): Promise<void> {
+        if (!(await this.isFromGroupMember(payload.chatId, message.senderId))) {
+            console.warn(`MessageReceiver: dropped a message from ${message.senderId}, not a member of ${payload.chatId}`);
+            return;
+        }
+
         const media = await this.mediaService.get(payload.media);
 
         for (const m of media) {
