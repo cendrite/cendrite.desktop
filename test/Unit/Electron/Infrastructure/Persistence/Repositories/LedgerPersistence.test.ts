@@ -140,10 +140,10 @@ describe('GroupRepository', () => {
         const sut = new GroupRepository();
         await sut.create(new Group(GROUP_ID, GroupLifecycle.Active, 7, Buffer.alloc(32, 0x5a)));
 
-        await sut.setMembershipWarning(GROUP_ID, MembershipWarning.LostAccess);
+        await sut.setMembershipWarning(GROUP_ID, MembershipWarning.Tampered);
         const warned = await sut.get(GROUP_ID);
 
-        expect(warned!.membershipWarning).toBe(MembershipWarning.LostAccess);
+        expect(warned!.membershipWarning).toBe(MembershipWarning.Tampered);
         expect(warned!.version).toBe(7);
 
         await sut.setMembershipWarning(GROUP_ID, null);

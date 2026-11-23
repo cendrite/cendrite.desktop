@@ -1,3 +1,6 @@
+import { IMediaStore } from '#electron/Application/Contracts/Repositories/IMediaStore';
+import { IOutboxRepository } from '#electron/Infrastructure/Interfaces/IOutboxRepository';
+import { GroupLifecycle } from '#electron/Domain/Enums/GroupLifecycle';
 import { IChatStore } from '#electron/Application/Contracts/Repositories/IChatStore';
 import { IUserRepository } from '#electron/Application/Contracts/Repositories/IUserRepository';
 import { GroupMember } from '#electron/Domain/Projections/GroupMember';
@@ -100,10 +103,17 @@ function chatDependencies(chat: { members: { id?: string; userTag: string; privi
                 const member = chat?.members.find((candidate) => candidate.id === memberId);
                 if (member) member.privilege = privilege;
             }),
+            removeMembers: vi.fn(async (memberIds: string[]) => {
+                if (chat) chat.members = chat.members.filter((member) => !memberIds.includes(member.id ?? ''));
+            }),
+            getMediaIds: vi.fn(async () => ['media-1', 'media-2']),
+            deleteChat: vi.fn(async () => undefined),
         },
         { get: async () => ({ userTag: 'alice' }) },
         { isDestroyed: () => false, webContents: { send } },
-    ] as unknown as [IChatStore, IUserRepository, Electron.BrowserWindow];
+        { delete: vi.fn(async () => undefined) },
+        { deleteForGroup: vi.fn(async () => undefined) },
+    ] as unknown as [IChatStore, IUserRepository, Electron.BrowserWindow, IMediaStore, IOutboxRepository];
 }
 
 const WRITE_KEY = generateWriteKeyPair();
@@ -350,6 +360,109 @@ describe('syncing', () => {
 
         expect(chat.members[0].privilege).toBe(ChatPrivileges.Admin);
         expect(send).toHaveBeenCalledWith('eventMessage', { kind: 'groupChanged', groupId: GROUP_ID });
+    });
+
+    test('removes a member the ledger no longer has and tells the window', async () => {
+        const log = logRepository();
+        const groups = groupRepository();
+        const { provider: p } = provider([{ version: 1, archived: false, hasMore: false, events: [event(1)] }]);
+        const state = new GroupState(GROUP_ID);
+        state.members.set('alice', new GroupMember('alice', 'alice', ChatPrivileges.Owner, 1, [], [], ['alice-device']));
+        state.members.set('bob', new GroupMember('bob', 'bob', ChatPrivileges.Member, 1, [], [], ['bob-device']));
+        const chat = { members: [{ id: 'member-bob', userTag: 'bob', privilege: ChatPrivileges.Member }, { id: 'member-carol', userTag: 'carol', privilege: ChatPrivileges.Member }] };
+        const send = vi.fn();
+
+        const sut = new LedgerSyncService(p, log.repository, groups.repository, replayService({ state }), groupKeys(), ...chatDependencies(chat, send));
+
+        await sut.sync(GROUP_ID);
+
+        expect(chat.members.map((member) => member.userTag)).toEqual(['bob']);
+        expect(send).toHaveBeenCalledWith('eventMessage', { kind: 'groupChanged', groupId: GROUP_ID });
+    });
+
+    function removedSetup(options: Partial<ReplayResult> = {}) {
+        const logDelete = vi.fn(async () => undefined);
+        const keyDelete = vi.fn(async () => undefined);
+        const log = logRepository();
+        const groups = groupRepository();
+        const { provider: p } = provider([{ version: 3, archived: false, hasMore: false, events: [event(1)] }]);
+        const state = new GroupState(GROUP_ID);
+        state.removed.add('alice');
+        const send = vi.fn();
+        const dependencies = chatDependencies({ members: [] }, send);
+        const sut = new LedgerSyncService(
+            p,
+            { ...log.repository, deleteForGroup: logDelete },
+            groups.repository,
+            replayService({ state, ...options }),
+            { ...groupKeys(), deleteForGroup: keyDelete },
+            ...dependencies,
+        );
+        const [chatStore, , , mediaStore, eventRepository] = dependencies;
+
+        return { sut, groups, send, logDelete, keyDelete, chatStore, mediaStore, eventRepository };
+    }
+
+    test('wipes the whole group from this device when the log removed this user', async () => {
+        const { sut, groups, send, logDelete, keyDelete, chatStore, mediaStore, eventRepository } = removedSetup();
+
+        await sut.sync(GROUP_ID);
+
+        expect(mediaStore.delete).toHaveBeenCalledTimes(2);
+        expect(chatStore.deleteChat).toHaveBeenCalledWith(GROUP_ID);
+        expect(eventRepository.deleteForGroup).toHaveBeenCalledWith(GROUP_ID);
+        expect(logDelete).toHaveBeenCalledWith(GROUP_ID);
+        expect(keyDelete).toHaveBeenCalledWith(GROUP_ID);
+        expect(groups.saved.at(-1)!.lifecycle).toBe(GroupLifecycle.Left);
+        expect(send).toHaveBeenCalledWith('eventMessage', { kind: 'groupRemoved', groupId: GROUP_ID });
+    });
+
+    test('still wipes when a media file is already gone', async () => {
+        const { sut, chatStore, mediaStore } = removedSetup();
+        vi.mocked(mediaStore.delete).mockRejectedValue(new Error('missing'));
+
+        await sut.sync(GROUP_ID);
+
+        expect(chatStore.deleteChat).toHaveBeenCalledWith(GROUP_ID);
+    });
+
+    test.each([
+        ['halted', { halted: { version: 3, reason: 'bad' } }],
+        ['stalled', { stalledAt: 3 }],
+    ])('does not wipe from a log that %s', async (_name, options) => {
+        const { sut, chatStore, keyDelete } = removedSetup(options);
+
+        await sut.sync(GROUP_ID);
+
+        expect(chatStore.deleteChat).not.toHaveBeenCalled();
+        expect(keyDelete).not.toHaveBeenCalled();
+    });
+
+    test('does not wipe when the ledger refuses this device', async () => {
+        const log = logRepository();
+        const groups = groupRepository();
+        const provider404 = {
+            getEvents: async () => Result.fail(new ErrorMessage('Not Found', 'gone')),
+        } as never;
+        const dependencies = chatDependencies({ members: [] });
+
+        const result = await new LedgerSyncService(provider404, log.repository, groups.repository, replayService(), groupKeys(), ...dependencies).sync(GROUP_ID);
+
+        expect(result.success).toBe(false);
+        expect(dependencies[0].deleteChat).not.toHaveBeenCalled();
+    });
+
+    test('does not wipe when this user is simply not listed', async () => {
+        const log = logRepository();
+        const groups = groupRepository();
+        const { provider: p } = provider([{ version: 1, archived: false, hasMore: false, events: [event(1)] }]);
+        const state = new GroupState(GROUP_ID);
+        state.members.set('bob', new GroupMember('bob', 'bob', ChatPrivileges.Member, 1, [], [], ['bob-device']));
+        const dependencies = chatDependencies({ members: [{ id: 'member-bob', userTag: 'bob', privilege: ChatPrivileges.Member }] });
+
+        await new LedgerSyncService(p, log.repository, groups.repository, replayService({ state }), groupKeys(), ...dependencies).sync(GROUP_ID);
+
+        expect(dependencies[0].deleteChat).not.toHaveBeenCalled();
     });
 
     test('does not touch the chat from a log that halted', async () => {

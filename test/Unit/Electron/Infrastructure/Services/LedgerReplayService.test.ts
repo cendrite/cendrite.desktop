@@ -20,6 +20,7 @@ import {
     GroupMemberRef,
     LedgerOperation,
     MemberAddedOperation,
+    MemberRemovedOperation,
     PrivilegeChangedOperation,
     WriteKeyRegisteredOperation,
 } from '../../../../../src/Electron/Domain/Protocol/LedgerOperation.js';
@@ -932,5 +933,55 @@ describe('swapping an invite key for a write key', () => {
         const result = await sut().replay(GROUP_ID, events);
 
         expect(result.rejected[0].reason).toBe('granted keys do not match the operation');
+    });
+});
+
+describe('being removed', () => {
+    function joined() {
+        const alice = new Member('alice', 'Alice');
+        const bob = new Member('bob', 'Bob');
+        const builder = new LogBuilder()
+            .add(alice, created(alice), createdKeys(alice))
+            .add(alice, memberAdded(alice, bob), { invitesAdded: [{ publicKey: bob.writeKeyPublic, role: roleFor(ChatPrivileges.Member) }] });
+        return { alice, bob, builder };
+    }
+
+    test('records a member removed by a valid operation', async () => {
+        const { alice, bob, builder } = joined();
+        const events = builder
+            .add(alice, new MemberRemovedOperation(alice.userTag, bob.userTag), { keysRemoved: [bob.writeKeyPublic] })
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected).toEqual([]);
+        expect(result.state.members.has('bob')).toBe(false);
+        expect(result.state.removed.has('bob')).toBe(true);
+    });
+
+    test('does not record a removal that was rejected', async () => {
+        const { alice, bob, builder } = joined();
+        const events = builder
+            .add(alice, new MemberRemovedOperation(alice.userTag, bob.userTag), { keysRemoved: [] })
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected).toHaveLength(1);
+        expect(result.state.removed.has('bob')).toBe(false);
+    });
+
+    test('clears the removal when the member is added again', async () => {
+        const { alice, bob, builder } = joined();
+        const again = new Member('bob', 'Bob');
+        const events = builder
+            .add(alice, new MemberRemovedOperation(alice.userTag, bob.userTag), { keysRemoved: [bob.writeKeyPublic] })
+            .add(alice, memberAdded(alice, again), { invitesAdded: [{ publicKey: again.writeKeyPublic, role: roleFor(ChatPrivileges.Member) }] })
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.state.members.has('bob')).toBe(true);
+        expect(result.state.removed.has('bob')).toBe(false);
     });
 });

@@ -35,6 +35,7 @@ import { DeleteChatCommandHandler } from './Features/Chat/Commands/DeleteChatCom
 import { AddGroupMemberCommandHandler } from './Features/Chat/Commands/AddGroupMemberCommandHandler.js';
 import { RenameGroupCommandHandler } from './Features/Chat/Commands/RenameGroupCommandHandler.js';
 import { ChangeMemberPrivilegeCommandHandler } from './Features/Chat/Commands/ChangeMemberPrivilegeCommandHandler.js';
+import { RemoveGroupMemberCommandHandler } from './Features/Chat/Commands/RemoveGroupMemberCommandHandler.js';
 import { GetChatsQueryHandler } from './Features/Chat/Queries/GetChatsQueryhandler.js';
 import { GetMessagesQueryHandler } from './Features/Chat/Queries/GetMessagesQueryHandler.js';
 import { GetGroupPrivilegeQueryHandler } from './Features/Chat/Queries/GetGroupPrivilegeQueryHandler.js';
@@ -96,6 +97,7 @@ const chatHandlers = {
     addGroupMemberCommandHandler: asClass(AddGroupMemberCommandHandler, { lifetime: Lifetime.SINGLETON }),
     renameGroupCommandHandler: asClass(RenameGroupCommandHandler, { lifetime: Lifetime.SINGLETON }),
     changeMemberPrivilegeCommandHandler: asClass(ChangeMemberPrivilegeCommandHandler, { lifetime: Lifetime.SINGLETON }),
+    removeGroupMemberCommandHandler: asClass(RemoveGroupMemberCommandHandler, { lifetime: Lifetime.SINGLETON }),
     updateDeliveryStatusCommandHandler: asClass(UpdateDeliveryStatusCommandHandler, { lifetime: Lifetime.SINGLETON }),
     deliveryStatusUpdatedCommandHandler: asClass(DeliveryStatusUpdatedCommandHandler, { lifetime: Lifetime.SINGLETON }),
     sendMessageCommandHandler: asClass(SendMessageCommandHandler, { lifetime: Lifetime.SINGLETON }),

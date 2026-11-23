@@ -57,10 +57,7 @@ export class WriteKeySwapPump extends Pump {
             if (!synced.success) await this.groupKeyRepository.saveWriteKey(current);
         }
 
-        if (!synced.success) {
-            if (isRefused(synced.errorMessage?.code)) await this.warn(group, MembershipWarning.LostAccess);
-            return;
-        }
+        if (!synced.success) return;
 
         if (synced.data.halted) {
             await this.warn(group, MembershipWarning.Tampered);
@@ -88,8 +85,6 @@ export class WriteKeySwapPump extends Pump {
             await this.warn(group, MembershipWarning.Tampered);
             return;
         }
-
-        if (group.membershipWarning === MembershipWarning.LostAccess) await this.warn(group, null);
 
         await this.swap(group, userTag, active, pending);
     }
@@ -133,8 +128,4 @@ export class WriteKeySwapPump extends Pump {
         const key = generateWriteKeyPair();
         return new PendingGroupWriteKey(groupId, key.publicKey, key.privateKey);
     }
-}
-
-function isRefused(code: string | null | undefined): boolean {
-    return code === 'Forbidden' || code === 'Not Found';
 }

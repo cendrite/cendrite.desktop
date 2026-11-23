@@ -7,6 +7,7 @@ export class GroupState {
     name: string | null = null;
     messageTtl: number | null = null;
     members = new Map<string, GroupMember>();
+    removed = new Set<string>();
     rejected: number[] = [];
 
     constructor(public readonly groupId: string) { }

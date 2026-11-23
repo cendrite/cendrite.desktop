@@ -47,6 +47,10 @@ export class LedgerLogRepository implements ILedgerLogRepository {
         await this.repository.update({ groupId, version }, { verifiedAuthor: userTag });
     }
 
+    public async deleteForGroup(groupId: string): Promise<void> {
+        await this.repository.delete({ groupId });
+    }
+
     public async deleteAll(): Promise<void> {
         await this.repository.clear();
     }

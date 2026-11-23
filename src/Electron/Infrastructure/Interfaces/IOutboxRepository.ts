@@ -6,5 +6,6 @@ export interface IOutboxRepository extends IEventRepository {
     getEvent<T extends DomainEvent>(type: string): Promise<T | null>;
     markAsFailed(id: string, error: string): Promise<void>;
     deleteEvent(id: string): Promise<void>;
+    deleteForGroup(groupId: string): Promise<void>;
     deleteAll(): Promise<void>;
 }

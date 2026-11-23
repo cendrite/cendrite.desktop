@@ -13,7 +13,7 @@ import { GroupChangeEvent } from '#electron/Domain/Events/GroupChangeEvent';
 import { ChatMember } from '#electron/Domain/Entities/ChatMember';
 import { LedgerOperationType } from '#electron/Domain/Enums/LedgerOperationType';
 import { GroupState } from '#electron/Domain/Projections/GroupState';
-import { GroupCreatedOperation, GroupMemberRef, LedgerOperation, MemberAddedOperation, PrivilegeChangedOperation, SettingsChangedOperation } from '#electron/Domain/Protocol/LedgerOperation';
+import { GroupCreatedOperation, GroupMemberRef, LedgerOperation, MemberAddedOperation, MemberRemovedOperation, PrivilegeChangedOperation, SettingsChangedOperation } from '#electron/Domain/Protocol/LedgerOperation';
 import { generateEpochKey, generateWriteKeyPair } from '#electron/Infrastructure/Crypto/LedgerCodec';
 import { Envelope, GroupStrapPayload, GroupUpdatedPayload, Payload } from '#electron/Domain/Protocol/Payload';
 import { IOutboxRepository } from '#electron/Infrastructure/Interfaces/IOutboxRepository';
@@ -36,6 +36,7 @@ export interface IGroupService {
     addMember(groupId: string, friendId: string): Promise<Result>;
     renameGroup(groupId: string, name: string): Promise<Result>;
     changeMemberPrivilege(groupId: string, userTag: string, privilege: ChatPrivileges): Promise<Result>;
+    removeMember(groupId: string, userTag: string): Promise<Result>;
     deliverChange(change: GroupChangeEvent): Promise<boolean>;
 }
 
@@ -308,6 +309,48 @@ export class GroupService implements IGroupService {
         return Result.success();
     }
 
+    public async removeMember(groupId: string, targetTag: string): Promise<Result> {
+        const group = await this.groupRepository.get(groupId);
+        if (group?.lifecycle !== GroupLifecycle.Draft && group?.lifecycle !== GroupLifecycle.Active) return refused('This group cannot be changed');
+
+        const writeKey = await this.groupKeyRepository.getWriteKey(groupId);
+        if (!writeKey || writeKey.isInvite) return refused('This device cannot change the group yet');
+
+        const { userTag } = await this.userRepository.get(true);
+        if (targetTag === userTag) return refused('You cannot remove yourself');
+
+        let devices: string[];
+
+        if (group.lifecycle === GroupLifecycle.Draft) {
+            const chat = await this.chatStore.getChatWithMembers(groupId);
+            const member = chat.members.find((candidate) => candidate.userTag === targetTag);
+            if (!member) return refused('This person is not in the group');
+
+            if (!group.pendingStart) {
+                await this.chatStore.removeMembers([member.id]);
+                this.announceGroupChanged(groupId);
+                return Result.success();
+            }
+
+            devices = member.devices;
+        } else {
+            const adminStateResult = await this.adminState(groupId, userTag, 'Only an owner or admin can remove members');
+            if (!adminStateResult.success) return adminStateResult;
+
+            const author = adminStateResult.data.members.get(userTag)!;
+            const target = adminStateResult.data.members.get(targetTag);
+            if (!target) return refused('This person is not in the group');
+            if (author.privilege <= target.privilege) return refused('You can only remove members below your own role');
+
+            devices = target.connectionIds;
+        }
+
+        const operation = new MemberRemovedOperation(userTag, targetTag);
+        await this.eventRepository.appendEvent(new GroupChangeEvent(uuid().toString(), groupId, operation, {}, new Date(), devices));
+
+        return Result.success();
+    }
+
     public async deliverChange(change: GroupChangeEvent): Promise<boolean> {
         const group = await this.groupRepository.get(change.groupId);
         if (group?.lifecycle !== GroupLifecycle.Active) return false;
@@ -409,8 +452,7 @@ export class GroupService implements IGroupService {
         }
 
         const update = new GroupUpdatedPayload(change.groupId, state.name, state.version, state.epoch, headHash);
-        const otherDevices = members
-            .flatMap((member) => member.connectionIds)
+        const otherDevices = [...new Set([...members.flatMap((member) => member.connectionIds), ...change.alsoNotify])]
             .filter((connectionId) => connectionId !== device.connectionId && !(connectionId in change.inviteKeys));
 
         for (const connectionId of otherDevices) {
@@ -452,6 +494,8 @@ function changeStatus(state: GroupState, operation: LedgerOperation): 'pending' 
             const ttlApplied = operation.messageTtl === null || state.messageTtl === operation.messageTtl;
             return nameApplied && ttlApplied ? 'applied' : 'pending';
         }
+        case LedgerOperationType.MemberRemoved:
+            return state.members.has(operation.userTag) ? 'pending' : 'applied';
         case LedgerOperationType.PrivilegeChanged: {
             const member = state.members.get(operation.userTag);
             if (!member) return 'conflict';

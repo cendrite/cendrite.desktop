@@ -106,6 +106,18 @@ export class EventRepository implements IEventRepository, IOutboxRepository {
         await this.ctx.delete({ id });
     }
 
+    public async deleteForGroup(groupId: string): Promise<void> {
+        const events = await this.ctx.find({ select: { id: true, content: true } });
+        const ids = events
+            .filter((event) => {
+                const content = parseEventContent(event.content) as { groupId?: string; message?: { chatId?: string } };
+                return content.groupId === groupId || content.message?.chatId === groupId;
+            })
+            .map((event) => event.id);
+
+        if (ids.length > 0) await this.ctx.delete(ids);
+    }
+
     public async deleteAll(): Promise<void> {
         await this.ctx.clear();
     }
