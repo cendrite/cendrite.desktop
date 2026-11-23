@@ -15,13 +15,14 @@ import { Result } from '#shared/Result/Result';
 
 const GROUP_ID = '0199673a-3c1e-7c2b-9f2e-5d8b1a4c7e10';
 const ALICE = '111111111111';
+const ALICE_KEY = Buffer.from('alice-key').toString('base64');
 const BOB = '222222222222';
 const CAROL = '333333333333';
 
 function stateWith(author: ChatPrivileges, bob: ChatPrivileges = ChatPrivileges.Member) {
     const state = new GroupState(GROUP_ID);
     state.headHash = Buffer.alloc(32, 5);
-    state.members.set(ALICE, new GroupMember(ALICE, 'Alice', author, 1, ['alice-key'], [], ['alice-laptop']));
+    state.members.set(ALICE, new GroupMember(ALICE, 'Alice', author, 1, [ALICE_KEY], [], ['alice-laptop']));
     state.members.set(BOB, new GroupMember(BOB, 'Bob', bob, 1, ['bob-key'], [], ['bob-laptop']));
     return state;
 }
@@ -54,7 +55,7 @@ function setup(group: Group, state = stateWith(ChatPrivileges.Owner), afterAppen
 
     const sut = new GroupService(
         { get: async () => group } as never,
-        { getWriteKey: async () => ({ isInvite: inviteOnly }), getEpochKeys: async () => [] } as never,
+        { getWriteKey: async () => ({ isInvite: inviteOnly, publicKey: Buffer.from('alice-key') }), getEpochKeys: async () => [] } as never,
         { get: async () => ({ userTag: ALICE, avatarKey: null }) } as never,
         { get: async () => ({ connectionId: 'alice-laptop' }) } as never,
         chatStore as never,
@@ -202,6 +203,16 @@ describe('delivering a privilege change', () => {
         expect(await sut.deliverChange(change(ChatPrivileges.Admin))).toBe(true);
 
         expect(ledgerWriter.append).not.toHaveBeenCalled();
+        expect(eventRepository.deleteEvent).toHaveBeenCalledWith('event-1');
+    });
+
+    test('drops a role change queued by someone who is no longer the owner', async () => {
+        const { sut, ledgerWriter, messageHubHandler, eventRepository } = setup(active(), stateWith(ChatPrivileges.Admin));
+
+        expect(await sut.deliverChange(change())).toBe(true);
+
+        expect(ledgerWriter.append).not.toHaveBeenCalled();
+        expect(messageHubHandler.sendMessage).not.toHaveBeenCalled();
         expect(eventRepository.deleteEvent).toHaveBeenCalledWith('event-1');
     });
 

@@ -12,6 +12,7 @@ import { GroupLifecycle } from '#electron/Domain/Enums/GroupLifecycle';
 import { GroupChangeEvent } from '#electron/Domain/Events/GroupChangeEvent';
 import { ChatMember } from '#electron/Domain/Entities/ChatMember';
 import { LedgerOperationType } from '#electron/Domain/Enums/LedgerOperationType';
+import { keyChangesFor, rejectReasonFor } from '#electron/Domain/Services/GroupReducer';
 import { GroupState } from '#electron/Domain/Projections/GroupState';
 import { GroupCreatedOperation, GroupMemberRef, LedgerOperation, MemberAddedOperation, MemberRemovedOperation, PrivilegeChangedOperation, SettingsChangedOperation } from '#electron/Domain/Protocol/LedgerOperation';
 import { generateEpochKey, generateWriteKeyPair } from '#electron/Infrastructure/Crypto/LedgerCodec';
@@ -350,12 +351,20 @@ export class GroupService implements IGroupService {
         }
 
         if (status === 'pending') {
+            const rejectReason = await this.staleChangeReason(change, state);
+            if (rejectReason !== null) {
+                console.warn(`GroupService: dropped a change for group ${change.groupId}: ${rejectReason}`);
+                await this.eventRepository.deleteEvent(change.id);
+                return true;
+            }
+
             const appendResult = await this.ledgerWriter.append(change.groupId, change.operation);
 
             if (!appendResult.success) {
                 if (appendResult.errorMessage.code !== 'Forbidden') return false;
 
-                await this.eventRepository.markAsFailed(change.id, appendResult.errorMessage.message);
+                console.warn(`GroupService: the ledger refused a change for group ${change.groupId}: ${appendResult.errorMessage.message}`);
+                await this.eventRepository.deleteEvent(change.id);
                 return true;
             }
 
@@ -370,6 +379,22 @@ export class GroupService implements IGroupService {
         await this.eventRepository.deleteEvent(change.id);
 
         return true;
+    }
+
+    private async staleChangeReason(change: GroupChangeEvent, state: GroupState): Promise<string | null> {
+        const writeKey = await this.groupKeyRepository.getWriteKey(change.groupId);
+        if (!writeKey) return 'this device has no write key';
+
+        const keyChanges = keyChangesFor(state, change.operation);
+
+        return rejectReasonFor(state, change.operation, {
+            version: state.version + 1,
+            authorKey: writeKey.publicKey.toString('base64'),
+            keysAdded: keyChanges.added,
+            invitesAdded: keyChanges.invites,
+            keysRemoved: keyChanges.removed,
+            rolesChanged: keyChanges.roles,
+        });
     }
 
     private async mayAddMember(group: Group, userTag: string, friendId: string): Promise<Result> {

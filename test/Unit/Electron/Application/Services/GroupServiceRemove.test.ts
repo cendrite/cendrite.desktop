@@ -15,13 +15,14 @@ import { Result } from '#shared/Result/Result';
 
 const GROUP_ID = '0199673a-3c1e-7c2b-9f2e-5d8b1a4c7e10';
 const ALICE = '111111111111';
+const ALICE_KEY = Buffer.from('alice-key').toString('base64');
 const BOB = '222222222222';
 const CAROL = '333333333333';
 
 function stateWith(author: ChatPrivileges, target: ChatPrivileges | null = ChatPrivileges.Member) {
     const state = new GroupState(GROUP_ID);
     state.headHash = Buffer.alloc(32, 5);
-    state.members.set(ALICE, new GroupMember(ALICE, 'Alice', author, 1, ['alice-key'], [], ['alice-laptop']));
+    state.members.set(ALICE, new GroupMember(ALICE, 'Alice', author, 1, [ALICE_KEY], [], ['alice-laptop']));
     state.members.set(CAROL, new GroupMember(CAROL, 'Carol', ChatPrivileges.Member, 1, ['carol-key'], [], ['carol-laptop']));
     if (target !== null) state.members.set(BOB, new GroupMember(BOB, 'Bob', target, 1, ['bob-key'], [], ['bob-laptop', 'bob-phone']));
     return state;
@@ -55,7 +56,7 @@ function setup(group: Group, state = stateWith(ChatPrivileges.Owner), afterAppen
 
     const sut = new GroupService(
         { get: async () => group } as never,
-        { getWriteKey: async () => ({ isInvite: false }), getEpochKeys: async () => [] } as never,
+        { getWriteKey: async () => ({ isInvite: false, publicKey: Buffer.from('alice-key') }), getEpochKeys: async () => [] } as never,
         { get: async () => ({ userTag: ALICE, avatarKey: null }) } as never,
         { get: async () => ({ connectionId: 'alice-laptop' }) } as never,
         chatStore as never,
@@ -150,6 +151,16 @@ describe('delivering a removal', () => {
             expect(encrypted.get(device)?.type).toBe(PayloadType.GroupUpdated);
         }
         expect(encrypted.has('alice-laptop')).toBe(false);
+        expect(eventRepository.deleteEvent).toHaveBeenCalledWith('event-1');
+    });
+
+    test('drops a removal queued by someone who has since been demoted', async () => {
+        const { sut, ledgerWriter, messageHubHandler, eventRepository } = setup(active(), stateWith(ChatPrivileges.Member));
+
+        expect(await sut.deliverChange(change())).toBe(true);
+
+        expect(ledgerWriter.append).not.toHaveBeenCalled();
+        expect(messageHubHandler.sendMessage).not.toHaveBeenCalled();
         expect(eventRepository.deleteEvent).toHaveBeenCalledWith('event-1');
     });
 
