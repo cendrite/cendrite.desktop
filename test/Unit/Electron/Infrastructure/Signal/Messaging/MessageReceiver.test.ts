@@ -24,13 +24,14 @@ function stateWith(...devices: string[]) {
 
 interface Setup {
     group?: boolean;
+    lifecycle?: GroupLifecycle;
     memberDevices?: string[];
     ownDevices?: string[];
     sync?: Result<ReplayResult>;
     payload?: Payload;
 }
 
-function setup({ group = true, memberDevices = ['bob-laptop'], ownDevices = ['alice-phone'], sync = replayed(stateWith()), payload = chatMessage() }: Setup = {}) {
+function setup({ group = true, lifecycle = GroupLifecycle.Active, memberDevices = ['bob-laptop'], ownDevices = ['alice-phone'], sync = replayed(stateWith()), payload = chatMessage() }: Setup = {}) {
     const chat = { id: CHAT_ID, members: [{ devices: memberDevices }] };
     const chatStore = {
         getChat: vi.fn(async () => chat),
@@ -48,7 +49,7 @@ function setup({ group = true, memberDevices = ['bob-laptop'], ownDevices = ['al
         { get: async () => [] } as never,
         { getById: async () => null } as never,
         { get: async () => ({ userTag: 'alice', connectionIds: ownDevices.map((connectionId) => ({ connectionId })) }) } as never,
-        { get: async () => (group ? new Group(CHAT_ID, GroupLifecycle.Active) : null) } as never,
+        { get: async () => (group ? new Group(CHAT_ID, lifecycle) : null) } as never,
         {} as never,
         { webContents: { send: vi.fn() } } as never,
         { notify: vi.fn(async () => undefined), notifyMessage: vi.fn(async () => undefined) } as never,
@@ -129,6 +130,15 @@ describe('accepting a group message', () => {
         await sut.handle(from('bob-laptop'));
 
         expect(chatStore.updateDeliveryStatus).toHaveBeenCalledOnce();
+    });
+
+    test('drops anything for a group this user was removed from, without syncing', async () => {
+        const { sut, chatStore, ledgerSyncService } = setup({ lifecycle: GroupLifecycle.Left });
+
+        await sut.handle(from('bob-laptop'));
+
+        expect(chatStore.storeMessage).not.toHaveBeenCalled();
+        expect(ledgerSyncService.sync).not.toHaveBeenCalled();
     });
 
     test('does not check direct messages', async () => {

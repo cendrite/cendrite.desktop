@@ -4,6 +4,7 @@ import { DeleteChatCommand } from '@/Shared/Chat/DeleteChat.ts';
 import { AddGroupMemberCommand } from '@/Shared/Chat/AddGroupMember.ts';
 import { RenameGroupCommand } from '@/Shared/Chat/RenameGroup.ts';
 import { ChangeMemberPrivilegeCommand } from '@/Shared/Chat/ChangeMemberPrivilege.ts';
+import { RemoveGroupMemberCommand } from '@/Shared/Chat/RemoveGroupMember.ts';
 import { v4 as uuid } from 'uuid';
 import { ChatPrivileges } from '@/Shared/Enums/ChatPrivileges.ts';
 import { ChatMemberViewModel } from '@/React/Models/ChatMemberViewModel.ts';
@@ -109,6 +110,12 @@ export class ChatService {
 
     public async changeMemberPrivilege(groupId: string, userTag: string, privilege: ChatPrivileges): Promise<string | null> {
         const result = await window.electron.sendRequestAsync(new ChangeMemberPrivilegeCommand(groupId, userTag, privilege));
+
+        return result.success ? null : result.errorMessage.message;
+    }
+
+    public async removeGroupMember(groupId: string, userTag: string): Promise<string | null> {
+        const result = await window.electron.sendRequestAsync(new RemoveGroupMemberCommand(groupId, userTag));
 
         return result.success ? null : result.errorMessage.message;
     }

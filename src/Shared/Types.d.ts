@@ -21,7 +21,8 @@ declare global {
         | { kind: 'untrustedDevice'; connectionId: string }
         | { kind: 'groupEditable'; groupId: string }
         | { kind: 'membershipWarning'; groupId: string; warning: MembershipWarning | null }
-        | { kind: 'groupChanged'; groupId: string };
+        | { kind: 'groupChanged'; groupId: string }
+        | { kind: 'groupRemoved'; groupId: string };
 
     interface AppEventMap {
         changeEvent: ChangeEvent;

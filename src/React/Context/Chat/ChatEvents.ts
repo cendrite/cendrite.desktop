@@ -81,6 +81,19 @@ export function useChatEvents(
         [chatDispatch, chatService, contacts],
     );
 
+    const handleGroupRemoved = useCallback(
+        (evt: Extract<EventMessage, { kind: 'groupRemoved' }>) => {
+            const chat = getChat(chats, evt.groupId);
+            if (!chat) return;
+
+            if (activeChatId === chat.id) homeDispatch({ type: HomePageActionType.Clear });
+            notificationDispatch({ type: NotificationActionType.RemoveChat, payload: { chatId: chat.id } });
+            chatDispatch({ type: ChatActionType.RemoveChat, payload: chat });
+        },
+        [activeChatId, chats, chatDispatch, homeDispatch, notificationDispatch],
+    );
+
+    useMessageEdit('groupRemoved', handleGroupRemoved);
     useMessageEdit('groupChanged', handleGroupChanged);
     useMessageEdit('deliveryStatus', handleDeliveryStatusUpdate);
     useMessageEdit('message', receiveMessage);

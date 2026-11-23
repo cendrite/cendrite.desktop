@@ -177,7 +177,9 @@ export class MessageReceiver implements IMessageReceiver {
     }
 
     private async isFromGroupMember(chatId: string, senderId: string): Promise<boolean> {
-        if (!(await this.groupRepository.get(chatId))) return true;
+        const group = await this.groupRepository.get(chatId);
+        if (!group) return true;
+        if (group.lifecycle === GroupLifecycle.Left) return false;
 
         const user = await this.userRepository.get(true);
         if (user.connectionIds?.some((connection) => connection.connectionId === senderId)) return true;

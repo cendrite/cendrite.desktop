@@ -69,6 +69,12 @@ export class GroupKeyRepository implements IGroupKeyRepository {
         );
     }
 
+    public async deleteForGroup(groupId: string): Promise<void> {
+        await this.writeKeys.delete({ groupId });
+        await this.pendingWriteKeys.delete({ groupId });
+        await this.epochKeys.delete({ groupId });
+    }
+
     public async deleteAll(): Promise<void> {
         await this.writeKeys.clear();
         await this.pendingWriteKeys.clear();

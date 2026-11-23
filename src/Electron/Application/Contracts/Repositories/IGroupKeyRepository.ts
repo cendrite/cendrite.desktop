@@ -11,5 +11,6 @@ export interface IGroupKeyRepository {
     saveEpochKey(epochKey: GroupEpochKey): Promise<void>;
     getEpochKey(groupId: string, epoch: number): Promise<GroupEpochKey | null>;
     getEpochKeys(groupId: string): Promise<GroupEpochKey[]>;
+    deleteForGroup(groupId: string): Promise<void>;
     deleteAll(): Promise<void>;
 }

@@ -3,6 +3,7 @@ import { ErrorMessage } from '#shared/Result/ErrorMessage';
 import { ILedgerProvider, LedgerEvent, LedgerKeyGrant, LedgerReadProof } from '#electron/Application/Contracts/Providers/ILedgerProvider';
 import { IChatStore } from '#electron/Application/Contracts/Repositories/IChatStore';
 import { IGroupKeyRepository } from '#electron/Application/Contracts/Repositories/IGroupKeyRepository';
+import { IMediaStore } from '#electron/Application/Contracts/Repositories/IMediaStore';
 import { IUserRepository } from '#electron/Application/Contracts/Repositories/IUserRepository';
 import { IGroupRepository } from '#electron/Application/Contracts/Repositories/IGroupRepository';
 import { ILedgerLogRepository } from '#electron/Application/Contracts/Repositories/ILedgerLogRepository';
@@ -10,6 +11,8 @@ import { ILedgerReplayService, ReplayResult } from '#electron/Application/Contra
 import { ILedgerSyncService } from '#electron/Application/Contracts/Services/ILedgerSyncService';
 import { ChatMember } from '#electron/Domain/Entities/ChatMember';
 import { Group } from '#electron/Domain/Entities/Group';
+import { GroupLifecycle } from '#electron/Domain/Enums/GroupLifecycle';
+import { IOutboxRepository } from '../Interfaces/IOutboxRepository.js';
 import { GroupState } from '#electron/Domain/Projections/GroupState';
 import { LedgerEventRecord } from '#electron/Domain/Entities/LedgerEventRecord';
 import { LedgerEventStatus } from '#electron/Domain/Enums/LedgerEventStatus';
@@ -30,6 +33,8 @@ export class LedgerSyncService implements ILedgerSyncService {
         private readonly chatStore: IChatStore,
         private readonly userRepository: IUserRepository,
         private readonly mainWindow: Electron.BrowserWindow,
+        private readonly mediaStore: IMediaStore,
+        private readonly eventRepository: IOutboxRepository,
     ) { }
 
     public async sync(groupId: string): Promise<Result<ReplayResult>> {
@@ -79,6 +84,12 @@ export class LedgerSyncService implements ILedgerSyncService {
 
         const trusted = replayed.halted === null && replayed.stalledAt === null;
         const { userTag } = await this.userRepository.get(true);
+
+        if (trusted && replayed.state.removed.has(userTag)) {
+            await this.wipeGroup(group);
+            return;
+        }
+
         const privilege = trusted ? replayed.state.members.get(userTag)?.privilege : undefined;
         const privilegeChanged = privilege !== undefined && privilege !== group.privilege;
         if (privilegeChanged) group.privilege = privilege;
@@ -109,6 +120,20 @@ export class LedgerSyncService implements ILedgerSyncService {
         }
     }
 
+    private async wipeGroup(group: Group): Promise<void> {
+        const groupId = group.groupId;
+        const mediaIds = await this.chatStore.getMediaIds(groupId);
+
+        await Promise.allSettled(mediaIds.map((mediaId) => this.mediaStore.delete(mediaId)));
+        await this.chatStore.deleteChat(groupId);
+        await this.eventRepository.deleteForGroup(groupId);
+        await this.ledgerLogRepository.deleteForGroup(groupId);
+        await this.groupKeyRepository.deleteForGroup(groupId);
+        await this.groupRepository.create(new Group(groupId, GroupLifecycle.Left));
+
+        if (!this.mainWindow.isDestroyed()) this.mainWindow.webContents.send('eventMessage', { kind: 'groupRemoved', groupId });
+    }
+
     private async syncChat(groupId: string, state: GroupState, userTag: string): Promise<boolean> {
         if (state.members.size === 0 || !(await this.chatStore.getChat(groupId))) return false;
 
@@ -123,7 +148,11 @@ export class LedgerSyncService implements ILedgerSyncService {
             return privilege !== undefined && privilege !== member.privilege ? [{ memberId: member.id, privilege }] : [];
         });
 
-        if (missing.length === 0 && !renamed && changedPrivileges.length === 0) return false;
+        const removedIds = chat.members.filter((member) => member.userTag && !state.members.has(member.userTag)).map((member) => member.id);
+
+        if (missing.length === 0 && !renamed && changedPrivileges.length === 0 && removedIds.length === 0) return false;
+
+        await this.chatStore.removeMembers(removedIds);
 
         if (missing.length > 0) {
             await this.chatStore.addMembers(

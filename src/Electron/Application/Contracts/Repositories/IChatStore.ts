@@ -16,6 +16,16 @@ export interface IChatStore {
     addMembers(chatId: string, members: ChatMember[]): Promise<void>;
 
     /**
+     * Remove members from a chat
+     **/
+    removeMembers(memberIds: string[]): Promise<void>;
+
+    /**
+     * Get the ids of all media in a chat
+     **/
+    getMediaIds(chatId: string): Promise<string[]>;
+
+    /**
      * Set the name of a group chat
      **/
     setGroupName(chatId: string, name: string | null): Promise<void>;

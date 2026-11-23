@@ -125,6 +125,19 @@ export class ChatStore implements IChatStore {
         await this.memberRepository.save(members);
     }
 
+    public async removeMembers(memberIds: string[]): Promise<void> {
+        if (memberIds.length > 0) await this.memberRepository.delete(memberIds);
+    }
+
+    public async getMediaIds(chatId: string): Promise<string[]> {
+        const messages = await this.messageRepository.find({
+            where: { chat: { id: chatId } },
+            relations: { messageMedia: true },
+        });
+
+        return messages.flatMap((message) => (message.messageMedia ?? []).map((media) => media.id));
+    }
+
     public async setGroupName(chatId: string, name: string | null): Promise<void> {
         await this.chatRepository.update({ id: chatId }, { groupName: name });
     }

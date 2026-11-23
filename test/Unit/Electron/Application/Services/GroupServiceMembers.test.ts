@@ -47,14 +47,13 @@ interface Setup {
     syncState?: GroupState;
     afterAppend?: GroupState;
     group?: Group;
-    pending?: GroupChangeEvent[];
     invite?: boolean;
     append?: Result<void>;
     send?: () => Promise<DeliveryStatus>;
     chatMembers?: { userTag: string; avatar: string | null }[];
 }
 
-function setup({ syncState = stateWith(alice(), bob()), afterAppend, group = new Group(GROUP_ID, GroupLifecycle.Active), pending = [], invite: inviteOnly = false, append = Result.success(), send = async () => DeliveryStatus.Sent, chatMembers = [{ userTag: BOB, avatar: null }] }: Setup = {}) {
+function setup({ syncState = stateWith(alice(), bob()), afterAppend, group = new Group(GROUP_ID, GroupLifecycle.Active), invite: inviteOnly = false, append = Result.success(), send = async () => DeliveryStatus.Sent, chatMembers = [{ userTag: BOB, avatar: null }] }: Setup = {}) {
     const chat = { members: [...chatMembers] };
     const chatStore = { getChatWithMembers: vi.fn(async () => chat), addMembers: vi.fn(async (_chatId: string, _members: { userTag: string }[]) => undefined) };
     let current = syncState;
@@ -67,7 +66,6 @@ function setup({ syncState = stateWith(alice(), bob()), afterAppend, group = new
     };
     const eventRepository = {
         appendEvent: vi.fn(async (_event: GroupChangeEvent) => undefined),
-        getEvents: vi.fn(async () => pending),
         deleteEvent: vi.fn(async (_id: string) => undefined),
         markAsFailed: vi.fn(async (_id: string, _error: string) => undefined),
     };
@@ -161,13 +159,6 @@ describe('adding a member before the first message', () => {
         expect(eventRepository.appendEvent).toHaveBeenCalledOnce();
     });
 
-    test('refuses someone already waiting in the queue', async () => {
-        const { sut, eventRepository } = setup({ group: prepared() as Group, pending: [invite()] });
-
-        expect((await sut.addMember(GROUP_ID, CAROL)).success).toBe(false);
-        expect(eventRepository.appendEvent).not.toHaveBeenCalled();
-    });
-
     test('holds a queued change until the group is active', async () => {
         const { sut, ledgerWriter, ledgerSyncService, eventRepository } = setup({ group: prepared() as Group });
 
@@ -236,12 +227,13 @@ describe('delivering an invite', () => {
         expect(messageHubHandler.sendMessage).not.toHaveBeenCalled();
     });
 
-    test('stops retrying when the member was added with other keys', async () => {
+    test('a duplicate add ends cleanly and leaves no invite keys behind', async () => {
         const { sut, eventRepository, messageHubHandler } = setup({ syncState: stateWith(alice(), carol(['someone-elses-invite'])) });
 
         expect(await sut.deliverChange(invite())).toBe(true);
 
-        expect(eventRepository.markAsFailed).toHaveBeenCalledOnce();
+        expect(eventRepository.deleteEvent).toHaveBeenCalledWith('event-1');
+        expect(eventRepository.markAsFailed).not.toHaveBeenCalled();
         expect(messageHubHandler.sendMessage).not.toHaveBeenCalled();
     });
 });

@@ -107,6 +107,7 @@ export function applyOperation(state: GroupState, operation: LedgerOperation, co
             break;
 
         case LedgerOperationType.MemberAdded:
+            state.removed.delete(operation.member.userTag);
             state.members.set(
                 operation.member.userTag,
                 new GroupMember(
@@ -123,6 +124,7 @@ export function applyOperation(state: GroupState, operation: LedgerOperation, co
 
         case LedgerOperationType.MemberRemoved:
             state.members.delete(operation.userTag);
+            state.removed.add(operation.userTag);
             break;
 
         case LedgerOperationType.PrivilegeChanged:

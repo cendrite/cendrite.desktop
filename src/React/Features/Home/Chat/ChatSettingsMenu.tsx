@@ -86,7 +86,7 @@ const ChatSettingsMenu: React.FC<ChatSettingsMenu> = ({ chat }) => {
                                         </MenuItem>
                                     )}
 
-                                    {chat.isGroup && privilege === ChatPrivileges.Owner && (
+                                    {chat.isGroup && editable && (
                                         <MenuItem>
                                             {({ focus }) => (
                                                 <button
@@ -154,7 +154,7 @@ const ChatSettingsMenu: React.FC<ChatSettingsMenu> = ({ chat }) => {
 
             <AddMemberModal chat={chat} isOpen={addingMember} onClose={() => setAddingMember(false)} />
             <RenameGroupModal chat={chat} isOpen={renaming} onClose={() => setRenaming(false)} />
-            <ManageMembersModal chat={chat} isOpen={managingMembers} onClose={() => setManagingMembers(false)} />
+            <ManageMembersModal chat={chat} privilege={privilege} isOpen={managingMembers} onClose={() => setManagingMembers(false)} />
         </>
     );
 };

@@ -220,12 +220,13 @@ describe('membership warnings', () => {
         expect(ledgerWriter.append).not.toHaveBeenCalled();
     });
 
-    test('warns of lost access when the ledger refuses its key', async () => {
-        const { sut, groupRepository } = setup({ syncs: () => [unreadable()] });
+    test('does not warn when the ledger refuses its key', async () => {
+        const { sut, groupRepository, send } = setup({ syncs: () => [unreadable()] });
 
         await sut.reconcile(GROUP_ID);
 
-        expect(groupRepository.setMembershipWarning).toHaveBeenCalledWith(GROUP_ID, MembershipWarning.LostAccess);
+        expect(groupRepository.setMembershipWarning).not.toHaveBeenCalled();
+        expect(send).not.toHaveBeenCalled();
     });
 
     test('does not warn when the ledger cannot be reached', async () => {
@@ -239,7 +240,7 @@ describe('membership warnings', () => {
 
     test('clears the warning once its write key is in the group again', async () => {
         const { sut, groupRepository, send } = setup({
-            warning: MembershipWarning.LostAccess,
+            warning: MembershipWarning.Tampered,
             syncs: (invite) => [replayed({ writeKeys: [b64(invite.publicKey)] })],
         });
 
@@ -269,18 +270,6 @@ describe('membership warnings', () => {
 
         expect(groupRepository.setMembershipWarning).toHaveBeenCalledWith(GROUP_ID, null);
         expect(send).toHaveBeenCalledWith(...warned(null));
-    });
-
-    test('clears lost access once its invite key can read again, even if the swap has to retry', async () => {
-        const { sut, groupRepository } = setup({
-            warning: MembershipWarning.LostAccess,
-            syncs: holdingInvite,
-            append: Result.fail(new ErrorMessage('Conflict', 'busy')),
-        });
-
-        await sut.reconcile(GROUP_ID);
-
-        expect(groupRepository.setMembershipWarning).toHaveBeenCalledWith(GROUP_ID, null);
     });
 
     test('does not store or announce a warning that has not changed', async () => {

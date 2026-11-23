@@ -39,7 +39,6 @@ function setup(group: Group, state = stateWith(ChatPrivileges.Owner), afterAppen
     };
     const eventRepository = {
         appendEvent: vi.fn(async (_event: GroupChangeEvent) => undefined),
-        getEvents: vi.fn(async (): Promise<GroupChangeEvent[]> => []),
         deleteEvent: vi.fn(async (_id: string) => undefined),
         markAsFailed: vi.fn(async (_id: string, _error: string) => undefined),
     };
@@ -152,29 +151,17 @@ describe('changing a member privilege', () => {
         expect(eventRepository.appendEvent).not.toHaveBeenCalled();
     });
 
-    test('queues a change back while the first change is still waiting', async () => {
+});
+
+describe('changing a role back and forth', () => {
+    test('queues every change, even one that matches the current role', async () => {
         const { sut, eventRepository } = setup(active());
-        eventRepository.getEvents.mockResolvedValue([change(ChatPrivileges.Admin)]);
 
-        expect((await sut.changeMemberPrivilege(GROUP_ID, BOB, ChatPrivileges.Member)).success).toBe(true);
+        await sut.changeMemberPrivilege(GROUP_ID, BOB, ChatPrivileges.Admin);
+        await sut.changeMemberPrivilege(GROUP_ID, BOB, ChatPrivileges.Member);
 
-        const operation = eventRepository.appendEvent.mock.calls[0][0].operation as PrivilegeChangedOperation;
-        expect(operation.privilege).toBe(ChatPrivileges.Member);
-    });
-
-    test('does not queue the same change twice', async () => {
-        const { sut, eventRepository } = setup(active());
-        eventRepository.getEvents.mockResolvedValue([change(ChatPrivileges.Admin)]);
-
-        expect((await sut.changeMemberPrivilege(GROUP_ID, BOB, ChatPrivileges.Admin)).success).toBe(true);
-        expect(eventRepository.appendEvent).not.toHaveBeenCalled();
-    });
-
-    test('does nothing when they already have that role', async () => {
-        const { sut, eventRepository } = setup(active(), stateWith(ChatPrivileges.Owner, ChatPrivileges.Admin));
-
-        expect((await sut.changeMemberPrivilege(GROUP_ID, BOB, ChatPrivileges.Admin)).success).toBe(true);
-        expect(eventRepository.appendEvent).not.toHaveBeenCalled();
+        const queued = eventRepository.appendEvent.mock.calls.map(([event]) => (event.operation as PrivilegeChangedOperation).privilege);
+        expect(queued).toEqual([ChatPrivileges.Admin, ChatPrivileges.Member]);
     });
 });
 
@@ -199,13 +186,23 @@ describe('delivering a privilege change', () => {
         expect(messageHubHandler.sendMessage).toHaveBeenCalledOnce();
     });
 
-    test('stops retrying when the member is gone', async () => {
+    test('drops the change when the member is gone', async () => {
         const { sut, ledgerWriter, eventRepository } = setup(active());
 
         expect(await sut.deliverChange(change(ChatPrivileges.Admin, CAROL))).toBe(true);
 
         expect(ledgerWriter.append).not.toHaveBeenCalled();
-        expect(eventRepository.markAsFailed).toHaveBeenCalledOnce();
+        expect(eventRepository.deleteEvent).toHaveBeenCalledWith('event-1');
+        expect(eventRepository.markAsFailed).not.toHaveBeenCalled();
+    });
+
+    test('a change to the role they already have writes nothing', async () => {
+        const { sut, ledgerWriter, eventRepository } = setup(active(), stateWith(ChatPrivileges.Owner, ChatPrivileges.Admin));
+
+        expect(await sut.deliverChange(change(ChatPrivileges.Admin))).toBe(true);
+
+        expect(ledgerWriter.append).not.toHaveBeenCalled();
+        expect(eventRepository.deleteEvent).toHaveBeenCalledWith('event-1');
     });
 
     test('waits until the group is active', async () => {
