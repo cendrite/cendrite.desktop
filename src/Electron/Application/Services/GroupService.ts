@@ -28,8 +28,6 @@ import { ILedgerWriter } from '../Contracts/Services/ILedgerWriter.js';
 import { IMessageHubHandler, ServerMessage } from '../Contracts/Services/IMessageHubHandler.js';
 import { ISessionManager, UntrustedDeviceError } from '../Contracts/Services/ISessionManager.js';
 
-const MAX_PENDING_CHANGES = 200;
-
 export interface IGroupService {
     createGroup(groupId: string): Promise<void>;
     startGroup(groupId: string): Promise<Result<Record<string, GroupStrapPayload> | null>>;
@@ -202,11 +200,6 @@ export class GroupService implements IGroupService {
             return Result.success();
         }
 
-        const pendingChanges = await this.eventRepository.getEvents<GroupChangeEvent>(GroupChangeEvent.type, MAX_PENDING_CHANGES);
-        if (pendingChanges.some((change) => change.groupId === groupId && addedUserTag(change.operation) === friend.id)) {
-            return refused('This contact is already being added');
-        }
-
         const inviteKeys: Record<string, string> = {};
         const invitePublicKeys = devices.map((connectionId) => {
             const inviteKey = generateWriteKeyPair();
@@ -254,7 +247,6 @@ export class GroupService implements IGroupService {
         if (group.lifecycle === GroupLifecycle.Active) {
             const adminStateResult = await this.adminState(groupId, userTag, 'Only an owner or admin can rename the group');
             if (!adminStateResult.success) return adminStateResult;
-            if (adminStateResult.data.name === trimmed) return Result.success();
         }
 
         const operation = new SettingsChangedOperation(userTag, trimmed, null);
@@ -292,15 +284,6 @@ export class GroupService implements IGroupService {
             const target = ownerStateResult.data.members.get(targetTag);
             if (!target) return refused('This person is not in the group');
             if (target.privilege === ChatPrivileges.Owner) return refused('The owner\'s role cannot be changed');
-
-            const pendingChanges = await this.eventRepository.getEvents<GroupChangeEvent>(GroupChangeEvent.type, MAX_PENDING_CHANGES);
-            const queued = pendingChanges
-                .filter((change) => change.groupId === groupId)
-                .map((change) => change.operation)
-                .filter((operation) => operation.type === LedgerOperationType.PrivilegeChanged && operation.userTag === targetTag)
-                .at(-1) as PrivilegeChangedOperation | undefined;
-
-            if ((queued?.privilege ?? target.privilege) === privilege) return Result.success();
         }
 
         const operation = new PrivilegeChangedOperation(userTag, targetTag, privilege);
@@ -362,7 +345,7 @@ export class GroupService implements IGroupService {
         const status = changeStatus(state, change.operation);
 
         if (status === 'conflict') {
-            await this.eventRepository.markAsFailed(change.id, 'The group already changed in a different way');
+            await this.eventRepository.deleteEvent(change.id);
             return true;
         }
 
@@ -476,10 +459,6 @@ export class GroupService implements IGroupService {
             if (!(error instanceof UntrustedDeviceError)) throw error;
         }
     }
-}
-
-function addedUserTag(operation: LedgerOperation): string | null {
-    return operation.type === LedgerOperationType.MemberAdded ? operation.member.userTag : null;
 }
 
 function changeStatus(state: GroupState, operation: LedgerOperation): 'pending' | 'applied' | 'conflict' {

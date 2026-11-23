@@ -130,11 +130,14 @@ describe('renaming a group', () => {
         expect(eventRepository.appendEvent).not.toHaveBeenCalled();
     });
 
-    test('does nothing when the name is unchanged', async () => {
+    test('queues a rename back to the current name, so it follows a rename still waiting', async () => {
         const { sut, eventRepository } = setup(active());
 
-        expect((await sut.renameGroup(GROUP_ID, 'Trip')).success).toBe(true);
-        expect(eventRepository.appendEvent).not.toHaveBeenCalled();
+        await sut.renameGroup(GROUP_ID, 'New name');
+        await sut.renameGroup(GROUP_ID, 'Trip');
+
+        const queued = eventRepository.appendEvent.mock.calls.map(([event]) => (event.operation as SettingsChangedOperation).name);
+        expect(queued).toEqual(['New name', 'Trip']);
     });
 });
 
