@@ -16,6 +16,7 @@ import { Result } from '#shared/Result/Result';
 
 const GROUP_ID = '0199673a-3c1e-7c2b-9f2e-5d8b1a4c7e10';
 const ALICE = '111111111111';
+const ALICE_KEY = Buffer.from('alice-key').toString('base64');
 const BOB = '222222222222';
 const CAROL = '333333333333';
 
@@ -28,7 +29,7 @@ function stateWith(...members: GroupMember[]) {
     return state;
 }
 
-const alice = (privilege = ChatPrivileges.Owner) => new GroupMember(ALICE, 'Alice', privilege, 1, ['alice-key'], [], ['alice-laptop', 'alice-phone']);
+const alice = (privilege = ChatPrivileges.Owner) => new GroupMember(ALICE, 'Alice', privilege, 1, [ALICE_KEY], [], ['alice-laptop', 'alice-phone']);
 const bob = () => new GroupMember(BOB, 'Bob', ChatPrivileges.Member, 1, ['bob-key'], [], ['bob-laptop']);
 const carol = (inviteKeys = ['carol-invite']) => new GroupMember(CAROL, 'Carol', ChatPrivileges.Member, 6, [], inviteKeys, ['carol-laptop']);
 const replayed = (state: GroupState) => Result.success<ReplayResult>({ state, rejected: [], verified: [], halted: null, stalledAt: null });
@@ -83,7 +84,7 @@ function setup({ syncState = stateWith(alice(), bob()), afterAppend, group = new
     const sut = new GroupService(
         { get: async () => group } as never,
         {
-            getWriteKey: async () => ({ isInvite: inviteOnly }),
+            getWriteKey: async () => ({ isInvite: inviteOnly, publicKey: Buffer.from('alice-key') }),
             getEpochKeys: async () => [{ epoch: 2, key: Buffer.from('second') }, { epoch: 1, key: Buffer.from('first') }],
         } as never,
         { get: async () => ({ userTag: ALICE, avatarKey: null }) } as never,
@@ -218,13 +219,25 @@ describe('delivering an invite', () => {
         expect(eventRepository.markAsFailed).not.toHaveBeenCalled();
     });
 
-    test('stops retrying when the ledger refuses the member', async () => {
+    test('drops the change when the ledger refuses it', async () => {
         const { sut, eventRepository, messageHubHandler } = setup({ append: Result.fail(new ErrorMessage('Forbidden', 'no')) });
 
         expect(await sut.deliverChange(invite())).toBe(true);
 
-        expect(eventRepository.markAsFailed).toHaveBeenCalledWith('event-1', 'no');
+        expect(eventRepository.deleteEvent).toHaveBeenCalledWith('event-1');
+        expect(eventRepository.markAsFailed).not.toHaveBeenCalled();
         expect(messageHubHandler.sendMessage).not.toHaveBeenCalled();
+    });
+
+    test('never writes or sends an invite queued by someone who has since been demoted', async () => {
+        const { sut, ledgerWriter, eventRepository, messageHubHandler, encrypted } = setup({ syncState: stateWith(alice(ChatPrivileges.Member), bob()) });
+
+        expect(await sut.deliverChange(invite())).toBe(true);
+
+        expect(ledgerWriter.append).not.toHaveBeenCalled();
+        expect(messageHubHandler.sendMessage).not.toHaveBeenCalled();
+        expect(encrypted.size).toBe(0);
+        expect(eventRepository.deleteEvent).toHaveBeenCalledWith('event-1');
     });
 
     test('a duplicate add ends cleanly and leaves no invite keys behind', async () => {

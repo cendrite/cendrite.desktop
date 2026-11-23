@@ -16,12 +16,13 @@ import { Result } from '#shared/Result/Result';
 
 const GROUP_ID = '0199673a-3c1e-7c2b-9f2e-5d8b1a4c7e10';
 const ALICE = '111111111111';
+const ALICE_KEY = Buffer.from('alice-key').toString('base64');
 
 function stateWith(privilege: ChatPrivileges, name: string | null = 'Trip') {
     const state = new GroupState(GROUP_ID);
     state.name = name;
     state.headHash = Buffer.alloc(32, 5);
-    state.members.set(ALICE, new GroupMember(ALICE, 'Alice', privilege, 1, ['alice-key'], [], ['alice-laptop']));
+    state.members.set(ALICE, new GroupMember(ALICE, 'Alice', privilege, 1, [ALICE_KEY], [], ['alice-laptop']));
     state.members.set('bob', new GroupMember('bob', 'Bob', ChatPrivileges.Member, 1, ['bob-key'], [], ['bob-laptop']));
     return state;
 }
@@ -53,7 +54,7 @@ function setup(group: Group, state = stateWith(ChatPrivileges.Owner), afterAppen
 
     const sut = new GroupService(
         { get: async () => group } as never,
-        { getWriteKey: async () => ({ isInvite: inviteOnly }), getEpochKeys: async () => [] } as never,
+        { getWriteKey: async () => ({ isInvite: inviteOnly, publicKey: Buffer.from('alice-key') }), getEpochKeys: async () => [] } as never,
         { get: async () => ({ userTag: ALICE, avatarKey: null }) } as never,
         { get: async () => ({ connectionId: 'alice-laptop' }) } as never,
         chatStore as never,
@@ -160,6 +161,16 @@ describe('delivering a rename', () => {
 
         expect(ledgerWriter.append).not.toHaveBeenCalled();
         expect(messageHubHandler.sendMessage).toHaveBeenCalledOnce();
+    });
+
+    test('drops a rename queued by someone who has since been demoted', async () => {
+        const { sut, ledgerWriter, messageHubHandler, eventRepository } = setup(active(), stateWith(ChatPrivileges.Member));
+
+        expect(await sut.deliverChange(change('New name'))).toBe(true);
+
+        expect(ledgerWriter.append).not.toHaveBeenCalled();
+        expect(messageHubHandler.sendMessage).not.toHaveBeenCalled();
+        expect(eventRepository.deleteEvent).toHaveBeenCalledWith('event-1');
     });
 
     test('waits until the group is active', async () => {
