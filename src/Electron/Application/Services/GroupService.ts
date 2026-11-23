@@ -291,7 +291,15 @@ export class GroupService implements IGroupService {
             const target = ownerStateResult.data.members.get(targetTag);
             if (!target) return refused('This person is not in the group');
             if (target.privilege === ChatPrivileges.Owner) return refused('The owner\'s role cannot be changed');
-            if (target.privilege === privilege) return Result.success();
+
+            const pendingChanges = await this.eventRepository.getEvents<GroupChangeEvent>(GroupChangeEvent.type, MAX_PENDING_CHANGES);
+            const queued = pendingChanges
+                .filter((change) => change.groupId === groupId)
+                .map((change) => change.operation)
+                .filter((operation) => operation.type === LedgerOperationType.PrivilegeChanged && operation.userTag === targetTag)
+                .at(-1) as PrivilegeChangedOperation | undefined;
+
+            if ((queued?.privilege ?? target.privilege) === privilege) return Result.success();
         }
 
         const operation = new PrivilegeChangedOperation(userTag, targetTag, privilege);

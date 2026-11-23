@@ -39,6 +39,7 @@ function setup(group: Group, state = stateWith(ChatPrivileges.Owner), afterAppen
     };
     const eventRepository = {
         appendEvent: vi.fn(async (_event: GroupChangeEvent) => undefined),
+        getEvents: vi.fn(async (): Promise<GroupChangeEvent[]> => []),
         deleteEvent: vi.fn(async (_id: string) => undefined),
         markAsFailed: vi.fn(async (_id: string, _error: string) => undefined),
     };
@@ -148,6 +149,24 @@ describe('changing a member privilege', () => {
         const { sut, eventRepository } = setup(active(), stateWith(ChatPrivileges.Owner), undefined, true);
 
         expect((await sut.changeMemberPrivilege(GROUP_ID, BOB, ChatPrivileges.Admin)).success).toBe(false);
+        expect(eventRepository.appendEvent).not.toHaveBeenCalled();
+    });
+
+    test('queues a change back while the first change is still waiting', async () => {
+        const { sut, eventRepository } = setup(active());
+        eventRepository.getEvents.mockResolvedValue([change(ChatPrivileges.Admin)]);
+
+        expect((await sut.changeMemberPrivilege(GROUP_ID, BOB, ChatPrivileges.Member)).success).toBe(true);
+
+        const operation = eventRepository.appendEvent.mock.calls[0][0].operation as PrivilegeChangedOperation;
+        expect(operation.privilege).toBe(ChatPrivileges.Member);
+    });
+
+    test('does not queue the same change twice', async () => {
+        const { sut, eventRepository } = setup(active());
+        eventRepository.getEvents.mockResolvedValue([change(ChatPrivileges.Admin)]);
+
+        expect((await sut.changeMemberPrivilege(GROUP_ID, BOB, ChatPrivileges.Admin)).success).toBe(true);
         expect(eventRepository.appendEvent).not.toHaveBeenCalled();
     });
 
