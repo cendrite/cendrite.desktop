@@ -2,17 +2,11 @@ import * as crypto from 'crypto';
 import * as fs from 'node:fs';
 import path from 'path';
 import { app, safeStorage } from 'electron';
+import { CryptoError } from '#electron/Application/Errors';
 
 const ALGORITHM = 'aes-256-gcm';
 const KEY_LENGTH = 32;
 const KEY_FILE_NAME = 'encryption.key';
-
-export class CryptoError extends Error {
-    constructor(message: string, public readonly code: string) {
-        super(message);
-        this.name = 'CryptoError';
-    }
-}
 
 export class CryptographyService {
     private static instance: CryptographyService;

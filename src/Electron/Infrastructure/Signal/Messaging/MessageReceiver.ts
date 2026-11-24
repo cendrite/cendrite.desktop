@@ -1,5 +1,5 @@
 import { BrowserWindow } from 'electron';
-import { ISessionManager, UntrustedDeviceError } from '#electron/Application/Contracts/Services/ISessionManager';
+import { ISessionManager } from '#electron/Application/Contracts/Services/ISessionManager';
 import { IChatStore } from '#electron/Application/Contracts/Repositories/IChatStore';
 import { IMediaStore } from '#electron/Application/Contracts/Repositories/IMediaStore';
 import { IMediaService } from '#electron/Application/Services/Media/MediaService';
@@ -32,6 +32,7 @@ import { v4 as uuid } from 'uuid';
 import { INotificationService } from '#electron/Application/Contracts/Services/INotificationService';
 import { IPump } from '#electron/Application/Contracts/Services/IPump';
 import { ILedgerSyncService } from '#electron/Application/Contracts/Services/ILedgerSyncService';
+import { UntrustedDeviceError } from '#electron/Application/Errors';
 
 export interface IMessageReceiver {
     handle(message: ServerMessage): void;

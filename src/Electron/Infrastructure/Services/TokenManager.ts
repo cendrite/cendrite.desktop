@@ -1,6 +1,6 @@
 import { ITokenProvider } from '#electron/Application/Contracts/Providers/ITokenProvider';
 import { BrowserWindow } from 'electron';
-import { DEVICE_REVOKED_CODE, DeviceRevokedError, ITokenManager } from '#electron/Application/Contracts/Services/ITokenManager';
+import { DEVICE_REVOKED_CODE, ITokenManager } from '#electron/Application/Contracts/Services/ITokenManager';
 import { INonceSigner } from '#electron/Application/Contracts/Services/INonceSigner';
 import {
     IBlindTokenService,
@@ -9,6 +9,7 @@ import {
 } from '#electron/Application/Contracts/Services/IBlindTokenService';
 import { IPrivateTokenRepository } from '#electron/Application/Contracts/Repositories/IPrivateTokenRepository';
 import { NonceSigner } from './NonceSigner.js';
+import { DeviceRevokedError } from '#electron/Application/Errors';
 
 const PRIVATE_TOKEN_WALLET_SIZE = 5;
 

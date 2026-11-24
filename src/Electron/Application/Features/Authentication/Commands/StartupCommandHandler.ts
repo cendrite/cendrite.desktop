@@ -1,5 +1,5 @@
 import { Result } from '#shared/Result/Result';
-import { DeviceRevokedError, ITokenManager } from '#electron/Application/Contracts/Services/ITokenManager';
+import { ITokenManager } from '#electron/Application/Contracts/Services/ITokenManager';
 import { IPurgeLocalData } from '#electron/Application/Contracts/Services/IPurgeLocalData';
 import { ISignalManager } from '#electron/Application/Contracts/Services/ISignalManager';
 import { UserContract } from '#shared/Models/UserContract';
@@ -8,6 +8,7 @@ import { IUserRepository } from '#electron/Application/Contracts/Repositories/IU
 import { IPump } from '#electron/Application/Contracts/Services/IPump';
 import { Handler } from '#electron/Application/Mediator/Handler';
 import { StartupCommand, StartupDto } from '#shared/Authentication/Startup';
+import { DeviceRevokedError } from '#electron/Application/Errors';
 
 export class StartupCommandHandler implements Handler<StartupCommand, StartupDto> {
     constructor(

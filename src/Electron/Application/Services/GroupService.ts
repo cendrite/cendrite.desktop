@@ -27,7 +27,8 @@ import { IUserRepository } from '../Contracts/Repositories/IUserRepository.js';
 import { ILedgerSyncService } from '../Contracts/Services/ILedgerSyncService.js';
 import { ILedgerWriter } from '../Contracts/Services/ILedgerWriter.js';
 import { IMessageHubHandler, ServerMessage } from '../Contracts/Services/IMessageHubHandler.js';
-import { ISessionManager, UnreachableDeviceError } from '../Contracts/Services/ISessionManager.js';
+import { ISessionManager } from '../Contracts/Services/ISessionManager.js';
+import { UnreachableDeviceError } from '#electron/Application/Errors';
 
 export interface IGroupService {
     createGroup(groupId: string): Promise<void>;

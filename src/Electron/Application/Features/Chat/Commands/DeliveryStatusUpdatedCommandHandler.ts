@@ -1,10 +1,11 @@
 import { Result } from "#shared/Result/Result";
 import { DeliveryStatus } from "#shared/Enums/DeliveryStatus";
-import { ISessionManager, UnreachableDeviceError } from "#electron/Application/Contracts/Services/ISessionManager";
+import { ISessionManager } from "#electron/Application/Contracts/Services/ISessionManager";
 import { IMessageHubHandler, ServerMessage } from "#electron/Application/Contracts/Services/IMessageHubHandler";
 import { DeliveryStatusPayload, Envelope, Payload } from "#electron/Domain/Protocol/Payload";
 import { Handler } from "#electron/Application/Mediator/Handler";
 import { v4 as uuid } from 'uuid';
+import { UnreachableDeviceError } from '#electron/Application/Errors';
 
 export class DeliveryStatusUpdatedCommand implements MediatorRequest<void> {
     declare readonly _response?: void;

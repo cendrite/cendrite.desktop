@@ -22,7 +22,7 @@ import { IdentityCache } from '../../../../../src/Electron/Domain/Encryption/Ide
 import { Envelope, Payload, PayloadType } from '../../../../../src/Electron/Domain/Protocol/Payload.js';
 import { Result } from '../../../../../src/Shared/Result/Result.js';
 import { ErrorMessage } from '../../../../../src/Shared/Result/ErrorMessage.js';
-import { DeviceGoneError, UntrustedDeviceError } from '../../../../../src/Electron/Application/Contracts/Services/ISessionManager.js';
+import { DeviceGoneError, UntrustedDeviceError } from '#electron/Application/Errors';
 
 /**
  * In-memory stand-in for the sqlite-backed ProtocolStore.

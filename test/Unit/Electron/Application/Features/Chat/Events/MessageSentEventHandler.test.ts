@@ -1,10 +1,10 @@
 import { describe, expect, test, vi } from 'vitest';
 import { MessageSentCommand, MessageSentCommandHandler } from '#electron/Application/Features/Chat/Events/MessageSentEventHandler';
-import { DeviceGoneError, UntrustedDeviceError } from '#electron/Application/Contracts/Services/ISessionManager';
 import { ServerMessage } from '#electron/Application/Contracts/Services/IMessageHubHandler';
 import { MessageContract } from '#shared/Models/MessageContract';
 import { DeliveryStatus } from '#shared/Enums/DeliveryStatus';
 import { Result } from '#shared/Result/Result';
+import { DeviceGoneError, UntrustedDeviceError } from '#electron/Application/Errors';
 
 function setup(untrusted: string[], gone: string[] = []) {
     const sessionManager = {
