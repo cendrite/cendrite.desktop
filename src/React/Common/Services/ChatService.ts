@@ -121,8 +121,8 @@ export class ChatService {
         return result.success ? null : result.errorMessage.message;
     }
 
-    public async leaveGroup(groupId: string): Promise<string | null> {
-        const result = await window.electron.sendRequestAsync(new LeaveGroupCommand(groupId));
+    public async leaveGroup(groupId: string, successorTag: string | null): Promise<string | null> {
+        const result = await window.electron.sendRequestAsync(new LeaveGroupCommand(groupId, successorTag));
 
         return result.success ? null : result.errorMessage.message;
     }

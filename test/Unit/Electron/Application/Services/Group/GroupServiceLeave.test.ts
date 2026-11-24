@@ -7,7 +7,7 @@ import { LedgerOperationType } from '#electron/Domain/Enums/LedgerOperationType'
 import { GroupChangeEvent } from '#electron/Domain/Events/GroupChangeEvent';
 import { GroupMember } from '#electron/Domain/Projections/GroupMember';
 import { GroupState } from '#electron/Domain/Projections/GroupState';
-import { MemberLeftOperation } from '#electron/Domain/Protocol/LedgerOperation';
+import { MemberLeftOperation, PrivilegeChangedOperation } from '#electron/Domain/Protocol/LedgerOperation';
 import { Envelope, Payload, PayloadType } from '#electron/Domain/Protocol/Payload';
 import { ChatPrivileges } from '#shared/Enums/ChatPrivileges';
 import { DeliveryStatus } from '#shared/Enums/DeliveryStatus';
@@ -80,26 +80,35 @@ describe('leaving a group', () => {
     test('wipes a draft that was never sent without the ledger', async () => {
         const { sut, ledgerSyncService, eventRepository } = setup(draft());
 
-        expect((await sut.leaveGroup(GROUP_ID)).success).toBe(true);
+        expect((await sut.leaveGroup(GROUP_ID, null)).success).toBe(true);
 
         expect(ledgerSyncService.wipeGroup).toHaveBeenCalledWith(GROUP_ID);
         expect(ledgerSyncService.sync).not.toHaveBeenCalled();
         expect(eventRepository.appendEvent).not.toHaveBeenCalled();
     });
 
-    test('refuses a prepared draft with other members, since the creator is its only owner', async () => {
+    test('refuses a prepared draft with other members until a new owner is chosen', async () => {
         const { sut, ledgerSyncService, eventRepository } = setup(prepared());
 
-        expect((await sut.leaveGroup(GROUP_ID)).success).toBe(false);
+        expect((await sut.leaveGroup(GROUP_ID, null)).success).toBe(false);
 
         expect(ledgerSyncService.wipeGroup).not.toHaveBeenCalled();
         expect(eventRepository.appendEvent).not.toHaveBeenCalled();
     });
 
+    test('queues the hand-over and the leave for a prepared draft', async () => {
+        const { sut, eventRepository } = setup(prepared());
+
+        expect((await sut.leaveGroup(GROUP_ID, BOB)).success).toBe(true);
+
+        const types = eventRepository.appendEvent.mock.calls.map(([event]) => event.operation.type);
+        expect(types).toEqual([LedgerOperationType.PrivilegeChanged, LedgerOperationType.MemberLeft]);
+    });
+
     test('wipes a prepared draft with nobody else in it', async () => {
         const { sut, ledgerSyncService, eventRepository } = setup(prepared(), undefined, { chatMembers: 0 });
 
-        expect((await sut.leaveGroup(GROUP_ID)).success).toBe(true);
+        expect((await sut.leaveGroup(GROUP_ID, null)).success).toBe(true);
 
         expect(ledgerSyncService.wipeGroup).toHaveBeenCalledWith(GROUP_ID);
         expect(eventRepository.appendEvent).not.toHaveBeenCalled();
@@ -108,7 +117,7 @@ describe('leaving a group', () => {
     test.each([ChatPrivileges.Member, ChatPrivileges.Admin])('queues a leave with this device key for privilege %s', async (privilege) => {
         const { sut, eventRepository, ledgerWriter } = setup(active(), stateWith(privilege));
 
-        expect((await sut.leaveGroup(GROUP_ID)).success).toBe(true);
+        expect((await sut.leaveGroup(GROUP_ID, null)).success).toBe(true);
 
         const operation = eventRepository.appendEvent.mock.calls[0][0].operation as MemberLeftOperation;
         expect(operation.type).toBe(LedgerOperationType.MemberLeft);
@@ -117,24 +126,45 @@ describe('leaving a group', () => {
         expect(ledgerWriter.append).not.toHaveBeenCalled();
     });
 
-    test('refuses the only owner while others remain', async () => {
+    test('refuses the only owner who has not chosen a new owner', async () => {
         const { sut, eventRepository } = setup(active(), stateWith(ChatPrivileges.Owner, ChatPrivileges.Admin));
 
-        expect((await sut.leaveGroup(GROUP_ID)).success).toBe(false);
+        expect((await sut.leaveGroup(GROUP_ID, null)).success).toBe(false);
         expect(eventRepository.appendEvent).not.toHaveBeenCalled();
+    });
+
+    test('refuses a new owner who is not in the group', async () => {
+        const { sut, eventRepository } = setup(active(), stateWith(ChatPrivileges.Owner, ChatPrivileges.Admin));
+
+        expect((await sut.leaveGroup(GROUP_ID, '999999999999')).success).toBe(false);
+        expect(eventRepository.appendEvent).not.toHaveBeenCalled();
+    });
+
+    test('the only owner hands over to the chosen member before leaving', async () => {
+        const { sut, eventRepository } = setup(active(), stateWith(ChatPrivileges.Owner, ChatPrivileges.Member));
+
+        expect((await sut.leaveGroup(GROUP_ID, BOB)).success).toBe(true);
+
+        const [promotion, leave] = eventRepository.appendEvent.mock.calls.map(([event]) => event);
+        const operation = promotion.operation as PrivilegeChangedOperation;
+        expect(operation.type).toBe(LedgerOperationType.PrivilegeChanged);
+        expect(operation.userTag).toBe(BOB);
+        expect(operation.privilege).toBe(ChatPrivileges.Owner);
+        expect(leave.operation.type).toBe(LedgerOperationType.MemberLeft);
+        expect(leave.occurredOn.getTime()).toBeGreaterThan(promotion.occurredOn.getTime());
     });
 
     test('lets an owner leave when another owner remains', async () => {
         const { sut, eventRepository } = setup(active(), stateWith(ChatPrivileges.Owner, ChatPrivileges.Owner));
 
-        expect((await sut.leaveGroup(GROUP_ID)).success).toBe(true);
+        expect((await sut.leaveGroup(GROUP_ID, null)).success).toBe(true);
         expect(eventRepository.appendEvent).toHaveBeenCalledOnce();
     });
 
     test('the last member wipes the group without writing to the ledger', async () => {
         const { sut, ledgerSyncService, eventRepository } = setup(active(), stateWith(ChatPrivileges.Owner, null));
 
-        expect((await sut.leaveGroup(GROUP_ID)).success).toBe(true);
+        expect((await sut.leaveGroup(GROUP_ID, null)).success).toBe(true);
 
         expect(ledgerSyncService.wipeGroup).toHaveBeenCalledWith(GROUP_ID);
         expect(eventRepository.appendEvent).not.toHaveBeenCalled();
@@ -143,14 +173,14 @@ describe('leaving a group', () => {
     test('refuses while this device only holds an invite key', async () => {
         const { sut, eventRepository } = setup(active(), undefined, { invite: true });
 
-        expect((await sut.leaveGroup(GROUP_ID)).success).toBe(false);
+        expect((await sut.leaveGroup(GROUP_ID, null)).success).toBe(false);
         expect(eventRepository.appendEvent).not.toHaveBeenCalled();
     });
 
     test('refuses someone who is no longer in the group', async () => {
         const { sut, eventRepository } = setup(active(), stateWith(null));
 
-        expect((await sut.leaveGroup(GROUP_ID)).success).toBe(false);
+        expect((await sut.leaveGroup(GROUP_ID, null)).success).toBe(false);
         expect(eventRepository.appendEvent).not.toHaveBeenCalled();
     });
 });
@@ -180,6 +210,16 @@ describe('delivering a leave', () => {
         messageHubHandler.sendMessage.mockResolvedValueOnce(DeliveryStatus.Failed);
 
         expect(await sut.deliverChange(change())).toBe(true);
+        expect(eventRepository.deleteEvent).toHaveBeenCalledWith('event-1');
+    });
+
+    test('drops a leave by the only owner when the hand-over did not happen', async () => {
+        const { sut, ledgerWriter, messageHubHandler, eventRepository } = setup(active(), stateWith(ChatPrivileges.Owner, ChatPrivileges.Member));
+
+        expect(await sut.deliverChange(change())).toBe(true);
+
+        expect(ledgerWriter.append).not.toHaveBeenCalled();
+        expect(messageHubHandler.sendMessage).not.toHaveBeenCalled();
         expect(eventRepository.deleteEvent).toHaveBeenCalledWith('event-1');
     });
 

@@ -1132,3 +1132,40 @@ describe('a member leaving', () => {
         expect(result.state.members.has('bob')).toBe(true);
     });
 });
+
+describe('the owner leaving', () => {
+    function owned() {
+        const alice = new Member('alice', 'Alice');
+        const bob = new Member('bob', 'Bob');
+        const builder = new LogBuilder()
+            .add(alice, created(alice), createdKeys(alice))
+            .add(alice, memberAdded(alice, bob), { invitesAdded: [invite(bob.writeKeyPublic)] });
+        return { alice, bob, builder };
+    }
+
+    test('rejects the only owner leaving while others remain', async () => {
+        const { alice, builder } = owned();
+        const events = builder
+            .add(alice, new MemberLeftOperation(alice.userTag, alice.writeKeyPublic), { keysRemoved: [alice.writeKeyPublic] })
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected).toEqual([{ version: 3, reason: 'the only owner must hand over before leaving' }]);
+        expect(result.state.members.has('alice')).toBe(true);
+    });
+
+    test('accepts the owner leaving after handing over', async () => {
+        const { alice, bob, builder } = owned();
+        const events = builder
+            .add(alice, privilegeChanged(alice, bob, ChatPrivileges.Owner), { rolesChanged: [invite(bob.writeKeyPublic, ChatPrivileges.Owner)] })
+            .add(alice, new MemberLeftOperation(alice.userTag, alice.writeKeyPublic), { keysRemoved: [alice.writeKeyPublic] })
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected).toEqual([]);
+        expect(result.state.members.has('alice')).toBe(false);
+        expect(result.state.members.get('bob')!.privilege).toBe(ChatPrivileges.Owner);
+    });
+});

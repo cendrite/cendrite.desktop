@@ -37,7 +37,7 @@ export interface IGroupService {
     renameGroup(groupId: string, name: string): Promise<Result>;
     changeMemberPrivilege(groupId: string, userTag: string, privilege: ChatPrivileges): Promise<Result>;
     removeMember(groupId: string, userTag: string): Promise<Result>;
-    leaveGroup(groupId: string): Promise<Result>;
+    leaveGroup(groupId: string, successorTag: string | null): Promise<Result>;
     deliverChange(change: GroupChangeEvent): Promise<boolean>;
 }
 
@@ -337,7 +337,7 @@ export class GroupService implements IGroupService {
         return Result.success();
     }
 
-    public async leaveGroup(groupId: string): Promise<Result> {
+    public async leaveGroup(groupId: string, successorTag: string | null): Promise<Result> {
         const group = await this.groupRepository.get(groupId);
         if (group?.lifecycle !== GroupLifecycle.Draft && group?.lifecycle !== GroupLifecycle.Active) return refused('This group cannot be changed');
 
@@ -348,10 +348,15 @@ export class GroupService implements IGroupService {
 
         if (group.lifecycle === GroupLifecycle.Draft) {
             const chat = await this.chatStore.getChatWithMembers(groupId);
-            if (group.pendingStart && chat.members.length > 0) return refused('Hand over ownership before leaving the group');
+            if (!group.pendingStart || chat.members.length === 0) {
+                await this.ledgerSyncService.wipeGroup(groupId);
+                return Result.success();
+            }
 
-            await this.ledgerSyncService.wipeGroup(groupId);
-            return Result.success();
+            if (!successorTag) return refused('Choose the new owner before leaving the group');
+            if (!chat.members.some((member) => member.userTag === successorTag)) return refused('This person is not in the group');
+
+            return this.queueLeave(groupId, userTag, writeKey.publicKey, successorTag);
         }
 
         const memberStateResult = await this.adminState(groupId, userTag, 'You are not in this group', ChatPrivileges.Member);
@@ -366,10 +371,24 @@ export class GroupService implements IGroupService {
         }
 
         const soleOwner = state.members.get(userTag)!.privilege === ChatPrivileges.Owner && !others.some((member) => member.privilege === ChatPrivileges.Owner);
-        if (soleOwner) return refused('Hand over ownership before leaving the group');
+        if (!soleOwner) return this.queueLeave(groupId, userTag, writeKey.publicKey, null);
 
-        const operation = new MemberLeftOperation(userTag, writeKey.publicKey.toString('base64'));
-        await this.eventRepository.appendEvent(new GroupChangeEvent(uuid().toString(), groupId, operation, {}, new Date()));
+        if (!successorTag) return refused('Choose the new owner before leaving the group');
+        if (!others.some((member) => member.userTag === successorTag)) return refused('This person is not in the group');
+
+        return this.queueLeave(groupId, userTag, writeKey.publicKey, successorTag);
+    }
+
+    private async queueLeave(groupId: string, userTag: string, writeKeyPublic: Buffer, successorTag: string | null): Promise<Result> {
+        const now = Date.now();
+
+        if (successorTag) {
+            const promotion = new PrivilegeChangedOperation(userTag, successorTag, ChatPrivileges.Owner);
+            await this.eventRepository.appendEvent(new GroupChangeEvent(uuid().toString(), groupId, promotion, {}, new Date(now)));
+        }
+
+        const operation = new MemberLeftOperation(userTag, writeKeyPublic.toString('base64'));
+        await this.eventRepository.appendEvent(new GroupChangeEvent(uuid().toString(), groupId, operation, {}, new Date(now + 1)));
 
         return Result.success();
     }

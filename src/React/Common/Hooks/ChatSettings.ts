@@ -34,8 +34,8 @@ export function useChatSettings() {
     );
 
     const leaveGroup = useCallback(
-        async (chat: ChatViewModel): Promise<string | null> => {
-            const leaveError = await chatService.leaveGroup(chat.id);
+        async (chat: ChatViewModel, successorTag: string | null): Promise<string | null> => {
+            const leaveError = await chatService.leaveGroup(chat.id, successorTag);
             if (!leaveError) removeChat(chat);
 
             return leaveError;

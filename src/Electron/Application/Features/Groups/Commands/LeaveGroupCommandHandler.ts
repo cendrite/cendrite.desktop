@@ -11,7 +11,7 @@ export class LeaveGroupCommandHandler implements Handler<LeaveGroupCommand> {
     ) { }
 
     public async handle(cmd: LeaveGroupCommand): Promise<Result> {
-        const leaveGroupResult = await this.groupService.leaveGroup(cmd.groupId);
+        const leaveGroupResult = await this.groupService.leaveGroup(cmd.groupId, cmd.successorTag);
         if (leaveGroupResult.success) this.messagePump.notify();
 
         return leaveGroupResult;

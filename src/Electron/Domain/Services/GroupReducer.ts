@@ -86,8 +86,13 @@ export function rejectReasonFor(
         case LedgerOperationType.DeviceLeft:
             return operation.writeKeyPublic === context.authorKey ? null : 'a device may only remove its own key';
 
-        case LedgerOperationType.MemberLeft:
-            return operation.writeKeyPublic === context.authorKey ? null : 'a member may only leave with their own key';
+        case LedgerOperationType.MemberLeft: {
+            if (operation.writeKeyPublic !== context.authorKey) return 'a member may only leave with their own key';
+
+            const others = [...state.members.values()].filter((member) => member.userTag !== author.userTag);
+            const soleOwner = author.privilege === ChatPrivileges.Owner && !others.some((member) => member.privilege === ChatPrivileges.Owner);
+            return soleOwner && others.length > 0 ? 'the only owner must hand over before leaving' : null;
+        }
     }
 }
 

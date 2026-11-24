@@ -158,7 +158,7 @@ const ChatSettingsMenu: React.FC<ChatSettingsMenu> = ({ chat }) => {
             <AddMemberModal chat={chat} isOpen={addingMember} onClose={() => setAddingMember(false)} />
             <RenameGroupModal chat={chat} isOpen={renaming} onClose={() => setRenaming(false)} />
             <ManageMembersModal chat={chat} privilege={privilege} isOpen={managingMembers} onClose={() => setManagingMembers(false)} />
-            <LeaveGroupModal chat={chat} isOpen={leaving} onClose={() => setLeaving(false)} />
+            <LeaveGroupModal chat={chat} privilege={privilege} isOpen={leaving} onClose={() => setLeaving(false)} />
         </>
     );
 };
