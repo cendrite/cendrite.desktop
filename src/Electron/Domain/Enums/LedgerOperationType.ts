@@ -6,4 +6,5 @@ export enum LedgerOperationType {
     SettingsChanged = 4,
     WriteKeyRegistered = 5,
     DeviceListPublished = 6,
+    DeviceLeft = 7,
 }

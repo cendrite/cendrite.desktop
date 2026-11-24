@@ -22,7 +22,7 @@ import { IdentityCache } from '../../../../../src/Electron/Domain/Encryption/Ide
 import { Envelope, Payload, PayloadType } from '../../../../../src/Electron/Domain/Protocol/Payload.js';
 import { Result } from '../../../../../src/Shared/Result/Result.js';
 import { ErrorMessage } from '../../../../../src/Shared/Result/ErrorMessage.js';
-import { UntrustedDeviceError } from '../../../../../src/Electron/Application/Contracts/Services/ISessionManager.js';
+import { DeviceGoneError, UntrustedDeviceError } from '../../../../../src/Electron/Application/Contracts/Services/ISessionManager.js';
 
 /**
  * In-memory stand-in for the sqlite-backed ProtocolStore.
@@ -77,7 +77,7 @@ function createKeyStoreServer() {
         getPreKeyBundle: vi.fn(async (accessKey: string) => {
             const req = bundles.get(accessKey);
             if (!req) {
-                return Result.fail<PreKeyBundle>(new ErrorMessage(null, 'not found'));
+                return Result.fail<PreKeyBundle>(new ErrorMessage('Not Found', 'not found'));
             }
             return Result.success<PreKeyBundle>({
                 identityKey: req.identityKey,
@@ -285,6 +285,14 @@ describe('KeyGenerator', () => {
 
         await expect(alice.sessionManager.encrypt(envelope('hi'), bob.connectionId)).rejects.toBeInstanceOf(UntrustedDeviceError);
         expect(await alice.sessionManager.getUntrustedDevices()).toEqual([bob.connectionId]);
+    });
+
+    test('reports a device without a key bundle as gone', async () => {
+        const server = createKeyStoreServer();
+        const alice = await createParty(server);
+
+        await expect(alice.sessionManager.encrypt(envelope('hi'), 'logged-out-device')).rejects.toBeInstanceOf(DeviceGoneError);
+        expect(await alice.sessionManager.getUntrustedDevices()).toEqual([]);
     });
 
     test('refuses an incoming session from a device whose chain does not verify', async () => {

@@ -146,6 +146,10 @@ export class ChatStore implements IChatStore {
         await this.memberRepository.update({ id: memberId }, { privilege });
     }
 
+    public async setMemberDevices(memberId: string, connectionIds: string[]): Promise<void> {
+        await this.memberRepository.update({ id: memberId }, { connectionIds });
+    }
+
     public async markListed(chatId: string): Promise<void> {
         await this.chatRepository.update({ id: chatId, listed: false }, { listed: true });
     }

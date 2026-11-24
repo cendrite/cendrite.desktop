@@ -1,7 +1,7 @@
 import { Result } from '#shared/Result/Result';
 import { DeliveryStatus } from '#shared/Enums/DeliveryStatus';
 import { MessageContract } from '#shared/Models/MessageContract';
-import { ISessionManager, UntrustedDeviceError } from '#electron/Application/Contracts/Services/ISessionManager';
+import { ISessionManager, UnreachableDeviceError } from '#electron/Application/Contracts/Services/ISessionManager';
 import { IMessageHubHandler, ServerMessage } from '#electron/Application/Contracts/Services/IMessageHubHandler';
 import { Envelope, MessagePayload, Payload } from '#electron/Domain/Protocol/Payload';
 import { Handler } from '#electron/Application/Mediator/Handler';
@@ -82,7 +82,7 @@ export class MessageSentCommandHandler implements Handler<MessageSentCommand, De
         try {
             return await this.sessionManager.encrypt(envelope, connectionId);
         } catch (error) {
-            if (error instanceof UntrustedDeviceError) return null;
+            if (error instanceof UnreachableDeviceError) return null;
             throw error;
         }
     }

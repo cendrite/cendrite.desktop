@@ -54,6 +54,10 @@ export function parseLedgerOperation(json: string): LedgerOperation | null {
             return typeof value.userTag === 'string' && isArrayOf(value.connectionIds, isString)
                 ? (value as unknown as LedgerOperation)
                 : null;
+        case LedgerOperationType.DeviceLeft:
+            return typeof value.writeKeyPublic === 'string' && typeof value.connectionId === 'string'
+                ? (value as unknown as LedgerOperation)
+                : null;
         default:
             return null;
     }

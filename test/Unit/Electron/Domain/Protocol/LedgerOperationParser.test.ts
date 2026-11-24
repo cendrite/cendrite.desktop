@@ -64,6 +64,18 @@ describe('parseLedgerOperation', () => {
         expect(parseLedgerOperation(json)?.type).toBe(LedgerOperationType.DeviceListPublished);
     });
 
+    it('parses a device leaving', () => {
+        const json = JSON.stringify({ ...base, type: LedgerOperationType.DeviceLeft, writeKeyPublic: 'a2V5', connectionId: 'c1' });
+
+        expect(parseLedgerOperation(json)?.type).toBe(LedgerOperationType.DeviceLeft);
+    });
+
+    it('rejects a device leaving without its key', () => {
+        const json = JSON.stringify({ ...base, type: LedgerOperationType.DeviceLeft, connectionId: 'c1' });
+
+        expect(parseLedgerOperation(json)).toBeNull();
+    });
+
     it('rejects an unknown operation type', () => {
         expect(parseLedgerOperation(JSON.stringify({ ...base, type: 99 }))).toBeNull();
     });
