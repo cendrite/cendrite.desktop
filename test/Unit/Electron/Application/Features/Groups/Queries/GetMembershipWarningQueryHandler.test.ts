@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
-import { GetMembershipWarningQueryHandler } from '#electron/Application/Features/Chat/Queries/GetMembershipWarningQueryHandler';
-import { GetMembershipWarningQuery } from '#shared/Chat/GetMembershipWarning';
+import { GetMembershipWarningQueryHandler } from '#electron/Application/Features/Groups/Queries/GetMembershipWarningQueryHandler';
+import { GetMembershipWarningQuery } from '#shared/Groups/GetMembershipWarning';
 import { MembershipWarning } from '#shared/Enums/MembershipWarning';
 import { Group } from '#electron/Domain/Entities/Group';
 import { GroupLifecycle } from '#electron/Domain/Enums/GroupLifecycle';

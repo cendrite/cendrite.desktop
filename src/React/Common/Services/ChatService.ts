@@ -1,10 +1,10 @@
 ﻿import { ChatViewModel } from '@/React/Models/ChatViewModel.ts';
 import { CreateChatCommand } from '@/Shared/Chat/CreateChat.ts';
 import { DeleteChatCommand } from '@/Shared/Chat/DeleteChat.ts';
-import { AddGroupMemberCommand } from '@/Shared/Chat/AddGroupMember.ts';
-import { RenameGroupCommand } from '@/Shared/Chat/RenameGroup.ts';
-import { ChangeMemberPrivilegeCommand } from '@/Shared/Chat/ChangeMemberPrivilege.ts';
-import { RemoveGroupMemberCommand } from '@/Shared/Chat/RemoveGroupMember.ts';
+import { AddGroupMemberCommand } from '@/Shared/Groups/AddGroupMember.ts';
+import { RenameGroupCommand } from '@/Shared/Groups/RenameGroup.ts';
+import { ChangeMemberPrivilegeCommand } from '@/Shared/Groups/ChangeMemberPrivilege.ts';
+import { RemoveGroupMemberCommand } from '@/Shared/Groups/RemoveGroupMember.ts';
 import { v4 as uuid } from 'uuid';
 import { ChatPrivileges } from '@/Shared/Enums/ChatPrivileges.ts';
 import { ChatMemberViewModel } from '@/React/Models/ChatMemberViewModel.ts';

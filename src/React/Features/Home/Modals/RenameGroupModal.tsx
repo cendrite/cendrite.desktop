@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 import { ChatViewModel } from '@/React/Models/ChatViewModel.ts';
 import { ChatService } from '@/React/Common/Services/ChatService.ts';
-import { GROUP_NAME_MAX_LENGTH } from '@/Shared/Chat/RenameGroup';
+import { GROUP_NAME_MAX_LENGTH } from '@/Shared/Groups/RenameGroup';
 import Button from '@/React/Common/Components/Button/Button.tsx';
 
 interface RenameGroupModalProps {

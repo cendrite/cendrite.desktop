@@ -1,8 +1,8 @@
 import { Result } from '#shared/Result/Result';
-import { RemoveGroupMemberCommand } from '#shared/Chat/RemoveGroupMember';
+import { RemoveGroupMemberCommand } from '#shared/Groups/RemoveGroupMember';
 import { IPump } from '#electron/Application/Contracts/Services/IPump';
 import { Handler } from '#electron/Application/Mediator/Handler';
-import { IGroupService } from '#electron/Application/Services/GroupService';
+import { IGroupService } from '#electron/Application/Services/Group/GroupService';
 
 export class RemoveGroupMemberCommandHandler implements Handler<RemoveGroupMemberCommand> {
     constructor(

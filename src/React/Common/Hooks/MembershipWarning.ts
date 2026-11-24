@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { GetMembershipWarningQuery } from '@/Shared/Chat/GetMembershipWarning';
+import { GetMembershipWarningQuery } from '@/Shared/Groups/GetMembershipWarning';
 import { MembershipWarning } from '@/Shared/Enums/MembershipWarning';
 import { useMessageEdit } from '@/React/Common/Utilities.ts';
 

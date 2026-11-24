@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
-import { GetGroupPrivilegeQueryHandler } from '#electron/Application/Features/Chat/Queries/GetGroupPrivilegeQueryHandler';
-import { GetGroupPrivilegeQuery } from '#shared/Chat/GetGroupPrivilege';
+import { GetGroupPrivilegeQueryHandler } from '#electron/Application/Features/Groups/Queries/GetGroupPrivilegeQueryHandler';
+import { GetGroupPrivilegeQuery } from '#shared/Groups/GetGroupPrivilege';
 import { ChatPrivileges } from '#shared/Enums/ChatPrivileges';
 import { Group } from '#electron/Domain/Entities/Group';
 import { GroupWriteKey } from '#electron/Domain/Encryption/GroupWriteKey';

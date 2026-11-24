@@ -32,14 +32,14 @@ import { RenameDeviceCommandHandler } from './Features/Devices/Commands/RenameDe
 import { GetMediaQueryHandler } from './Features/Files/Queries/GetMediaQueryHandler.js';
 import { CreateChatCommandHandler } from './Features/Chat/Commands/CreateChatCommandHandler.js';
 import { DeleteChatCommandHandler } from './Features/Chat/Commands/DeleteChatCommandHandler.js';
-import { AddGroupMemberCommandHandler } from './Features/Chat/Commands/AddGroupMemberCommandHandler.js';
-import { RenameGroupCommandHandler } from './Features/Chat/Commands/RenameGroupCommandHandler.js';
-import { ChangeMemberPrivilegeCommandHandler } from './Features/Chat/Commands/ChangeMemberPrivilegeCommandHandler.js';
-import { RemoveGroupMemberCommandHandler } from './Features/Chat/Commands/RemoveGroupMemberCommandHandler.js';
+import { AddGroupMemberCommandHandler } from './Features/Groups/Commands/AddGroupMemberCommandHandler.js';
+import { RenameGroupCommandHandler } from './Features/Groups/Commands/RenameGroupCommandHandler.js';
+import { ChangeMemberPrivilegeCommandHandler } from './Features/Groups/Commands/ChangeMemberPrivilegeCommandHandler.js';
+import { RemoveGroupMemberCommandHandler } from './Features/Groups/Commands/RemoveGroupMemberCommandHandler.js';
 import { GetChatsQueryHandler } from './Features/Chat/Queries/GetChatsQueryhandler.js';
 import { GetMessagesQueryHandler } from './Features/Chat/Queries/GetMessagesQueryHandler.js';
-import { GetGroupPrivilegeQueryHandler } from './Features/Chat/Queries/GetGroupPrivilegeQueryHandler.js';
-import { GetMembershipWarningQueryHandler } from './Features/Chat/Queries/GetMembershipWarningQueryHandler.js';
+import { GetGroupPrivilegeQueryHandler } from './Features/Groups/Queries/GetGroupPrivilegeQueryHandler.js';
+import { GetMembershipWarningQueryHandler } from './Features/Groups/Queries/GetMembershipWarningQueryHandler.js';
 import { AddUserConnectionIdCommandHandler } from './Features/User/Commands/AddUserConnectionIdCommandHandler.js';
 import { RemoveUserConnectionIdCommandHandler } from './Features/User/Commands/RemoveUserConnectionIdCommandHandler.js';
 import { DeleteFriendCommandHandler } from './Features/Friends/Commands/DeleteFriendCommandHandler.js';
@@ -58,7 +58,7 @@ import { GetGifPreviewQueryHandler } from './Features/Gifs/Queries/GetGifPreview
 import { GetSettingsQueryHandler } from './Features/Settings/Queries/GetSettingsQueryHandler.js';
 import { UpdateSettingsCommandHandler } from './Features/Settings/Commands/UpdateSettingsCommandHandler.js';
 import { SetMenuBarVisibleCommandHandler } from './Features/Settings/Commands/SetMenuBarVisibleCommandHandler.js';
-import { GroupService } from './Services/GroupService.js';
+import { GroupService } from './Services/Group/GroupService.js';
 import { DeviceSessionService } from './Services/Device/DeviceSessionService.js';
 
 const services = {

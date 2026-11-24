@@ -7,7 +7,7 @@ import { IChatStore } from '#electron/Application/Contracts/Repositories/IChatSt
 import { IFriendRepository } from '#electron/Application/Contracts/Repositories/IFriendRepository';
 import { Handler } from '#electron/Application/Mediator/Handler';
 import { CreateChatCommand } from '#shared/Chat/CreateChat';
-import { IGroupService } from '#electron/Application/Services/GroupService';
+import { IGroupService } from '#electron/Application/Services/Group/GroupService';
 import { v4 as uuid } from 'uuid';
 
 export class CreateChatCommandHandler implements Handler<CreateChatCommand, ChatContract> {
