@@ -13,10 +13,11 @@ import {
 } from '@signalapp/libsignal-client';
 import { IKeyStoreProvider } from '#electron/Application/Contracts/Providers/IKeyStoreProvider';
 import { IDeviceRepository } from '#electron/Application/Contracts/Repositories/IDeviceRepository';
-import { DeviceGoneError, ISessionManager, UntrustedDeviceError } from '#electron/Application/Contracts/Services/ISessionManager';
+import { ISessionManager } from '#electron/Application/Contracts/Services/ISessionManager';
 import { SignalProtocolStore } from './SignalProtocolStore.js';
 import { mapToPreKeyBundle } from '../Mappers/KeyMapper.js';
 import { Envelope, Payload } from '#electron/Domain/Protocol/Payload';
+import { DeviceGoneError, UntrustedDeviceError } from '#electron/Application/Errors';
 
 /**
  * Every client has exactly one device per connectionId, so the libsignal device id is fixed.

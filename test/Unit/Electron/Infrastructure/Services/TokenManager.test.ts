@@ -13,8 +13,8 @@ import {
 import { IPrivateTokenRepository } from '../../../../../src/Electron/Application/Contracts/Repositories/IPrivateTokenRepository.js';
 import { Result } from '../../../../../src/Shared/Result/Result.js';
 import { ErrorMessage } from '../../../../../src/Shared/Result/ErrorMessage.js';
-import { DeviceRevokedError } from '../../../../../src/Electron/Application/Contracts/Services/ITokenManager.js';
 import { BrowserWindow } from 'electron';
+import { DeviceRevokedError } from '#electron/Application/Errors';
 
 const nonceSigner = { signNonce: async () => 'signed-nonce' } as unknown as NonceSigner;
 

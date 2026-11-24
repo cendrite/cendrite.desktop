@@ -1,12 +1,13 @@
 import { Result } from '#shared/Result/Result';
 import { DeliveryStatus } from '#shared/Enums/DeliveryStatus';
 import { MessageContract } from '#shared/Models/MessageContract';
-import { ISessionManager, UnreachableDeviceError } from '#electron/Application/Contracts/Services/ISessionManager';
+import { ISessionManager } from '#electron/Application/Contracts/Services/ISessionManager';
 import { IMessageHubHandler, ServerMessage } from '#electron/Application/Contracts/Services/IMessageHubHandler';
 import { Envelope, MessagePayload, Payload } from '#electron/Domain/Protocol/Payload';
 import { Handler } from '#electron/Application/Mediator/Handler';
 import { IMediaService } from '#electron/Application/Services/Media/MediaService';
 import { v4 as uuid } from 'uuid';
+import { UnreachableDeviceError } from '#electron/Application/Errors';
 
 export class MessageSentCommand implements MediatorRequest<DeliveryStatus> {
     declare readonly _response?: DeliveryStatus;
