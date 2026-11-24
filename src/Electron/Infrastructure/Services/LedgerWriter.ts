@@ -14,11 +14,12 @@ import { ILedgerSyncService } from '#electron/Application/Contracts/Services/ILe
 import { LEDGER_TOKEN_ORIGIN } from '#electron/Application/Contracts/Services/IBlindTokenService';
 import { IPrivateTokenRepository } from '#electron/Application/Contracts/Repositories/IPrivateTokenRepository';
 import { KeyChanges, KeyGrant } from '#electron/Domain/Protocol/KeyChanges';
-import { LedgerOperation } from '#electron/Domain/Protocol/LedgerOperation';
+import { DeviceLeftOperation, LedgerOperation } from '#electron/Domain/Protocol/LedgerOperation';
 import { GroupState } from '#electron/Domain/Projections/GroupState';
 import { keyChangesFor } from '#electron/Domain/Services/GroupReducer';
 import { buildOperationSigningInput, buildSigningInput, encryptPayload, hashEvent, signOuter } from '../Crypto/LedgerCodec.js';
 import { ILedgerIdentity } from '../Interfaces/ILedgerIdentity.js';
+import { readProof } from './LedgerSyncService.js';
 
 const GENESIS_PREVIOUS_HASH = Buffer.alloc(32);
 const MAX_ATTEMPTS = 5;
@@ -101,6 +102,40 @@ export class LedgerWriter implements ILedgerWriter {
                     keyChanges.invites.map(toLedgerGrant),
                     keyChanges.removed.map(fromBase64),
                     keyChanges.roles.map(toLedgerGrant),
+                ),
+            );
+
+            if (result.success || !isLedgerConflict(result)) return result;
+        }
+
+        return Result.fail(new ErrorMessage('LedgerWriter', 'Gave up appending after repeated conflicts.'));
+    }
+
+    public async appendDeviceLeft(groupId: string, operation: DeviceLeftOperation): Promise<Result<void>> {
+        const keyChanges = keyChangesFor(new GroupState(groupId), operation);
+
+        for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+            const writeKey = await this.groupKeyRepository.getWriteKey(groupId);
+            if (!writeKey) return Result.fail(new ErrorMessage('LedgerWriter', `No write key for group ${groupId}`));
+
+            const head = await this.ledgerProvider.getHead(groupId, readProof(groupId, writeKey));
+            if (!head.success) return Result.fail(head.errorMessage);
+
+            const sealed = await this.seal(groupId, head.data.version + 1, head.data.hash, operation, keyChanges);
+            if (!sealed.success) return Result.fail(sealed.errorMessage);
+
+            const result = await this.ledgerProvider.appendEvent(
+                groupId,
+                new LedgerAppend(
+                    head.data.version,
+                    head.data.hash,
+                    sealed.data.payload,
+                    sealed.data.writeKey.publicKey,
+                    sealed.data.signature,
+                    [],
+                    [],
+                    keyChanges.removed.map(fromBase64),
+                    [],
                 ),
             );
 

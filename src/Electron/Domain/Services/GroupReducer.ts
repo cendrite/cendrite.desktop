@@ -82,6 +82,9 @@ export function rejectReasonFor(
             }
             if (state.ownerOfWriteKey(operation.writeKeyPublic)) return 'the new write key is already in use';
             return null;
+
+        case LedgerOperationType.DeviceLeft:
+            return operation.writeKeyPublic === context.authorKey ? null : 'a device may only remove its own key';
     }
 }
 
@@ -146,6 +149,18 @@ export function applyOperation(state: GroupState, operation: LedgerOperation, co
             member.writeKeys = [...member.writeKeys, operation.writeKeyPublic];
             break;
         }
+
+        case LedgerOperationType.DeviceLeft: {
+            const member = state.members.get(operation.authorTag)!;
+            member.writeKeys = member.writeKeys.filter((key) => key !== operation.writeKeyPublic);
+            member.connectionIds = member.connectionIds.filter((connectionId) => connectionId !== operation.connectionId);
+
+            if (member.writeKeys.length === 0 && member.inviteKeys.length === 0) {
+                state.members.delete(member.userTag);
+                state.removed.add(member.userTag);
+            }
+            break;
+        }
     }
 }
 
@@ -184,6 +199,9 @@ export function keyChangesFor(state: GroupState, operation: LedgerOperation): Ke
 
         case LedgerOperationType.WriteKeyRegistered:
             return { ...NO_KEY_CHANGES, added: [operation.writeKeyPublic], removed: [operation.inviteKeyPublic] };
+
+        case LedgerOperationType.DeviceLeft:
+            return { ...NO_KEY_CHANGES, removed: [operation.writeKeyPublic] };
 
         default:
             return NO_KEY_CHANGES;

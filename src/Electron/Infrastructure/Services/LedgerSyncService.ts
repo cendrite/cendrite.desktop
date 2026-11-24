@@ -150,7 +150,15 @@ export class LedgerSyncService implements ILedgerSyncService {
 
         const removedIds = chat.members.filter((member) => member.userTag && !state.members.has(member.userTag)).map((member) => member.id);
 
-        if (missing.length === 0 && !renamed && changedPrivileges.length === 0 && removedIds.length === 0) return false;
+        const changedDevices = chat.members.flatMap((member) => {
+            const connectionIds = state.members.get(member.userTag)?.connectionIds;
+            if (!connectionIds || !member.connectionIds) return [];
+
+            const unchanged = connectionIds.length === member.connectionIds.length && connectionIds.every((id) => member.connectionIds!.includes(id));
+            return unchanged ? [] : [{ memberId: member.id, connectionIds }];
+        });
+
+        if (missing.length === 0 && !renamed && changedPrivileges.length === 0 && removedIds.length === 0 && changedDevices.length === 0) return false;
 
         await this.chatStore.removeMembers(removedIds);
 
@@ -167,6 +175,10 @@ export class LedgerSyncService implements ILedgerSyncService {
 
         for (const { memberId, privilege } of changedPrivileges) {
             await this.chatStore.setMemberPrivilege(memberId, privilege);
+        }
+
+        for (const { memberId, connectionIds } of changedDevices) {
+            await this.chatStore.setMemberDevices(memberId, connectionIds);
         }
 
         return true;
@@ -206,7 +218,7 @@ function toStoredGrant(grant: LedgerKeyGrant): KeyGrant {
     return { publicKey: grant.publicKey.toString('base64'), role: grant.role };
 }
 
-function readProof(groupId: string, writeKey: GroupWriteKey): LedgerReadProof {
+export function readProof(groupId: string, writeKey: GroupWriteKey): LedgerReadProof {
     const timestamp = Math.floor(Date.now() / 1000);
 
     return {

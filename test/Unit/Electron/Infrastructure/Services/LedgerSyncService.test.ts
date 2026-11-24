@@ -92,7 +92,7 @@ function replayService(result: Partial<ReplayResult> = {}): ILedgerReplayService
     };
 }
 
-function chatDependencies(chat: { members: { id?: string; userTag: string; privilege?: ChatPrivileges }[]; groupName?: string | null } | null = null, send = vi.fn()) {
+function chatDependencies(chat: { members: { id?: string; userTag: string; privilege?: ChatPrivileges; connectionIds?: string[] | null }[]; groupName?: string | null } | null = null, send = vi.fn()) {
     return [
         {
             getChat: async () => chat,
@@ -102,6 +102,10 @@ function chatDependencies(chat: { members: { id?: string; userTag: string; privi
             setMemberPrivilege: vi.fn(async (memberId: string, privilege: ChatPrivileges) => {
                 const member = chat?.members.find((candidate) => candidate.id === memberId);
                 if (member) member.privilege = privilege;
+            }),
+            setMemberDevices: vi.fn(async (memberId: string, connectionIds: string[]) => {
+                const member = chat?.members.find((candidate) => candidate.id === memberId);
+                if (member) member.connectionIds = connectionIds;
             }),
             removeMembers: vi.fn(async (memberIds: string[]) => {
                 if (chat) chat.members = chat.members.filter((member) => !memberIds.includes(member.id ?? ''));
@@ -463,6 +467,40 @@ describe('syncing', () => {
         await new LedgerSyncService(p, log.repository, groups.repository, replayService({ state }), groupKeys(), ...dependencies).sync(GROUP_ID);
 
         expect(dependencies[0].deleteChat).not.toHaveBeenCalled();
+    });
+
+    test('updates the devices of a member who is not a friend', async () => {
+        const log = logRepository();
+        const groups = groupRepository();
+        const { provider: p } = provider([{ version: 1, archived: false, hasMore: false, events: [event(1)] }]);
+        const state = new GroupState(GROUP_ID);
+        state.members.set('bob', new GroupMember('bob', 'bob', ChatPrivileges.Member, 1, ['key'], [], ['bob-phone']));
+        const chat = { members: [{ id: 'member-bob', userTag: 'bob', privilege: ChatPrivileges.Member, connectionIds: ['bob-laptop', 'bob-phone'] }] };
+        const send = vi.fn();
+
+        const sut = new LedgerSyncService(p, log.repository, groups.repository, replayService({ state }), groupKeys(), ...chatDependencies(chat, send));
+
+        await sut.sync(GROUP_ID);
+
+        expect(chat.members[0].connectionIds).toEqual(['bob-phone']);
+        expect(send).toHaveBeenCalledWith('eventMessage', { kind: 'groupChanged', groupId: GROUP_ID });
+    });
+
+    test('leaves the devices of a friend to the friend list', async () => {
+        const log = logRepository();
+        const groups = groupRepository();
+        const { provider: p } = provider([{ version: 1, archived: false, hasMore: false, events: [event(1)] }]);
+        const state = new GroupState(GROUP_ID);
+        state.members.set('bob', new GroupMember('bob', 'bob', ChatPrivileges.Member, 1, ['key'], [], ['bob-phone']));
+        const chat = { members: [{ id: 'member-bob', userTag: 'bob', privilege: ChatPrivileges.Member, connectionIds: null }] };
+        const send = vi.fn();
+
+        const sut = new LedgerSyncService(p, log.repository, groups.repository, replayService({ state }), groupKeys(), ...chatDependencies(chat, send));
+
+        await sut.sync(GROUP_ID);
+
+        expect(chat.members[0].connectionIds).toBeNull();
+        expect(send).not.toHaveBeenCalled();
     });
 
     test('does not touch the chat from a log that halted', async () => {

@@ -19,6 +19,7 @@ import {
     GroupCreatedOperation,
     GroupMemberRef,
     LedgerOperation,
+    DeviceLeftOperation,
     MemberAddedOperation,
     MemberRemovedOperation,
     PrivilegeChangedOperation,
@@ -983,5 +984,72 @@ describe('being removed', () => {
 
         expect(result.state.members.has('bob')).toBe(true);
         expect(result.state.removed.has('bob')).toBe(false);
+    });
+});
+
+describe('a device leaving', () => {
+    const twoKeys = (bob: Member, second: string) =>
+        new MemberAddedOperation('alice', new GroupMemberRef(bob.userTag, bob.displayName, ChatPrivileges.Member, null, [], [bob.writeKeyPublic, second], ['bob-device', 'bob-phone']));
+
+    function joined(secondInvite: string | null = null) {
+        const alice = new Member('alice', 'Alice');
+        const bob = new Member('bob', 'Bob');
+        const next = generateWriteKeyPair();
+        const nextPublic = next.publicKey.toString('base64');
+        const role = roleFor(ChatPrivileges.Member);
+        const invites = [bob.writeKeyPublic, ...(secondInvite ? [secondInvite] : [])].map((publicKey) => ({ publicKey, role }));
+        const added = secondInvite ? twoKeys(bob, secondInvite) : memberAdded(alice, bob);
+        const builder = new LogBuilder()
+            .add(alice, created(alice), createdKeys(alice))
+            .add(alice, added, { invitesAdded: invites })
+            .add(bob, new WriteKeyRegisteredOperation(bob.userTag, bob.writeKeyPublic, nextPublic), {
+                keysAdded: [nextPublic],
+                keysRemoved: [bob.writeKeyPublic],
+            });
+
+        return { bob, next, nextPublic, builder };
+    }
+
+    test('removes only that device while the member has another', async () => {
+        const other = generateWriteKeyPair().publicKey.toString('base64');
+        const { bob, next, nextPublic, builder } = joined(other);
+        const events = builder
+            .add(bob, new DeviceLeftOperation(bob.userTag, nextPublic, 'bob-device'), { keysRemoved: [nextPublic], outerKey: next })
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected).toEqual([]);
+        const member = result.state.members.get('bob')!;
+        expect(member.writeKeys).toEqual([]);
+        expect(member.inviteKeys).toEqual([other]);
+        expect(member.connectionIds).toEqual(['bob-phone']);
+        expect(result.state.removed.has('bob')).toBe(false);
+    });
+
+    test('removes the member when their last device leaves', async () => {
+        const { bob, next, nextPublic, builder } = joined();
+        const events = builder
+            .add(bob, new DeviceLeftOperation(bob.userTag, nextPublic, 'bob-device'), { keysRemoved: [nextPublic], outerKey: next })
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected).toEqual([]);
+        expect(result.state.members.has('bob')).toBe(false);
+        expect(result.state.removed.has('bob')).toBe(true);
+    });
+
+    test('rejects a device removing a key that is not its own', async () => {
+        const other = generateWriteKeyPair().publicKey.toString('base64');
+        const { bob, next, builder } = joined(other);
+        const events = builder
+            .add(bob, new DeviceLeftOperation(bob.userTag, other, 'bob-phone'), { keysRemoved: [other], outerKey: next })
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected).toEqual([{ version: 4, reason: 'a device may only remove its own key' }]);
+        expect(result.state.members.get('bob')!.inviteKeys).toEqual([other]);
     });
 });

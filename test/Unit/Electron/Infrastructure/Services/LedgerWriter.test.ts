@@ -20,6 +20,7 @@ import { Group } from '../../../../../src/Electron/Domain/Entities/Group.js';
 import { LedgerEventRecord } from '../../../../../src/Electron/Domain/Entities/LedgerEventRecord.js';
 import { GroupState } from '../../../../../src/Electron/Domain/Projections/GroupState.js';
 import {
+    DeviceLeftOperation,
     GroupCreatedOperation,
     GroupMemberRef,
     LedgerOperation,
@@ -113,8 +114,10 @@ class FakeProvider implements ILedgerProvider {
         return Result.success({ version: 0, archived: false, hasMore: false, events: [] as LedgerEvent[] });
     }
 
+    public head: Result<LedgerHead> = Result.success({ version: 6, hash: Buffer.alloc(32, 0x6c), archived: false });
+
     public async getHead(): Promise<Result<LedgerHead>> {
-        return Result.success({ version: 0, hash: Buffer.alloc(32), archived: false });
+        return this.head;
     }
 }
 
@@ -563,5 +566,46 @@ describe('appending', () => {
 
         expect(result.success).toBe(false);
         expect(result.errorMessage?.message).toContain('No write key');
+    });
+});
+
+describe('a device leaving', () => {
+    const operation = () => new DeviceLeftOperation('alice', writeKeyPair.publicKey.toString('base64'), 'alice-device');
+    const writer = (onSync: () => void = () => undefined) =>
+        new LedgerWriter(
+            provider,
+            keyRepository,
+            groupRepository(new Group(GROUP_ID, 0, 4, Buffer.alloc(32, 0x5a))),
+            syncService(new GroupState(GROUP_ID), onSync),
+            ledgerIdentity,
+            wallet(),
+            tokenManager(),
+        );
+
+    test('appends against the server head and removes only its own key, without touching local state', async () => {
+        let syncs = 0;
+
+        const result = await writer(() => syncs++).appendDeviceLeft(GROUP_ID, operation());
+
+        expect(result.success).toBe(true);
+        expect(syncs).toBe(0);
+        expect(provider.appends[0].expectedVersion).toBe(6);
+        expect(provider.appends[0].previousHash).toEqual(Buffer.alloc(32, 0x6c));
+        expect(provider.appends[0].keysRemoved).toEqual([writeKeyPair.publicKey]);
+        expect(provider.appends[0].keysAdded).toEqual([]);
+    });
+
+    test('retries on a conflict', async () => {
+        provider.conflictsLeft = 1;
+
+        expect((await writer().appendDeviceLeft(GROUP_ID, operation())).success).toBe(true);
+        expect(provider.appends).toHaveLength(2);
+    });
+
+    test('stops when the ledger no longer knows this key', async () => {
+        provider.head = Result.fail(new ErrorMessage('Not Found', 'gone'));
+
+        expect((await writer().appendDeviceLeft(GROUP_ID, operation())).success).toBe(false);
+        expect(provider.appends).toHaveLength(0);
     });
 });

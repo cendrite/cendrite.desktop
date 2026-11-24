@@ -36,6 +36,11 @@ export interface IChatStore {
     setMemberPrivilege(memberId: string, privilege: ChatPrivileges): Promise<void>;
 
     /**
+     * Set the devices of a chat member who is not a friend
+     **/
+    setMemberDevices(memberId: string, connectionIds: string[]): Promise<void>;
+
+    /**
      * Show a chat in the chat list
      **/
     markListed(chatId: string): Promise<void>;
