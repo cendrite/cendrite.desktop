@@ -973,6 +973,18 @@ describe('being removed', () => {
         expect(result.state.removed.has('bob')).toBe(false);
     });
 
+    test('rejects a member removing themselves', async () => {
+        const { alice, builder } = joined();
+        const events = builder
+            .add(alice, new MemberRemovedOperation(alice.userTag, alice.userTag), { keysRemoved: [alice.writeKeyPublic] })
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected).toEqual([{ version: 3, reason: 'author does not outrank the target' }]);
+        expect(result.state.members.has('alice')).toBe(true);
+    });
+
     test('clears the removal when the member is added again', async () => {
         const { alice, bob, builder } = joined();
         const again = new Member('bob', 'Bob');

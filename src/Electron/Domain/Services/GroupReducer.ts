@@ -58,8 +58,6 @@ export function rejectReasonFor(
             return requireAdmin(author);
 
         case LedgerOperationType.MemberRemoved: {
-            if (operation.userTag === author.userTag) return null;
-
             const target = state.members.get(operation.userTag);
             if (!target) return 'member is not in the group';
             if (author.privilege <= target.privilege) return 'author does not outrank the target';
