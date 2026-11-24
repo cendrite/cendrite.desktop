@@ -27,7 +27,7 @@ import { IUserRepository } from '../Contracts/Repositories/IUserRepository.js';
 import { ILedgerSyncService } from '../Contracts/Services/ILedgerSyncService.js';
 import { ILedgerWriter } from '../Contracts/Services/ILedgerWriter.js';
 import { IMessageHubHandler, ServerMessage } from '../Contracts/Services/IMessageHubHandler.js';
-import { ISessionManager, UntrustedDeviceError } from '../Contracts/Services/ISessionManager.js';
+import { ISessionManager, UnreachableDeviceError } from '../Contracts/Services/ISessionManager.js';
 
 export interface IGroupService {
     createGroup(groupId: string): Promise<void>;
@@ -481,7 +481,7 @@ export class GroupService implements IGroupService {
             const cipher = await this.sessionManager.encrypt(new Envelope([payload]), connectionId);
             messages.push(new ServerMessage(uuid().toString(), senderId, connectionId, cipher));
         } catch (error) {
-            if (!(error instanceof UntrustedDeviceError)) throw error;
+            if (!(error instanceof UnreachableDeviceError)) throw error;
         }
     }
 }

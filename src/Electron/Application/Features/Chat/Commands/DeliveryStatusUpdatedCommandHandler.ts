@@ -1,6 +1,6 @@
 import { Result } from "#shared/Result/Result";
 import { DeliveryStatus } from "#shared/Enums/DeliveryStatus";
-import { ISessionManager, UntrustedDeviceError } from "#electron/Application/Contracts/Services/ISessionManager";
+import { ISessionManager, UnreachableDeviceError } from "#electron/Application/Contracts/Services/ISessionManager";
 import { IMessageHubHandler, ServerMessage } from "#electron/Application/Contracts/Services/IMessageHubHandler";
 import { DeliveryStatusPayload, Envelope, Payload } from "#electron/Domain/Protocol/Payload";
 import { Handler } from "#electron/Application/Mediator/Handler";
@@ -56,7 +56,7 @@ export class DeliveryStatusUpdatedCommandHandler implements Handler<DeliveryStat
         try {
             return await this.sessionManager.encrypt(envelope, connectionId);
         } catch (error) {
-            if (error instanceof UntrustedDeviceError) return null;
+            if (error instanceof UnreachableDeviceError) return null;
             throw error;
         }
     }

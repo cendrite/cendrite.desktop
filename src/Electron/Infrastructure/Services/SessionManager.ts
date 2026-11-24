@@ -13,7 +13,7 @@ import {
 } from '@signalapp/libsignal-client';
 import { IKeyStoreProvider } from '#electron/Application/Contracts/Providers/IKeyStoreProvider';
 import { IDeviceRepository } from '#electron/Application/Contracts/Repositories/IDeviceRepository';
-import { ISessionManager, UntrustedDeviceError } from '#electron/Application/Contracts/Services/ISessionManager';
+import { DeviceGoneError, ISessionManager, UntrustedDeviceError } from '#electron/Application/Contracts/Services/ISessionManager';
 import { SignalProtocolStore } from './SignalProtocolStore.js';
 import { mapToPreKeyBundle } from '../Mappers/KeyMapper.js';
 import { Envelope, Payload } from '#electron/Domain/Protocol/Payload';
@@ -70,6 +70,9 @@ export class SessionManager implements ISessionManager {
         }
 
         const preKeyBundleResult = await this.keyProvider.getPreKeyBundle(address.name());
+        if (!preKeyBundleResult.success && preKeyBundleResult.errorMessage.code === 'Not Found') {
+            throw new DeviceGoneError(address.name());
+        }
         if (!preKeyBundleResult.success) {
             throw new Error('Failed to retrieve pre-key bundle: ' + preKeyBundleResult.errorMessage.message);
         }
