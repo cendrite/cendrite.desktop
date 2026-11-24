@@ -152,6 +152,7 @@ function syncService(state: GroupState, onSync?: () => void): ILedgerSyncService
             onSync?.();
             return Result.success<ReplayResult>({ state, rejected: [], verified: [], halted: null, stalledAt: null });
         },
+        wipeGroup: async () => undefined,
     };
 }
 

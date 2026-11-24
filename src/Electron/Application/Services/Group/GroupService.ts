@@ -14,7 +14,7 @@ import { ChatMember } from '#electron/Domain/Entities/ChatMember';
 import { LedgerOperationType } from '#electron/Domain/Enums/LedgerOperationType';
 import { keyChangesFor, rejectReasonFor } from '#electron/Domain/Services/GroupReducer';
 import { GroupState } from '#electron/Domain/Projections/GroupState';
-import { GroupCreatedOperation, GroupMemberRef, LedgerOperation, MemberAddedOperation, MemberRemovedOperation, PrivilegeChangedOperation, SettingsChangedOperation } from '#electron/Domain/Protocol/LedgerOperation';
+import { GroupCreatedOperation, GroupMemberRef, LedgerOperation, MemberAddedOperation, MemberLeftOperation, MemberRemovedOperation, PrivilegeChangedOperation, SettingsChangedOperation } from '#electron/Domain/Protocol/LedgerOperation';
 import { generateEpochKey, generateWriteKeyPair } from '#electron/Infrastructure/Crypto/LedgerCodec';
 import { Envelope, GroupStrapPayload, GroupUpdatedPayload, Payload } from '#electron/Domain/Protocol/Payload';
 import { IOutboxRepository } from '#electron/Infrastructure/Interfaces/IOutboxRepository';
@@ -37,6 +37,7 @@ export interface IGroupService {
     renameGroup(groupId: string, name: string): Promise<Result>;
     changeMemberPrivilege(groupId: string, userTag: string, privilege: ChatPrivileges): Promise<Result>;
     removeMember(groupId: string, userTag: string): Promise<Result>;
+    leaveGroup(groupId: string): Promise<Result>;
     deliverChange(change: GroupChangeEvent): Promise<boolean>;
 }
 
@@ -336,6 +337,43 @@ export class GroupService implements IGroupService {
         return Result.success();
     }
 
+    public async leaveGroup(groupId: string): Promise<Result> {
+        const group = await this.groupRepository.get(groupId);
+        if (group?.lifecycle !== GroupLifecycle.Draft && group?.lifecycle !== GroupLifecycle.Active) return refused('This group cannot be changed');
+
+        const writeKey = await this.groupKeyRepository.getWriteKey(groupId);
+        if (!writeKey || writeKey.isInvite) return refused('This device cannot change the group yet');
+
+        const { userTag } = await this.userRepository.get(true);
+
+        if (group.lifecycle === GroupLifecycle.Draft) {
+            const chat = await this.chatStore.getChatWithMembers(groupId);
+            if (group.pendingStart && chat.members.length > 0) return refused('Hand over ownership before leaving the group');
+
+            await this.ledgerSyncService.wipeGroup(groupId);
+            return Result.success();
+        }
+
+        const memberStateResult = await this.adminState(groupId, userTag, 'You are not in this group', ChatPrivileges.Member);
+        if (!memberStateResult.success) return memberStateResult;
+
+        const state = memberStateResult.data;
+        const others = [...state.members.values()].filter((member) => member.userTag !== userTag);
+
+        if (others.length === 0) {
+            await this.ledgerSyncService.wipeGroup(groupId);
+            return Result.success();
+        }
+
+        const soleOwner = state.members.get(userTag)!.privilege === ChatPrivileges.Owner && !others.some((member) => member.privilege === ChatPrivileges.Owner);
+        if (soleOwner) return refused('Hand over ownership before leaving the group');
+
+        const operation = new MemberLeftOperation(userTag, writeKey.publicKey.toString('base64'));
+        await this.eventRepository.appendEvent(new GroupChangeEvent(uuid().toString(), groupId, operation, {}, new Date()));
+
+        return Result.success();
+    }
+
     public async deliverChange(change: GroupChangeEvent): Promise<boolean> {
         const group = await this.groupRepository.get(change.groupId);
         if (group?.lifecycle !== GroupLifecycle.Active) return false;
@@ -345,8 +383,9 @@ export class GroupService implements IGroupService {
 
         let state = syncResult.data.state;
         const status = changeStatus(state, change.operation);
+        const leaving = change.operation.type === LedgerOperationType.MemberLeft;
 
-        if (status === 'conflict') {
+        if (status === 'conflict' || (leaving && status === 'applied')) {
             await this.eventRepository.deleteEvent(change.id);
             return true;
         }
@@ -359,6 +398,7 @@ export class GroupService implements IGroupService {
                 return true;
             }
 
+            const leaveMessages = leaving ? await this.changeMessages(change, state) : null;
             const appendResult = await this.ledgerWriter.append(change.groupId, change.operation);
 
             if (!appendResult.success) {
@@ -366,6 +406,13 @@ export class GroupService implements IGroupService {
 
                 console.warn(`GroupService: the ledger refused a change for group ${change.groupId}: ${appendResult.errorMessage.message}`);
                 await this.eventRepository.deleteEvent(change.id);
+                return true;
+            }
+
+            if (leaving) {
+                if (leaveMessages) await this.send(leaveMessages);
+                await this.eventRepository.deleteEvent(change.id);
+                await this.ledgerSyncService.sync(change.groupId);
                 return true;
             }
 
@@ -425,8 +472,21 @@ export class GroupService implements IGroupService {
     }
 
     private async sendChange(change: GroupChangeEvent, state: GroupState): Promise<boolean> {
+        const messages = await this.changeMessages(change, state);
+        if (messages === null) return false;
+
+        return this.send(messages);
+    }
+
+    private async send(messages: ServerMessage[]): Promise<boolean> {
+        if (messages.length === 0) return true;
+
+        return (await this.messageHubHandler.sendMessage(messages)) !== DeliveryStatus.Failed;
+    }
+
+    private async changeMessages(change: GroupChangeEvent, state: GroupState): Promise<ServerMessage[] | null> {
         const device = await this.deviceRepository.get();
-        if (device === null) return false;
+        if (device === null) return null;
 
         const chat = await this.chatStore.getChatWithMembers(change.groupId);
         const user = await this.userRepository.get(true);
@@ -468,9 +528,7 @@ export class GroupService implements IGroupService {
             await this.addMessage(messages, device.connectionId, connectionId, update);
         }
 
-        if (messages.length === 0) return true;
-
-        return (await this.messageHubHandler.sendMessage(messages)) !== DeliveryStatus.Failed;
+        return messages;
     }
 
     private announceGroupChanged(groupId: string): void {
