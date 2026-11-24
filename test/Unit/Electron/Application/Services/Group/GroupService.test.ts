@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from 'vitest';
-import { GroupService } from '#electron/Application/Services/GroupService';
+import { GroupService } from '#electron/Application/Services/Group/GroupService';
 import { SealedCreate } from '#electron/Application/Contracts/Services/ILedgerWriter';
 import { Group } from '#electron/Domain/Entities/Group';
 import { GroupEpochKey } from '#electron/Domain/Encryption/GroupEpochKey';

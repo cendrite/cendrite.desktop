@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from 'vitest';
-import { GroupService } from '#electron/Application/Services/GroupService';
+import { GroupService } from '#electron/Application/Services/Group/GroupService';
 import { ReplayResult } from '#electron/Application/Contracts/Services/ILedgerReplayService';
 import { Group } from '#electron/Domain/Entities/Group';
 import { GroupLifecycle } from '#electron/Domain/Enums/GroupLifecycle';

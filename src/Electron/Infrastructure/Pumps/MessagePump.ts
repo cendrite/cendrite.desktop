@@ -3,7 +3,7 @@ import { IGroupRepository } from '#electron/Application/Contracts/Repositories/I
 import { IUserRepository } from '#electron/Application/Contracts/Repositories/IUserRepository';
 import { MessageSentCommand } from '#electron/Application/Features/Chat/Events/MessageSentEventHandler';
 import { Mediator } from '#electron/Application/Mediator/Mediator';
-import { IGroupService } from '#electron/Application/Services/GroupService';
+import { IGroupService } from '#electron/Application/Services/Group/GroupService';
 import { GroupChangeEvent } from '#electron/Domain/Events/GroupChangeEvent';
 import { DeliveryStatus } from '#shared/Enums/DeliveryStatus';
 import { Payload } from '#electron/Domain/Protocol/Payload';

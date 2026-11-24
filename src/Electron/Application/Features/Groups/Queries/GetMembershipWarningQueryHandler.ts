@@ -1,5 +1,5 @@
 import { Result } from '#shared/Result/Result';
-import { GetMembershipWarningQuery } from '#shared/Chat/GetMembershipWarning';
+import { GetMembershipWarningQuery } from '#shared/Groups/GetMembershipWarning';
 import { MembershipWarning } from '#shared/Enums/MembershipWarning';
 import { IGroupRepository } from '#electron/Application/Contracts/Repositories/IGroupRepository';
 import { Handler } from '#electron/Application/Mediator/Handler';

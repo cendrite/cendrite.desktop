@@ -1,8 +1,8 @@
 import { Result } from '#shared/Result/Result';
-import { ChangeMemberPrivilegeCommand } from '#shared/Chat/ChangeMemberPrivilege';
+import { ChangeMemberPrivilegeCommand } from '#shared/Groups/ChangeMemberPrivilege';
 import { IPump } from '#electron/Application/Contracts/Services/IPump';
 import { Handler } from '#electron/Application/Mediator/Handler';
-import { IGroupService } from '#electron/Application/Services/GroupService';
+import { IGroupService } from '#electron/Application/Services/Group/GroupService';
 
 export class ChangeMemberPrivilegeCommandHandler implements Handler<ChangeMemberPrivilegeCommand> {
     constructor(

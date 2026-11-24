@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from 'vitest';
-import { GroupService } from '#electron/Application/Services/GroupService';
+import { GroupService } from '#electron/Application/Services/Group/GroupService';
 import { ReplayResult } from '#electron/Application/Contracts/Services/ILedgerReplayService';
 import { Group } from '#electron/Domain/Entities/Group';
 import { GroupLifecycle } from '#electron/Domain/Enums/GroupLifecycle';
@@ -9,7 +9,7 @@ import { GroupMember } from '#electron/Domain/Projections/GroupMember';
 import { GroupState } from '#electron/Domain/Projections/GroupState';
 import { SettingsChangedOperation } from '#electron/Domain/Protocol/LedgerOperation';
 import { Envelope, Payload, PayloadType } from '#electron/Domain/Protocol/Payload';
-import { GROUP_NAME_MAX_LENGTH } from '#shared/Chat/RenameGroup';
+import { GROUP_NAME_MAX_LENGTH } from '#shared/Groups/RenameGroup';
 import { ChatPrivileges } from '#shared/Enums/ChatPrivileges';
 import { DeliveryStatus } from '#shared/Enums/DeliveryStatus';
 import { Result } from '#shared/Result/Result';

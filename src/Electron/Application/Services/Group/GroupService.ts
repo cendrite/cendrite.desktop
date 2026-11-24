@@ -2,7 +2,7 @@ import { v4 as uuid } from 'uuid';
 import { Result } from '#shared/Result/Result';
 import { ErrorMessage } from '#shared/Result/ErrorMessage';
 import { DeliveryStatus } from '#shared/Enums/DeliveryStatus';
-import { GROUP_NAME_MAX_LENGTH } from '#shared/Chat/RenameGroup';
+import { GROUP_NAME_MAX_LENGTH } from '#shared/Groups/RenameGroup';
 import { GroupEpochKey } from '#electron/Domain/Encryption/GroupEpochKey';
 import { GroupWriteKey } from '#electron/Domain/Encryption/GroupWriteKey';
 import { Group } from '#electron/Domain/Entities/Group';
@@ -18,16 +18,16 @@ import { GroupCreatedOperation, GroupMemberRef, LedgerOperation, MemberAddedOper
 import { generateEpochKey, generateWriteKeyPair } from '#electron/Infrastructure/Crypto/LedgerCodec';
 import { Envelope, GroupStrapPayload, GroupUpdatedPayload, Payload } from '#electron/Domain/Protocol/Payload';
 import { IOutboxRepository } from '#electron/Infrastructure/Interfaces/IOutboxRepository';
-import { IChatStore } from '../Contracts/Repositories/IChatStore.js';
-import { IDeviceRepository } from '../Contracts/Repositories/IDeviceRepository.js';
-import { IFriendRepository } from '../Contracts/Repositories/IFriendRepository.js';
-import { IGroupKeyRepository } from '../Contracts/Repositories/IGroupKeyRepository.js';
-import { IGroupRepository } from '../Contracts/Repositories/IGroupRepository.js';
-import { IUserRepository } from '../Contracts/Repositories/IUserRepository.js';
-import { ILedgerSyncService } from '../Contracts/Services/ILedgerSyncService.js';
-import { ILedgerWriter } from '../Contracts/Services/ILedgerWriter.js';
-import { IMessageHubHandler, ServerMessage } from '../Contracts/Services/IMessageHubHandler.js';
-import { ISessionManager } from '../Contracts/Services/ISessionManager.js';
+import { IChatStore } from '../../Contracts/Repositories/IChatStore.js';
+import { IDeviceRepository } from '../../Contracts/Repositories/IDeviceRepository.js';
+import { IFriendRepository } from '../../Contracts/Repositories/IFriendRepository.js';
+import { IGroupKeyRepository } from '../../Contracts/Repositories/IGroupKeyRepository.js';
+import { IGroupRepository } from '../../Contracts/Repositories/IGroupRepository.js';
+import { IUserRepository } from '../../Contracts/Repositories/IUserRepository.js';
+import { ILedgerSyncService } from '../../Contracts/Services/ILedgerSyncService.js';
+import { ILedgerWriter } from '../../Contracts/Services/ILedgerWriter.js';
+import { IMessageHubHandler, ServerMessage } from '../../Contracts/Services/IMessageHubHandler.js';
+import { ISessionManager } from '../../Contracts/Services/ISessionManager.js';
 import { UnreachableDeviceError } from '#electron/Application/Errors';
 
 export interface IGroupService {

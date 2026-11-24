@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { GetGroupPrivilegeQuery } from '@/Shared/Chat/GetGroupPrivilege';
+import { GetGroupPrivilegeQuery } from '@/Shared/Groups/GetGroupPrivilege';
 import { ChatPrivileges } from '@/Shared/Enums/ChatPrivileges';
 import { useMessageEdit } from '@/React/Common/Utilities.ts';
 

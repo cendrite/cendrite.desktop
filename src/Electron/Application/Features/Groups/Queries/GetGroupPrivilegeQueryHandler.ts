@@ -1,5 +1,5 @@
 import { Result } from '#shared/Result/Result';
-import { GetGroupPrivilegeQuery } from '#shared/Chat/GetGroupPrivilege';
+import { GetGroupPrivilegeQuery } from '#shared/Groups/GetGroupPrivilege';
 import { ChatPrivileges } from '#shared/Enums/ChatPrivileges';
 import { IGroupKeyRepository } from '#electron/Application/Contracts/Repositories/IGroupKeyRepository';
 import { IGroupRepository } from '#electron/Application/Contracts/Repositories/IGroupRepository';

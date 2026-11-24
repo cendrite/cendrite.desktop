@@ -1,8 +1,8 @@
 import { Result } from '#shared/Result/Result';
-import { RenameGroupCommand } from '#shared/Chat/RenameGroup';
+import { RenameGroupCommand } from '#shared/Groups/RenameGroup';
 import { IPump } from '#electron/Application/Contracts/Services/IPump';
 import { Handler } from '#electron/Application/Mediator/Handler';
-import { IGroupService } from '#electron/Application/Services/GroupService';
+import { IGroupService } from '#electron/Application/Services/Group/GroupService';
 
 export class RenameGroupCommandHandler implements Handler<RenameGroupCommand> {
     constructor(
