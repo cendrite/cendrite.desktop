@@ -15,15 +15,32 @@ export function useChatSettings() {
     const { homeDispatch } = useHomePage();
     const { notificationDispatch } = useNotifications();
 
-    const deleteChat = useCallback(
-        async (chat: ChatViewModel) => {
-            await chatService.deleteChat(chat.id);
+    const removeChat = useCallback(
+        (chat: ChatViewModel) => {
             chatDispatch({ type: ChatActionType.RemoveChat, payload: chat });
             chatDispatch({ type: ChatActionType.ClearActiveChat });
             homeDispatch({ type: HomePageActionType.Clear });
             notificationDispatch({ type: NotificationActionType.RemoveChat, payload: { chatId: chat.id } });
         },
-        [chatService, chatDispatch, homeDispatch, notificationDispatch],
+        [chatDispatch, homeDispatch, notificationDispatch],
+    );
+
+    const deleteChat = useCallback(
+        async (chat: ChatViewModel) => {
+            await chatService.deleteChat(chat.id);
+            removeChat(chat);
+        },
+        [chatService, removeChat],
+    );
+
+    const leaveGroup = useCallback(
+        async (chat: ChatViewModel, successorTag: string | null): Promise<string | null> => {
+            const leaveError = await chatService.leaveGroup(chat.id, successorTag);
+            if (!leaveError) removeChat(chat);
+
+            return leaveError;
+        },
+        [chatService, removeChat],
     );
 
     const muteChat = useCallback((_chatId: string, _duration: number) => {
@@ -38,5 +55,5 @@ export function useChatSettings() {
         // Implementation for setting message TTL
     }, []);
 
-    return { deleteChat, muteChat, archiveChat, setMessageTtl };
+    return { deleteChat, leaveGroup, muteChat, archiveChat, setMessageTtl };
 }

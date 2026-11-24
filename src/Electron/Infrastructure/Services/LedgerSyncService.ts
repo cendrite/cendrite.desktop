@@ -86,7 +86,7 @@ export class LedgerSyncService implements ILedgerSyncService {
         const { userTag } = await this.userRepository.get(true);
 
         if (trusted && replayed.state.removed.has(userTag)) {
-            await this.wipeGroup(group);
+            await this.wipeGroup(groupId);
             return;
         }
 
@@ -120,8 +120,7 @@ export class LedgerSyncService implements ILedgerSyncService {
         }
     }
 
-    private async wipeGroup(group: Group): Promise<void> {
-        const groupId = group.groupId;
+    public async wipeGroup(groupId: string): Promise<void> {
         const mediaIds = await this.chatStore.getMediaIds(groupId);
 
         await Promise.allSettled(mediaIds.map((mediaId) => this.mediaStore.delete(mediaId)));

@@ -7,6 +7,7 @@ import { ChatPrivileges } from '@/Shared/Enums/ChatPrivileges';
 import AddMemberModal from '../Modals/AddMemberModal.tsx';
 import RenameGroupModal from '../Modals/RenameGroupModal.tsx';
 import ManageMembersModal from '../Modals/ManageMembersModal.tsx';
+import LeaveGroupModal from '../Modals/LeaveGroupModal.tsx';
 import { DotsThreeIcon } from '@phosphor-icons/react';
 
 interface ChatSettingsMenu {
@@ -22,6 +23,7 @@ const ChatSettingsMenu: React.FC<ChatSettingsMenu> = ({ chat }) => {
     const [addingMember, setAddingMember] = useState(false);
     const [renaming, setRenaming] = useState(false);
     const [managingMembers, setManagingMembers] = useState(false);
+    const [leaving, setLeaving] = useState(false);
 
     return (
         <>
@@ -138,10 +140,11 @@ const ChatSettingsMenu: React.FC<ChatSettingsMenu> = ({ chat }) => {
                                                 className={`${menuButtonClass} ${focus ? 'bg-danger/20' : ''} text-danger-fg hover:text-danger-fg-hover`}
                                                 onClick={async () => {
                                                     close();
-                                                    await deleteChat(chat);
+                                                    if (chat.isGroup) setLeaving(true);
+                                                    else await deleteChat(chat);
                                                 }}
                                             >
-                                                Delete chat
+                                                {chat.isGroup ? 'Leave group' : 'Delete chat'}
                                             </button>
                                         )}
                                     </MenuItem>
@@ -155,6 +158,7 @@ const ChatSettingsMenu: React.FC<ChatSettingsMenu> = ({ chat }) => {
             <AddMemberModal chat={chat} isOpen={addingMember} onClose={() => setAddingMember(false)} />
             <RenameGroupModal chat={chat} isOpen={renaming} onClose={() => setRenaming(false)} />
             <ManageMembersModal chat={chat} privilege={privilege} isOpen={managingMembers} onClose={() => setManagingMembers(false)} />
+            <LeaveGroupModal chat={chat} privilege={privilege} isOpen={leaving} onClose={() => setLeaving(false)} />
         </>
     );
 };

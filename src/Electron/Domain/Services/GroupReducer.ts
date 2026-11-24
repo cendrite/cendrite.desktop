@@ -58,8 +58,6 @@ export function rejectReasonFor(
             return requireAdmin(author);
 
         case LedgerOperationType.MemberRemoved: {
-            if (operation.userTag === author.userTag) return null;
-
             const target = state.members.get(operation.userTag);
             if (!target) return 'member is not in the group';
             if (author.privilege <= target.privilege) return 'author does not outrank the target';
@@ -85,6 +83,14 @@ export function rejectReasonFor(
 
         case LedgerOperationType.DeviceLeft:
             return operation.writeKeyPublic === context.authorKey ? null : 'a device may only remove its own key';
+
+        case LedgerOperationType.MemberLeft: {
+            if (operation.writeKeyPublic !== context.authorKey) return 'a member may only leave with their own key';
+
+            const others = [...state.members.values()].filter((member) => member.userTag !== author.userTag);
+            const soleOwner = author.privilege === ChatPrivileges.Owner && !others.some((member) => member.privilege === ChatPrivileges.Owner);
+            return soleOwner && others.length > 0 ? 'the only owner must hand over before leaving' : null;
+        }
     }
 }
 
@@ -161,6 +167,11 @@ export function applyOperation(state: GroupState, operation: LedgerOperation, co
             }
             break;
         }
+
+        case LedgerOperationType.MemberLeft:
+            state.members.delete(operation.authorTag);
+            state.removed.add(operation.authorTag);
+            break;
     }
 }
 
@@ -201,6 +212,7 @@ export function keyChangesFor(state: GroupState, operation: LedgerOperation): Ke
             return { ...NO_KEY_CHANGES, added: [operation.writeKeyPublic], removed: [operation.inviteKeyPublic] };
 
         case LedgerOperationType.DeviceLeft:
+        case LedgerOperationType.MemberLeft:
             return { ...NO_KEY_CHANGES, removed: [operation.writeKeyPublic] };
 
         default:
