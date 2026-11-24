@@ -21,6 +21,7 @@ import {
     LedgerOperation,
     DeviceLeftOperation,
     MemberAddedOperation,
+    MemberLeftOperation,
     MemberRemovedOperation,
     PrivilegeChangedOperation,
     WriteKeyRegisteredOperation,
@@ -1051,5 +1052,83 @@ describe('a device leaving', () => {
 
         expect(result.rejected).toEqual([{ version: 4, reason: 'a device may only remove its own key' }]);
         expect(result.state.members.get('bob')!.inviteKeys).toEqual([other]);
+    });
+});
+
+describe('a member leaving', () => {
+    function joined(secondInvite: string | null = null) {
+        const alice = new Member('alice', 'Alice');
+        const bob = new Member('bob', 'Bob');
+        const next = generateWriteKeyPair();
+        const nextPublic = next.publicKey.toString('base64');
+        const role = roleFor(ChatPrivileges.Member);
+        const inviteKeys = [bob.writeKeyPublic, ...(secondInvite ? [secondInvite] : [])];
+        const added = new MemberAddedOperation(
+            alice.userTag,
+            new GroupMemberRef(bob.userTag, bob.displayName, ChatPrivileges.Member, null, [], inviteKeys, ['bob-device', 'bob-phone']),
+        );
+        const builder = new LogBuilder()
+            .add(alice, created(alice), createdKeys(alice))
+            .add(alice, added, { invitesAdded: inviteKeys.map((publicKey) => ({ publicKey, role })) })
+            .add(bob, new WriteKeyRegisteredOperation(bob.userTag, bob.writeKeyPublic, nextPublic), {
+                keysAdded: [nextPublic],
+                keysRemoved: [bob.writeKeyPublic],
+            });
+
+        return { bob, next, nextPublic, builder };
+    }
+
+    test('removes the member with their own key', async () => {
+        const { bob, next, nextPublic, builder } = joined();
+        const events = builder
+            .add(bob, new MemberLeftOperation(bob.userTag, nextPublic), { keysRemoved: [nextPublic], outerKey: next })
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected).toEqual([]);
+        expect(result.state.members.has('bob')).toBe(false);
+        expect(result.state.removed.has('bob')).toBe(true);
+    });
+
+    test('removes the member while another of their keys is left', async () => {
+        const other = generateWriteKeyPair().publicKey.toString('base64');
+        const { bob, next, nextPublic, builder } = joined(other);
+        const events = builder
+            .add(bob, new MemberLeftOperation(bob.userTag, nextPublic), { keysRemoved: [nextPublic], outerKey: next })
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected).toEqual([]);
+        expect(result.state.members.has('bob')).toBe(false);
+        expect(result.state.removed.has('bob')).toBe(true);
+    });
+
+    test('rejects a member leaving with a key that is not the signing key', async () => {
+        const other = generateWriteKeyPair().publicKey.toString('base64');
+        const { bob, next, builder } = joined(other);
+        const events = builder
+            .add(bob, new MemberLeftOperation(bob.userTag, other), { keysRemoved: [other], outerKey: next })
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected).toEqual([{ version: 4, reason: 'a member may only leave with their own key' }]);
+        expect(result.state.members.has('bob')).toBe(true);
+    });
+
+    test('rejects a member leaving with an invite key', async () => {
+        const other = generateWriteKeyPair();
+        const otherPublic = other.publicKey.toString('base64');
+        const { bob, builder } = joined(otherPublic);
+        const events = builder
+            .add(bob, new MemberLeftOperation(bob.userTag, otherPublic), { keysRemoved: [otherPublic], outerKey: other })
+            .build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected).toEqual([{ version: 4, reason: 'an invite key may only register a write key' }]);
+        expect(result.state.members.has('bob')).toBe(true);
     });
 });

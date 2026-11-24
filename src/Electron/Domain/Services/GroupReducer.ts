@@ -85,6 +85,9 @@ export function rejectReasonFor(
 
         case LedgerOperationType.DeviceLeft:
             return operation.writeKeyPublic === context.authorKey ? null : 'a device may only remove its own key';
+
+        case LedgerOperationType.MemberLeft:
+            return operation.writeKeyPublic === context.authorKey ? null : 'a member may only leave with their own key';
     }
 }
 
@@ -161,6 +164,11 @@ export function applyOperation(state: GroupState, operation: LedgerOperation, co
             }
             break;
         }
+
+        case LedgerOperationType.MemberLeft:
+            state.members.delete(operation.authorTag);
+            state.removed.add(operation.authorTag);
+            break;
     }
 }
 
@@ -201,6 +209,7 @@ export function keyChangesFor(state: GroupState, operation: LedgerOperation): Ke
             return { ...NO_KEY_CHANGES, added: [operation.writeKeyPublic], removed: [operation.inviteKeyPublic] };
 
         case LedgerOperationType.DeviceLeft:
+        case LedgerOperationType.MemberLeft:
             return { ...NO_KEY_CHANGES, removed: [operation.writeKeyPublic] };
 
         default:

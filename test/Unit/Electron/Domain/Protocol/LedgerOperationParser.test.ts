@@ -76,6 +76,18 @@ describe('parseLedgerOperation', () => {
         expect(parseLedgerOperation(json)).toBeNull();
     });
 
+    it('parses a member leaving', () => {
+        const json = JSON.stringify({ ...base, type: LedgerOperationType.MemberLeft, writeKeyPublic: 'a2V5' });
+
+        expect(parseLedgerOperation(json)?.type).toBe(LedgerOperationType.MemberLeft);
+    });
+
+    it('rejects a member leaving without its key', () => {
+        const json = JSON.stringify({ ...base, type: LedgerOperationType.MemberLeft });
+
+        expect(parseLedgerOperation(json)).toBeNull();
+    });
+
     it('rejects an unknown operation type', () => {
         expect(parseLedgerOperation(JSON.stringify({ ...base, type: 99 }))).toBeNull();
     });

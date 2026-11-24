@@ -501,6 +501,8 @@ function changeStatus(state: GroupState, operation: LedgerOperation): 'pending' 
         }
         case LedgerOperationType.MemberRemoved:
             return state.members.has(operation.userTag) ? 'pending' : 'applied';
+        case LedgerOperationType.MemberLeft:
+            return state.members.has(operation.authorTag) ? 'pending' : 'applied';
         case LedgerOperationType.PrivilegeChanged: {
             const member = state.members.get(operation.userTag);
             if (!member) return 'conflict';

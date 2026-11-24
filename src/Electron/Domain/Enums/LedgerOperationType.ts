@@ -7,4 +7,5 @@ export enum LedgerOperationType {
     WriteKeyRegistered = 5,
     DeviceListPublished = 6,
     DeviceLeft = 7,
+    MemberLeft = 8,
 }

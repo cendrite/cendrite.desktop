@@ -124,6 +124,18 @@ export class DeviceLeftOperation extends LedgerOperationBase {
     }
 }
 
+export class MemberLeftOperation extends LedgerOperationBase {
+    readonly type = LedgerOperationType.MemberLeft;
+
+    constructor(
+        authorTag: string,
+        public readonly writeKeyPublic: string,
+        at?: number,
+    ) {
+        super(authorTag, at);
+    }
+}
+
 export type LedgerOperation =
     | GroupCreatedOperation
     | MemberAddedOperation
@@ -132,7 +144,8 @@ export type LedgerOperation =
     | SettingsChangedOperation
     | DeviceListPublishedOperation
     | WriteKeyRegisteredOperation
-    | DeviceLeftOperation;
+    | DeviceLeftOperation
+    | MemberLeftOperation;
 
 /**
  * The operation is kept as the exact bytes that were signed, so a receiver verifies what it decrypted
