@@ -88,6 +88,12 @@ describe('parseLedgerOperation', () => {
         expect(parseLedgerOperation(json)).toBeNull();
     });
 
+    it('parses a group close', () => {
+        const json = JSON.stringify({ ...base, type: LedgerOperationType.GroupClosed });
+
+        expect(parseLedgerOperation(json)?.type).toBe(LedgerOperationType.GroupClosed);
+    });
+
     it('rejects an unknown operation type', () => {
         expect(parseLedgerOperation(JSON.stringify({ ...base, type: 99 }))).toBeNull();
     });

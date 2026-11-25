@@ -14,7 +14,7 @@ import { ChatMember } from '#electron/Domain/Entities/ChatMember';
 import { LedgerOperationType } from '#electron/Domain/Enums/LedgerOperationType';
 import { keyChangesFor, rejectReasonFor } from '#electron/Domain/Services/GroupReducer';
 import { GroupState } from '#electron/Domain/Projections/GroupState';
-import { GroupCreatedOperation, GroupMemberRef, LedgerOperation, MemberAddedOperation, MemberLeftOperation, MemberRemovedOperation, PrivilegeChangedOperation, SettingsChangedOperation } from '#electron/Domain/Protocol/LedgerOperation';
+import { GroupClosedOperation, GroupCreatedOperation, GroupMemberRef, LedgerOperation, MemberAddedOperation, MemberLeftOperation, MemberRemovedOperation, PrivilegeChangedOperation, SettingsChangedOperation } from '#electron/Domain/Protocol/LedgerOperation';
 import { generateEpochKey, generateWriteKeyPair } from '#electron/Infrastructure/Crypto/LedgerCodec';
 import { Envelope, GroupStrapPayload, GroupUpdatedPayload, Payload } from '#electron/Domain/Protocol/Payload';
 import { IOutboxRepository } from '#electron/Infrastructure/Interfaces/IOutboxRepository';
@@ -38,6 +38,7 @@ export interface IGroupService {
     changeMemberPrivilege(groupId: string, userTag: string, privilege: ChatPrivileges): Promise<Result>;
     removeMember(groupId: string, userTag: string): Promise<Result>;
     leaveGroup(groupId: string, successorTag: string | null): Promise<Result>;
+    closeGroup(groupId: string): Promise<Result>;
     deliverChange(change: GroupChangeEvent): Promise<boolean>;
 }
 
@@ -344,31 +345,19 @@ export class GroupService implements IGroupService {
         const writeKey = await this.groupKeyRepository.getWriteKey(groupId);
         if (!writeKey || writeKey.isInvite) return refused('This device cannot change the group yet');
 
-        const { userTag } = await this.userRepository.get(true);
-
         if (group.lifecycle === GroupLifecycle.Draft) {
-            const chat = await this.chatStore.getChatWithMembers(groupId);
-            if (!group.pendingStart || chat.members.length === 0) {
-                await this.ledgerSyncService.wipeGroup(groupId);
-                return Result.success();
-            }
-
-            if (!successorTag) return refused('Choose the new owner before leaving the group');
-            if (!chat.members.some((member) => member.userTag === successorTag)) return refused('This person is not in the group');
-
-            return this.queueLeave(groupId, userTag, writeKey.publicKey, successorTag);
+            await this.ledgerSyncService.wipeGroup(groupId);
+            return Result.success();
         }
 
+        const { userTag } = await this.userRepository.get(true);
         const memberStateResult = await this.adminState(groupId, userTag, 'You are not in this group', ChatPrivileges.Member);
         if (!memberStateResult.success) return memberStateResult;
 
         const state = memberStateResult.data;
         const others = [...state.members.values()].filter((member) => member.userTag !== userTag);
 
-        if (others.length === 0) {
-            await this.ledgerSyncService.wipeGroup(groupId);
-            return Result.success();
-        }
+        if (others.length === 0) return this.queueClose(groupId, userTag);
 
         const soleOwner = state.members.get(userTag)!.privilege === ChatPrivileges.Owner && !others.some((member) => member.privilege === ChatPrivileges.Owner);
         if (!soleOwner) return this.queueLeave(groupId, userTag, writeKey.publicKey, null);
@@ -377,6 +366,32 @@ export class GroupService implements IGroupService {
         if (!others.some((member) => member.userTag === successorTag)) return refused('This person is not in the group');
 
         return this.queueLeave(groupId, userTag, writeKey.publicKey, successorTag);
+    }
+
+    public async closeGroup(groupId: string): Promise<Result> {
+        const group = await this.groupRepository.get(groupId);
+        if (group?.lifecycle !== GroupLifecycle.Draft && group?.lifecycle !== GroupLifecycle.Active) return refused('This group cannot be changed');
+
+        const writeKey = await this.groupKeyRepository.getWriteKey(groupId);
+        if (!writeKey || writeKey.isInvite) return refused('This device cannot change the group yet');
+
+        if (group.lifecycle === GroupLifecycle.Draft) {
+            await this.ledgerSyncService.wipeGroup(groupId);
+            return Result.success();
+        }
+
+        const { userTag } = await this.userRepository.get(true);
+        const adminStateResult = await this.adminState(groupId, userTag, 'Only an owner or admin can delete the group');
+        if (!adminStateResult.success) return adminStateResult;
+
+        return this.queueClose(groupId, userTag);
+    }
+
+    private async queueClose(groupId: string, userTag: string): Promise<Result> {
+        const operation = new GroupClosedOperation(userTag);
+        await this.eventRepository.appendEvent(new GroupChangeEvent(uuid().toString(), groupId, operation, {}, new Date()));
+
+        return Result.success();
     }
 
     private async queueLeave(groupId: string, userTag: string, writeKeyPublic: Buffer, successorTag: string | null): Promise<Result> {
@@ -402,7 +417,8 @@ export class GroupService implements IGroupService {
 
         let state = syncResult.data.state;
         const status = changeStatus(state, change.operation);
-        const leaving = change.operation.type === LedgerOperationType.MemberLeft;
+        const closing = change.operation.type === LedgerOperationType.GroupClosed;
+        const leaving = closing || change.operation.type === LedgerOperationType.MemberLeft;
 
         if (status === 'conflict' || (leaving && status === 'applied')) {
             await this.eventRepository.deleteEvent(change.id);
@@ -418,7 +434,9 @@ export class GroupService implements IGroupService {
             }
 
             const leaveMessages = leaving ? await this.changeMessages(change, state) : null;
-            const appendResult = await this.ledgerWriter.append(change.groupId, change.operation);
+            const appendResult = closing
+                ? await this.ledgerWriter.archive(change.groupId, change.operation as GroupClosedOperation)
+                : await this.ledgerWriter.append(change.groupId, change.operation);
 
             if (!appendResult.success) {
                 if (appendResult.errorMessage.code !== 'Forbidden') return false;
@@ -580,6 +598,8 @@ function changeStatus(state: GroupState, operation: LedgerOperation): 'pending' 
             return state.members.has(operation.userTag) ? 'pending' : 'applied';
         case LedgerOperationType.MemberLeft:
             return state.members.has(operation.authorTag) ? 'pending' : 'applied';
+        case LedgerOperationType.GroupClosed:
+            return state.members.size > 0 ? 'pending' : 'applied';
         case LedgerOperationType.PrivilegeChanged: {
             const member = state.members.get(operation.userTag);
             if (!member) return 'conflict';

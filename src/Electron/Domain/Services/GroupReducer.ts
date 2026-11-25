@@ -91,6 +91,9 @@ export function rejectReasonFor(
             const soleOwner = author.privilege === ChatPrivileges.Owner && !others.some((member) => member.privilege === ChatPrivileges.Owner);
             return soleOwner && others.length > 0 ? 'the only owner must hand over before leaving' : null;
         }
+
+        case LedgerOperationType.GroupClosed:
+            return requireAdmin(author);
     }
 }
 
@@ -171,6 +174,11 @@ export function applyOperation(state: GroupState, operation: LedgerOperation, co
         case LedgerOperationType.MemberLeft:
             state.members.delete(operation.authorTag);
             state.removed.add(operation.authorTag);
+            break;
+
+        case LedgerOperationType.GroupClosed:
+            for (const userTag of state.members.keys()) state.removed.add(userTag);
+            state.members.clear();
             break;
     }
 }

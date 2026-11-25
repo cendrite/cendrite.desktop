@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle, Radio, RadioGroup } from '@headlessui/react';
 import clsx from 'clsx';
 import { ChatViewModel } from '@/React/Models/ChatViewModel.ts';
 import { useChatSettings } from '@/React/Common/Hooks/ChatSettings.ts';
+import { ChatService } from '@/React/Common/Services/ChatService.ts';
 import { ChatPrivileges } from '@/Shared/Enums/ChatPrivileges';
 import Avatar from '@/React/Common/Components/Avatar/Avatar.tsx';
 import Button from '@/React/Common/Components/Button/Button.tsx';
@@ -16,21 +17,34 @@ interface LeaveGroupModalProps {
 
 const LeaveGroupModal: React.FC<LeaveGroupModalProps> = ({ chat, privilege, isOpen, onClose }) => {
     const { leaveGroup } = useChatSettings();
+    const chatService = useMemo(() => new ChatService(), []);
+    const [draft, setDraft] = useState(false);
     const [successorTag, setSuccessorTag] = useState<string | null>(null);
     const [pending, setPending] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const members = chat.chatMembers;
     const choosingOwner =
+        !draft &&
         privilege === ChatPrivileges.Owner &&
         members.length > 0 &&
         !members.some((member) => member.privilege === ChatPrivileges.Owner);
 
     useEffect(() => {
         if (!isOpen) return;
+        let cancelled = false;
+
         setSuccessorTag(null);
         setError(null);
-    }, [isOpen]);
+        setDraft(false);
+        chatService.isGroupDraft(chat.id).then((isDraft) => {
+            if (!cancelled) setDraft(isDraft);
+        });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [isOpen, chat.id, chatService]);
 
     const close = () => {
         if (!pending) onClose();

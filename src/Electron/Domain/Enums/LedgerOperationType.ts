@@ -8,4 +8,5 @@ export enum LedgerOperationType {
     DeviceListPublished = 6,
     DeviceLeft = 7,
     MemberLeft = 8,
+    GroupClosed = 9,
 }

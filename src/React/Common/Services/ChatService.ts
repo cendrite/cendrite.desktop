@@ -6,6 +6,8 @@ import { RenameGroupCommand } from '@/Shared/Groups/RenameGroup.ts';
 import { ChangeMemberPrivilegeCommand } from '@/Shared/Groups/ChangeMemberPrivilege.ts';
 import { RemoveGroupMemberCommand } from '@/Shared/Groups/RemoveGroupMember.ts';
 import { LeaveGroupCommand } from '@/Shared/Groups/LeaveGroup.ts';
+import { DeleteGroupCommand } from '@/Shared/Groups/DeleteGroup.ts';
+import { IsGroupDraftQuery } from '@/Shared/Groups/IsGroupDraft.ts';
 import { v4 as uuid } from 'uuid';
 import { ChatPrivileges } from '@/Shared/Enums/ChatPrivileges.ts';
 import { ChatMemberViewModel } from '@/React/Models/ChatMemberViewModel.ts';
@@ -125,6 +127,18 @@ export class ChatService {
         const result = await window.electron.sendRequestAsync(new LeaveGroupCommand(groupId, successorTag));
 
         return result.success ? null : result.errorMessage.message;
+    }
+
+    public async deleteGroup(groupId: string): Promise<string | null> {
+        const result = await window.electron.sendRequestAsync(new DeleteGroupCommand(groupId));
+
+        return result.success ? null : result.errorMessage.message;
+    }
+
+    public async isGroupDraft(groupId: string): Promise<boolean> {
+        const result = await window.electron.sendRequestAsync(new IsGroupDraftQuery(groupId));
+
+        return result.success && result.data;
     }
 
     public async initializeChat(user: User, contact: Contact): Promise<ChatViewModel> {
