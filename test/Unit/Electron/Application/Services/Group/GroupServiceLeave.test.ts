@@ -7,7 +7,7 @@ import { LedgerOperationType } from '#electron/Domain/Enums/LedgerOperationType'
 import { GroupChangeEvent } from '#electron/Domain/Events/GroupChangeEvent';
 import { GroupMember } from '#electron/Domain/Projections/GroupMember';
 import { GroupState } from '#electron/Domain/Projections/GroupState';
-import { MemberLeftOperation, PrivilegeChangedOperation } from '#electron/Domain/Protocol/LedgerOperation';
+import { GroupClosedOperation, MemberLeftOperation, PrivilegeChangedOperation } from '#electron/Domain/Protocol/LedgerOperation';
 import { Envelope, Payload, PayloadType } from '#electron/Domain/Protocol/Payload';
 import { ChatPrivileges } from '#shared/Enums/ChatPrivileges';
 import { DeliveryStatus } from '#shared/Enums/DeliveryStatus';
@@ -34,12 +34,11 @@ function setup(group: Group, state = stateWith(ChatPrivileges.Member), options: 
         sync: vi.fn(async () => Result.success<ReplayResult>({ state: current, rejected: [], verified: [], halted: null, stalledAt: null })),
         wipeGroup: vi.fn(async () => undefined),
     };
-    const ledgerWriter = {
-        append: vi.fn(async () => {
-            if (options.afterAppend) current = options.afterAppend;
-            return Result.success();
-        }),
+    const write = async () => {
+        if (options.afterAppend) current = options.afterAppend;
+        return Result.success();
     };
+    const ledgerWriter = { append: vi.fn(write), archive: vi.fn(write) };
     const eventRepository = {
         appendEvent: vi.fn(async (_event: GroupChangeEvent) => undefined),
         deleteEvent: vi.fn(async (_id: string) => undefined),
@@ -77,40 +76,16 @@ const prepared = () => Object.assign(draft(), { pendingStart: { straps: {} } }) 
 const change = () => new GroupChangeEvent('event-1', GROUP_ID, new MemberLeftOperation(ALICE, ALICE_KEY), {}, new Date(1));
 
 describe('leaving a group', () => {
-    test('wipes a draft that was never sent without the ledger', async () => {
-        const { sut, ledgerSyncService, eventRepository } = setup(draft());
-
-        expect((await sut.leaveGroup(GROUP_ID, null)).success).toBe(true);
-
-        expect(ledgerSyncService.wipeGroup).toHaveBeenCalledWith(GROUP_ID);
-        expect(ledgerSyncService.sync).not.toHaveBeenCalled();
-        expect(eventRepository.appendEvent).not.toHaveBeenCalled();
-    });
-
-    test('refuses a prepared draft with other members until a new owner is chosen', async () => {
-        const { sut, ledgerSyncService, eventRepository } = setup(prepared());
-
-        expect((await sut.leaveGroup(GROUP_ID, null)).success).toBe(false);
-
-        expect(ledgerSyncService.wipeGroup).not.toHaveBeenCalled();
-        expect(eventRepository.appendEvent).not.toHaveBeenCalled();
-    });
-
-    test('queues the hand-over and the leave for a prepared draft', async () => {
-        const { sut, eventRepository } = setup(prepared());
+    test.each([
+        ['a draft that was never sent', draft],
+        ['a prepared draft', prepared],
+    ])('wipes %s without a new owner or the ledger', async (_name, group) => {
+        const { sut, ledgerSyncService, eventRepository } = setup(group());
 
         expect((await sut.leaveGroup(GROUP_ID, BOB)).success).toBe(true);
 
-        const types = eventRepository.appendEvent.mock.calls.map(([event]) => event.operation.type);
-        expect(types).toEqual([LedgerOperationType.PrivilegeChanged, LedgerOperationType.MemberLeft]);
-    });
-
-    test('wipes a prepared draft with nobody else in it', async () => {
-        const { sut, ledgerSyncService, eventRepository } = setup(prepared(), undefined, { chatMembers: 0 });
-
-        expect((await sut.leaveGroup(GROUP_ID, null)).success).toBe(true);
-
         expect(ledgerSyncService.wipeGroup).toHaveBeenCalledWith(GROUP_ID);
+        expect(ledgerSyncService.sync).not.toHaveBeenCalled();
         expect(eventRepository.appendEvent).not.toHaveBeenCalled();
     });
 
@@ -161,13 +136,15 @@ describe('leaving a group', () => {
         expect(eventRepository.appendEvent).toHaveBeenCalledOnce();
     });
 
-    test('the last member wipes the group without writing to the ledger', async () => {
+    test('the last member closes the group', async () => {
         const { sut, ledgerSyncService, eventRepository } = setup(active(), stateWith(ChatPrivileges.Owner, null));
 
         expect((await sut.leaveGroup(GROUP_ID, null)).success).toBe(true);
 
-        expect(ledgerSyncService.wipeGroup).toHaveBeenCalledWith(GROUP_ID);
-        expect(eventRepository.appendEvent).not.toHaveBeenCalled();
+        expect(ledgerSyncService.wipeGroup).not.toHaveBeenCalled();
+        const operation = eventRepository.appendEvent.mock.calls[0][0].operation as GroupClosedOperation;
+        expect(operation.type).toBe(LedgerOperationType.GroupClosed);
+        expect(operation.authorTag).toBe(ALICE);
     });
 
     test('refuses while this device only holds an invite key', async () => {
@@ -230,6 +207,83 @@ describe('delivering a leave', () => {
 
         expect(ledgerWriter.append).not.toHaveBeenCalled();
         expect(messageHubHandler.sendMessage).not.toHaveBeenCalled();
+        expect(eventRepository.deleteEvent).toHaveBeenCalledWith('event-1');
+    });
+});
+
+describe('deleting a group', () => {
+    const close = () => new GroupChangeEvent('event-1', GROUP_ID, new GroupClosedOperation(ALICE), {}, new Date(1));
+
+    test.each([
+        ['a draft that was never sent', draft],
+        ['a prepared draft', prepared],
+    ])('wipes %s without the ledger', async (_name, group) => {
+        const { sut, ledgerSyncService, eventRepository } = setup(group());
+
+        expect((await sut.closeGroup(GROUP_ID)).success).toBe(true);
+
+        expect(ledgerSyncService.wipeGroup).toHaveBeenCalledWith(GROUP_ID);
+        expect(eventRepository.appendEvent).not.toHaveBeenCalled();
+    });
+
+    test.each([ChatPrivileges.Admin, ChatPrivileges.Owner])('queues the close for privilege %s', async (privilege) => {
+        const { sut, eventRepository, ledgerWriter } = setup(active(), stateWith(privilege, ChatPrivileges.Member));
+
+        expect((await sut.closeGroup(GROUP_ID)).success).toBe(true);
+
+        expect(eventRepository.appendEvent.mock.calls[0][0].operation.type).toBe(LedgerOperationType.GroupClosed);
+        expect(ledgerWriter.archive).not.toHaveBeenCalled();
+    });
+
+    test('refuses a member', async () => {
+        const { sut, eventRepository } = setup(active(), stateWith(ChatPrivileges.Member));
+
+        expect((await sut.closeGroup(GROUP_ID)).success).toBe(false);
+        expect(eventRepository.appendEvent).not.toHaveBeenCalled();
+    });
+
+    test('refuses while this device only holds an invite key', async () => {
+        const { sut, eventRepository } = setup(active(), stateWith(ChatPrivileges.Owner), { invite: true });
+
+        expect((await sut.closeGroup(GROUP_ID)).success).toBe(false);
+        expect(eventRepository.appendEvent).not.toHaveBeenCalled();
+    });
+
+    test('archives it, tells every member and own device, then syncs', async () => {
+        const { sut, ledgerWriter, ledgerSyncService, encrypted, messageHubHandler, eventRepository } = setup(active(), stateWith(ChatPrivileges.Owner, ChatPrivileges.Member), {
+            afterAppend: stateWith(null, null),
+        });
+
+        expect(await sut.deliverChange(close())).toBe(true);
+
+        expect(ledgerWriter.archive).toHaveBeenCalledOnce();
+        expect(ledgerWriter.append).not.toHaveBeenCalled();
+        expect(encrypted.get('bob-laptop')?.type).toBe(PayloadType.GroupUpdated);
+        expect(encrypted.get('alice-phone')?.type).toBe(PayloadType.GroupUpdated);
+        expect(encrypted.has('alice-laptop')).toBe(false);
+        expect(eventRepository.deleteEvent).toHaveBeenCalledWith('event-1');
+
+        const sent = messageHubHandler.sendMessage.mock.invocationCallOrder[0];
+        const lastSync = ledgerSyncService.sync.mock.invocationCallOrder.at(-1)!;
+        expect(sent).toBeLessThan(lastSync);
+    });
+
+    test('a close already on the ledger completes without writing or sending', async () => {
+        const { sut, ledgerWriter, messageHubHandler, eventRepository } = setup(active(), stateWith(null, null));
+
+        expect(await sut.deliverChange(close())).toBe(true);
+
+        expect(ledgerWriter.archive).not.toHaveBeenCalled();
+        expect(messageHubHandler.sendMessage).not.toHaveBeenCalled();
+        expect(eventRepository.deleteEvent).toHaveBeenCalledWith('event-1');
+    });
+
+    test('drops a close by someone who is no longer an admin', async () => {
+        const { sut, ledgerWriter, eventRepository } = setup(active(), stateWith(ChatPrivileges.Member, ChatPrivileges.Owner));
+
+        expect(await sut.deliverChange(close())).toBe(true);
+
+        expect(ledgerWriter.archive).not.toHaveBeenCalled();
         expect(eventRepository.deleteEvent).toHaveBeenCalledWith('event-1');
     });
 });

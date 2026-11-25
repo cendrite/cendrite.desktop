@@ -43,6 +43,16 @@ export function useChatSettings() {
         [chatService, removeChat],
     );
 
+    const deleteGroup = useCallback(
+        async (chat: ChatViewModel): Promise<string | null> => {
+            const deleteError = await chatService.deleteGroup(chat.id);
+            if (!deleteError) removeChat(chat);
+
+            return deleteError;
+        },
+        [chatService, removeChat],
+    );
+
     const muteChat = useCallback((_chatId: string, _duration: number) => {
         // Implementation for muting a chat
     }, []);
@@ -55,5 +65,5 @@ export function useChatSettings() {
         // Implementation for setting message TTL
     }, []);
 
-    return { deleteChat, leaveGroup, muteChat, archiveChat, setMessageTtl };
+    return { deleteChat, leaveGroup, deleteGroup, muteChat, archiveChat, setMessageTtl };
 }

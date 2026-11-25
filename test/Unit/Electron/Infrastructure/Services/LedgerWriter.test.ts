@@ -27,6 +27,7 @@ import {
     MemberAddedOperation,
     PrivilegeChangedOperation,
     SettingsChangedOperation,
+    GroupClosedOperation,
     WriteKeyRegisteredOperation,
 } from '../../../../../src/Electron/Domain/Protocol/LedgerOperation.js';
 import { LedgerOperationType } from '../../../../../src/Electron/Domain/Enums/LedgerOperationType.js';
@@ -78,6 +79,7 @@ const keyRepository: IGroupKeyRepository = {
 class FakeProvider implements ILedgerProvider {
     public created: { payload: Buffer; writeKey: Buffer; invitesAdded: LedgerKeyGrant[]; signature: Buffer; privateToken: Buffer } | null = null;
     public appends: LedgerAppend[] = [];
+    public archives: LedgerAppend[] = [];
     public conflictsLeft = 0;
     public createConflict = false;
 
@@ -106,7 +108,8 @@ class FakeProvider implements ILedgerProvider {
         return Result.success<void>();
     }
 
-    public async archiveStream() {
+    public async archiveStream(_groupId: string, append: LedgerAppend) {
+        this.archives.push(append);
         return Result.success<void>();
     }
 
@@ -374,6 +377,33 @@ describe('creating a stream', () => {
 
         expect(result.success).toBe(false);
         expect(result.errorMessage?.code).toBe('Conflict');
+    });
+});
+
+describe('archiving', () => {
+    test('writes the close through the archive with no key changes', async () => {
+        const head = Buffer.alloc(32, 0x5a);
+        const sut = new LedgerWriter(
+            provider,
+            keyRepository,
+            groupRepository(new Group(GROUP_ID, 0, 4, head)),
+            syncService(new GroupState(GROUP_ID)),
+            ledgerIdentity,
+            wallet(),
+            tokenManager(),
+        );
+
+        const archiveResult = await sut.archive(GROUP_ID, new GroupClosedOperation('alice'));
+
+        expect(archiveResult.success).toBe(true);
+        expect(provider.appends).toHaveLength(0);
+        expect(provider.archives).toHaveLength(1);
+        expect(provider.archives[0].expectedVersion).toBe(4);
+        expect(provider.archives[0].previousHash).toEqual(head);
+        expect(provider.archives[0].keysAdded).toEqual([]);
+        expect(provider.archives[0].keysRemoved).toEqual([]);
+        expect(provider.archives[0].invitesAdded).toEqual([]);
+        expect(provider.archives[0].rolesChanged).toEqual([]);
     });
 });
 

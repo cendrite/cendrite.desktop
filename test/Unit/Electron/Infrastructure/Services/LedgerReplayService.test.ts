@@ -21,6 +21,7 @@ import {
     LedgerOperation,
     DeviceLeftOperation,
     MemberAddedOperation,
+    GroupClosedOperation,
     MemberLeftOperation,
     MemberRemovedOperation,
     PrivilegeChangedOperation,
@@ -1179,5 +1180,53 @@ describe('the owner leaving', () => {
         expect(result.rejected).toEqual([]);
         expect(result.state.members.has('alice')).toBe(false);
         expect(result.state.members.get('bob')!.privilege).toBe(ChatPrivileges.Owner);
+    });
+});
+
+describe('closing a group', () => {
+    function closable(bobPrivilege: ChatPrivileges) {
+        const alice = new Member('alice', 'Alice');
+        const bob = new Member('bob', 'Bob');
+        const next = generateWriteKeyPair();
+        const nextPublic = next.publicKey.toString('base64');
+        const builder = new LogBuilder()
+            .add(alice, created(alice), createdKeys(alice))
+            .add(alice, memberAdded(alice, bob, bobPrivilege), { invitesAdded: [invite(bob.writeKeyPublic, bobPrivilege)] })
+            .add(bob, new WriteKeyRegisteredOperation(bob.userTag, bob.writeKeyPublic, nextPublic), {
+                keysAdded: [nextPublic],
+                keysRemoved: [bob.writeKeyPublic],
+            });
+        return { alice, bob, next, builder };
+    }
+
+    test('the owner closing removes every member', async () => {
+        const { alice, builder } = closable(ChatPrivileges.Member);
+        const events = builder.add(alice, new GroupClosedOperation(alice.userTag)).build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected).toEqual([]);
+        expect(result.state.members.size).toBe(0);
+        expect([...result.state.removed].sort()).toEqual(['alice', 'bob']);
+    });
+
+    test('an admin may close the group', async () => {
+        const { bob, next, builder } = closable(ChatPrivileges.Admin);
+        const events = builder.add(bob, new GroupClosedOperation(bob.userTag), { outerKey: next }).build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected).toEqual([]);
+        expect(result.state.members.size).toBe(0);
+    });
+
+    test('rejects a member closing the group', async () => {
+        const { bob, next, builder } = closable(ChatPrivileges.Member);
+        const events = builder.add(bob, new GroupClosedOperation(bob.userTag), { outerKey: next }).build();
+
+        const result = await sut().replay(GROUP_ID, events);
+
+        expect(result.rejected).toEqual([{ version: 4, reason: 'author is not an admin' }]);
+        expect(result.state.members.size).toBe(2);
     });
 });

@@ -8,6 +8,7 @@ import AddMemberModal from '../Modals/AddMemberModal.tsx';
 import RenameGroupModal from '../Modals/RenameGroupModal.tsx';
 import ManageMembersModal from '../Modals/ManageMembersModal.tsx';
 import LeaveGroupModal from '../Modals/LeaveGroupModal.tsx';
+import DeleteGroupModal from '../Modals/DeleteGroupModal.tsx';
 import { DotsThreeIcon } from '@phosphor-icons/react';
 
 interface ChatSettingsMenu {
@@ -24,6 +25,7 @@ const ChatSettingsMenu: React.FC<ChatSettingsMenu> = ({ chat }) => {
     const [renaming, setRenaming] = useState(false);
     const [managingMembers, setManagingMembers] = useState(false);
     const [leaving, setLeaving] = useState(false);
+    const [deleting, setDeleting] = useState(false);
 
     return (
         <>
@@ -148,6 +150,22 @@ const ChatSettingsMenu: React.FC<ChatSettingsMenu> = ({ chat }) => {
                                             </button>
                                         )}
                                     </MenuItem>
+
+                                    {chat.isGroup && editable && (
+                                        <MenuItem>
+                                            {({ focus }) => (
+                                                <button
+                                                    className={`${menuButtonClass} ${focus ? 'bg-danger/20' : ''} text-danger-fg hover:text-danger-fg-hover`}
+                                                    onClick={() => {
+                                                        close();
+                                                        setDeleting(true);
+                                                    }}
+                                                >
+                                                    Delete group
+                                                </button>
+                                            )}
+                                        </MenuItem>
+                                    )}
                                 </MenuItems>
                             </Transition>
                         </div>
@@ -159,6 +177,7 @@ const ChatSettingsMenu: React.FC<ChatSettingsMenu> = ({ chat }) => {
             <RenameGroupModal chat={chat} isOpen={renaming} onClose={() => setRenaming(false)} />
             <ManageMembersModal chat={chat} privilege={privilege} isOpen={managingMembers} onClose={() => setManagingMembers(false)} />
             <LeaveGroupModal chat={chat} privilege={privilege} isOpen={leaving} onClose={() => setLeaving(false)} />
+            <DeleteGroupModal chat={chat} isOpen={deleting} onClose={() => setDeleting(false)} />
         </>
     );
 };

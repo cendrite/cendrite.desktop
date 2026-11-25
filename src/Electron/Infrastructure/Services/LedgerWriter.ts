@@ -14,7 +14,7 @@ import { ILedgerSyncService } from '#electron/Application/Contracts/Services/ILe
 import { LEDGER_TOKEN_ORIGIN } from '#electron/Application/Contracts/Services/IBlindTokenService';
 import { IPrivateTokenRepository } from '#electron/Application/Contracts/Repositories/IPrivateTokenRepository';
 import { KeyChanges, KeyGrant } from '#electron/Domain/Protocol/KeyChanges';
-import { DeviceLeftOperation, LedgerOperation } from '#electron/Domain/Protocol/LedgerOperation';
+import { DeviceLeftOperation, GroupClosedOperation, LedgerOperation } from '#electron/Domain/Protocol/LedgerOperation';
 import { GroupState } from '#electron/Domain/Projections/GroupState';
 import { keyChangesFor } from '#electron/Domain/Services/GroupReducer';
 import { buildOperationSigningInput, buildSigningInput, encryptPayload, hashEvent, signOuter } from '../Crypto/LedgerCodec.js';
@@ -68,7 +68,19 @@ export class LedgerWriter implements ILedgerWriter {
         return (await this.alreadyCreated(groupId, sealed.hash)) ? Result.success() : created;
     }
 
-    public async append(groupId: string, operation: LedgerOperation): Promise<Result<void>> {
+    public append(groupId: string, operation: LedgerOperation): Promise<Result<void>> {
+        return this.write(groupId, operation, (append) => this.ledgerProvider.appendEvent(groupId, append));
+    }
+
+    public archive(groupId: string, operation: GroupClosedOperation): Promise<Result<void>> {
+        return this.write(groupId, operation, (append) => this.ledgerProvider.archiveStream(groupId, append));
+    }
+
+    private async write(
+        groupId: string,
+        operation: LedgerOperation,
+        send: (append: LedgerAppend) => Promise<Result<void>>,
+    ): Promise<Result<void>> {
         for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
             const synced = await this.ledgerSyncService.sync(groupId);
             if (!synced.success) return Result.fail(synced.errorMessage);
@@ -90,8 +102,7 @@ export class LedgerWriter implements ILedgerWriter {
 
             const { payload, writeKey, signature } = sealed.data;
 
-            const result = await this.ledgerProvider.appendEvent(
-                groupId,
+            const result = await send(
                 new LedgerAppend(
                     group.version,
                     Buffer.from(group.headHash),

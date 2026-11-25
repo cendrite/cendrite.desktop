@@ -60,6 +60,8 @@ export function parseLedgerOperation(json: string): LedgerOperation | null {
                 : null;
         case LedgerOperationType.MemberLeft:
             return typeof value.writeKeyPublic === 'string' ? (value as unknown as LedgerOperation) : null;
+        case LedgerOperationType.GroupClosed:
+            return value as unknown as LedgerOperation;
         default:
             return null;
     }
